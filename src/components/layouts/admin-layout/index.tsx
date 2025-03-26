@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-const CustomerLayout = () => {
+const AdminLayout = () => {
     return (
         <div>
             {/* Bạn có thể thêm <Navbar /> ở đây */}
@@ -10,4 +10,4 @@ const CustomerLayout = () => {
     );
 };
 
-export default CustomerLayout;
+export default AdminLayout;
