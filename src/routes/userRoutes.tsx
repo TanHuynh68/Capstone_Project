@@ -1,6 +1,6 @@
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
-import { HomePage } from "../pages";
+import { AdminDashboard } from "../pages";
 
 export const userRoutes = [
   {
@@ -9,7 +9,7 @@ export const userRoutes = [
     children: [
       {
         path: USER_ROUTES.HOME_PAGE,
-        element: <HomePage />,
+        element: <AdminDashboard />,
       },
     ],
   },
