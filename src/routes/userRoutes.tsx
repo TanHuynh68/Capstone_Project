@@ -1,20 +1,17 @@
-
 import { createBrowserRouter } from "react-router-dom";
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
 import { HomePage } from "../pages";
 
-export const pubicRoutes = createBrowserRouter([
+export const userRoutes = [
   {
     path: USER_ROUTES.HOME,
-    element: (
-        <CustomerLayout/>
-    ),
+    element: <CustomerLayout />,
     children: [
       {
         path: USER_ROUTES.HOME_PAGE,
-        element: <HomePage/>,
+        element: <HomePage />,
       },
     ],
   },
-]);
+]
