@@ -1,4 +1,3 @@
-import { createBrowserRouter } from "react-router-dom";
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
 import { HomePage } from "../pages";

@@ -1,4 +1,3 @@
-import { createBrowserRouter } from "react-router-dom";
 import { AdminLayout } from "../components/layouts";
 import { ADMIN_ROUTES } from "./path";
 import { AdminDashboard } from "@/pages";

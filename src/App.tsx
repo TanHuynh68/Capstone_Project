@@ -5,15 +5,16 @@ import { PersistGate } from "redux-persist/integration/react";
 import { StateProvider } from "./context/stateProvider";
 import "./index.css";
 import { router } from "./routes";
+import { Toaster } from "sonner";
 
 function App() {
-
   return (
     <>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <StateProvider>
               <RouterProvider router={router} />
+              <Toaster />
             </StateProvider>
           </PersistGate>
         </Provider>

@@ -1,7 +1,8 @@
-import { message } from "antd";
+
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/slices";
+import { toast } from "sonner";
 
 
 const axiosInstance = axios.create({
@@ -33,12 +34,12 @@ axiosInstance.interceptors.response.use(
       console.log(error.response);
       if (data.message === null && data.errors && data.errors.length > 0) {
         data.errors.forEach((error: { field: string, message: string }) => {
-          message.error(`${error.field}: ${error.message}`);
+          toast.error(`${error.field}: ${error.message}`);
         });
       } else {
         if (!isTokenExpired) {
           isTokenExpired = true
-          message.error(data.message);
+          toast.error(data.message);
           setTimeout(() => {
             window.location.href = '/'
             localStorage.clear();
