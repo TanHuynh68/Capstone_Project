@@ -5,6 +5,6 @@ export enum USER_ROUTES {
 }
 
 export enum ADMIN_ROUTES {
-    ADMIN = "admin", // Đảm bảo có dấu "/" ở đầu
-    ADMIN_DASHBOARD = "dashboard",
+    ADMIN = "/", // Đảm bảo có dấu "/" ở đầu
+    ADMIN_DASHBOARD = "",
 }
