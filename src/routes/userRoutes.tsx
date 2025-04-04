@@ -2,7 +2,7 @@
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
 import { ChangePasswordPage, CustomerEditProfile, CustomerProfilePage, HomePage } from "../pages";
-
+//
 export const userRoutes = [
   {
     path: USER_ROUTES.HOME,
