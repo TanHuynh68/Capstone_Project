@@ -11,11 +11,3 @@ export const formatCreatedAt = (response: any) => {
     return sortedData;
 }
 
-// Function to calculate expected delivery date
-export function calculateExpectedDeliveryDate(dateOfPregnancyStart: string): string {
-    const startDate = moment(dateOfPregnancyStart, 'YYYY-MM-DD');
-    if (!startDate.isValid()) {
-        throw new Error('Invalid pregnancy start date');
-    }
-    return startDate.add(280, 'days').format('YYYY-MM-DD');
-}
