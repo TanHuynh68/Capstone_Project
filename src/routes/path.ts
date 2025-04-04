@@ -3,6 +3,7 @@ export enum USER_ROUTES {
     HOME_PAGE = "", // Đảm bảo rằng đường dẫn này không gây xung đột
     AUTH = "/auth",
     CHANGE_PASSWORD = "change-password",
+    PROFILE = "profile",
 }
 
 export enum AUTH_ROUTES {
