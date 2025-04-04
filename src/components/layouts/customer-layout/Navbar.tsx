@@ -1,33 +1,34 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, ShoppingCart, Search } from 'lucide-react';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, ChevronDown, User, ShoppingCart, Search } from "lucide-react";
 
-import { Button } from '../../ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet';
+import { Button } from "../../ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuPortal,
-} from '../../ui/dropdown-menu';
-import { Input } from '../../ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
+} from "../../ui/dropdown-menu";
+import { Input } from "../../ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // Navigation items
 const navItems = [
-  { title: 'Home', href: '/' },
-  { title: 'Products', href: '/products' },
-  { title: 'About', href: '/about' },
-  { title: 'Contact', href: '/contact' },
+  { title: "Home", href: "/" },
+  { title: "Products", href: "/products" },
+  { title: "About", href: "/about" },
+  { title: "Contact", href: "/contact" },
 ];
 
 // Product categories for dropdown
 const categories = [
-  { title: 'Electronics', href: '/products/electronics' },
-  { title: 'Clothing', href: '/products/clothing' },
-  { title: 'Home & Garden', href: '/products/home-garden' },
-  { title: 'Sports', href: '/products/sports' },
+  { title: "Electronics", href: "/products/electronics" },
+  { title: "Clothing", href: "/products/clothing" },
+  { title: "Home & Garden", href: "/products/home-garden" },
+  { title: "Sports", href: "/products/sports" },
 ];
 
 export function Navbar() {
@@ -48,7 +49,10 @@ export function Navbar() {
       <div className="relative">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center justify-start px-0 font-medium">
+            <Button
+              variant="ghost"
+              className="flex items-center justify-start px-0 font-medium"
+            >
               Products <ChevronDown className="ml-1 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -95,7 +99,10 @@ export function Navbar() {
           <div className="relative">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center text-sm font-medium">
+                <Button
+                  variant="ghost"
+                  className="flex items-center text-sm font-medium"
+                >
                   Products <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -143,8 +150,15 @@ export function Navbar() {
             </Button>
           )}
 
+          <ThemeToggle />
+
           {/* Cart */}
-          <Button variant="ghost" size="icon" asChild className="hidden md:flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="hidden md:flex"
+          >
             <Link to="/cart">
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Cart</span>
@@ -154,7 +168,7 @@ export function Navbar() {
           {/* User Menu */}
           <div className="relative">
             <DropdownMenu>
-              <DropdownMenuTrigger  className="hidden md:flex">
+              <DropdownMenuTrigger className="hidden md:flex">
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
@@ -164,18 +178,26 @@ export function Navbar() {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent  className="w-56 z-50">
+              <DropdownMenuContent className="w-56 z-50">
                 <DropdownMenuItem>
-                  <Link to="/profile" className="w-full">Profile</Link>
+                  <Link to="/profile" className="w-full">
+                    Profile
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to="/orders" className="w-full">Orders</Link>
+                  <Link to="/orders" className="w-full">
+                    Orders
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to="/settings" className="w-full">Settings</Link>
+                  <Link to="/settings" className="w-full">
+                    Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to="/logout" className="w-full">Logout</Link>
+                  <Link to="/logout" className="w-full">
+                    Logout
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -193,8 +215,6 @@ export function Navbar() {
               <MobileMenu />
             </SheetContent>
           </Sheet>
-
-        
         </div>
       </div>
     </header>

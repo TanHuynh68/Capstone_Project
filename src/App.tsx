@@ -6,10 +6,12 @@ import { StateProvider } from "./context/stateProvider";
 import "./index.css";
 import { router } from "./routes";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   return (
     <>
+      <ThemeProvider defaultTheme="light" storageKey="theme">
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <StateProvider>
@@ -18,6 +20,7 @@ function App() {
             </StateProvider>
           </PersistGate>
         </Provider>
+      </ThemeProvider>
     </>
   );
 }
