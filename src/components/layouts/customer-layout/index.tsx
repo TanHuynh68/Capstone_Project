@@ -1,18 +1,17 @@
 import { Navbar } from "@/components/layouts/customer-layout/Navbar";
 import { Outlet } from "react-router-dom";
+import { Footer } from "./Footer";
 
 const CustomerLayout = () => {
     return (
         <div>
-            <div>
-                <Navbar />
-            </div>
+            <Navbar />
             <div className="mx-20">
-                <div className="container mx-auto">
-                    <Outlet /> {/* Quan trọng: Hiển thị component con */}
-                    {/* Bạn có thể thêm <Footer /> ở đây */}
+                <div className="container mx-auto py-10">
+                    <Outlet />
                 </div>
             </div>
+            <Footer/>
         </div>
     );
 };
