@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import LoginImage from "../atoms/LoginImage"
+import { PATH } from "@/routes/path"
 
 export function LoginForm({
   className,
@@ -34,7 +35,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
-                    href="#"
+                    href={PATH.FORGOT_PASSWORD}
                     className="ml-auto text-sm underline-offset-2 hover:underline"
                   >
                     Forgot your password?
@@ -81,7 +82,7 @@ export function LoginForm({
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
+                <a href="/auth/register" className="underline underline-offset-4">
                   Sign up
                 </a>
               </div>
