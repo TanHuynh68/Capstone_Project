@@ -4,7 +4,13 @@ export enum USER_ROUTES {
     AUTH = "/auth",
 }
 
+export enum AUTH_ROUTES {
+    AUTH = "/auth",
+    LOGIN_IN = "login",
+    REGISTER = "register",
+}
+
 export enum ADMIN_ROUTES {
-    ADMIN = "/", // Đảm bảo có dấu "/" ở đầu
-    ADMIN_DASHBOARD = "",
+    ADMIN = "/admin", // Đảm bảo có dấu "/" ở đầu
+    ADMIN_DASHBOARD = "dashboard",
 }
