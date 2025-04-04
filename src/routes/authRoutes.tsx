@@ -1,5 +1,5 @@
 import { AUTH_ROUTES } from "./path";
-import { LoginPage } from "@/pages";
+import { LoginPage, RegisterPage } from "@/pages";
 
 export const authRoutes = [
     {
@@ -8,6 +8,10 @@ export const authRoutes = [
             {
                 path: AUTH_ROUTES.LOGIN_IN,
                 element: <LoginPage />,
+            },
+            {
+                path: AUTH_ROUTES.REGISTER,
+                element: <RegisterPage />,
             },
         ],
     },
