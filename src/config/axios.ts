@@ -3,9 +3,10 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/slices";
 import { toast } from "sonner";
+import ENV from "./env";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: ENV.BASE_URL,
 });
 
 let isTokenExpired = false;
