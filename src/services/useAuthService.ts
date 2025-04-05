@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
+import { API_ROUTES, HTTP_METHOD, ROLE } from "@/constants";
 
 const useAuthService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -29,21 +30,14 @@ const useAuthService = () => {
   const login = useCallback(
     async (values: any) => {
       try {
-        const response = await callApi("post", "auth/login", values);
+        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
         console.log("login: ", response)
-
         localStorage.setItem("token", response?.token);
         localStorage.setItem('USER', JSON.stringify(response));
         console.log(localStorage.getItem('USER'));
         toast.success("Đăng nhập thành công");
         switch (response?.role) {
-          case "doctor":
-            router('/doctor')
-            break;
-          case "nurse":
-            router('/nurse')
-            break;
-          case "admin":
+          case ROLE.ADMIN:
             router('/admin')
             break;
           default:
