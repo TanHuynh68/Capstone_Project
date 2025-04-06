@@ -6,7 +6,8 @@ import { StateProvider } from "./context/stateProvider";
 import "./index.css";
 import { router } from "./routes";
 import { Toaster } from "sonner";
-import { ThemeProvider } from "./components/theme-provider";
+import { ThemeProvider } from "./components/themes/theme-provider";
+import { InitUserFromToken } from "./services/InitUserFromToken";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <StateProvider>
               <RouterProvider router={router} />
               <Toaster />
+              <InitUserFromToken />
             </StateProvider>
           </PersistGate>
         </Provider>

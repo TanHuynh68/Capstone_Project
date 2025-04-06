@@ -1,9 +1,8 @@
-
 import axios from "axios";
-import { useDispatch } from "react-redux";
-import { logout } from "../store/slices";
 import { toast } from "sonner";
 import ENV from "./env";
+import { store } from "@/redux/store";
+import { logout } from "@/redux/userSlice";
 
 const axiosInstance = axios.create({
   baseURL: ENV.BASE_URL,
@@ -11,45 +10,49 @@ const axiosInstance = axios.create({
 
 let isTokenExpired = false;
 
+// ✅ Request Interceptor - Add token
 axiosInstance.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
+  (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  function (error) {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
+// ✅ Response Interceptor - Handle errors globally
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response) {
       const { data } = error.response;
-      const dispatch = useDispatch();
-      console.log(error.response);
-      if (data.message === null && data.errors && data.errors.length > 0) {
-        data.errors.forEach((error: { field: string, message: string }) => {
-          toast.error(`${error.field}: ${error.message}`);
+
+      // Case: Multiple validation errors
+      if (!data.message && data.errors && data.errors.length > 0) {
+        data.errors.forEach((err: { field: string; message: string }) => {
+          toast.error(`${err.field}: ${err.message}`);
         });
       } else {
         if (!isTokenExpired) {
-          isTokenExpired = true
-          toast.error(data.message);
+          isTokenExpired = true;
+
+          // Token expired / unauthorized
+          toast.error(data.message || "Something went wrong");
+
           setTimeout(() => {
-            window.location.href = '/'
             localStorage.clear();
+            store.dispatch(logout());
+            window.location.href = "/auth/login"; 
             isTokenExpired = false;
-            dispatch(logout())
           }, 1300);
         }
       }
     }
-  })
+
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;
-

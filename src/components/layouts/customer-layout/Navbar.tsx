@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, User, ShoppingCart, Search } from "lucide-react";
 
 import { Button } from "../../ui/button";
@@ -13,9 +13,13 @@ import {
 } from "../../ui/dropdown-menu";
 import { Input } from "../../ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/themes/ThemeToggle";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/userSlice";
+import { PATH } from "@/routes/path";
 
-// Navigation items
 const navItems = [
   { title: "Home", href: "/" },
   { title: "Products", href: "/products" },
@@ -23,7 +27,6 @@ const navItems = [
   { title: "Contact", href: "/contact" },
 ];
 
-// Product categories for dropdown
 const categories = [
   { title: "Electronics", href: "/products/electronics" },
   { title: "Clothing", href: "/products/clothing" },
@@ -33,8 +36,10 @@ const categories = [
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  // Mobile menu content
+  const userInfo = useSelector((state: RootState) => state.user);
+  const isLoggedIn = !!userInfo;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
@@ -119,9 +124,7 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Actions Group */}
         <div className="flex items-center space-x-2">
-          {/* Search */}
           {isSearchOpen ? (
             <div className="flex items-center">
               <Input
@@ -152,7 +155,6 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {/* Cart */}
           <Button
             variant="ghost"
             size="icon"
@@ -165,45 +167,57 @@ export function Navbar() {
             </Link>
           </Button>
 
-          {/* User Menu */}
-          <div className="relative">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="hidden md:flex">
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 z-50">
-                <DropdownMenuItem>
-                  <Link to="/profile" className="w-full">
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/orders" className="w-full">
-                    Orders
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/settings" className="w-full">
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/logout" className="w-full">
+          {isLoggedIn ? (
+            <div className="relative hidden md:flex">
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 z-50">
+                  <DropdownMenuItem>
+                    <Link to="/profile" className="w-full">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/orders" className="w-full">
+                      Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/settings" className="w-full">
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      dispatch(logout());
+                      navigate("/auth/login");
+                    }}
+                  >
                     Logout
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-2">
+              <Button asChild variant="outline">
+                <Link to={PATH.LOGIN_IN}>Đăng nhập</Link>
+              </Button>
+              <Button asChild>
+                <Link to={PATH.REGISTER}>Đăng ký</Link>
+              </Button>
+            </div>
+          )}
 
-          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
