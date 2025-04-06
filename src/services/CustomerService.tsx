@@ -3,7 +3,7 @@ import { useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
-import { API_ROUTES, HTTP_METHOD } from "@/constants";
+import { API_ROUTES, HTTP_METHOD, MESSAGE } from "@/constants";
 
 const CustomerService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -18,10 +18,10 @@ const CustomerService = () => {
           API_ROUTES.GET_ADDRESSES,
           values
         ); 
-        toast.success("Lấy địa chỉ thành công");    
+        toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);    
         return res;
       } catch (err: any) {
-        toast.error(err?.response?.data || "Lấy địa chỉ thất bại");
+        toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
       }
     },
     [callApi]

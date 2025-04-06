@@ -1,7 +1,6 @@
 import ENV from "@/config/env";
 import axios from "axios";
 
-
 const ghnApi = axios.create({
   baseURL: ENV.GHN_URL,
   headers: {
@@ -43,4 +42,4 @@ export const getAvailableServices = (
     shop_id: shopId,
     from_district: fromDistrict,
     to_district: toDistrict,
-  });
+});

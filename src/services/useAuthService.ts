@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
-import { API_ROUTES, HTTP_METHOD, ROLE } from "@/constants";
+import { API_ROUTES, HTTP_METHOD, MESSAGE, ROLE } from "@/constants";
 import { loginSuccess } from "@/redux/userSlice";
 import { normalizeDecodedUser } from "@/components/utils/jwt";
+import { PATH } from "@/routes/path";
 
 const useAuthService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -19,11 +20,11 @@ const useAuthService = () => {
         ...values,
         avt: "https://api.dicebear.com/7.x/miniavs/svg?seed=1",
       });
-      toast.success("Đăng kí thành công. Vui lòng kiểm tra email!");
-      navigate("/auth/login");
+      toast.success(MESSAGE.REGISTER_SUCCESSFULLY);
+      navigate(PATH.LOGIN_IN);
       return response;
     } catch (e: any) {
-      toast.error(e?.response?.data || "Đăng ký thất bại");
+      toast.error(e?.response?.data ||MESSAGE.REGISTER_FAILED);
     }
   }, [callApi, navigate]);
 
@@ -43,7 +44,7 @@ const useAuthService = () => {
       const user = normalizeDecodedUser(decoded);
       dispatch(loginSuccess(user));
 
-      toast.success("Đăng nhập thành công");
+      toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
       console.log("user.role", user.role);
       switch (user.role) {
         case ROLE.ADMIN:
@@ -56,7 +57,7 @@ const useAuthService = () => {
 
       return res;
     } catch (err: any) {
-      toast.error(err?.response?.data || "Đăng nhập thất bại");
+      toast.error(err?.response?.data || MESSAGE.LOGIN_FAILED);
     }
   }, [callApi, dispatch, navigate]);
 
