@@ -1,5 +1,3 @@
-import { DecodedUserRaw, NormalizedUser } from "@/types/auth";
-
 export function normalizeDecodedUser(decoded: DecodedUserRaw): NormalizedUser {
   return {
     name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],

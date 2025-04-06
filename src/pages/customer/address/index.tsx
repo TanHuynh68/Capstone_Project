@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import CustomerService from "@/services/CustomerService";
 import { getProvinces, getDistricts, getWards } from "@/services/ghnApi";
 
@@ -26,17 +26,19 @@ const GetAddress = () => {
       setProvinceMap(provinceMapping);
 
       // Lấy tất cả district & ward từ các province/district được sử dụng
-      const uniqueProvinceIds = [...new Set(items.map((a) => a.province))];
+      const uniqueProvinceIds = [...new Set(items.map((a: any) => a.province))];
       const districtMapping: Record<number, string> = {};
       const wardMapping: Record<number, string> = {};
 
       for (const provinceId of uniqueProvinceIds) {
-        const districtRes = await getDistricts(provinceId);
+        const id = provinceId as number; // ép kiểu từ unknown => number
+      
+        const districtRes = await getDistricts(id);
         const districts = districtRes.data.data;
         districts.forEach((d: any) => {
           districtMapping[d.DistrictID] = d.DistrictName;
         });
-
+      
         for (const d of districts) {
           const wardRes = await getWards(d.DistrictID);
           const wards = wardRes.data.data;
@@ -44,7 +46,7 @@ const GetAddress = () => {
             wardMapping[w.WardCode] = w.WardName;
           });
         }
-      }
+      }      
 
       setDistrictMap(districtMapping);
       setWardMap(wardMapping);
