@@ -1,18 +1,14 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// import { useDispatch } from "react-redux";
+// import { useNavigate } from "react-router-dom";
 import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
-import { jwtDecode } from "jwt-decode";
-import { API_ROUTES, HTTP_METHOD, ROLE } from "@/constants";
-import { loginSuccess } from "@/redux/userSlice";
-import { DecodedUserRaw } from "@/types/auth";
-import { normalizeDecodedUser } from "@/components/utils/jwt";
+import { API_ROUTES, HTTP_METHOD } from "@/constants";
 
 const CustomerService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
 
 
   const getAddresses = useCallback(

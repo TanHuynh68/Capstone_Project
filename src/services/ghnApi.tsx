@@ -1,11 +1,12 @@
 import ENV from "@/config/env";
 import axios from "axios";
 
+
 const ghnApi = axios.create({
-  baseURL: "https://online-gateway.ghn.vn/shiip/public-api/",
+  baseURL: ENV.GHN_URL,
   headers: {
     "Content-Type": "application/json",
-    token: "fce6015b-0b16-11f0-8509-7a5de70707ed",
+    token: ENV.GHN_TOKEN,
   },
 });
 
