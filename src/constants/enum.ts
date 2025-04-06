@@ -9,10 +9,10 @@ export enum HTTP_METHOD {
 }
 
 export enum ROLE {
-    CUSTOMER = 'CUSTOMER',
-    STAFF = 'STAFF',
-    ADMIN = 'ADMIN',
-    ARTIST = 'ARTIST',
+    CUSTOMER = 'Customer',
+    STAFF = 'Staff',
+    ADMIN = 'Admin',
+    ARTIST = 'Artist',
 }
 
 export enum HTTP_STATUS {
