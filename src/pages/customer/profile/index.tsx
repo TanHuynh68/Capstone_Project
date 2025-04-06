@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import GetAddress from "../address"
 
 const Profile = () => {
   const [user] = useState({
@@ -57,6 +58,7 @@ const Profile = () => {
               </div>
             </div>
           </CardContent>
+          <GetAddress />
           <CardFooter className="flex flex-col gap-2">
             <Button variant="outline" className="w-full" asChild>
               <Link to="/edit-profile" className="flex items-center justify-center">
