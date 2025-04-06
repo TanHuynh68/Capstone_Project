@@ -1,10 +1,12 @@
 export const MESSAGE = {
+    GET_ADDRESS_SUCCESSFULLY: "Lấy địa chỉ thành công.",
+    GET_ADDRESS_FAILED: "Lấy địa chỉ thất bại.",
     CREATE_ADDRESS_SUCCESSFULLY: "Đã tạo địa chỉ thành công.",
     UPDATE_ADDRESS_SUCCESSFULLY: "Đã cập nhật địa chỉ thành công.",
     DELETE_ADDRESS_SUCCESSFULLY: "Đã xóa địa chỉ thành công.",
     LOGIN_SUCCESSFULLY: "Đăng nhập thành công.",
     LOGOUT_SUCCESSFULLY: "Đăng xuất thành công.",
-    REGISTER_SUCCESSFULLY: "Đăng ký thành công.",
+    REGISTER_SUCCESSFULLY: "Đăng kí thành công. Vui lòng kiểm tra email!",
     CHANGE_PASSWORD_SUCCESSFULLY: "Đổi mật khẩu thành công.",
     CREATE_ADDRESS_FAILED: "Tạo địa chỉ thất bại.",
     UPDATE_ADDRESS_FAILED: "Cập nhật địa chỉ thất bại.",
