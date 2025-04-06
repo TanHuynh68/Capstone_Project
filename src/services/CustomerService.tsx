@@ -10,7 +10,6 @@ const CustomerService = () => {
 //   const navigate = useNavigate();
 //   const dispatch = useDispatch();
 
-
   const getAddresses = useCallback(
     async (values: any) => {
       try {
@@ -18,14 +17,8 @@ const CustomerService = () => {
           HTTP_METHOD.GET,
           API_ROUTES.GET_ADDRESSES,
           values
-        );
-        
-
-
-
-        toast.success("Lấy địa chỉ thành công");
-       
-
+        ); 
+        toast.success("Lấy địa chỉ thành công");    
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || "Lấy địa chỉ thất bại");

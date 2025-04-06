@@ -13,7 +13,7 @@ import {
 } from "../../ui/dropdown-menu";
 import { Input } from "../../ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/themes/ThemeToggle";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
