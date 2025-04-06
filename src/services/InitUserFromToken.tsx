@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/userSlice";
 import { jwtDecode } from "jwt-decode";
-import { DecodedUserRaw } from "@/types/auth";
 import { normalizeDecodedUser } from "@/components/utils/jwt";
 
 export function InitUserFromToken(): null {
