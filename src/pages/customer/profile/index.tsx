@@ -87,7 +87,10 @@ const Profile = () => {
 
           {/* Address */}
           <GetAddress addresses={addresses} onUpdated={fetchAddresses} />
-          <CreateAddress onCreated={fetchAddresses} />
+          <CreateAddress
+            onCreated={fetchAddresses}
+            addresses={addresses || []}
+          />
 
           <CardFooter className="flex flex-col gap-2">
             <Button variant="outline" className="w-full" asChild>

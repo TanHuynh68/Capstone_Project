@@ -23,9 +23,10 @@ const HCM_PROVINCE_ID = 202;
 
 type CreateAddressProps = {
   onCreated: () => void;
+  addresses: any[]; // 👈 truyền danh sách địa chỉ hiện tại từ parent
 };
 
-const CreateAddress = ({ onCreated }: CreateAddressProps) => {
+const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
   const { postAddresses } = CustomerService();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,6 +37,8 @@ const CreateAddress = ({ onCreated }: CreateAddressProps) => {
 
   const [districts, setDistricts] = useState<any[]>([]);
   const [wards, setWards] = useState<any[]>([]);
+
+  const maxAddressesReached = addresses.length >= 3;
 
   // Fetch Districts
   useEffect(() => {
@@ -86,7 +89,7 @@ const CreateAddress = ({ onCreated }: CreateAddressProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Thêm địa chỉ</Button>
+        <Button disabled={maxAddressesReached}>Thêm địa chỉ</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
