@@ -19,7 +19,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const [wardMap, setWardMap] = useState<Record<number, string>>({});
   const [isMapping, setIsMapping] = useState(true);
   const [selectedAddress, setSelectedAddress] = useState<any | null>(null); // 👈 address được chọn để sửa
-
+//
   useEffect(() => {
     const fetchMapping = async () => {
       if (addresses.length === 0) {
