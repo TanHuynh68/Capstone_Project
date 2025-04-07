@@ -1,8 +1,8 @@
 import axios from "axios";
 import { toast } from "sonner";
 import ENV from "./env";
-import { store } from "@/redux/store";
 import { logout } from "@/redux/userSlice";
+import { useDispatch } from "react-redux";
 
 const axiosInstance = axios.create({
   baseURL: ENV.BASE_URL,
@@ -22,37 +22,30 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response Interceptor - Handle errors globally
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response) {
       const { data } = error.response;
-
-      // Case: Multiple validation errors
-      if (!data.message && data.errors && data.errors.length > 0) {
-        data.errors.forEach((err: { field: string; message: string }) => {
-          toast.error(`${err.field}: ${err.message}`);
+      const dispatch = useDispatch();
+      console.log(error.response);
+      if (data.message === null && data.errors && data.errors.length > 0) {
+        data.errors.forEach((error: { field: string, message: string }) => {
+          toast.error(`${error.field}: ${error.message}`);
         });
       } else {
         if (!isTokenExpired) {
-          isTokenExpired = true;
-
-          // Token expired / unauthorized
-          toast.error(data.message || "Something went wrong");
-
+          isTokenExpired = true
+          toast.error(data.message);
           setTimeout(() => {
+            window.location.href = '/'
             localStorage.clear();
-            store.dispatch(logout());
-            window.location.href = "/auth/login"; 
             isTokenExpired = false;
+            dispatch(logout())
           }, 1300);
         }
       }
     }
-
-    return Promise.reject(error);
-  }
-);
+  })
 
 export default axiosInstance;

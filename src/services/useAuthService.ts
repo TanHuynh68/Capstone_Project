@@ -24,7 +24,7 @@ const useAuthService = () => {
       navigate(PATH.LOGIN_IN);
       return response;
     } catch (e: any) {
-      toast.error(e?.response?.data ||MESSAGE.REGISTER_FAILED);
+      toast.error(e?.response?.data || MESSAGE.REGISTER_FAILED);
     }
   }, [callApi, navigate]);
 
@@ -35,29 +35,30 @@ const useAuthService = () => {
       const token = jwtToken?.accessToken;
       const refreshToken = jwtToken?.refreshToken;
 
-      if (!token) throw new Error("Không tìm thấy token");
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      const decoded = jwtDecode<DecodedUserRaw>(token);
-      const user = normalizeDecodedUser(decoded);
-      dispatch(loginSuccess(user));
-
-      toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
-      console.log("user.role", user.role);
-      switch (user.role) {
-        case ROLE.ADMIN:
-          navigate("/admin");
-          break;
-        default:
-          navigate("/");
-          break;
+      // if (!token) throw new Error("Không tìm thấy token");
+      if (jwtToken) {
+        console.log("token")
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+        const decoded = jwtDecode<DecodedUserRaw>(token);
+        const user = normalizeDecodedUser(decoded);
+        dispatch(loginSuccess(user));
+        toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
+        console.log("user.role", user.role);
+        switch (user.role) {
+          case ROLE.ADMIN:
+            navigate("/admin");
+            break;
+          default:
+            navigate("/");
+            break;
+        }
+      } else {
+        toast.success( MESSAGE.LOGIN_FAILED);
       }
-
       return res;
     } catch (err: any) {
-      toast.error(err?.response?.data || MESSAGE.LOGIN_FAILED);
+      console.log(err?.response?.data || MESSAGE.LOGIN_FAILED);
     }
   }, [callApi, dispatch, navigate]);
 
