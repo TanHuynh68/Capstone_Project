@@ -1,25 +1,47 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { User, Mail, Phone, MapPin, Lock, Edit, Camera } from "lucide-react"
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { User, Mail, Phone, MapPin, Lock, Edit, Camera } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import GetAddress from "../address"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import GetAddress from "../address";
+import CreateAddress from "../create-address";
+import CustomerService from "@/services/CustomerService";
 
 const Profile = () => {
+  const { getAddresses } = CustomerService();
+  const [addresses, setAddresses] = useState<any[]>([]);
+
+  const fetchAddresses = useCallback(async () => {
+    const res = await getAddresses({});
+    const items = res?.responseRequestModel?.responseList?.items || [];
+    setAddresses(items);
+  }, [getAddresses]);
+
+  useEffect(() => {
+    fetchAddresses();
+  }, [fetchAddresses]);
+
   const [user] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "+1 (555) 123-4567",
     address: "123 Main St, Anytown, USA",
     avatar: "/placeholder-avatar.jpg",
-  })
+  });
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-12">
@@ -34,7 +56,11 @@ const Profile = () => {
                   <User className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
-              <Button size="icon" variant="outline" className="absolute bottom-0 right-1/3 h-8 w-8 rounded-full">
+              <Button
+                size="icon"
+                variant="outline"
+                className="absolute bottom-0 right-1/3 h-8 w-8 rounded-full"
+              >
                 <Camera className="h-4 w-4" />
                 <span className="sr-only">Change avatar</span>
               </Button>
@@ -58,16 +84,26 @@ const Profile = () => {
               </div>
             </div>
           </CardContent>
-          <GetAddress />
+
+          {/* Address */}
+          <GetAddress addresses={addresses} onUpdated={fetchAddresses} />
+          <CreateAddress onCreated={fetchAddresses} />
+
           <CardFooter className="flex flex-col gap-2">
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/edit-profile" className="flex items-center justify-center">
+              <Link
+                to="/edit-profile"
+                className="flex items-center justify-center"
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
               </Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/change-password" className="flex items-center justify-center">
+              <Link
+                to="/change-password"
+                className="flex items-center justify-center"
+              >
                 <Lock className="mr-2 h-4 w-4" />
                 Change Password
               </Link>
@@ -90,14 +126,18 @@ const Profile = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Order #12345</p>
-                      <p className="text-sm text-muted-foreground">2 items • April 12, 2023</p>
+                      <p className="text-sm text-muted-foreground">
+                        2 items • April 12, 2023
+                      </p>
                     </div>
                     <Badge variant="outline">Delivered</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Order #12346</p>
-                      <p className="text-sm text-muted-foreground">1 item • March 24, 2023</p>
+                      <p className="text-sm text-muted-foreground">
+                        1 item • March 24, 2023
+                      </p>
                     </div>
                     <Badge variant="outline">Delivered</Badge>
                   </div>
@@ -110,15 +150,21 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Baby Three - Special Edition</p>
-                      <p className="text-sm text-muted-foreground">Added on May 3, 2023</p>
+                      <p className="font-medium">
+                        Baby Three - Special Edition
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Added on May 3, 2023
+                      </p>
                     </div>
                     <Button size="sm">Add to Cart</Button>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Labubu Dragon Edition</p>
-                      <p className="text-sm text-muted-foreground">Added on April 18, 2023</p>
+                      <p className="text-sm text-muted-foreground">
+                        Added on April 18, 2023
+                      </p>
                     </div>
                     <Button size="sm">Add to Cart</Button>
                   </div>
@@ -129,8 +175,7 @@ const Profile = () => {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Profile
-
+export default Profile;

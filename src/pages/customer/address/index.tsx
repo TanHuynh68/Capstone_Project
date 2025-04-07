@@ -1,75 +1,98 @@
-import  { useEffect, useState } from "react";
-import CustomerService from "@/services/CustomerService";
-import { getProvinces, getDistricts, getWards } from "@/services/ghnApi";
+import { useEffect, useState } from "react";
+import { getDistricts, getWards } from "@/services/ghnApi";
+import { Skeleton } from "@/components/ui/skeleton";
+import PutAddress from "../edit-addresss";
 
-const GetAddress = () => {
-  const { getAddresses, loading } = CustomerService();
-  const [addresses, setAddresses] = useState<any[]>([]);
-  const [provinceMap, setProvinceMap] = useState<Record<number, string>>({});
+const HCM_PROVINCE_ID = 202;
+const VALID_HCM_DISTRICTS = new Set([
+  3695, 2090, 1534, 1533, 1463, 1462, 1461, 1460, 1459, 1458, 1457, 1456, 1455,
+  1454, 1453, 1452, 1451, 1450, 1449, 1448, 1447, 1446, 1444, 1443, 1442,
+]);
+
+type GetAddressProps = {
+  addresses: any[];
+  onUpdated: () => void;
+};
+
+const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const [districtMap, setDistrictMap] = useState<Record<number, string>>({});
   const [wardMap, setWardMap] = useState<Record<number, string>>({});
+  const [isMapping, setIsMapping] = useState(true);
+  const [selectedAddress, setSelectedAddress] = useState<any | null>(null); // 👈 address được chọn để sửa
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Lấy danh sách địa chỉ
-      const res = await getAddresses({});
-      const items = res?.responseRequestModel?.responseList?.items || [];
-      setAddresses(items);
+    const fetchMapping = async () => {
+      if (addresses.length === 0) {
+        setIsMapping(false);
+        return;
+      }
 
-      // Lấy danh sách tỉnh
-      const provincesRes = await getProvinces();
-      const provinces = provincesRes.data.data;
-      const provinceMapping: Record<number, string> = {};
-      provinces.forEach((p: any) => {
-        provinceMapping[p.ProvinceID] = p.ProvinceName;
-      });
-      setProvinceMap(provinceMapping);
+      setIsMapping(true);
+      try {
+        const districtRes = await getDistricts(HCM_PROVINCE_ID);
+        const allDistricts = districtRes.data.data;
 
-      // Lấy tất cả district & ward từ các province/district được sử dụng
-      const uniqueProvinceIds = [...new Set(items.map((a: any) => a.province))];
-      const districtMapping: Record<number, string> = {};
-      const wardMapping: Record<number, string> = {};
+        const validDistricts = allDistricts.filter((d: any) =>
+          VALID_HCM_DISTRICTS.has(d.DistrictID)
+        );
 
-      for (const provinceId of uniqueProvinceIds) {
-        const id = provinceId as number; // ép kiểu từ unknown => number
-      
-        const districtRes = await getDistricts(id);
-        const districts = districtRes.data.data;
-        districts.forEach((d: any) => {
+        const districtMapping: Record<number, string> = {};
+        const wardMapping: Record<number, string> = {};
+
+        validDistricts.forEach((d: any) => {
           districtMapping[d.DistrictID] = d.DistrictName;
         });
-      
-        for (const d of districts) {
+
+        for (const d of validDistricts) {
           const wardRes = await getWards(d.DistrictID);
           const wards = wardRes.data.data;
           wards.forEach((w: any) => {
             wardMapping[w.WardCode] = w.WardName;
           });
         }
-      }      
 
-      setDistrictMap(districtMapping);
-      setWardMap(wardMapping);
+        setDistrictMap(districtMapping);
+        setWardMap(wardMapping);
+      } catch (error) {
+        console.error("Error mapping address:", error);
+      }
+
+      setIsMapping(false);
     };
 
-    fetchData();
-  }, [getAddresses]);
+    fetchMapping();
+  }, [addresses]);
 
-  const getLocationName = (
-    type: "province" | "district" | "ward",
-    id: number
-  ) => {
-    if (type === "province") return provinceMap[id] || id;
+  const getLocationName = (type: "district" | "ward", id: number) => {
     if (type === "district") return districtMap[id] || id;
     if (type === "ward") return wardMap[id] || id;
     return id;
   };
 
+  const renderSkeleton = (count: number) => (
+    <ul className="space-y-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <li key={i} className="p-4 border rounded shadow-sm bg-white space-y-2">
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
+        </li>
+      ))}
+    </ul>
+  );
+
+  const isLoading = isMapping;
+  const skeletonCount = addresses.length > 0 ? addresses.length : 1;
+
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Danh sách địa chỉ GHN</h1>
-      {loading ? (
-        <p>Đang tải...</p>
+      <h1 className="text-xl font-bold mb-4 items-center justify-center flex">
+        Danh sách địa chỉ
+      </h1>
+
+      {isLoading ? (
+        renderSkeleton(skeletonCount)
       ) : addresses.length === 0 ? (
         <p>Không có địa chỉ nào.</p>
       ) : (
@@ -77,14 +100,14 @@ const GetAddress = () => {
           {addresses.map((addr) => (
             <li
               key={addr.addressID}
-              className="p-4 border rounded shadow-sm bg-white"
+              className="p-4 border rounded shadow-sm bg-white hover:cursor-pointer hover:bg-muted transition"
+              onClick={() => setSelectedAddress(addr)}
             >
               <p>
                 <strong>Chi tiết:</strong> {addr.addressDetail}
               </p>
               <p>
-                <strong>Tỉnh:</strong>{" "}
-                {getLocationName("province", addr.province)}
+                <strong>Tỉnh:</strong> TP. Hồ Chí Minh
               </p>
               <p>
                 <strong>Quận/Huyện:</strong>{" "}
@@ -101,6 +124,19 @@ const GetAddress = () => {
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Modal cập nhật địa chỉ */}
+      {selectedAddress && (
+        <PutAddress
+          key={selectedAddress.addressID}
+          address={selectedAddress}
+          onUpdated={() => {
+            setSelectedAddress(null);
+            onUpdated();
+          }}
+          onClose={() => setSelectedAddress(null)}
+        />
       )}
     </div>
   );
