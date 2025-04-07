@@ -53,10 +53,12 @@ const useAuthService = () => {
             navigate("/");
             break;
         }
+      } else {
+        toast.success( MESSAGE.LOGIN_FAILED);
       }
       return res;
     } catch (err: any) {
-      toast.error(err?.response?.data || MESSAGE.LOGIN_FAILED);
+      console.log(err?.response?.data || MESSAGE.LOGIN_FAILED);
     }
   }, [callApi, dispatch, navigate]);
 
