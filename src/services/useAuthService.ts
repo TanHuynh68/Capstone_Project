@@ -7,7 +7,6 @@ import { jwtDecode } from "jwt-decode";
 import { API_ROUTES, HTTP_METHOD, MESSAGE, ROLE } from "@/constants";
 import { loginSuccess } from "@/redux/userSlice";
 import { normalizeDecodedUser } from "@/components/utils/jwt";
-import { PATH } from "@/routes/path";
 
 const useAuthService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -16,12 +15,9 @@ const useAuthService = () => {
 
   const register = useCallback(async (values: any) => {
     try {
-      const response = await callApi("post", "auth/register", {
-        ...values,
-        avt: "https://api.dicebear.com/7.x/miniavs/svg?seed=1",
+      const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_UP, {
+        ...values
       });
-      toast.success(MESSAGE.REGISTER_SUCCESSFULLY);
-      navigate(PATH.LOGIN_IN);
       return response;
     } catch (e: any) {
       toast.error(e?.response?.data || MESSAGE.REGISTER_FAILED);
