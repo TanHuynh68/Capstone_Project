@@ -7,8 +7,8 @@ import { API_ROUTES, HTTP_METHOD, MESSAGE } from "@/constants";
 
 const CustomerService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch();
+  //   const navigate = useNavigate();
+  //   const dispatch = useDispatch();
 
   const getAddresses = useCallback(
     async (values: any) => {
@@ -17,8 +17,8 @@ const CustomerService = () => {
           HTTP_METHOD.GET,
           API_ROUTES.GET_ADDRESSES,
           values
-        ); 
-        toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);    
+        );
+        toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
@@ -58,7 +58,7 @@ const CustomerService = () => {
     [callApi]
   );
 
-
+ 
 
   return { getAddresses, postAddresses, putAddresses, loading, setIsLoading };
 };
