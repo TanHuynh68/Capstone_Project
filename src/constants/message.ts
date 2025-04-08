@@ -1,6 +1,7 @@
 export const MESSAGE = {
     GET_ADDRESS_SUCCESSFULLY: "Lấy địa chỉ thành công.",
     GET_ADDRESS_FAILED: "Lấy địa chỉ thất bại.",
+    GET_PROFILE_FAILED: "Lấy thông tin người dùng thất bại.",
     CREATE_ADDRESS_SUCCESSFULLY: "Đã tạo địa chỉ thành công.",
     UPDATE_ADDRESS_SUCCESSFULLY: "Đã cập nhật địa chỉ thành công.",
     DELETE_ADDRESS_SUCCESSFULLY: "Đã xóa địa chỉ thành công.",

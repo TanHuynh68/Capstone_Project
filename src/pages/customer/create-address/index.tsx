@@ -88,8 +88,10 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={maxAddressesReached}>Thêm địa chỉ</Button>
+      <DialogTrigger asChild >
+        <div className="px-5 ">
+          <Button className="w-full" disabled={maxAddressesReached}>Thêm địa chỉ</Button>
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

@@ -1,11 +1,9 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { User, Mail, Phone, MapPin, Lock, Edit, Camera } from "lucide-react";
-
+import { User, Mail, Phone, Lock, Edit, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,20 +18,33 @@ import { Separator } from "@/components/ui/separator";
 import GetAddress from "../address";
 import CreateAddress from "../create-address";
 import CustomerService from "@/services/CustomerService";
+import useAuthService from "@/services/useAuthService";
 
 const Profile = () => {
   const { getAddresses } = CustomerService();
+  const { getProfile } = useAuthService();
   const [addresses, setAddresses] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Profile>();
+
+  useEffect(() => {
+    fetchAddresses();
+    fetchProfile();
+  }, []);
 
   const fetchAddresses = useCallback(async () => {
     const res = await getAddresses({});
     const items = res?.responseRequestModel?.responseList?.items || [];
     setAddresses(items);
+    console.log("items: ", items)
   }, [getAddresses]);
 
-  useEffect(() => {
-    fetchAddresses();
-  }, [fetchAddresses]);
+  const fetchProfile = async()=>{
+    const response = await getProfile()
+    if(response){
+      setProfile(response.responseRequestModel)
+      console.log("response.responseRequestModel: ", response.responseRequestModel)
+    }
+  }
 
   const [user] = useState({
     name: "John Doe",
@@ -51,7 +62,7 @@ const Profile = () => {
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4 relative">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user.avatar} alt={profile?.fullName} />
                 <AvatarFallback>
                   <User className="h-12 w-12" />
                 </AvatarFallback>
@@ -65,22 +76,18 @@ const Profile = () => {
                 <span className="sr-only">Change avatar</span>
               </Button>
             </div>
-            <CardTitle>{user.name}</CardTitle>
+            <CardTitle>{profile?.fullName}</CardTitle>
             <CardDescription>Member since January 2023</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center">
                 <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span className="text-sm">{user.email}</span>
+                <span className="text-sm">{profile?.email}</span>
               </div>
               <div className="flex items-center">
                 <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span className="text-sm">{user.phone}</span>
-              </div>
-              <div className="flex items-start">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground mt-0.5" />
-                <span className="text-sm">{user.address}</span>
+                <span className="text-sm">{profile?.phoneNumber}</span>
               </div>
             </div>
           </CardContent>
