@@ -3,29 +3,40 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Apple, Check, Eye, EyeOff, X } from "lucide-react"
-import { Label } from "@/components/atoms/Label"
-import { Input } from "@/components/atoms/Input"
-import { Button } from "@/components/atoms/Button"
-import { Separator } from "@/components/atoms/Separator"
-import { useToast } from "@/hooks/use-toast"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import useAuthService from "@/services/useAuthService"
 
 
 const Register = () => {
-  const navigate = useNavigate()
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const { register } = useAuthService();
+
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
+    fullName: "",
     password: "",
+    confirmPassword: "",
+    phoneNumber: "",
+    email: "",
+    gender: "0",
+    role: "0",
   })
+
   const [errors, setErrors] = useState({
-    username: "",
-    email: "",
+    fullName: "",
     password: "",
+    confirmPassword: "",
+    phoneNumber: "",
+    email: "",
+    gender: "",
+    role: "",
   })
 
   // Password strength criteria
@@ -47,16 +58,30 @@ const Register = () => {
     }
   }
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
+
+    // Clear error when user selects a value
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }))
+    }
+  }
+
   const validateForm = () => {
-    const newErrors = { username: "", email: "", password: "" }
+    const newErrors = {
+      fullName: "",
+      password: "",
+      confirmPassword: "",
+      phoneNumber: "",
+      email: "",
+      gender: "",
+      role: "",
+    }
     let isValid = true
 
-    // Username validation
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required"
-      isValid = false
-    } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters"
+    // FullName validation
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required"
       isValid = false
     }
 
@@ -66,6 +91,15 @@ const Register = () => {
       isValid = false
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address"
+      isValid = false
+    }
+
+    // Phone number validation
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required"
+      isValid = false
+    } else if (!/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number"
       isValid = false
     }
 
@@ -81,40 +115,49 @@ const Register = () => {
       }
     }
 
+    // Confirm Password validation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password"
+      isValid = false
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match"
+      isValid = false
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      newErrors.gender = "Gender is required"
+      isValid = false
+    }
+
+    // Role validation
+    if (!formData.role) {
+      newErrors.role = "Role is required"
+      isValid = false
+    }
+
     setErrors(newErrors)
     return isValid
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!validateForm()) return
-
-    setIsLoading(true)
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Success
-      toast({
-        title: "Account created!",
-        description: "You have successfully registered. Redirecting to dashboard...",
-      })
-
-      // Redirect to dashboard after successful registration
-      setTimeout(() => {
-        navigate("/dashboard")
-      }, 1500)
-    } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: "There was a problem creating your account. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
+    const valuesSubmit ={
+      Email: formData.email,
+      FullName: formData.fullName,
+      Password: formData.password,
+      PhoneNumber: formData.phoneNumber,
+      Role: formData.role,
+      Gender: formData.gender,
     }
+    setIsLoading(true)
+    const response = await register(valuesSubmit)
+    console.log("formData: ", formData)
+    if (response) {
+      console.log("response: ", response)
+    }
+    setIsLoading(false)
   }
 
   const getPasswordStrength = () => {
@@ -136,45 +179,28 @@ const Register = () => {
         <div className="mt-8 bg-white p-8 shadow sm:rounded-lg">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="fullName">
+                FullName <span className="text-red-500">*</span>
+              </Label>
               <div className="mt-1">
                 <Input
-                  id="username"
-                  name="username"
+                  id="fullName"
+                  name="fullName"
                   type="text"
-                  autoComplete="username"
                   required
-                  value={formData.username}
+                  value={formData.fullName}
                   onChange={handleChange}
-                  className={errors.username ? "border-red-500" : ""}
-                  placeholder="johndoe"
+                  className={errors.fullName ? "border-red-500" : ""}
+                  placeholder="FullName"
                 />
-                {errors.username && <p className="mt-1 text-xs text-red-500">{errors.username}</p>}
+                {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
-              <div className="mt-1">
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={errors.email ? "border-red-500" : ""}
-                  placeholder="m@example.com"
-                />
-                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-              </div>
+              <Label htmlFor="password">
+                Password <span className="text-red-500">*</span>
+              </Label>
               <div className="mt-1 relative">
                 <Input
                   id="password"
@@ -185,6 +211,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                  placeholder="Password"
                 />
                 <button
                   type="button"
@@ -205,9 +232,8 @@ const Register = () => {
                 <div className="mt-2 space-y-2">
                   <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${
-                        passwordStrength <= 1 ? "bg-red-500" : passwordStrength <= 3 ? "bg-yellow-500" : "bg-green-500"
-                      }`}
+                      className={`h-full ${passwordStrength <= 1 ? "bg-red-500" : passwordStrength <= 3 ? "bg-yellow-500" : "bg-green-500"
+                        }`}
                       style={{ width: `${strengthPercentage}%` }}
                     />
                   </div>
@@ -227,6 +253,96 @@ const Register = () => {
                   </ul>
                 </div>
               )}
+            </div>
+            {/* Confirm Password */}
+            <div>
+              <Label htmlFor="confirmPassword">
+                Confirm Password <span className="text-red-500">*</span>
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"}
+                  placeholder="Confirm Password"
+                />
+                <button
+                  style={{ zIndex: 10 }}
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
+                >
+                  {/* className={`${errors.confirmPassword!= '' && 'mb-5'} h-4 w-4`} to fix location of EyeOff and Eye icon */}
+                  {showPassword ? (
+                    <EyeOff className={`${errors.confirmPassword != '' && 'mb-5'} h-4 w-4`} aria-hidden="true" />
+                  ) : (
+                    <Eye className={`${errors.confirmPassword != '' && 'mb-5'} h-4 w-4`} aria-hidden="true" />
+                  )}
+                </button>
+                {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="phoneNumber">
+                PhoneNumber <span className="text-red-500">*</span>
+              </Label>
+              <div className="mt-1">
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className={errors.phoneNumber ? "border-red-500" : ""}
+                  placeholder="PhoneNumber"
+                />
+                {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email">
+                Email <span className="text-red-500">*</span>
+              </Label>
+              <div className="mt-1">
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={errors.email ? "border-red-500" : ""}
+                  placeholder="Email"
+                />
+                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="gender">
+                Gender <span className="text-red-500">*</span>
+              </Label>
+              <div className="mt-1">
+                <Select value={formData.gender} onValueChange={(value) => handleSelectChange("gender", value)}>
+                  <SelectTrigger className={errors.gender ? "border-red-500" : ""}>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Male</SelectItem>
+                    <SelectItem value="1">Female</SelectItem>
+                    <SelectItem value="2">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.gender && <p className="mt-1 text-xs text-red-500">{errors.gender}</p>}
+              </div>
             </div>
 
             <div>
@@ -285,7 +401,7 @@ const Register = () => {
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link to="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign in
               </Link>
             </p>
@@ -309,4 +425,3 @@ const Register = () => {
 }
 
 export default Register
-
