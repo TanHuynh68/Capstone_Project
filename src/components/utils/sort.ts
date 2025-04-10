@@ -75,3 +75,53 @@ export function filterByKeyword<T>(arr: T[], key: keyof T, keyword: string): T[]
     );
 }
 
+/**
+ * Nhóm theo thuộc tính (Group By)
+ * @param list 
+ * @param key 
+ * @returns 
+ */
+export const groupBy = <T, K extends keyof T>(
+    list: T[],
+    key: K
+): Record<string, T[]> => {
+    return list.reduce((result, item) => {
+        const groupKey = String(item[key]);
+        result[groupKey] = result[groupKey] || [];
+        result[groupKey].push(item);
+        return result;
+    }, {} as Record<string, T[]>);
+};
+
+/**
+ *  Debounce (chống spam gọi API)
+ * @param func 
+ * @param delay 
+ * @returns 
+ */
+export const debounce = <F extends (...args: any[]) => void>(
+    func: F,
+    delay: number
+): ((...args: Parameters<F>) => void) => {
+    let timer: NodeJS.Timeout;
+    return (...args: Parameters<F>) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => func(...args), delay);
+    };
+};
+
+/**
+ * Lấy duy nhất (unique)
+ * @param list 
+ * @param key 
+ * @returns 
+ */
+export const getUnique = <T, K extends keyof T>(list: T[], key: K): T[] => {
+    const seen = new Set();
+    return list.filter(item => {
+        const val = item[key];
+        if (seen.has(val)) return false;
+        seen.add(val);
+        return true;
+    });
+};
