@@ -18,10 +18,8 @@ export function LoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const values = { username, password };
     console.log("Dữ liệu submit:", values);
-
     const response = await login(values);
     if (response) {
       console.log("login: ", response);

@@ -17,6 +17,7 @@ export enum API_ROUTES {
     SIGN_UP = `${API_ENDPOINTS.AUTH}/sign-up`,
     GET_PROFILE = `${API_ENDPOINTS.AUTH}/profile`,
     CHANGE_PASSWORD = `${API_ENDPOINTS.AUTH}/change-password`,
+    VERIFY_ACCOUNT = `${API_ENDPOINTS.AUTH}/verify-account`,
     // Test API
     TEST = `/test`,
 }

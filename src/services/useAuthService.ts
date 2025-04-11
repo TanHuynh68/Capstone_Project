@@ -49,12 +49,10 @@ const useAuthService = () => {
             navigate("/");
             break;
         }
-      } else {
-        toast.success(MESSAGE.LOGIN_FAILED);
-      }
+      } 
       return res;
     } catch (err: any) {
-      console.log(err?.response?.data || MESSAGE.LOGIN_FAILED);
+      console.log(err?.response?.data);
     }
   }, [callApi, dispatch, navigate]);
 
@@ -85,7 +83,20 @@ const useAuthService = () => {
     },
     [callApi]
   );
-  return { login, register, loading, setIsLoading, changePassword, getProfile };
+
+  const verifyAccount = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.PUT, API_ROUTES.VERIFY_ACCOUNT, values);
+        toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.CHANGE_PASSWORD_FAILED);
+      }
+    },
+    [callApi]
+  );
+  return { login, register, loading, setIsLoading, changePassword, getProfile, verifyAccount };
 };
 
 export default useAuthService;
