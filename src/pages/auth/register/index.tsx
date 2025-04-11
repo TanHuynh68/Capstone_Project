@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Apple, Check, Eye, EyeOff, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -12,13 +12,17 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import useAuthService from "@/services/useAuthService"
+import { PATH } from "@/routes/path"
+import { toast } from "sonner"
+import { MESSAGE } from "@/constants"
+
 
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { register } = useAuthService();
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     password: "",
@@ -143,19 +147,21 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateForm()) return
-    const valuesSubmit ={
-      Email: formData.email,
-      FullName: formData.fullName,
-      Password: formData.password,
-      PhoneNumber: formData.phoneNumber,
-      Role: formData.role,
-      Gender: formData.gender,
+    const valuesSubmit = {
+      email: formData.email,
+      fullName: formData.fullName,
+      password: formData.password,
+      phoneNumber: formData.phoneNumber,
+      role: parseInt(formData.role),
+      gender: parseInt(formData.gender),
     }
     setIsLoading(true)
     const response = await register(valuesSubmit)
     console.log("formData: ", formData)
     if (response) {
       console.log("response: ", response)
+      toast.success(MESSAGE.REGISTER_SUCCESSFULLY)
+      navigate(PATH.LOGIN_IN)
     }
     setIsLoading(false)
   }
@@ -401,7 +407,7 @@ const Register = () => {
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to={PATH.LOGIN_IN} className="font-medium text-blue-600 hover:text-blue-500">
                 Sign in
               </Link>
             </p>
