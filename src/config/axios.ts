@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import ENV from "./env";
 import { logout } from "@/redux/userSlice";
-import { useDispatch } from "react-redux";
+import { store } from "@/redux/store";
 
 const axiosInstance = axios.create({
   baseURL: ENV.BASE_URL,
@@ -27,25 +27,24 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     if (error.response) {
       const { data } = error.response;
-      const dispatch = useDispatch();
       console.log(error.response);
-      if (data.message === null && data.errors && data.errors.length > 0) {
-        data.errors.forEach((error: { field: string, message: string }) => {
-          toast.error(`${error.field}: ${error.message}`);
-        });
+      if (data.message) {
+        toast.error(`${data.message}`);
       } else {
         if (!isTokenExpired) {
-          isTokenExpired = true
-          toast.error(data.message);
+          isTokenExpired = true;
+          toast.error(data.message || 'Có lỗi xảy ra!');
           setTimeout(() => {
-            window.location.href = '/'
+            window.location.href = '/';
             localStorage.clear();
             isTokenExpired = false;
-            dispatch(logout())
+            store.dispatch(logout());
           }, 1300);
         }
       }
     }
-  })
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;
