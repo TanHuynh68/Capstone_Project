@@ -49,7 +49,7 @@ const useAuthService = () => {
             navigate("/");
             break;
         }
-      } 
+      }
       return res;
     } catch (err: any) {
       console.log(err?.response?.data);
@@ -59,9 +59,9 @@ const useAuthService = () => {
   const changePassword = useCallback(
     async (values: any) => {
       try {
-        const res = await callApi(HTTP_METHOD.PUT, API_ROUTES.CHANGE_PASSWORD, values);
+        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.CHANGE_PASSWORD, values);
         toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
-        return res;
+        return response;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.CHANGE_PASSWORD_FAILED);
       }
@@ -72,11 +72,11 @@ const useAuthService = () => {
   const getProfile = useCallback(
     async () => {
       try {
-        const res = await callApi(
+        const response = await callApi(
           HTTP_METHOD.GET,
           API_ROUTES.GET_PROFILE,
         );
-        return res;
+        return response;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
       }
@@ -85,11 +85,19 @@ const useAuthService = () => {
   );
 
   const verifyAccount = useCallback(
+    /**
+     * 
+     * @param values {
+     * "email": "user@example.com",
+     *  "otp": "383562" 
+     * }
+     * @returns 
+     */
     async (values: any) => {
       try {
-        const res = await callApi(HTTP_METHOD.PUT, API_ROUTES.VERIFY_ACCOUNT, values);
+        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.VERIFY_ACCOUNT, values);
         toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
-        return res;
+        return response;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.CHANGE_PASSWORD_FAILED);
       }
