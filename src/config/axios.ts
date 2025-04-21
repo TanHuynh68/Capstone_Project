@@ -10,7 +10,6 @@ const axiosInstance = axios.create({
 
 let isTokenExpired = false;
 
-// ✅ Request Interceptor - Add token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -26,23 +25,33 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response) {
-      const { data } = error.response;
-      console.log(error.response);
-      if (data.message) {
-        toast.error(`${data.message}`);
-      } else {
+      const { status, data, config } = error.response;
+
+      const isLoginRequest = config?.url?.includes('/auth/login');
+      const isAuthError = status === 401 || status === 403;
+      const token = localStorage.getItem("token");
+
+      if ((status === 400 || status === 401) && data.errors) {
+        const messages = Object.values(data.errors).flat() as string[];
+        messages.forEach((msg) => toast.error(msg));
+      } else if (data.message) {
+        toast.error(data.message as string);
+      }
+
+      if (isAuthError && !isLoginRequest && token) {
         if (!isTokenExpired) {
           isTokenExpired = true;
-          toast.error(data.message || 'Có lỗi xảy ra!');
+          toast.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!');
           setTimeout(() => {
-            window.location.href = '/';
             localStorage.clear();
-            isTokenExpired = false;
             store.dispatch(logout());
+            window.location.href = '/';
+            isTokenExpired = false;
           }, 1300);
         }
       }
     }
+
     return Promise.reject(error);
   }
 );
