@@ -22,7 +22,7 @@ const useAuthService = () => {
     } catch (e: any) {
       toast.error(e?.response?.data || MESSAGE.REGISTER_FAILED);
     }
-  }, [callApi, navigate]);
+  }, [callApi]);
 
   const login = useCallback(async (values: any) => {
     try {
@@ -96,15 +96,110 @@ const useAuthService = () => {
     async (values: any) => {
       try {
         const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.VERIFY_ACCOUNT, values);
-        toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
+        if (response) {
+          toast.success(MESSAGE.VERIFY_ACCOUNT_SUCCESSFULLY);
+        }
         return response;
       } catch (err: any) {
-        toast.error(err?.response?.data || MESSAGE.CHANGE_PASSWORD_FAILED);
+        toast.error(err?.response?.data || MESSAGE.VERIFY_ACCOUNT_FAILED);
       }
     },
     [callApi]
   );
-  return { login, register, loading, setIsLoading, changePassword, getProfile, verifyAccount };
+
+  const resendOTP = useCallback(
+    /**
+     * 
+     * @param values {
+     * "email": "user@example.com",
+     * }
+     * @returns 
+     */
+    async (values: any) => {
+      try {
+        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.RESEND_OTP, values);
+        // if (response) {
+        //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
+        // }
+        return response;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.RESEND_OTP_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+  const forgotPassword = useCallback(
+    /**
+     * 
+     * @param values {
+     * "email": "user@example.com",
+     *  "otp": "383562" 
+     * }
+     * @returns 
+     */
+    async (values: any) => {
+      try {
+        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.FORGOT_PASSWORD, values);
+        if (response) {
+          toast.success(MESSAGE.FORGOT_PASSWORD_SUCCESSFULLY);
+        }
+        return response;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.FORGOT_PASSWORD_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+  const sendResetPasswordEmail = useCallback(
+    /**
+     * 
+     * @param values {
+     * "email": "user@example.com",
+     * }
+     * @returns 
+     */
+    async (values: any) => {
+      try {
+        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SEND_RESET_PASSWORD_MAIL, values);
+        // if (response) {
+        //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
+        // }
+        return response;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.RESEND_OTP_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+  const resetPassword = useCallback(
+    /**
+     * 
+     * @param values {
+     * {
+  "email": "user@example.com",
+  "newPassword": "FgQa!)(YfZg\"cLPt5IBfsQkdTuS_w)ilf}Nit&j4.j,W]s[-&G{5q|z{i{qT_7%Sx'%M+K1c}+6",
+  "confirmPassword": "hB1jLS@WLsC5YB'V7Xn#uL+[~,C"
+}
+     * }
+     * @returns 
+     */
+    async (values: any) => {
+      try {
+        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.RESET_PASSWORD, values);
+        // if (response) {
+        //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
+        // }
+        return response;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.RESEND_OTP_FAILED);
+      }
+    },
+    [callApi]
+  );
+  return { login, register, loading, setIsLoading, changePassword, getProfile, verifyAccount, resendOTP, forgotPassword, sendResetPasswordEmail, resetPassword };
 };
 
 export default useAuthService;

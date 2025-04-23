@@ -15,5 +15,15 @@ export const MESSAGE = {
     LOGIN_FAILED: "Đăng nhập thất bại.",
     LOGOUT_FAILED: "Đăng xuất thất bại.",
     REGISTER_FAILED: "Đăng ký thất bại.",
-    CHANGE_PASSWORD_FAILED: "Đổi mật khẩu thất bại."
+    CHANGE_PASSWORD_FAILED: "Đổi mật khẩu thất bại.",
+    VERIFY_ACCOUNT_SUCCESSFULLY: "Xác minh tài khoản thành công. Vui lòng đăng nhập lại!",
+    VERIFY_ACCOUNT_FAILED: "Xác minh tài khoản thất bại.",
+    RESEND_OTP_SUCCESSFULLY: "Gửi OTP thành công.",
+    RESEND_OTP_FAILED: "Gửi OTP thất bại.",
+    FORGOT_PASSWORD_SUCCESSFULLY: "Xác minh tài khoản thành công.",
+    FORGOT_PASSWORD_FAILED: "Xác minh tài khoản thất bại.",
+    RESET_PASSWORD_SUCCESSFULLY: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới!",
+    RESET_PASSWORD_FAILED: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
+
+
 }

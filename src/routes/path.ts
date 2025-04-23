@@ -5,6 +5,8 @@ export enum USER_ROUTES {
     CHANGE_PASSWORD = "change-password",
     PROFILE = "profile",
     EDIT_PROFILE = "edit-profile",
+    VERIFY_ACCOUNT = "verify-account",
+
 }
 
 export enum AUTH_ROUTES {
@@ -12,6 +14,7 @@ export enum AUTH_ROUTES {
     LOGIN_IN = "login",
     REGISTER = "register",
     FORGOT_PASSWORD = "forgot-password",
+    VERIFY_ACCOUNT = "verify-account",
     
 }
 
@@ -27,4 +30,5 @@ export enum PATH {
     REGISTER = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REGISTER,
     CHANGE_PASSWORD = USER_ROUTES.AUTH + "/" + USER_ROUTES.CHANGE_PASSWORD,
     EDIT_PROFILE = USER_ROUTES.AUTH + "/" + USER_ROUTES.EDIT_PROFILE,
+    VERIFY_ACCOUNT = USER_ROUTES.AUTH + "/" + USER_ROUTES.VERIFY_ACCOUNT,
 }
