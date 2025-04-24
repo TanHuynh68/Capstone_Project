@@ -40,7 +40,6 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
 
   const maxAddressesReached = addresses.length >= 3;
 
-  // Fetch Districts
   useEffect(() => {
     const fetchDistricts = async () => {
       const res = await getDistricts(HCM_PROVINCE_ID);
@@ -49,7 +48,6 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
     fetchDistricts();
   }, []);
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!open) {
       setFormData({
@@ -77,7 +75,21 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
       ...formData,
       district: Number(formData.district),
       ward: Number(formData.ward),
+      isMainAddress: addresses.length === 0,
     };
+
+    const isDuplicate = addresses.some(
+      (addr) =>
+        addr.addressDetail.trim().toLowerCase() ===
+          payload.addressDetail.trim().toLowerCase() &&
+        Number(addr.district) === payload.district &&
+        Number(addr.ward) === payload.ward
+    );
+
+    if (isDuplicate) {
+      alert("Địa chỉ này đã tồn tại. Vui lòng nhập địa chỉ khác.");
+      return;
+    }
 
     const res = await postAddresses(payload);
     if (res) {
@@ -89,7 +101,11 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={maxAddressesReached}>Thêm địa chỉ</Button>
+        <div className="px-5 ">
+          <Button className="w-full" disabled={maxAddressesReached}>
+            Thêm địa chỉ
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

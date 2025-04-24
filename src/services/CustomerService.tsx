@@ -17,8 +17,8 @@ const CustomerService = () => {
           HTTP_METHOD.GET,
           API_ROUTES.GET_ADDRESSES,
           values
-        ); 
-        toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);    
+        );
+        // toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
@@ -58,9 +58,24 @@ const CustomerService = () => {
     [callApi]
   );
 
+  const deleteAddresses = useCallback(
+    async (values: any) => {
+      try {
+        const url = API_ROUTES.DELETE_ADDRESS.replace(":id", values.addressID);
+        const res = await callApi(HTTP_METHOD.DELETE, url, values);
+        // toast.success(MESSAGE.DELETE_ADDRESS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.DELETE_ADDRESS_FAILED);
+      }
+    },
+    [callApi]
+  );
 
 
-  return { getAddresses, postAddresses, putAddresses, loading, setIsLoading };
+ 
+
+  return { getAddresses, postAddresses, putAddresses, deleteAddresses, loading, setIsLoading };
 };
 
 export default CustomerService;
