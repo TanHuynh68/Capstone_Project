@@ -7,7 +7,10 @@ export {
     filterByField, filterByKeyword, sortByCreatedAtAsc, sortByCreatedAtDesc, sortByNumber, sortByString,
     debounce, getUnique, groupBy
 } from './sort'
-export { capitalizeWords, formatNumber, generateRandomId, isEmptyObject, isValidEmail, sleep, slugify, truncate } from './helpers'
+export {
+    capitalizeWords, formatNumber, generateRandomId, isEmptyObject, isValidEmail, sleep, slugify, truncate,
+    toLowerCase, formatCurrencyVND
+} from './helpers'
 export {
     ValidationErrors, createValidationSchema, custom, email, maxLength, minLength, number, password, passwordConfirm,
     pattern, phone, required, url, validationSchema

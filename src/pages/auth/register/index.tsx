@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 import { PATH } from "@/routes/path";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";

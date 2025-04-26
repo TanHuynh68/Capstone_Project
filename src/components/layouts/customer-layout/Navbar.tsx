@@ -196,6 +196,11 @@ export function Navbar() {
                       Settings
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/deposit-money" className="w-full">
+                      Deposit money
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       dispatch(logout());

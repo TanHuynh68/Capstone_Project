@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import GetAddress from "../address";
-import CreateAddress from "../create-address";
+import GetAddress from "../../manage-address/address";
+import CreateAddress from "../../manage-address/create-address";
 import CustomerService from "@/services/CustomerService";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 
 const Profile = () => {
   const { getAddresses } = CustomerService();
