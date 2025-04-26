@@ -44,7 +44,7 @@ export enum API_ROUTES {
     WALLET_ORDER= `${API_ENDPOINTS.WALLET}/order`,
     PLACE_DEPOSIT= `${API_ENDPOINTS.WALLET}/place-deposit`,
     REFUND_DEPOSIT= `${API_ENDPOINTS.WALLET}/refund-deposit`,
-    VNPAY_LINK= `${API_ENDPOINTS.WALLET}/vnpay-link`,
+    VNPAY_LINK= `${API_ENDPOINTS.WALLET}/vnpay-link?depositMoney`,
     VNPAY_CALLBACK= `${API_ENDPOINTS.WALLET}/vnpay-callback`,
     PAYOS_LINK= `${API_ENDPOINTS.WALLET}/payos-link`,
     PAYOS_CALLBACK= `${API_ENDPOINTS.WALLET}/payos-callback`,

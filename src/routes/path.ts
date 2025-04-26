@@ -6,7 +6,7 @@ export enum USER_ROUTES {
     PROFILE = "profile",
     EDIT_PROFILE = "edit-profile",
     VERIFY_ACCOUNT = "verify-account",
-
+    PAYMENT_OPTION = "payment-option",
 }
 
 export enum AUTH_ROUTES {
