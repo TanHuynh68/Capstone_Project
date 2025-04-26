@@ -35,3 +35,13 @@ export enum HTTP_STATUS {
     SERVICE_UNAVAILABLE = 503,
     GATEWAY_TIMEOUT = 504,
 }
+
+export enum WALLET_TRANSACTION_TYPE {
+    Deposit = 0,        // Nạp tiền
+    Withdraw = 1,       // Rút tiền
+    Transfer = 2,       // Chuyển tiền
+    Receive = 3,        // Nhận tiền
+    PlaceDeposit = 4,   // Đặt cọc
+    RefundDeposit = 5   // Hoàn cọc
+  }
+  
