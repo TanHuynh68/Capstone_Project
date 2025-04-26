@@ -6,7 +6,7 @@ export enum USER_ROUTES {
     PROFILE = "profile",
     EDIT_PROFILE = "edit-profile",
     VERIFY_ACCOUNT = "verify-account",
-    PAYMENT_OPTION = "payment-option",
+    DEPOSIT_MONEY = "deposit-money",
     PAYMENT_RESULT = "api/v1/wallet/vnpay-callback",
     PAYMENT = 'payment',
     PAYMENT_SUCCESS = 'payment/success',
@@ -29,6 +29,7 @@ export enum ADMIN_ROUTES {
 //
 
 export enum PATH {
+    HOME = "/",
     FORGOT_PASSWORD = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.FORGOT_PASSWORD,
     LOGIN_IN = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.LOGIN_IN,
     REGISTER = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REGISTER,

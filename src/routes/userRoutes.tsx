@@ -7,7 +7,7 @@ import {
   CustomerProfilePage,
   HomePage,
   PaymentFailedPage,
-  PaymentOptionPage,
+  DepositMoneyPage,
   PaymentResultPage,
   PaymentSuccessPage
 } from "../pages";
@@ -34,8 +34,8 @@ export const userRoutes = [
         element: <CustomerEditProfile />,
       },
       {
-        path: USER_ROUTES.PAYMENT_OPTION,
-        element: <PaymentOptionPage />,
+        path: USER_ROUTES.DEPOSIT_MONEY,
+        element: <DepositMoneyPage />,
       },
       {
         path: USER_ROUTES.PAYMENT_RESULT,

@@ -34,10 +34,10 @@ type FormValues = z.infer<typeof formSchema>
 // Payment method types
 type PaymentMethod = "vnpay" | "payos" | null
 
-export default function PaymentOptions() {
+export default function DepositMoney() {
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('vnpay')
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const {createVnpayLink} = WalletService()
+    const { createVnpayLink, createPayosLink } = WalletService()
     const { toast } = useToast()
     // Initialize form
     const form = useForm<FormValues>({
@@ -62,14 +62,25 @@ export default function PaymentOptions() {
 
         try {
             // Simulate API call
-            const response = await createVnpayLink(data.amount);
-            console.log(response)
-            if(response){
-                window.location.href=response?.responseRequestModel?.vnPayUrl
+            if (selectedPayment === 'vnpay') {
+                const response = await createVnpayLink(data.amount);
+                console.log(response)
+                if (response) {
+                    window.location.href = response?.responseRequestModel?.vnPayUrl
+                }
+                // Reset form and selection after successful submission
+                form.reset()
+                setSelectedPayment(null)
+            } else if(selectedPayment==='payos'){
+                const response = await createPayosLink(data.amount);
+                console.log(response)
+                if (response) {
+                    window.location.href = response?.responseRequestModel?.vnPayUrl
+                }
+                // Reset form and selection after successful submission
+                form.reset()
+                setSelectedPayment(null)
             }
-            // Reset form and selection after successful submission
-            form.reset()
-            setSelectedPayment(null)
         } catch (error) {
             toast({
                 title: "Lỗi thanh toán",
@@ -97,7 +108,7 @@ export default function PaymentOptions() {
         <div className="max-w-md mx-auto p-4 md:p-6">
             <div className="grid gap-6">
                 <div className="grid gap-2">
-                    <h2 className="text-2xl font-bold">Thanh Toán</h2>
+                    <h2 className="text-2xl font-bold">Nạp tiền</h2>
                     <p className="text-muted-foreground">Nhập số tiền và chọn phương thức thanh toán để hoàn tất giao dịch.</p>
                 </div>
 
