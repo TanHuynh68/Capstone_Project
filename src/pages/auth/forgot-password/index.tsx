@@ -10,7 +10,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 import { PATH } from "@/routes/path";
 import { toast } from "sonner";
 
