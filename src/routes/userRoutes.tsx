@@ -1,7 +1,16 @@
 
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
-import { ChangePasswordPage, CustomerEditProfile, CustomerProfilePage, HomePage, PaymentOptionPage } from "../pages";
+import {
+  ChangePasswordPage,
+  CustomerEditProfile,
+  CustomerProfilePage,
+  HomePage,
+  PaymentFailedPage,
+  PaymentOptionPage,
+  PaymentResultPage,
+  PaymentSuccessPage
+} from "../pages";
 //
 export const userRoutes = [
   {
@@ -27,6 +36,18 @@ export const userRoutes = [
       {
         path: USER_ROUTES.PAYMENT_OPTION,
         element: <PaymentOptionPage />,
+      },
+      {
+        path: USER_ROUTES.PAYMENT_RESULT,
+        element: <PaymentResultPage />,
+      },
+      {
+        path: USER_ROUTES.PAYMENT_SUCCESS,
+        element: <PaymentSuccessPage />,
+      },
+      {
+        path: USER_ROUTES.PAYMENT_FAILED,
+        element: <PaymentFailedPage />,
       },
     ],
   },
