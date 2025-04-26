@@ -1,4 +1,5 @@
 const ENV = {
+  PAYMENT_REDIRECT_URL: import.meta.env.VITE_PAYMENT_RETURN_URL,
   BASE_URL: import.meta.env.VITE_API_URL,
   GHN_URL: import.meta.env.VITE_GHN_URL,
   GHN_TOKEN: import.meta.env.VITE_GHN_TOKEN,
