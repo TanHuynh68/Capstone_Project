@@ -7,6 +7,10 @@ export enum USER_ROUTES {
     EDIT_PROFILE = "edit-profile",
     VERIFY_ACCOUNT = "verify-account",
     PAYMENT_OPTION = "payment-option",
+    PAYMENT_RESULT = "api/v1/wallet/vnpay-callback",
+    PAYMENT = 'payment',
+    PAYMENT_SUCCESS = 'payment/success',
+    PAYMENT_FAILED = 'payment/failed'
 }
 
 export enum AUTH_ROUTES {
@@ -31,4 +35,6 @@ export enum PATH {
     CHANGE_PASSWORD = USER_ROUTES.AUTH + "/" + USER_ROUTES.CHANGE_PASSWORD,
     EDIT_PROFILE = USER_ROUTES.AUTH + "/" + USER_ROUTES.EDIT_PROFILE,
     VERIFY_ACCOUNT = USER_ROUTES.AUTH + "/" + USER_ROUTES.VERIFY_ACCOUNT,
+    PAYMENT_SUCCESS = USER_ROUTES.PAYMENT + "/" + 'success',
+    PAYMENT_FAILED = USER_ROUTES.PAYMENT + "/" + 'failed',
 }

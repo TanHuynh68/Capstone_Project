@@ -79,6 +79,15 @@ export const isValidEmail = (email: string): boolean => {
 
 // Hàm chuyển đổi
 export const toLowerCase = (role: any): any => {
-    const stringRole = role+''
+    const stringRole = role + ''
     return stringRole.toLowerCase();
+}
+
+/**
+ * Hàm format tiền Việt Nam (VND):
+ * @param amount 
+ * @returns 
+ */
+export const formatCurrencyVND =(amount: number)=> {
+    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }

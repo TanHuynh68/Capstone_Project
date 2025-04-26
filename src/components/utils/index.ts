@@ -9,7 +9,7 @@ export {
 } from './sort'
 export {
     capitalizeWords, formatNumber, generateRandomId, isEmptyObject, isValidEmail, sleep, slugify, truncate,
-    toLowerCase
+    toLowerCase, formatCurrencyVND
 } from './helpers'
 export {
     ValidationErrors, createValidationSchema, custom, email, maxLength, minLength, number, password, passwordConfirm,
