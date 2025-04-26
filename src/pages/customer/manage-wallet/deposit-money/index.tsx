@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import WalletService from "@/services/WalletService"
+import { PdcWalletCard } from "@/components/molecules/wallet/pdc-wallet-card"
 
 
 // Define the form schema with validation
@@ -34,11 +35,12 @@ type FormValues = z.infer<typeof formSchema>
 // Payment method types
 type PaymentMethod = "vnpay" | "payos" | null
 
-export default function PaymentOptions() {
+export default function DepositMoney() {
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('vnpay')
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const {createVnpayLink} = WalletService()
+    const { createVnpayLink, createPayosLink, getWallet } = WalletService()
     const { toast } = useToast()
+    const [walletInfo, setWalletInfo] = useState<Wallet>();
     // Initialize form
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -47,6 +49,16 @@ export default function PaymentOptions() {
         },
     })
 
+    useEffect(() => {
+        getWalletFromCustomer()
+    }, [])
+
+    const getWalletFromCustomer = async () => {
+        const response = await getWallet()
+        if (response && response.responseRequestModel) {
+            setWalletInfo(response.responseRequestModel)
+        }
+    }
     // Handle payment method selection and form submission
     const onSubmit = async (data: FormValues) => {
         if (!selectedPayment) {
@@ -62,14 +74,25 @@ export default function PaymentOptions() {
 
         try {
             // Simulate API call
-            const response = await createVnpayLink(data.amount);
-            console.log(response)
-            if(response){
-                window.location.href=response?.responseRequestModel?.vnPayUrl
+            if (selectedPayment === 'vnpay') {
+                const response = await createVnpayLink(data.amount);
+                console.log(response)
+                if (response) {
+                    window.location.href = response?.responseRequestModel?.vnPayUrl
+                }
+                // Reset form and selection after successful submission
+                form.reset()
+                setSelectedPayment(null)
+            } else if (selectedPayment === 'payos') {
+                const response = await createPayosLink(data.amount);
+                console.log(response)
+                if (response) {
+                    window.location.href = response?.responseRequestModel?.vnPayUrl
+                }
+                // Reset form and selection after successful submission
+                form.reset()
+                setSelectedPayment(null)
             }
-            // Reset form and selection after successful submission
-            form.reset()
-            setSelectedPayment(null)
         } catch (error) {
             toast({
                 title: "Lỗi thanh toán",
@@ -96,8 +119,18 @@ export default function PaymentOptions() {
     return (
         <div className="max-w-md mx-auto p-4 md:p-6">
             <div className="grid gap-6">
+                <div>
+                    {
+                        walletInfo && <PdcWalletCard
+                            balance={walletInfo?.balance}
+                            cardNumber={walletInfo?.bankAccountNumber+''}
+                            holdAmount={walletInfo.locked}
+                            cardholderName={walletInfo.accountHolderName}
+                        />
+                    }
+                </div>
                 <div className="grid gap-2">
-                    <h2 className="text-2xl font-bold">Thanh Toán</h2>
+                    <h2 className="text-2xl font-bold">Nạp tiền</h2>
                     <p className="text-muted-foreground">Nhập số tiền và chọn phương thức thanh toán để hoàn tất giao dịch.</p>
                 </div>
 

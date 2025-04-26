@@ -81,9 +81,9 @@ const WalletService = () => {
     }
   }, [callApi]);
 
-  const getVnpayCallback = useCallback(async () => {
+  const getVnpayCallback = useCallback(async (link: string) => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.VNPAY_CALLBACK);
+      const res = await callApi(HTTP_METHOD.GET, link);
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data);
