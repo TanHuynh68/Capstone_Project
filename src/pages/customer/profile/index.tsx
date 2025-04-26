@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import GetAddress from "../address";
 import CreateAddress from "../create-address";
 import CustomerService from "@/services/CustomerService";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 
 const Profile = () => {
   const { getAddresses } = CustomerService();

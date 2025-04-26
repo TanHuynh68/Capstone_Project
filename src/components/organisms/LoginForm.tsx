@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoginImage from "../atoms/LoginImage";
 import { PATH } from "@/routes/path";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 
 export function LoginForm({
   className,

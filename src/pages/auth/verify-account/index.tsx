@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
-import useAuthService from "@/services/useAuthService";
+import useAuthService from "@/services/AuthService";
 import { PATH } from "@/routes/path";
 import { toast } from "sonner";
 import {
