@@ -43,5 +43,5 @@ export enum WALLET_TRANSACTION_TYPE {
     Receive = 3,        // Nhận tiền
     PlaceDeposit = 4,   // Đặt cọc
     RefundDeposit = 5   // Hoàn cọc
-  }
+}
   

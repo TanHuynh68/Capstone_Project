@@ -11,7 +11,8 @@ export enum USER_ROUTES {
     PAYOS_PAYMENT_RESULT = "api/v1/wallet/payos-callback",
     PAYMENT = 'payment',
     PAYMENT_SUCCESS = 'payment/success',
-    PAYMENT_FAILED = 'payment/failed'
+    PAYMENT_FAILED = 'payment/failed',
+    TRANSACTION_HISTORY = 'transaction-history',
 }
 
 export enum AUTH_ROUTES {
@@ -27,7 +28,7 @@ export enum ADMIN_ROUTES {
     ADMIN = "/admin", // Đảm bảo có dấu "/" ở đầu
     ADMIN_DASHBOARD = "dashboard",
 }
-//
+
 
 export enum PATH {
     HOME = "/",
