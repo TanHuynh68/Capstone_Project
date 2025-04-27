@@ -8,6 +8,7 @@ export enum USER_ROUTES {
     VERIFY_ACCOUNT = "verify-account",
     DEPOSIT_MONEY = "deposit-money",
     PAYMENT_RESULT = "api/v1/wallet/vnpay-callback",
+    PAYOS_PAYMENT_RESULT = "api/v1/wallet/payos-callback",
     PAYMENT = 'payment',
     PAYMENT_SUCCESS = 'payment/success',
     PAYMENT_FAILED = 'payment/failed'

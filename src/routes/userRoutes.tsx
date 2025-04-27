@@ -11,6 +11,7 @@ import {
   PaymentResultPage,
   PaymentSuccessPage
 } from "../pages";
+import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 //
 export const userRoutes = [
   {
@@ -48,6 +49,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.PAYMENT_FAILED,
         element: <PaymentFailedPage />,
+      },
+      {
+        path: USER_ROUTES.PAYOS_PAYMENT_RESULT,
+        element: <PayOsPaymentResult />,
       },
     ],
   },

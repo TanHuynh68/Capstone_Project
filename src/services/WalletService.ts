@@ -92,16 +92,18 @@ const WalletService = () => {
 
   const createPayosLink = useCallback(async (data: any) => {
     try {
-      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.PAYOS_LINK, data);
+      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.PAYOS_LINK, {
+        amount: data, redirectUrl: ENV.PAYMENT_REDIRECT_URL
+      });
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data);
     }
   }, [callApi]);
 
-  const getPayosCallback = useCallback(async () => {
+  const getPayosCallback = useCallback(async (link: string) => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.PAYOS_CALLBACK);
+      const res = await callApi(HTTP_METHOD.GET, link);
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data);
