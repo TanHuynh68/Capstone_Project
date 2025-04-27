@@ -22,8 +22,8 @@ const formSchema = z.object({
         .refine((val) => !isNaN(Number(val)), {
             message: "Số tiền phải là số",
         })
-        .refine((val) => Number(val) > 10000, {
-            message: "Số tiền phải lớn hơn 10,000",
+        .refine((val) => Number(val) >= 10000, {
+            message: "Số tiền phải lớn hơn hoặc bằng 10,000",
         })
         .refine((val) => Number(val) <= 100000000, {
             message: "Số tiền không được vượt quá 100,000,000",
@@ -87,7 +87,7 @@ export default function DepositMoney() {
                 const response = await createPayosLink(data.amount);
                 console.log(response)
                 if (response) {
-                    window.location.href = response?.responseRequestModel?.vnPayUrl
+                    window.location.href = response?.responseRequestModel?.payOSUrl
                 }
                 // Reset form and selection after successful submission
                 form.reset()

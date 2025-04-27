@@ -11,3 +11,4 @@ export { default as DepositMoneyPage } from './customer/manage-wallet/deposit-mo
 export { default as PaymentSuccessPage } from './customer/manage-wallet/payment-success'
 export { default as PaymentFailedPage } from './customer/manage-wallet/payment-failed'
 export { default as PaymentResultPage } from './customer/manage-wallet/payment-result'
+export { default as PayOsPaymentResultPage } from './customer/manage-wallet/payos-payment-result'

@@ -17,8 +17,8 @@ export default function PaymentFailed() {
             There was an issue processing your payment. Please try again or contact support for assistance.
           </p>
         </div>
-        <Separator className="my-6" />
-        <div className="grid gap-4">
+        {/* <Separator className="my-6" /> */}
+        {/* <div className="grid gap-4">
           <div className="grid grid-cols-[100px_1fr] items-center gap-2">
             <p className="text-muted-foreground">Order #</p>
             <p>12345</p>
@@ -35,7 +35,7 @@ export default function PaymentFailed() {
             <p className="text-muted-foreground">Delivery</p>
             <p>Standard Shipping</p>
           </div>
-        </div>
+        </div> */}
         <Separator className="my-6" />
         <div className="flex justify-center">
           <Link
