@@ -1,3 +1,8 @@
+
+
+import { WALLET_TRANSACTION_TYPE } from "@/constants";
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
 /**
  * Kiểm tra xem một object có rỗng không (không có key nào).
  * @param obj - object bất kỳ
@@ -91,3 +96,46 @@ export const toLowerCase = (role: any): any => {
 export const formatCurrencyVND =(amount: number)=> {
     return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+export const getTransactionTypeLabel = (type: WALLET_TRANSACTION_TYPE): string => {
+    switch (type) {
+      case WALLET_TRANSACTION_TYPE.Deposit:
+        return "Nạp tiền"
+      case WALLET_TRANSACTION_TYPE.Withdraw:
+        return "Rút tiền"
+      case WALLET_TRANSACTION_TYPE.Transfer:
+        return "Chuyển tiền"
+      case WALLET_TRANSACTION_TYPE.Receive:
+        return "Nhận tiền"
+      case WALLET_TRANSACTION_TYPE.PlaceDeposit:
+        return "Đặt cọc"
+      case WALLET_TRANSACTION_TYPE.RefundDeposit:
+        return "Hoàn cọc"
+      default:
+        return "Không xác định"
+    }
+  }
+
+  export const getTransactionTypeName = (type: string): string => {
+    switch (type) {
+      case 'Deposit':
+        return "Nạp tiền"
+      case 'Withdraw':
+        return "Rút tiền"
+      case 'Transfer':
+        return "Chuyển tiền"
+      case 'Receive':
+        return "Nhận tiền"
+      case 'PlaceDeposit':
+        return "Đặt cọc"
+      case 'RefundDeposit':
+        return "Hoàn cọc"
+      default:
+        return "Không xác định"
+    }
+  }
