@@ -16,21 +16,34 @@ const PayOsPaymentResult = () => {
     const code = searchParams.get('code');
     const status = searchParams.get('status');
     useEffect(() => {
-      
+
         console.log('code: ', code)
         console.log('status: ', status)
         // Set a 3-second delay before processing the redirect
         const timer = setTimeout(async () => {
             switch (code) {
-                case '00': // Payment successful
-                    const response = await getPayosCallback(urlWithoutBase)
-                    console.log('response: ', response)
-                    if (response) {
-                        window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_SUCCESS 
-                            + '?code=' + code + "&status=" + status
-                            }`;
-                    }else{
-                        navigate(PATH.HOME)
+                case '00':
+                    if (status != 'CANCELLED') {
+                        const response = await getPayosCallback(urlWithoutBase)
+                        console.log('response: ', response)
+                        if (response) {
+                            window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_SUCCESS
+                                + '?code=' + code + "&status=" + status
+                                }`;
+                        } else {
+                            // nếu đã callback nhưng vẫn cố tình gọi api sẽ đã về home và in ra lỗi
+                            navigate(PATH.HOME)
+                        }
+                    } else {
+                        const response = await getPayosCallback(urlWithoutBase)
+                        if (response) {
+                            window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_FAILED
+                                + '?code=' + code + "&status=" + status
+                                }`
+                        } else {
+                            // nếu đã callback nhưng vẫn cố tình gọi api sẽ đã về home và in ra lỗi
+                            navigate(PATH.HOME)
+                        }
                     }
                     break;
             }
