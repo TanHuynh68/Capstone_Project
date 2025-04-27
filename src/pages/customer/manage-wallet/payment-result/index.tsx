@@ -26,18 +26,27 @@ const PaymentResult = () => {
         console.log('vnp_ResponseCode: ', vnp_ResponseCode)
         // Set a 3-second delay before processing the redirect
         const timer = setTimeout(async () => {
-            switch (vnp_ResponseCode) {
-                case '00': // Payment successful
-                    const response = await getVnpayCallback(urlWithoutBase)
-                    console.log('response: ', response)
-                    if (response) {
-                        window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_SUCCESS + '?depositMoney=' + depositMoney
-                            + '&vnp_TransactionNo=' + vnp_TransactionNo
-                            }`;
-                    }else{
-                        navigate(PATH.HOME)
-                    }
-                    break;
+            // payment success
+            if (vnp_ResponseCode === '00') {
+                const response = await getVnpayCallback(urlWithoutBase)
+                console.log('response: ', response)
+                if (response) {
+                    window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_SUCCESS + '?depositMoney=' + depositMoney
+                        + '&vnp_TransactionNo=' + vnp_TransactionNo
+                        }`;
+                } else {
+                    navigate(PATH.HOME)
+                }
+            }else{
+                const response = await getVnpayCallback(urlWithoutBase)
+                console.log('response: ', response)
+                if (response) {
+                    window.location.href = `${ENV.PAYMENT_REDIRECT_URL + '/' + PATH.PAYMENT_FAILED + '?depositMoney=' + depositMoney
+                        + '&vnp_TransactionNo=' + vnp_TransactionNo
+                        }`;
+                } else {
+                    navigate(PATH.HOME)
+                }
             }
         }, 2000);
 
