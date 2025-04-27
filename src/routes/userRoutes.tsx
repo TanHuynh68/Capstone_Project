@@ -9,7 +9,8 @@ import {
   PaymentFailedPage,
   DepositMoneyPage,
   PaymentResultPage,
-  PaymentSuccessPage
+  PaymentSuccessPage,
+  TransactionHistoryPage
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 //
@@ -53,6 +54,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.PAYOS_PAYMENT_RESULT,
         element: <PayOsPaymentResult />,
+      },
+      {
+        path: USER_ROUTES.TRANSACTION_HISTORY,
+        element: <TransactionHistoryPage />,
       },
     ],
   },

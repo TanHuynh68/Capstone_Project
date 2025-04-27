@@ -18,7 +18,7 @@ import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/userSlice";
-import { PATH } from "@/routes/path";
+import { PATH, USER_ROUTES } from "@/routes/path";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -182,23 +182,28 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 z-50">
                   <DropdownMenuItem>
-                    <Link to="/profile" className="w-full">
-                      Profile
+                    <Link to={USER_ROUTES.PROFILE} className="w-full">
+                    Hồ sơ
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/orders" className="w-full">
-                      Orders
+                    Đơn đặt hàng
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/settings" className="w-full">
-                      Settings
+                    Cài đặt
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link to="/deposit-money" className="w-full">
-                      Deposit money
+                    <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
+                    Nạp tiền
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to={USER_ROUTES.TRANSACTION_HISTORY} className="w-full">
+                    Lịch sử giao dịch
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
