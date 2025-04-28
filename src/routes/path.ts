@@ -13,6 +13,7 @@ export enum USER_ROUTES {
     PAYMENT_SUCCESS = 'payment/success',
     PAYMENT_FAILED = 'payment/failed',
     TRANSACTION_HISTORY = 'transaction-history',
+    DEPOSIT_WITHDRAWAL_HISTORY = 'deposit-withdrawal-history',
 }
 
 export enum AUTH_ROUTES {
