@@ -13,3 +13,4 @@ export { default as PaymentFailedPage } from './customer/manage-wallet/payment-f
 export { default as PaymentResultPage } from './customer/manage-wallet/payment-result'
 export { default as PayOsPaymentResultPage } from './customer/manage-wallet/payos-payment-result'
 export { default as TransactionHistoryPage } from './customer/manage-wallet/transaction-history'
+export { default as DepositWithdrawalHistoryPage } from './customer/manage-wallet/deposit-withdrawal-history'

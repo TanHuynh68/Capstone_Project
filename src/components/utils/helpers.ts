@@ -139,3 +139,39 @@ export const getTransactionTypeLabel = (type: WALLET_TRANSACTION_TYPE): string =
         return "Không xác định"
     }
   }
+
+
+export function getPaymentMethodFromDescription(description: string): string {
+  if (description.includes("VNPay")) {
+    return "VNPay"
+  } else if (description.includes("PayOS")) {
+    return "PayOS"
+  } else if (description.includes("MoMo")) {
+    return "MoMo"
+  } else if (description.includes("ZaloPay")) {
+    return "ZaloPay"
+  } else {
+    return "Khác"
+  }
+}
+
+export function isDepositOrder(description: string): boolean {
+  return description.includes("Nạp")
+}
+
+export function isWithdrawalOrder(description: string): boolean {
+  return description.includes("Rút")
+}
+
+export function getOrderType(description: string): "Nạp tiền" | "Rút tiền" | "Khác" {
+  if (isDepositOrder(description)) {
+    return "Nạp tiền"
+  } else if (isWithdrawalOrder(description)) {
+    return "Rút tiền"
+  } else {
+    return "Khác"
+  }
+}
+
+
+
