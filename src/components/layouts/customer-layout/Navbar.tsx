@@ -206,6 +206,11 @@ export function Navbar() {
                     Lịch sử giao dịch
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to={USER_ROUTES.DEPOSIT_WITHDRAWAL_HISTORY} className="w-full">
+                    Lịch sử nạp rút
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       dispatch(logout());

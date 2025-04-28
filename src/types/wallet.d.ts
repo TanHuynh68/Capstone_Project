@@ -18,3 +18,12 @@ interface Transaction {
 }
 
 
+ interface WalletOrder {
+  walletOrderID: string
+  walletID: string
+  amount: number
+  orderStatusDisplay: "Completed" | "Pending" | "Canceled" | string
+  description: string
+  orderDate: string
+  paymentMethod?: string
+}
