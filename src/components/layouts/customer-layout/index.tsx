@@ -10,7 +10,7 @@ const CustomerLayout = () => {
                     <Navbar />
                 </div>
             </div>
-            <div className="mx-20 py-10">
+            <div className="pb-10">
                 <Outlet />
             </div>
             <div className="border-t">
