@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
 import { productData } from "./homeData"
+import HomeCarousel from "@/components/molecules/home/HomeCarousel"
 
 // Product type definition
 export interface Product {
@@ -174,6 +175,12 @@ const HomePage = () => {
           </Button>
         </div>
       )}
+      <div className="text-center text-3xl font-semibold mt-10 text-purple-400">
+      Top thiết kế tuần
+      </div>
+      <div>
+        <HomeCarousel/>
+      </div>
     </div>
   )
 }
