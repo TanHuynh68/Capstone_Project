@@ -68,17 +68,15 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       const amount = Number.parseFloat(row.getValue("amount"))
-      const type = row.getValue("transactionType") as WALLET_TRANSACTION_TYPE
+      const type = row.getValue("transactionType") 
       const isPositive =
-        type === WALLET_TRANSACTION_TYPE.Deposit ||
-        type === WALLET_TRANSACTION_TYPE.Receive ||
-        type === WALLET_TRANSACTION_TYPE.RefundDeposit
+        type === 'Deposit'
 
       // Format the amount as currency
       const formatted = new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
-      }).format(amount)
+      }).format(amount*1000)
 
       return (
         <div className="flex items-center">
