@@ -15,9 +15,11 @@ const PaymentResult = () => {
     const depositMoney = urlParams.get('depositMoney');
     const vnp_TransactionNo = urlParams.get('vnp_TransactionNo');
     const fullUrl = window.location.href;
-    const baseUrl = 'http://localhost:5173/api/v1/';
-    // Cắt phần "http://localhost:5173/" ra khỏi URL
+    let baseUrl = `${ENV.PAYMENT_REDIRECT_URL}/api/v1/`;
+
+
     const urlWithoutBase = fullUrl.replace(baseUrl, '');
+
     console.log('userId: ', userId)
     const { getVnpayCallback } = WalletService()
     useEffect(() => {
