@@ -158,11 +158,11 @@ export function FullScreenCarousel({
 
   return (
     <div
-      className="relative h-screen w-full overflow-hidden bg-black "
+      className="relative h-[90vh] w-full overflow-hidden bg-black "
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      
+
     >
       {/* Images */}
       {images.map((image, index) => (
@@ -172,7 +172,7 @@ export function FullScreenCarousel({
           style={getImageStyle(index)}
           aria-hidden={index !== currentIndex}
         >
-          <img src={image.src || "/placeholder.svg"} alt={image.alt} className="h-full w-full object-cover " />
+          <img src={image.src || "/placeholder.svg"} alt={image.alt} className="object-center h-[100vh] w-full  " />
         </div>
       ))}
 

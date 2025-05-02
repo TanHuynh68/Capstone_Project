@@ -21,8 +21,8 @@ const images: CarouselImage[] = [
 
 export default function HomeFullScreenCarousel() {
   return (
-    <div className="h-screen w-full">
-      <FullScreenCarousel images={images} autoPlayInterval={7000} transitionDuration={600} />
+    <div className="flex flex-col min-h-screen">
+      <FullScreenCarousel images={images} />
     </div>
   )
 }
