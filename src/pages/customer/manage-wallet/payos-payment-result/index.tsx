@@ -9,7 +9,9 @@ const PayOsPaymentResult = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate()
     const fullUrl = window.location.href;
-    const baseUrl = 'http://localhost:5173/api/v1/';
+
+    let baseUrl = `${ENV.PAYMENT_REDIRECT_URL}/api/v1/`;
+
     // Cắt phần "http://localhost:5173/" ra khỏi URL
     const urlWithoutBase = fullUrl.replace(baseUrl, '');
     const { getPayosCallback } = WalletService()
