@@ -34,10 +34,11 @@ import {
 } from "@/components/ui/sidebar";
 import { NavDocuments } from "./nav-documents";
 import { useDispatch } from "react-redux";
+import { logout } from "@/redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
-import { logout } from "@/redux/userSlice";
+import { STAFF_ROUTES } from "@/routes/path";
 
 const data = {
   user: {
@@ -50,6 +51,11 @@ const data = {
       title: "Dashboard",
       url: "#",
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Manage Users",
+      url: `${STAFF_ROUTES.STAFF}/${STAFF_ROUTES.STAFF_MANAGER_USERS}`,
+      icon: UsersIcon,
     },
     {
       title: "Lifecycle",

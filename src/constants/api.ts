@@ -10,6 +10,9 @@ export const enum API_ENDPOINTS {
     ADDRESS = 'address',
     AUTH = 'auth',
     WALLET = 'wallet',
+    ACCOUNT = 'account',
+    USER = 'user',
+    CHANGE_ACTIVE = 'change-active'
 }
 
 export enum API_ROUTES {
@@ -17,8 +20,12 @@ export enum API_ROUTES {
     CREATE_ADDRESS = `${API_ENDPOINTS.ADDRESS}`,
     GET_ADDRESSES = `${API_ENDPOINTS.ADDRESS}`,
     UPDATE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
-
     DELETE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
+    //Manager user by staff
+    // CREATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
+    GET_USERES = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
+    UPDATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.CHANGE_ACTIVE}`,
+    // DELETE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}/:id`,
 
     GENERATE_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/generate-code`,
     REDEEM_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/redeem-code`,
@@ -38,18 +45,18 @@ export enum API_ROUTES {
     // Test API
     TEST = `/test`,
     GET_WALLET = `${API_ENDPOINTS.WALLET}`,
-    STAFF_WALLET_TRANSACTION= `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/transaction`,
-    WALLET_TRANSACTION= `${API_ENDPOINTS.WALLET}/transaction?page=1&size=100`,
-    STAFF_WALLET_ORDER= `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
-    WALLET_ORDER= `${API_ENDPOINTS.WALLET}/order?page=1&size=100`,
-    PLACE_DEPOSIT= `${API_ENDPOINTS.WALLET}/place-deposit`,
-    REFUND_DEPOSIT= `${API_ENDPOINTS.WALLET}/refund-deposit`,
-    VNPAY_LINK= `${API_ENDPOINTS.WALLET}/vnpay-link?depositMoney`,
-    VNPAY_CALLBACK= `${API_ENDPOINTS.WALLET}/vnpay-callback`,
-    PAYOS_LINK= `${API_ENDPOINTS.WALLET}/payos-link`,
-    PAYOS_CALLBACK= `${API_ENDPOINTS.WALLET}/payos-callback`,
-    PAYOS_WEBHOOK= `${API_ENDPOINTS.WALLET}/payos/webhook`,
-    PAYOS_PAYMENT_INFO= `${API_ENDPOINTS.WALLET}/payos-payment-info`, // cần truyền {id} khi sử dụng
-    PAYOS_CANCEL= `${API_ENDPOINTS.WALLET}/payos/cancel`, // cần truyền {id} khi sử dụng
+    STAFF_WALLET_TRANSACTION = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/transaction`,
+    WALLET_TRANSACTION = `${API_ENDPOINTS.WALLET}/transaction?page=1&size=100`,
+    STAFF_WALLET_ORDER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
+    WALLET_ORDER = `${API_ENDPOINTS.WALLET}/order?page=1&size=100`,
+    PLACE_DEPOSIT = `${API_ENDPOINTS.WALLET}/place-deposit`,
+    REFUND_DEPOSIT = `${API_ENDPOINTS.WALLET}/refund-deposit`,
+    VNPAY_LINK = `${API_ENDPOINTS.WALLET}/vnpay-link?depositMoney`,
+    VNPAY_CALLBACK = `${API_ENDPOINTS.WALLET}/vnpay-callback`,
+    PAYOS_LINK = `${API_ENDPOINTS.WALLET}/payos-link`,
+    PAYOS_CALLBACK = `${API_ENDPOINTS.WALLET}/payos-callback`,
+    PAYOS_WEBHOOK = `${API_ENDPOINTS.WALLET}/payos/webhook`,
+    PAYOS_PAYMENT_INFO = `${API_ENDPOINTS.WALLET}/payos-payment-info`, // cần truyền {id} khi sử dụng
+    PAYOS_CANCEL = `${API_ENDPOINTS.WALLET}/payos/cancel`, // cần truyền {id} khi sử dụng
 
 }

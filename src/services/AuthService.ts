@@ -45,6 +45,9 @@ const useAuthService = () => {
           case ROLE.ADMIN:
             navigate("/admin");
             break;
+          case ROLE.STAFF:
+            navigate("/staff");
+            break;
           default:
             navigate("/");
             break;
