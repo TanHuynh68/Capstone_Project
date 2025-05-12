@@ -189,16 +189,6 @@ export function Navbar() {
                       Nạp tiền
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to={USER_ROUTES.TRANSACTION_HISTORY} className="w-full">
-                      Lịch sử giao dịch
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to={USER_ROUTES.DEPOSIT_WITHDRAWAL_HISTORY} className="w-full">
-                      Lịch sử nạp rút
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       dispatch(logout())

@@ -12,7 +12,7 @@ export const metadata = {
     description: "Xem lịch sử giao dịch của ví điện tử",
 }
 
-export default function TransactionHistoryPage() {
+export default function TransactionHistory() {
     const [transactions, setTransaction] = useState<Transaction[]>([])
     const { getWalletTransaction } = WalletService()
 
