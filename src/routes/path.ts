@@ -14,6 +14,7 @@ export enum USER_ROUTES {
     PAYMENT_FAILED = 'payment/failed',
     TRANSACTION_HISTORY = 'transaction-history',
     DEPOSIT_WITHDRAWAL_HISTORY = 'deposit-withdrawal-history',
+    CHAT = 'chat',
 }
 
 export enum AUTH_ROUTES {

@@ -11,7 +11,8 @@ import {
   PaymentResultPage,
   PaymentSuccessPage,
   TransactionHistoryPage,
-  DepositWithdrawalHistoryPage
+  DepositWithdrawalHistoryPage,
+  Chat
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 //
@@ -63,6 +64,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.DEPOSIT_WITHDRAWAL_HISTORY,
         element: <DepositWithdrawalHistoryPage />,
+      },
+      {
+        path: USER_ROUTES.CHAT,
+        element: <Chat />,
       },
     ],
   },
