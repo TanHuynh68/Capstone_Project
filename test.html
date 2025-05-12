@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Notification Client</title>
+</head>
+
+<body>
+    <h2>🔐 Đăng nhập</h2>
+    <input type="text" id="username" placeholder="Tên đăng nhập" style="width: 200px;" />
+    <input type="password" id="password" placeholder="Mật khẩu" style="width: 200px;" />
+    <button onclick="signIn()">Đăng nhập</button>
+
+    <h2>👤 Thông tin Profile:</h2>
+    <div id="profile-details"></div>
+
+    <h2>💰 Ví của bạn:</h2>
+    <div id="wallet-details">Đang tải ví...</div>
+
+    <h2>🔔 Danh sách thông báo:</h2>
+    <button onclick="reloadNotifications()" style="margin-bottom: 10px;">🔄 Tải lại thông báo</button>
+    <ul id="noti-list"></ul>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        let connection;
+        let accountId = null;
+
+        function signIn() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (!username || !password) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            fetch("https://pdcbackendapi.tlog.website/api/v1/auth/sign-in", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSuccess) {
+                        const token = data.responseRequestModel.jwtToken.accessToken;
+                        accountId = data.responseRequestModel.accountID;
+                        localStorage.setItem("accessToken", token);
+                        localStorage.setItem("accountId", accountId);
+                        connectToHub(token);
+                        getProfileInfo(token);
+                        getWalletInfo(token);
+                        getNotifications(token, accountId);
+                    } else {
+                        alert("Đăng nhập thất bại: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi khi đăng nhập:", err);
+                    alert("Lỗi khi đăng nhập.");
+                });
+        }
+
+        function joinChatRoom(roomId) {
+            if (!connection) {
+                console.error("Connection chưa sẵn sàng.");
+                return;
+            }
+
+            connection.invoke("JoinRoom", roomId)
+                .then(() => console.log("✅ Đã join phòng: " + roomId))
+                .catch(err => console.error("❌ Lỗi khi join phòng:", err));
+        }
+
+
+        function connectToHub(token) {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("https://pdcbackendapi.tlog.website/notificationHub", {
+                    accessTokenFactory: () => localStorage.getItem("accessToken")
+                })
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("ReceiveNotification", (notification) => {
+                console.log("📨 Nhận được thông báo mới:", notification);
+                addNotificationToList(notification);
+            });
+
+            connection.on("NotificationDeleted", (notificationId) => {
+                const item = document.getElementById(notificationId);
+                if (item) item.remove();
+            });
+
+            connection.on("ReceiveMessage", (message) => {
+                console.log("💬 Nhận được tin nhắn:", message);
+                const chatBox = document.getElementById("chat-box");
+                const msgElement = document.createElement("div");
+                msgElement.innerHTML = `<strong>${message.senderId}:</strong> ${message.message}`;
+                chatBox.appendChild(msgElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+
+            connection.start()
+                .then(() => console.log("✅ Kết nối SignalR thành công"))
+                .catch(err => {
+                    console.error("❌ Lỗi khi kết nối hub:", err);
+                    alert("Lỗi khi kết nối Hub: " + err);
+                });
+        }
+
+        function sendMessage() {
+            const roomId = document.getElementById("roomId").value.trim();
+            const message = document.getElementById("chat-message").value.trim();
+            const senderId = localStorage.getItem("accountId");
+
+            if (!roomId || !message) {
+                alert("Vui lòng nhập Room ID và tin nhắn!");
+                return;
+            }
+
+            connection.invoke("SendMessageToRoom", {
+                roomId,
+                senderId,
+                message
+            }).then(() => {
+                document.getElementById("chat-message").value = "";
+            }).catch(err => {
+                console.error("❌ Lỗi khi gửi tin nhắn:", err);
+            });
+        }
+
+        function getProfileInfo(token) {
+            fetch('https://pdcbackendapi.tlog.website/api/v1/auth/profile', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isSuccess) {
+                        const p = data.responseRequestModel;
+                        document.getElementById("profile-details").innerHTML = `
+                            <strong>Full Name:</strong> ${p.fullName} <br>
+                            <strong>Email:</strong> ${p.email} <br>
+                            <strong>Phone:</strong> ${p.phoneNumber} <br>
+                            <strong>Gender:</strong> ${p.genderDisplay} <br>
+                            <strong>Role:</strong> ${p.roleDisplay} <br>
+                            <strong>Created At:</strong> ${p.createdAt}
+                        `;
+                    } else {
+                        document.getElementById("profile-details").innerText = "Không thể lấy thông tin profile.";
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi khi lấy profile:", err);
+                    document.getElementById("profile-details").innerText = "Lỗi khi lấy profile.";
+                });
+        }
+
+        function getWalletInfo(token) {
+            fetch('https://pdcbackendapi.tlog.website/api/v1/wallet', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSuccess) {
+                        const w = data.responseRequestModel;
+                        document.getElementById("wallet-details").innerHTML = `
+                            <strong>Mã ví:</strong> ${w.walletID}<br>
+                            <strong>Số dư:</strong> ${w.balance}đ<br>
+                            <strong>Đang khoá:</strong> ${w.locked}đ<br>
+                        `;
+                    } else {
+                        document.getElementById("wallet-details").innerText = "Không thể lấy thông tin ví.";
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi khi lấy ví:", err);
+                    document.getElementById("wallet-details").innerText = "Lỗi khi lấy thông tin ví.";
+                });
+        }
+
+        function getNotifications(token, accountId) {
+            fetch(`https://pdcbackendapi.tlog.website/api/v1/notification?accountId=${accountId}`, {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const notiList = document.getElementById("noti-list");
+                    notiList.innerHTML = '';
+                    const notifications = data.responseRequestModel.responseList.items;
+                    notifications.forEach(notification => addNotificationToList(notification));
+                })
+                .catch(err => {
+                    console.error("Lỗi khi lấy thông báo:", err);
+                    document.getElementById("noti-list").innerText = "Lỗi khi lấy thông báo.";
+                });
+        }
+
+        function addNotificationToList(notification) {
+            const notiList = document.getElementById("noti-list");
+            const li = document.createElement("li");
+            li.id = notification.notificationID;
+            li.innerHTML = `
+        [${notification.title}]-${notification.message} (Time: ${new Date(notification.createdAt).toLocaleString()})
+                <button onclick="deleteNotification('${notification.notificationID}')" style="margin-left: 10px; color: red;">❌</button>
+            `;
+            notiList.prepend(li);
+        }
+
+        function deleteNotification(notificationId) {
+            const token = localStorage.getItem("accessToken");
+            fetch(`https://pdcbackendapi.tlog.website/api/v1/notification/${notificationId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const item = document.getElementById(notificationId);
+                        if (item) item.remove();
+                        console.log(`✅ Đã xoá thông báo ${notificationId}`);
+                    } else {
+                        console.error("❌ Không thể xoá thông báo:", response.status);
+                        alert("Xoá không thành công.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi khi xoá thông báo:", error);
+                    alert("Lỗi khi xoá.");
+                });
+        }
+
+        function reloadNotifications() {
+            const token = localStorage.getItem("accessToken");
+            const accountId = localStorage.getItem("accountId");
+            if (!token || !accountId) {
+                alert("Vui lòng đăng nhập lại để tải thông báo.");
+                return;
+            }
+            getNotifications(token, accountId);
+        }
+    </script>
+</body>
+
+</html>
