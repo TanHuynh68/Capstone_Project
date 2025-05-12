@@ -14,6 +14,7 @@ export enum USER_ROUTES {
     PAYMENT_FAILED = 'payment/failed',
     TRANSACTION_HISTORY = 'transaction-history',
     DEPOSIT_WITHDRAWAL_HISTORY = 'deposit-withdrawal-history',
+    CHAT = 'chat',
 }
 
 export enum AUTH_ROUTES {
@@ -22,12 +23,18 @@ export enum AUTH_ROUTES {
     REGISTER = "register",
     FORGOT_PASSWORD = "forgot-password",
     VERIFY_ACCOUNT = "verify-account",
-    
+
 }
 
 export enum ADMIN_ROUTES {
     ADMIN = "/admin", // Đảm bảo có dấu "/" ở đầu
     ADMIN_DASHBOARD = "dashboard",
+}
+
+export enum STAFF_ROUTES {
+    STAFF = "/staff", // Đảm bảo có dấu "/" ở đầu
+    STAFF_DASHBOARD = "dashboard",
+    STAFF_MANAGER_USERS = "manager-users",
 }
 
 
@@ -41,4 +48,6 @@ export enum PATH {
     VERIFY_ACCOUNT = USER_ROUTES.AUTH + "/" + USER_ROUTES.VERIFY_ACCOUNT,
     PAYMENT_SUCCESS = USER_ROUTES.PAYMENT + "/" + 'success',
     PAYMENT_FAILED = USER_ROUTES.PAYMENT + "/" + 'failed',
+    
+    STAFF_MANAGER_USERS = STAFF_ROUTES.STAFF + "/" + 'account' + STAFF_ROUTES.STAFF_MANAGER_USERS
 }

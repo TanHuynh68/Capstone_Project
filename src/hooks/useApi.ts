@@ -12,7 +12,20 @@ const useApiService = () => {
     ) => {
       try {
         setIsLoading(true);
-        const response = await api[method](url, data);
+        let response;
+
+        if (method === "get") {
+          response = await api.get(url, { params: data }); 
+        } else if (method === "post") {
+          response = await api.post(url, data);
+        } else if (method === "put") {
+          response = await api.put(url, data);
+        } else if (method === "delete") {
+          response = await api.delete(url, { data });
+        } else {
+          throw new Error(`Unsupported method: ${method}`);
+        }
+
         console.log(response);
         return response.data;
       } catch (e: any) {
@@ -23,6 +36,7 @@ const useApiService = () => {
     },
     []
   );
+
 
   return { loading, callApi, setIsLoading };
 };
