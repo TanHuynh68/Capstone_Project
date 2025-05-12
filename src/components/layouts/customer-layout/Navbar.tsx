@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, ShoppingCart, Search } from "lucide-react";
+import { Menu, X, ChevronDown, User, ShoppingCart, Search, Bell } from "lucide-react";
 
 import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
@@ -19,45 +19,43 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/userSlice";
 import { PATH, USER_ROUTES } from "@/routes/path";
+import { useNotifications } from "@/hooks/use-notifications";
+import { NotificationDropdown } from "@/components/atoms/notification/notification-dropdown";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { title: "Home", href: "/" },
   { title: "Products", href: "/products" },
   { title: "About", href: "/about" },
   { title: "Contact", href: "/contact" },
-];
+]
 
 const categories = [
   { title: "Electronics", href: "/products/electronics" },
   { title: "Clothing", href: "/products/clothing" },
   { title: "Home & Garden", href: "/products/home-garden" },
   { title: "Sports", href: "/products/sports" },
-];
+]
 
 export function Navbar() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const userInfo = useSelector((state: RootState) => state.user);
-  const isLoggedIn = !!userInfo;
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const userInfo = useSelector((state: RootState) => state.user)
+  const isLoggedIn = !!userInfo
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { unreadCount } = useNotifications()
+
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
-        <Link
-          key={item.title}
-          to={item.href}
-          className="text-lg font-medium transition-colors hover:text-primary"
-        >
+        <Link key={item.title} to={item.href} className="text-lg font-medium transition-colors hover:text-primary">
           {item.title}
         </Link>
       ))}
       <div className="relative">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center justify-start px-0 font-medium"
-            >
+          <DropdownMenuTrigger >
+            <Button variant="ghost" className="flex items-center justify-start px-0 font-medium">
               Products <ChevronDown className="ml-1 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -75,12 +73,12 @@ export function Navbar() {
         </DropdownMenu>
       </div>
       <div className="pt-4">
-        <Button asChild className="w-full">
+        <Button  className="w-full">
           <Link to="/login">Sign In</Link>
         </Button>
       </div>
     </div>
-  );
+  )
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background border-b">
@@ -93,21 +91,14 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex md:items-center md:space-x-6">
           {navItems.map((item, index) => (
-            <Link
-              key={index}
-              to={item.href}
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
+            <Link key={index} to={item.href} className="text-sm font-medium transition-colors hover:text-primary">
               {item.title}
             </Link>
           ))}
           <div className="relative">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center text-sm font-medium"
-                >
+              <DropdownMenuTrigger >
+                <Button variant="ghost" className="flex items-center text-sm font-medium">
                   Products <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -127,27 +118,13 @@ export function Navbar() {
         <div className="flex items-center space-x-2">
           {isSearchOpen ? (
             <div className="flex items-center">
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-[200px] md:w-[300px]"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(false)}
-                className="ml-2"
-              >
+              <Input type="search" placeholder="Search..." className="w-[200px] md:w-[300px]" />
+              <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)} className="ml-2">
                 <X className="h-5 w-5" />
               </Button>
             </div>
           ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(true)}
-              className="hidden md:flex"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)} className="hidden md:flex">
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
             </Button>
@@ -155,12 +132,23 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          <Button
-            variant="ghost"
-            size="icon"
-            asChild
-            className="hidden md:flex"
-          >
+          {/* Notification Icon */}
+          <NotificationDropdown >
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Badge>
+              )}
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </NotificationDropdown>
+
+          <Button variant="ghost" size="icon"  className="hidden md:flex">
             <Link to="/cart">
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Cart</span>
@@ -183,38 +171,38 @@ export function Navbar() {
                 <DropdownMenuContent className="w-56 z-50">
                   <DropdownMenuItem>
                     <Link to={USER_ROUTES.PROFILE} className="w-full">
-                    Hồ sơ
+                      Hồ sơ
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/orders" className="w-full">
-                    Đơn đặt hàng
+                      Đơn đặt hàng
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/settings" className="w-full">
-                    Cài đặt
+                      Cài đặt
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
-                    Nạp tiền
+                      Nạp tiền
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to={USER_ROUTES.TRANSACTION_HISTORY} className="w-full">
-                    Lịch sử giao dịch
+                      Lịch sử giao dịch
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to={USER_ROUTES.DEPOSIT_WITHDRAWAL_HISTORY} className="w-full">
-                    Lịch sử nạp rút
+                      Lịch sử nạp rút
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      dispatch(logout());
-                      navigate("/auth/login");
+                      dispatch(logout())
+                      navigate("/auth/login")
                     }}
                   >
                     Logout
@@ -224,17 +212,17 @@ export function Navbar() {
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              <Button asChild variant="outline">
+              <Button  variant="outline">
                 <Link to={PATH.LOGIN_IN}>Đăng nhập</Link>
               </Button>
-              <Button asChild>
+              <Button >
                 <Link to={PATH.REGISTER}>Đăng ký</Link>
               </Button>
             </div>
           )}
 
           <Sheet>
-            <SheetTrigger asChild>
+            <SheetTrigger >
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
@@ -247,5 +235,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  );
+  )
 }
