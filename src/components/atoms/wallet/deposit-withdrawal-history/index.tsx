@@ -8,7 +8,7 @@ export const metadata = {
     description: "Xem lịch sử nạp và rút tiền của ví điện tử",
 }
 
-export default function DepositWithdrawalHistoryPage() {
+export default function DepositWithdrawalHistory() {
     const [data, setData]= useState<WalletOrder[]>([])
     const { getWalletOrder } = WalletService()
 
