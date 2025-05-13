@@ -11,6 +11,7 @@ export enum USER_ROUTES {
     PAYOS_PAYMENT_RESULT = "api/v1/wallet/payos-callback",
     PAYMENT = 'payment',
     PAYMENT_SUCCESS = 'payment/success',
+    PAYMENT_PAYOS_SUCCESS = 'payment/success?code=00&status=PAID',
     PAYMENT_FAILED = 'payment/failed',
     TRANSACTION_HISTORY = 'transaction-history',
     DEPOSIT_WITHDRAWAL_HISTORY = 'deposit-withdrawal-history',
@@ -46,7 +47,10 @@ export enum PATH {
     CHANGE_PASSWORD = USER_ROUTES.AUTH + "/" + USER_ROUTES.CHANGE_PASSWORD,
     EDIT_PROFILE = USER_ROUTES.AUTH + "/" + USER_ROUTES.EDIT_PROFILE,
     VERIFY_ACCOUNT = USER_ROUTES.AUTH + "/" + USER_ROUTES.VERIFY_ACCOUNT,
+    //VNPAY
     PAYMENT_SUCCESS = USER_ROUTES.PAYMENT + "/" + 'success',
+    //PAYOS
+    PAYMENT_PAYOS_SUCCESS = USER_ROUTES.PAYMENT + "/" + 'success?code=00&status=PAID',
     PAYMENT_FAILED = USER_ROUTES.PAYMENT + "/" + 'failed',
     
     STAFF_MANAGER_USERS = STAFF_ROUTES.STAFF + "/" + 'account' + STAFF_ROUTES.STAFF_MANAGER_USERS

@@ -1,5 +1,9 @@
 
-import { NotificationType } from "@/constants/enum"
+import { API_ROUTES, MESSAGE } from "@/constants"
+import { HTTP_METHOD, NotificationType } from "@/constants/enum"
+import useApiService from "@/hooks/useApi"
+import { useCallback } from "react"
+import { toast } from "sonner"
 import { v4 as uuidv4 } from "uuid"
 
 // Mock notification data
@@ -208,3 +212,59 @@ export const notificationService = {
     }
   },
 }
+
+
+const CustomerService = () => {
+  const { callApi, loading, setIsLoading } = useApiService();
+  const getAddresses = useCallback(
+    async () => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_ADDRESSES,
+        );
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const postAddresses = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.CREATE_ADDRESS,
+          values
+        );
+        toast.success(MESSAGE.CREATE_ADDRESS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.CREATE_ADDRESS_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+  const putAddresses = useCallback(
+    async (values: any) => {
+      try {
+        const url = API_ROUTES.UPDATE_ADDRESS.replace(":id", values.addressID);
+        const res = await callApi(HTTP_METHOD.PUT, url, values);
+        toast.success(MESSAGE.UPDATE_ADDRESS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.UPDATE_ADDRESS_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+ 
+  return { getAddresses, postAddresses, putAddresses, loading, setIsLoading };
+};
+
+export default CustomerService;
+

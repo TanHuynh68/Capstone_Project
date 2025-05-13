@@ -12,7 +12,8 @@ export const enum API_ENDPOINTS {
     WALLET = 'wallet',
     ACCOUNT = 'account',
     USER = 'user',
-    CHANGE_ACTIVE = 'change-active'
+    CHANGE_ACTIVE = 'change-active',
+    NOTIFICATION = 'notification',
 }
 
 export enum API_ROUTES {
@@ -58,5 +59,8 @@ export enum API_ROUTES {
     PAYOS_WEBHOOK = `${API_ENDPOINTS.WALLET}/payos/webhook`,
     PAYOS_PAYMENT_INFO = `${API_ENDPOINTS.WALLET}/payos-payment-info`, // cần truyền {id} khi sử dụng
     PAYOS_CANCEL = `${API_ENDPOINTS.WALLET}/payos/cancel`, // cần truyền {id} khi sử dụng
-
+    // Notification
+    GET_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
+    CREATE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
+    DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
 }
