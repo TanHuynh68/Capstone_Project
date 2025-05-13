@@ -20,7 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants/message";
-import StaffService from "@/services/StaffService";
+import StaffService, { User } from "@/services/StaffService";
 import {
   Pagination,
   PaginationContent,
@@ -31,6 +31,13 @@ import {
 } from "@/components/ui/pagination";
 import ChangeActiveUserButton from "../change-active-user";
 
+interface UserQuery {
+  fullName?: string;
+  role?: number;
+  page: number;
+  size: number;
+}
+
 const ROLES = [
   { value: "all", label: "Tất cả" },
   { value: "0", label: "Customer" },
@@ -40,7 +47,7 @@ const ROLES = [
 const PAGE_SIZE = 10;
 
 const ManagerUsersByStaff: React.FC = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -81,7 +88,7 @@ const ManagerUsersByStaff: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, role]);
+  }, [page, role, fetchUsers]);
 
   return (
     <div className="p-4 space-y-4">

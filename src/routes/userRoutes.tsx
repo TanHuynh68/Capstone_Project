@@ -14,6 +14,7 @@ import {
   DepositWithdrawalHistoryPage
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
+import QRLoginPage from "@/pages/auth/login-qr";
 //
 export const userRoutes = [
   {
@@ -64,6 +65,10 @@ export const userRoutes = [
         path: USER_ROUTES.DEPOSIT_WITHDRAWAL_HISTORY,
         element: <DepositWithdrawalHistoryPage />,
       },
+      {
+        path: USER_ROUTES.LOGIN_QR,
+        element: <QRLoginPage />,
+      },
     ],
   },
-]
+];
