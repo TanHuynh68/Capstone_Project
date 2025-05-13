@@ -10,7 +10,7 @@ import {
   DepositMoneyPage,
   PaymentResultPage,
   PaymentSuccessPage,
-  Chat
+  Chat,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 //

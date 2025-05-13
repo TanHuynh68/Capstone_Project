@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, ShoppingCart, Search, Bell } from "lucide-react";
+import { Menu, X, ChevronDown, User, ShoppingCart, Search } from "lucide-react";
 
 import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
@@ -19,9 +19,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/userSlice";
 import { PATH, USER_ROUTES } from "@/routes/path";
-import { useNotifications } from "@/hooks/use-notifications";
-import { NotificationDropdown } from "@/components/atoms/notification/notification-dropdown";
-import { Badge } from "@/components/ui/badge";
+import Notification from "@/components/molecules/navbar/Notification";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -43,7 +41,7 @@ export function Navbar() {
   const isLoggedIn = !!userInfo
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { unreadCount } = useNotifications()
+
 
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
@@ -132,21 +130,7 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {/* Notification Icon */}
-          <NotificationDropdown >
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                >
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              )}
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </NotificationDropdown>
+          <Notification/>
 
           <Button variant="ghost" size="icon"  className="hidden md:flex">
             <Link to="/cart">
