@@ -8,21 +8,24 @@ import { router } from "./routes";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/themes/theme-provider";
 import { InitUserFromToken } from "./services/InitUserFromToken";
+import { NotificationProvider } from "./components/atoms/notification/notification-context";
 
 function App() {
   return (
     <>
-      <ThemeProvider defaultTheme="light" storageKey="theme">
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <StateProvider>
-              <RouterProvider router={router} />
-              <Toaster />
-              <InitUserFromToken />
-            </StateProvider>
-          </PersistGate>
-        </Provider>
-      </ThemeProvider>
+      <NotificationProvider>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <StateProvider>
+                <RouterProvider router={router} />
+                <Toaster />
+                <InitUserFromToken />
+              </StateProvider>
+            </PersistGate>
+          </Provider>
+        </ThemeProvider>
+      </NotificationProvider>
     </>
   );
 }

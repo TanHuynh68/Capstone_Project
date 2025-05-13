@@ -45,3 +45,10 @@ export enum WALLET_TRANSACTION_TYPE {
     RefundDeposit = 5   // Hoàn cọc
 }
   
+export enum NotificationType {
+    ORDER = "order",
+    PAYMENT = "payment",
+    PROMOTION = "promotion",
+    ACCOUNT = "account",
+    SYSTEM = "system",
+}
