@@ -22,22 +22,28 @@ export default function PaymentSuccess() {
         </div>
         <Separator className="my-6" />
         <div className="grid gap-4">
-          <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-            <p className="text-muted-foreground">Transaction No #</p>
-            <p>{vnp_TransactionNo}</p>
-          </div>
-          <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-            <p className="text-muted-foreground">Total</p>
-            <p>{formatCurrencyVND(parseInt(depositMoney + '') || 0)}</p>
-          </div>
-          <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-            <p className="text-muted-foreground">Payment Method</p>
-            <p>Visa ending in 1234</p>
-          </div>
-          <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-            <p className="text-muted-foreground">Delivery</p>
-            <p>Standard Shipping</p>
-          </div>
+          {
+            vnp_TransactionNo ? <div>
+              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                <p className="text-muted-foreground">Transaction No #</p>
+                <p>{vnp_TransactionNo}</p>
+              </div>
+              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                <p className="text-muted-foreground">Total</p>
+                <p>{formatCurrencyVND(parseInt(depositMoney + '') || 0)}</p>
+              </div>
+              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                <p className="text-muted-foreground">Payment Method</p>
+                <p>VNPay</p>
+              </div>
+            </div> :
+            <div>
+               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                <p className="text-muted-foreground">Payment Method</p>
+                <p>PayOs</p>
+              </div>
+            </div>
+          }
         </div>
         <Separator className="my-6" />
         <div className="flex justify-center">
