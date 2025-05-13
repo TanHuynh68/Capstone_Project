@@ -8,6 +8,7 @@ export enum ROLE_ON_LINK {
 
 export const enum API_ENDPOINTS {
     ADDRESS = 'address',
+    RULE = 'rule',
     AUTH = 'auth',
     WALLET = 'wallet',
     ACCOUNT = 'account',
@@ -63,4 +64,10 @@ export enum API_ROUTES {
     GET_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
     CREATE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
     DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
+
+    //Rule
+    CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
+    GET_RULE = `${API_ENDPOINTS.RULE}`,
+    GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
+    // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
 }
