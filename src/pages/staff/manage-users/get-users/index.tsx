@@ -39,7 +39,7 @@ interface UserQuery {
 }
 
 const ROLES = [
-  { value: "all", label: "Tất cả" },
+  // { value: "all", label: "Tất cả" },
   { value: "0", label: "Customer" },
   { value: "1", label: "Designer" },
 ];

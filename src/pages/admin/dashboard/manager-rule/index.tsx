@@ -34,6 +34,14 @@ interface Rule {
   description?: string;
   version: number;
   createdAt: string;
+  isActive: boolean;
+  scoreChange: number;
+  compensationRate: number;
+  listVersion?: Array<{
+    ruleID: string;
+    version: number;
+    createdAt: string;
+  }>;
 }
 
 const RuleManager: React.FC = () => {
@@ -47,6 +55,10 @@ const RuleManager: React.FC = () => {
 
   const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
   const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [openVersionModal, setOpenVersionModal] = useState(false);
+
+  const [selectedOldRule, setSelectedOldRule] = useState<Rule | null>(null);
+  const [openCompareModal, setOpenCompareModal] = useState(false);
 
   const { getRules, getRuleById } = AdminService();
 
@@ -64,13 +76,22 @@ const RuleManager: React.FC = () => {
       setRules(res.responseRequestModel.responseList.items);
       setTotalItems(res.responseRequestModel.responseList.totalItems);
     }
-  }, [filterTitle, ruleTypeFilter, page, size]);
+  }, [filterTitle, ruleTypeFilter, page, size, getRules]);
 
   const fetchRuleDetail = async (id: string) => {
     const res = await getRuleById({ ruleID: id });
     if (res?.responseRequestModel) {
       setSelectedRule(res.responseRequestModel);
       setOpenDetailModal(true);
+    }
+  };
+
+  const handleCompareVersion = async (oldRuleId: string) => {
+    const res = await getRuleById({ ruleID: oldRuleId });
+    if (res?.responseRequestModel) {
+      setSelectedOldRule(res.responseRequestModel);
+      setOpenVersionModal(false);
+      setOpenCompareModal(true);
     }
   };
 
@@ -165,6 +186,7 @@ const RuleManager: React.FC = () => {
           <Table className="min-w-full">
             <TableHeader>
               <TableRow>
+                <TableHead>STT</TableHead>
                 <TableHead>Tiêu đề</TableHead>
                 <TableHead>Loại</TableHead>
                 <TableHead>Version</TableHead>
@@ -173,12 +195,13 @@ const RuleManager: React.FC = () => {
             </TableHeader>
             <TableBody>
               {rules.length > 0 ? (
-                rules.map((rule) => (
+                rules.map((rule, index) => (
                   <TableRow
                     key={rule.ruleID}
                     className="cursor-pointer hover:bg-muted"
                     onClick={() => fetchRuleDetail(rule.ruleID)}
                   >
+                    <TableCell>{(page - 1) * size + index + 1}</TableCell>
                     <TableCell>{rule.title}</TableCell>
                     <TableCell>{mapRuleType(rule.ruleType)}</TableCell>
                     <TableCell>{rule.version}</TableCell>
@@ -189,13 +212,14 @@ const RuleManager: React.FC = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">
+                  <TableCell colSpan={5} className="text-center">
                     Không có luật lệ nào.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+
           <div className="flex justify-between mt-4">
             <div>
               Trang {page} / {Math.ceil(totalItems / size)}
@@ -257,7 +281,16 @@ const RuleManager: React.FC = () => {
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Version</span>
-                  <span className="font-medium">{selectedRule.version}</span>
+                  <span
+                    className="font-medium text-blue-600 underline cursor-pointer"
+                    onClick={() => {
+                      if (selectedRule.version > 1) {
+                        setOpenVersionModal(true);
+                      }
+                    }}
+                  >
+                    {selectedRule.version}
+                  </span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">Ngày tạo</span>
@@ -290,6 +323,137 @@ const RuleManager: React.FC = () => {
                   {selectedRule.description || "Không có mô tả."}
                 </div>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal danh sách version cũ */}
+      <Dialog open={openVersionModal} onOpenChange={setOpenVersionModal}>
+        <DialogContent className="max-w-md bg-white rounded-xl shadow-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              Các phiên bản trước
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRule &&
+          selectedRule.listVersion &&
+          selectedRule.listVersion.length > 0 ? (
+            <div className="space-y-4">
+              {selectedRule.listVersion?.map((v) => (
+                <div
+                  key={v.ruleID}
+                  className="flex justify-between p-3 border rounded-lg hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleCompareVersion(v.ruleID)}
+                >
+                  <span>Version {v.version}</span>
+                  <span>{new Date(v.createdAt).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>Không có phiên bản cũ.</div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openCompareModal} onOpenChange={setOpenCompareModal}>
+        <DialogContent className="max-w-4xl bg-white rounded-xl shadow-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              So sánh phiên bản
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRule && selectedOldRule && (
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto border">
+                <thead>
+                  <tr>
+                    <th className="border p-3 text-left">Phiên bản</th>
+                    <th className="border p-3 text-left">
+                      Hiện tại (V{selectedRule.version})
+                    </th>
+                    <th className="border p-3 text-left">
+                      Phiên bản cũ (V{selectedOldRule.version})
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    {
+                      label: "Tiêu đề",
+                      current: selectedRule.title,
+                      old: selectedOldRule.title,
+                      type: "text",
+                    },
+                    {
+                      label: "Loại",
+                      current: mapRuleType(selectedRule.ruleType),
+                      old: mapRuleType(selectedOldRule.ruleType),
+                      type: "text",
+                    },
+                    {
+                      label: "Mô tả",
+                      current: selectedRule.description || "Không có mô tả.",
+                      old: selectedOldRule.description || "Không có mô tả.",
+                      type: "description",
+                    },
+                    {
+                      label: "Điểm thay đổi",
+                      current: selectedRule.scoreChange,
+                      old: selectedOldRule.scoreChange,
+                      type: "number",
+                    },
+                    {
+                      label: "Tỷ lệ bồi thường",
+                      current: selectedRule.compensationRate,
+                      old: selectedOldRule.compensationRate,
+                      type: "number",
+                      unit: "%",
+                    },
+                  ].map((item) => {
+                    const isDifferent = item.current !== item.old;
+                    let currentClass = "border p-3";
+                    let oldClass = "border p-3";
+
+                    if (item.type === "number") {
+                      if (item.current > item.old) {
+                        currentClass += " text-green-600 font-bold";
+                      } else if (item.current < item.old) {
+                        currentClass += " text-red-600 font-bold";
+                      }
+                    } else if (item.type === "description") {
+                      if (isDifferent) {
+                        currentClass += " text-black font-bold";
+                        oldClass += " text-black font-bold";
+                      }
+                    } else {
+                      if (isDifferent) {
+                        currentClass += " text-red-600 font-bold";
+                        oldClass += " text-red-600 font-bold";
+                      }
+                    }
+
+                    return (
+                      <tr key={item.label}>
+                        <td className="border p-3 font-semibold">
+                          {item.label}
+                        </td>
+                        <td className={currentClass}>
+                          {item.current}
+                          {item.unit && item.current !== undefined
+                            ? item.unit
+                            : ""}
+                        </td>
+                        <td className={oldClass}>
+                          {item.old}
+                          {item.unit && item.old !== undefined ? item.unit : ""}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </DialogContent>
