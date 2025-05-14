@@ -15,6 +15,7 @@ export const enum API_ENDPOINTS {
     USER = 'user',
     CHANGE_ACTIVE = 'change-active',
     NOTIFICATION = 'notification',
+    CANVAS = 'canvas',
 }
 
 export enum API_ROUTES {
@@ -70,4 +71,8 @@ export enum API_ROUTES {
     GET_RULE = `${API_ENDPOINTS.RULE}`,
     GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
     // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
+
+    //Canvas
+    CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
+    GET_CANVAS = `${API_ENDPOINTS.CANVAS}`,
 }

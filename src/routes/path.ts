@@ -17,6 +17,7 @@ export enum USER_ROUTES {
     DEPOSIT_WITHDRAWAL_HISTORY = 'deposit-withdrawal-history',
     LOGIN_QR = 'login-qr',
     CHAT = 'chat',
+    PLUSHDOLL_DESIGN = 'plushdoll-design',
 }
 
 export enum AUTH_ROUTES {

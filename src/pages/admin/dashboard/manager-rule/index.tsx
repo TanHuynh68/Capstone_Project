@@ -48,7 +48,7 @@ const RuleManager: React.FC = () => {
   const [rules, setRules] = useState<Rule[]>([]);
   const [filterTitle, setFilterTitle] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [size, setSize] = useState<number>(10);
+  const size = 10;
   const [totalItems, setTotalItems] = useState<number>(0);
   const [ruleTypeFilter, setRuleTypeFilter] = useState<number>(-1);
   const [openCreateModal, setOpenCreateModal] = useState(false);
@@ -63,7 +63,12 @@ const RuleManager: React.FC = () => {
   const { getRules, getRuleById } = AdminService();
 
   const fetchRules = useCallback(async () => {
-    const params: any = {
+    const params: {
+      title: string;
+      page: number;
+      size: number;
+      ruleType?: number;
+    } = {
       title: filterTitle,
       page,
       size,

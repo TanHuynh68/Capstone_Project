@@ -59,6 +59,12 @@ export const MESSAGE = {
     // DELETE_RULE_SUCCESSFULLY: "Xóa luật lệ thành công.",
     // DELETE_RULE_FAILED: "Xóa luật lệ thất bại.",
 
+    //CANVAS
+    CREATE_CANVAS_SUCCESSFULLY: "Tạo bản vẽ thành công.",
+    CREATE_CANVAS_FAILED: "Tạo bản vẽ thất bại.",
+
+    GET_CANVAS_SUCCESSFULLY: "Lấy bản vẽ thành công.",
+    GET_CANVAS_FAILED: "Lấy bản vẽ thất bại.",
 
 
 }

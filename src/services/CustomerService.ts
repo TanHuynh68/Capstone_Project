@@ -72,10 +72,44 @@ const CustomerService = () => {
     [callApi]
   );
 
+  const getCanvas = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_CANVAS,
+          values
+        );
+        // toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.GET_CANVAS_FAILED);
+      }
+    },
+    [callApi]
+  );
+
+  const postCanvas = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.CREATE_CANVAS,
+          values
+        );
+        toast.success(MESSAGE.CREATE_CANVAS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.CREATE_CANVAS_FAILED);
+      }
+    },
+    [callApi]
+  );
+
 
  
 
-  return { getAddresses, postAddresses, putAddresses, deleteAddresses, loading, setIsLoading };
+  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, loading, setIsLoading };
 };
 
 export default CustomerService;
