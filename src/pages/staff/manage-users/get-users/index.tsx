@@ -20,7 +20,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants/message";
-import StaffService, { User } from "@/services/StaffService";
+import StaffService from "@/services/StaffService";
+import { User } from "@/types/user";
 import {
   Pagination,
   PaginationContent,
@@ -30,13 +31,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import ChangeActiveUserButton from "../change-active-user";
-
-interface UserQuery {
-  fullName?: string;
-  role?: number;
-  page: number;
-  size: number;
-}
 
 const ROLES = [
   // { value: "all", label: "Tất cả" },
