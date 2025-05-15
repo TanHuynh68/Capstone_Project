@@ -19,17 +19,29 @@ import GetAddress from "../../manage-address/address";
 import CreateAddress from "../../manage-address/create-address";
 import CustomerService from "@/services/CustomerService";
 import useAuthService from "@/services/AuthService";
+import ReputationService from "@/services/ReputationService";
 
 const Profile = () => {
   const { getAddresses } = CustomerService();
+  const { getReputation } = ReputationService();
   const { getProfile } = useAuthService();
   const [addresses, setAddresses] = useState<any[]>([]);
   const [profile, setProfile] = useState<Profile>();
+  const [reputaion, setReputation] = useState<Reputation>();
 
   useEffect(() => {
     fetchAddresses();
     fetchProfile();
+    fetchReputation();
   }, []);
+
+  const fetchReputation = async () => {
+    const response = await getReputation()
+    if (response) {
+     setReputation(response.responseRequestModel)
+      console.log("response.responseRequestModel: ", response.responseRequestModel)
+    }
+  }
 
   const fetchAddresses = useCallback(async () => {
     const res = await getAddresses({});
@@ -38,9 +50,9 @@ const Profile = () => {
     console.log("items: ", items)
   }, [getAddresses]);
 
-  const fetchProfile = async()=>{
+  const fetchProfile = async () => {
     const response = await getProfile()
-    if(response){
+    if (response) {
       setProfile(response.responseRequestModel)
       console.log("response.responseRequestModel: ", response.responseRequestModel)
     }
@@ -135,7 +147,7 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Order #12345</p>
+                      <p className="font-medium">Điểm uy tín: {reputaion?.currentScore}</p>
                       <p className="text-sm text-muted-foreground">
                         2 items • April 12, 2023
                       </p>
