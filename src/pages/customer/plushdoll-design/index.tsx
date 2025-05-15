@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -22,7 +21,6 @@ import CanvasList from "./get-canvas";
 const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const canvasContainerRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
   const clipboardRef = useRef<fabric.Object | null>(null);
 
@@ -713,6 +711,8 @@ const PlushDollDesign: React.FC = () => {
           </div>
         </div>
         {/* </CardContent> */}
+        {/* </Card> */}
+    {/* </CardContent> */}
         {/* </Card> */}
       </div>
     </div>
