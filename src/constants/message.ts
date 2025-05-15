@@ -44,4 +44,32 @@ export const MESSAGE = {
     RESET_PASSWORD_FAILED: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
 
 
+    //WALLET
+    UPDATE_WALLET_SUCCESSFULLY: "Cập nhật ví thành công.",
+
+    //RULE
+    CREATE_RULE_SUCCESSFULLY: "Tạo luật lệ thành công.",
+    CREATE_RULE_FAILED: "Tạo luật lệ thất bại.",
+
+    GET_RULES_SUCCESSFULLY: "Lấy thông tin luật lệ thành công.",
+    GET_RULES_FAILED: "Lấy thông tin luật lệ thất bại.",
+
+    GET_RULE_BY_ID_SUCCESSFULLY: "Lấy chi tiết luật lệ thành công.",
+    GET_RULE_BY_ID_FAILED: "Lấy chi tiết luật lệ thất bại.",
+
+    // CHANGE_ACTIVE_RULE_SUCCESSFULLY: "Thay đổi trạng thái luật lệ thành công.",
+    // CHANGE_ACTIVE_RULE_FAILED: "Thay đổi trạng thái luật lệ thất bại.",
+
+    // DELETE_RULE_SUCCESSFULLY: "Xóa luật lệ thành công.",
+    // DELETE_RULE_FAILED: "Xóa luật lệ thất bại.",
+
+    //CANVAS
+    CREATE_CANVAS_SUCCESSFULLY: "Tạo bản vẽ thành công.",
+    CREATE_CANVAS_FAILED: "Tạo bản vẽ thất bại.",
+
+    GET_CANVAS_SUCCESSFULLY: "Lấy bản vẽ thành công.",
+    GET_CANVAS_FAILED: "Lấy bản vẽ thất bại.",
+
+
+
 }

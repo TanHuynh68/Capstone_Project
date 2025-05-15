@@ -1,5 +1,6 @@
 import GoldChipIcon from "@/components/atoms/GoldChipIcon"
-import { WalletCard, type WalletCardProps } from "./wallet-card"
+import { WalletCard, WalletCardProps } from "@/components/molecules/wallet/wallet-card"
+
 
 export interface PremiumWalletCardProps extends Omit<WalletCardProps, "className" | "children"> {}
 

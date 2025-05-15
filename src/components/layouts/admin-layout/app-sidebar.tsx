@@ -11,6 +11,7 @@ import {
   FileIcon,
   FileTextIcon,
   FolderIcon,
+  GavelIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
   ListIcon,
@@ -38,6 +39,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { logout } from "@/redux/userSlice";
+import { ADMIN_ROUTES } from "@/routes/path";
 
 const data = {
   user: {
@@ -50,6 +52,11 @@ const data = {
       title: "Dashboard",
       url: "#",
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Quản lý luật lệ",
+      url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_RULE}`,
+      icon: GavelIcon,
     },
     {
       title: "Lifecycle",

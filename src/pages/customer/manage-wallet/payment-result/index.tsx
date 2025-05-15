@@ -16,10 +16,9 @@ const PaymentResult = () => {
     const vnp_TransactionNo = urlParams.get('vnp_TransactionNo');
     const fullUrl = window.location.href;
     let baseUrl = `${ENV.PAYMENT_REDIRECT_URL}/api/v1/`;
-
-
+    console.log('fullUrl:', fullUrl)
     const urlWithoutBase = fullUrl.replace(baseUrl, '');
-
+    console.log('urlWithoutBase:', fullUrl)
     console.log('userId: ', userId)
     const { getVnpayCallback } = WalletService()
     useEffect(() => {
@@ -39,7 +38,7 @@ const PaymentResult = () => {
                 } else {
                     navigate(PATH.HOME)
                 }
-            }else{
+            } else {
                 const response = await getVnpayCallback(urlWithoutBase)
                 console.log('response: ', response)
                 if (response) {
