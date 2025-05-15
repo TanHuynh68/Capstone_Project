@@ -43,5 +43,6 @@ export const MESSAGE = {
     RESET_PASSWORD_SUCCESSFULLY: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới!",
     RESET_PASSWORD_FAILED: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
 
-
+    //WALLET
+    UPDATE_WALLET_SUCCESSFULLY: "Cập nhật ví thành công.",
 }

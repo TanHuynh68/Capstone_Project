@@ -31,8 +31,8 @@ export const WalletCard = ({
         </div>
 
         <div className="mt-auto space-y-2">
-          <p className="text-sm opacity-90">{formattedCardNumber}</p>
-          <p className="text-2xl font-semibold">{cardholderName}</p>
+          <p className="text-sm opacity-90">{formattedCardNumber === null ? 'Chưa có': formattedCardNumber}</p>
+          <p className="text-2xl font-semibold">{cardholderName === null ? 'Chưa có': cardholderName}</p>
         </div>
       </div>
 
