@@ -712,7 +712,7 @@ const PlushDollDesign: React.FC = () => {
         </div>
         {/* </CardContent> */}
         {/* </Card> */}
-    {/* </CardContent> */}
+        {/* </CardContent> */}
         {/* </Card> */}
       </div>
     </div>

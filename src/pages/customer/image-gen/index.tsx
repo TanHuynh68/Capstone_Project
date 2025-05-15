@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ImageEditor = () => {
-  const [imageFile, setImageFile] = useState(null);
-  const [maskFile, setMaskFile] = useState(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [maskFile, setMaskFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +57,7 @@ const ImageEditor = () => {
         <input
           type="file"
           accept="image/png, image/jpeg"
-          onChange={(e) => setImageFile(e.target.files[0])}
+          onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
         />
       </div>
       <div style={{ marginBottom: 10 }}>
@@ -65,7 +65,7 @@ const ImageEditor = () => {
         <input
           type="file"
           accept="image/png"
-          onChange={(e) => setMaskFile(e.target.files[0])}
+          onChange={(e) => e.target.files && setMaskFile(e.target.files[0])}
         />
       </div>
       <button onClick={handleEditImage} disabled={loading}>
