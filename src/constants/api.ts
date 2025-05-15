@@ -68,7 +68,7 @@ export enum API_ROUTES {
     DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
 
     //Bank
-    GET_BANKS = 'https://api.vietqr.io/v2/banks'
+    GET_BANKS = 'https://api.vietqr.io/v2/banks',
 
 
     //Rule
