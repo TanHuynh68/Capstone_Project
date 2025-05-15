@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
 
@@ -17,6 +17,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
   const [loading, setLoading] = useState(false);
   const [canvasTitle, setCanvasTitle] = useState("");
   const [page, setPage] = useState(1);
+  const [searchTitle, setSearchTitle] = useState("");
 
   const size = 10;
   const { getCanvas } = CustomerService();
@@ -24,22 +25,30 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
   const loadList = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getCanvas({ canvasTitle, page, size });
+      const data = await getCanvas({ canvasTitle: searchTitle, page, size });
       setCanvasList(data?.responseRequestModel?.responseList?.items || []);
     } catch (error) {
       console.error("Lỗi tải canvas:", error);
     } finally {
       setLoading(false);
     }
-  }, [canvasTitle, page, getCanvas]);
+  }, [page, getCanvas, searchTitle]);
 
-  //   useEffect(() => {
-  //     loadList();
-  //   }, [loadList]);
+
 
   const handleSelectCanvas = (description: string) => {
     onSelect(description);
   };
+
+  const handleSearch = () => {
+    setSearchTitle(canvasTitle);
+    setPage(1);
+  };
+
+  // Load lại khi searchTitle hoặc page thay đổi
+  useEffect(() => {
+    loadList();
+  }, [searchTitle, page, loadList]);
 
   return (
     <div className="space-y-2">
@@ -48,19 +57,18 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
           type="text"
           placeholder="Tìm canvas"
           value={canvasTitle}
-          onChange={(e) => {
-            setCanvasTitle(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setCanvasTitle(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") loadList();
+            if (e.key === "Enter") {
+              handleSearch();
+            }
           }}
           className="border p-1 rounded flex-1 text-sm"
         />
         <Button
           size="sm"
           variant="outline"
-          onClick={loadList}
+          onClick={handleSearch}
           disabled={loading}
         >
           Tìm

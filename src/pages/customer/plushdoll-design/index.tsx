@@ -16,11 +16,15 @@ import {
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
 import CanvasList from "./get-canvas";
+// import ImageGenerator from "../image-gen";
+// import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
 const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
+  const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
+  const clipboardRef = useRef<fabric.Object | null>(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -29,7 +33,8 @@ const PlushDollDesign: React.FC = () => {
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
   const [dragging, setDragging] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
-
+  const [activeText, setActiveText] = useState<fabric.IText | null>(null);
+  const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
   const historyRef = useRef<{ states: string[]; index: number }>({
     states: [],
     index: -1,
@@ -39,8 +44,8 @@ const PlushDollDesign: React.FC = () => {
 
   // Initial canvas & events setup
   useEffect(() => {
-    if (!canvasContainerRef.current) return;
-    const canvas = new fabric.Canvas(canvasContainerRef.current, {
+    if (!htmlCanvasRef.current) return;
+    const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "#ffffff",
     });
     canvas.freeDrawingBrush.color = "#ff0000";
@@ -60,6 +65,7 @@ const PlushDollDesign: React.FC = () => {
     );
     canvas.on("selection:cleared", () => {
       setToolbarVisible(false);
+      setActiveText(null);
     });
 
     canvas.on("mouse:up", () => isDrawing && saveState());
@@ -77,23 +83,54 @@ const PlushDollDesign: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const resizeCanvas = () => {
+      if (canvasWrapperRef.current && canvasRef.current) {
+        const { clientWidth, clientHeight } = canvasWrapperRef.current;
+        canvasRef.current.setWidth(clientWidth);
+        canvasRef.current.setHeight(clientHeight);
+        canvasRef.current.renderAll();
+      }
+    };
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
+
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
     updateToolbarPos(obj);
+
+    if (obj.type === "i-text") {
+      setActiveText(obj as fabric.IText);
+    } else {
+      setActiveText(null);
+    }
   };
 
   const updateToolbarPos = (obj: fabric.Object) => {
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+
     const bound = obj.getBoundingRect(true, true);
+
+    // Get the canvas element
+    const canvasEl = canvasRef.current.getElement() as HTMLCanvasElement;
+    const canvasRect = canvasEl.getBoundingClientRect();
+    const wrapperRect = canvasWrapperRef.current.getBoundingClientRect();
+
+    // Tính toán offset canvas trong wrapper
+    const offsetX = canvasRect.left - wrapperRect.left;
+    const offsetY = canvasRect.top - wrapperRect.top;
+
     setToolbarPos({
-      x: bound.left + bound.width / 2,
-      y: bound.top - 100,
+      x: bound.left + bound.width / 2 + offsetX,
+      y: bound.top - 100 + offsetY,
     });
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
 
-    // Bỏ qua nếu đang gõ trong input, textarea, hoặc contenteditable
     if (
       target.tagName === "INPUT" ||
       target.tagName === "TEXTAREA" ||
@@ -113,6 +150,41 @@ const PlushDollDesign: React.FC = () => {
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       removeSelected();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+      e.preventDefault();
+      copySelected();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+      e.preventDefault();
+      pasteClipboard();
+    }
+  };
+
+  const copySelected = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (activeObject) {
+      activeObject.clone((cloned: fabric.Object) => {
+        clipboardRef.current = cloned;
+        // toast.success("Đã copy object.");
+      });
+    }
+  };
+
+  const pasteClipboard = () => {
+    if (clipboardRef.current && canvasRef.current) {
+      clipboardRef.current.clone((clonedObj: fabric.Object) => {
+        clonedObj.set({
+          left: (clonedObj.left || 0) + 20,
+          top: (clonedObj.top || 0) + 20,
+          evented: true,
+        });
+        canvasRef.current?.add(clonedObj);
+        canvasRef.current?.setActiveObject(clonedObj);
+        canvasRef.current?.renderAll();
+        saveState();
+        // toast.success("Đã paste object.");
+      });
     }
   };
 
@@ -307,7 +379,7 @@ const PlushDollDesign: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <header className="flex items-center justify-between bg-white border-b p-4 shadow-sm sticky top-0 z-10">
+      <header className="sticky top-0 z-50 bg-white border-b p-4 flex items-center justify-between shadow-sm">
         <div className="font-bold text-lg text-primary">
           🎨 PlushDoll Studio
         </div>
@@ -422,6 +494,9 @@ const PlushDollDesign: React.FC = () => {
                   }
                 />
               </div>
+              {/* <CopilotImageGenerator />
+
+              <ImageGenerator /> */}
 
               {/* CanvasList luôn được mount, chỉ toggle hiển thị UI bằng hidden */}
               <div className={isSidebarCollapsed ? "hidden" : ""}>
@@ -470,17 +545,130 @@ const PlushDollDesign: React.FC = () => {
             </>
           )}
         </aside>
-
         {/* Canvas */}
-        <Card className="flex-1 m-4 shadow-lg">
-          <CardContent className="flex justify-center items-center bg-gray-50 p-4 relative">
-            <div className="relative">
-              <canvas
-                ref={canvasContainerRef}
-                width={1000}
-                height={600}
-                className="border rounded-lg shadow-inner"
+        {/* <div className="flex-1 p-4 pt-8 flex relative"> */}
+        {/* <Card className="flex-1 shadow-lg"> */}
+        <div className="flex-1 relative bg-gray-50">
+          {activeText && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
+              <select
+                value={activeText.fontFamily || "Arial"}
+                onChange={(e) => {
+                  activeText.set("fontFamily", e.target.value);
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                <option value="Arial">Arial</option>
+                <option value="Noto Sans">Noto Sans</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+              </select>
+
+              <Input
+                type="number"
+                min={10}
+                max={200}
+                value={activeText.fontSize}
+                onChange={(e) => {
+                  activeText.set("fontSize", parseInt(e.target.value));
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+                style={{ width: 60 }}
               />
+
+              <Input
+                type="color"
+                value={activeText.fill as string}
+                onChange={(e) => {
+                  activeText.set("fill", e.target.value);
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              />
+
+              <Button
+                variant={
+                  activeText.fontWeight === "bold" ? "default" : "outline"
+                }
+                onClick={() => {
+                  activeText.set(
+                    "fontWeight",
+                    activeText.fontWeight === "bold" ? "normal" : "bold"
+                  );
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                B
+              </Button>
+
+              <Button
+                variant={
+                  activeText.fontStyle === "italic" ? "default" : "outline"
+                }
+                onClick={() => {
+                  activeText.set(
+                    "fontStyle",
+                    activeText.fontStyle === "italic" ? "normal" : "italic"
+                  );
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                I
+              </Button>
+
+              <Button
+                variant={
+                  activeText.textAlign === "left" ? "default" : "outline"
+                }
+                onClick={() => {
+                  activeText.set("textAlign", "left");
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                ⬅️
+              </Button>
+              <Button
+                variant={
+                  activeText.textAlign === "center" ? "default" : "outline"
+                }
+                onClick={() => {
+                  activeText.set("textAlign", "center");
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                ⬆️
+              </Button>
+              <Button
+                variant={
+                  activeText.textAlign === "right" ? "default" : "outline"
+                }
+                onClick={() => {
+                  activeText.set("textAlign", "right");
+                  canvasRef.current?.renderAll();
+                  saveState();
+                }}
+              >
+                ➡️
+              </Button>
+            </div>
+          )}
+          <div className="relative flex justify-center items-center bg-gray-100 h-full">
+            <div
+              ref={canvasWrapperRef}
+              className="relative bg-white shadow-md"
+              style={{
+                aspectRatio: "16 / 9",
+                width: "80%", // hoặc fix cứng 960px
+                maxWidth: "1280px",
+              }}
+            >
+              <canvas ref={htmlCanvasRef} className="w-full h-full" />
 
               {toolbarVisible && (
                 <div
@@ -522,8 +710,10 @@ const PlushDollDesign: React.FC = () => {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+        {/* </CardContent> */}
+        {/* </Card> */}
       </div>
     </div>
   );
