@@ -43,6 +43,10 @@ export const MESSAGE = {
     RESET_PASSWORD_SUCCESSFULLY: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới!",
     RESET_PASSWORD_FAILED: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
 
+
+    //WALLET
+    UPDATE_WALLET_SUCCESSFULLY: "Cập nhật ví thành công.",
+
     //RULE
     CREATE_RULE_SUCCESSFULLY: "Tạo luật lệ thành công.",
     CREATE_RULE_FAILED: "Tạo luật lệ thất bại.",
@@ -65,6 +69,7 @@ export const MESSAGE = {
 
     GET_CANVAS_SUCCESSFULLY: "Lấy bản vẽ thành công.",
     GET_CANVAS_FAILED: "Lấy bản vẽ thất bại.",
+
 
 
 }

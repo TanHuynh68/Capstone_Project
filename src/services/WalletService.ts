@@ -3,6 +3,7 @@ import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
 import { API_ROUTES, HTTP_METHOD } from "@/constants";
 import ENV from "@/config/env";
+import axios from "axios";
 
 const WalletService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -139,6 +140,26 @@ const WalletService = () => {
     }
   }, [callApi]);
 
+  const getBanks = useCallback(async () => {
+    try {
+      const res: any = await axios.get(API_ROUTES.GET_BANKS)
+      return res 
+    } catch (err: any) {
+      toast.error(err?.response?.data);
+    }
+  }, [callApi]);
+
+  const updateWallet = useCallback(async (walletID: string, bankAccountNumber: string, bankName: string, accountHolderName: string) => {
+    try {
+      const res = await callApi(HTTP_METHOD.PUT, `${API_ROUTES.UPDATE_WALLET}`, {
+        walletID, bankAccountNumber, bankName, accountHolderName
+      });
+      return res;
+    } catch (err: any) {
+      toast.error(err?.response?.data);
+    }
+  }, [callApi]);
+
   return {
     getWallet,
     getStaffWalletTransaction,
@@ -154,6 +175,8 @@ const WalletService = () => {
     webhookPayos,
     getPayosPaymentInfo,
     cancelPayos,
+    getBanks,
+    updateWallet,
     loading,
     setIsLoading,
   };

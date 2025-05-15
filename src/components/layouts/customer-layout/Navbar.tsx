@@ -170,7 +170,7 @@ export function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
-                      Nạp tiền
+                      Ví
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem

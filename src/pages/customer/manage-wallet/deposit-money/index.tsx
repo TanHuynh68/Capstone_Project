@@ -11,8 +11,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import WalletService from "@/services/WalletService"
-import { PdcWalletCard } from "@/components/molecules/wallet/pdc-wallet-card"
+
 import History from "@/components/molecules/wallet/history"
+import { UpdateBankCardButton } from "@/components/atoms/wallet/edit-wallet/update-bank-card-button.tsx"
+import { PdcWalletCard } from "@/components/organisms/wallet/pdc-wallet-card"
 
 
 // Define the form schema with validation
@@ -56,6 +58,7 @@ export default function DepositMoney() {
 
     const getWalletFromCustomer = async () => {
         const response = await getWallet()
+        console.log("getWalletFromCustomer: ", response)
         if (response && response.responseRequestModel) {
             setWalletInfo(response.responseRequestModel)
         }
@@ -120,15 +123,45 @@ export default function DepositMoney() {
     return (
         <div className="mx-20">
             <div className="container mx-auto p-4 md:p-6 ">
-                <div className="grid grid-cols-2 gap-6 ">
-                    <div className="flex justify-center items-center">
+                <div className="grid grid-cols-2 gap-6 ">     
+                    <div className="">
+                    <h2 className="text-2xl font-bold">Ví của tôi</h2>
                         {
-                            walletInfo && <PdcWalletCard
-                                balance={walletInfo?.balance}
-                                cardNumber={walletInfo?.bankAccountNumber + ''}
-                                holdAmount={walletInfo.locked}
-                                cardholderName={walletInfo.accountHolderName}
-                            />
+                            walletInfo && <div className="w-full grid grid-cols-12 gap-4 mt-5">
+                                <div className="col-span-8 w-full">
+                                <PdcWalletCard
+                                    balance={walletInfo?.balance}
+                                    cardNumber={walletInfo?.bankAccountNumber + ''}
+                                    holdAmount={walletInfo.locked}
+                                    cardholderName={walletInfo.accountHolderName}
+                                />
+                                </div>
+                                <div className="border-solid border-l-2 col-span-1">
+                                </div>
+                                <div className="col-span-3 ">
+                                    <div className="mt-5 ">
+                                        Ngân hàng
+                                    </div>
+                                    <div className="font-semibold">
+                                        {walletInfo?.bankName === null ? 'Chưa có' : walletInfo?.bankName}
+                                    </div>
+                                    <div className="mt-5">
+                                        Số tài khoản
+                                    </div>
+                                    <div className="font-semibold">
+                                        {walletInfo?.bankAccountNumber === null ? 'Chưa có' : walletInfo?.bankAccountNumber}
+                                    </div>
+                                    <div className="mt-5">
+                                        Chủ tài khoản
+                                    </div>
+                                    <div className="font-semibold">
+                                        {walletInfo?.accountHolderName === null ? 'Chưa có' : walletInfo?.accountHolderName}
+                                    </div>
+                                    <div>
+                                    <UpdateBankCardButton walletID={walletInfo.walletID}/>
+                                    </div>
+                                </div>
+                            </div>
                         }
                     </div>
                     <div>
@@ -168,51 +201,46 @@ export default function DepositMoney() {
                                 <div className="grid gap-4">
                                     <h3 className="font-medium">Chọn phương thức thanh toán</h3>
 
-                                    <Card
-                                        className={`cursor-pointer transition-colors ${selectedPayment === "vnpay" ? "border-primary bg-primary/5" : "hover:bg-muted"
-                                            }`}
-                                        onClick={() => !isSubmitting && setSelectedPayment("vnpay")}
-                                    >
-                                        <CardContent className="flex items-center gap-4 p-4">
-                                            <div
-                                                className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "vnpay" ? "bg-primary" : "bg-muted"
-                                                    } text-primary-foreground`}
-                                            >
-                                                <CreditCard className="h-6 w-6" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-medium">VNPAY</h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Thanh toán an toàn với thẻ Visa, Mastercard hoặc American Express.
-                                                </p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card
-                                        className={`cursor-pointer transition-colors ${selectedPayment === "payos" ? "border-primary bg-primary/5" : "hover:bg-muted"
-                                            }`}
-                                        onClick={() => !isSubmitting && setSelectedPayment("payos")}
-                                    >
-                                        <CardContent className="flex items-center gap-4 p-4">
-                                            <div
-                                                className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "payos" ? "bg-primary" : "bg-muted"
-                                                    } text-primary-foreground`}
-                                            >
-                                                <Wallet className="h-6 w-6" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-medium">payOs</h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Thanh toán trực tiếp từ tài khoản ngân hàng với thẻ ghi nợ.
-                                                </p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                    <div className="grid grid-cols-2 gap-4 w-[350px]">
+                                        <Card
+                                            className={`cursor-pointer transition-colors ${selectedPayment === "vnpay" ? "border-primary bg-primary/5" : "hover:bg-muted"
+                                                }`}
+                                            onClick={() => !isSubmitting && setSelectedPayment("vnpay")}
+                                        >
+                                            <CardContent className="flex items-center gap-4 p-4 ">
+                                                <div
+                                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "vnpay" ? "bg-primary" : "bg-muted"
+                                                        } text-primary-foreground`}
+                                                >
+                                                    <CreditCard className="h-6 w-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-medium">VNPAY</h3>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                        <Card
+                                            className={`cursor-pointer transition-colors ${selectedPayment === "payos" ? "border-primary bg-primary/5" : "hover:bg-muted"
+                                                }`}
+                                            onClick={() => !isSubmitting && setSelectedPayment("payos")}
+                                        >
+                                            <CardContent className="flex items-center gap-4 p-4">
+                                                <div
+                                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "payos" ? "bg-primary" : "bg-muted"
+                                                        } text-primary-foreground`}
+                                                >
+                                                    <Wallet className="h-6 w-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-medium">payOs</h3>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-center ">
-                                    <Button type="submit" disabled={isSubmitting}>
+                                    <Button  type="submit" disabled={isSubmitting}>
                                         {isSubmitting ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

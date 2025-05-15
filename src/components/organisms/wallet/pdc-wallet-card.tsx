@@ -1,5 +1,5 @@
 import GoldChipIcon from "@/components/atoms/GoldChipIcon"
-import { WalletCard, WalletCardProps } from "./wallet-card"
+import { WalletCard, WalletCardProps } from "@/components/molecules/wallet/wallet-card"
 
 
 export interface PdcWalletCardProps extends Omit<WalletCardProps, "className" | "children"> {}
@@ -11,7 +11,7 @@ export const PdcWalletCard = ({ balance, holdAmount, cardNumber, cardholderName 
       holdAmount={holdAmount}
       cardNumber={cardNumber}
       cardholderName={cardholderName}
-      className="bg-violet-500 text-white h-56"
+      className="bg-blue-500 text-white h-56"
     >
       {/* Gold chip icon */}
       <GoldChipIcon/>

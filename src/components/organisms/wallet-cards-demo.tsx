@@ -1,5 +1,6 @@
-import { PdcWalletCard } from "../molecules/wallet/pdc-wallet-card"
-import { PremiumWalletCard } from "../molecules/wallet/premium-wallet-card"
+import { PdcWalletCard } from "./wallet/pdc-wallet-card"
+import { PremiumWalletCard } from "./wallet/premium-wallet-card"
+
 
 export const WalletCardsDemo = () => {
   return (

@@ -27,3 +27,21 @@ interface Transaction {
   orderDate: string
   paymentMethod?: string
 }
+
+
+ interface Bank {
+  id: string
+  name: string,
+  code: string,
+  bin: string,
+  shortName: string,
+  logo: string,
+  transferSupported: string,
+  lookupSupported: string,
+}
+
+interface BankCard {
+  bankAccountNumber: string
+  bankName: string
+  accountHolderName: string
+}
