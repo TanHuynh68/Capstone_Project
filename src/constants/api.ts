@@ -8,12 +8,14 @@ export enum ROLE_ON_LINK {
 
 export const enum API_ENDPOINTS {
     ADDRESS = 'address',
+    RULE = 'rule',
     AUTH = 'auth',
     WALLET = 'wallet',
     ACCOUNT = 'account',
     USER = 'user',
     CHANGE_ACTIVE = 'change-active',
     NOTIFICATION = 'notification',
+    CANVAS = 'canvas',
 }
 
 export enum API_ROUTES {
@@ -64,6 +66,19 @@ export enum API_ROUTES {
     GET_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
     CREATE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
     DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
+
     //Bank
     GET_BANKS = 'https://api.vietqr.io/v2/banks'
+
+
+    //Rule
+    CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
+    GET_RULE = `${API_ENDPOINTS.RULE}`,
+    GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
+    // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
+
+    //Canvas
+    CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
+    GET_CANVAS = `${API_ENDPOINTS.CANVAS}`,
+
 }
