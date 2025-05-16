@@ -23,14 +23,14 @@ export default function Process() {
             title: "Chế Tác Thủ Công",
             description:
                 "Đội ngũ nghệ nhân lành nghề sẽ tỉ mỉ hiện thực hóa thiết kế của bạn bằng chất liệu cao cấp và sự chăm chút từng chi tiết.",
-            imageSrc: "https://cdnphoto.dantri.com.vn/PWsLBaOV97o0ot1Lhdwh2bkkUJw=/thumb_w/1920/2024/08/17/f1c97b7eaaa90ef757b8-1723834851015.jpg?watermark=true",
+            imageSrc: "https://www.elle.vn/app/uploads/2024/04/18/582739/labubu.jpg",
         },
         {
             number: 4,
             title: "Giao Hàng & Tận Hưởng",
             description:
                 "Búp bê được đóng gói cẩn thận và giao tận tay bạn, sẵn sàng trở thành món quà lưu niệm đầy ý nghĩa.",
-            imageSrc: "https://d2z2mkwk6fkehh.cloudfront.net/f2me/blog/Labubu%20Shopping%20Guide/FORWARD2ME_Labubu_1920x840.png",
+            imageSrc: "https://sneakerdaily.vn/wp-content/uploads/2024/08/1-36.jpg",
         },
 
     ]
