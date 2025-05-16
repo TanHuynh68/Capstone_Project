@@ -40,6 +40,16 @@ const PlushDollDesign: React.FC = () => {
 
   const { postCanvas } = CustomerService();
 
+  // Add this near other state declarations
+  const [textProperties, setTextProperties] = useState({
+    fontFamily: "Arial",
+    fontSize: 20,
+    fill: "#000000",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textAlign: "left",
+  });
+
   // Initial canvas & events setup
   useEffect(() => {
     if (!htmlCanvasRef.current) return;
@@ -100,7 +110,17 @@ const PlushDollDesign: React.FC = () => {
     updateToolbarPos(obj);
 
     if (obj.type === "i-text") {
-      setActiveText(obj as fabric.IText);
+      const textObj = obj as fabric.IText;
+      setActiveText(textObj);
+      // Update text properties state
+      setTextProperties({
+        fontFamily: textObj.fontFamily || "Arial",
+        fontSize: textObj.fontSize || 20,
+        fill: (textObj.fill as string) || "#000000",
+        fontWeight: textObj.fontWeight || "normal",
+        fontStyle: textObj.fontStyle || "normal",
+        textAlign: textObj.textAlign || "left",
+      });
     } else {
       setActiveText(null);
     }
@@ -550,9 +570,14 @@ const PlushDollDesign: React.FC = () => {
           {activeText && (
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
               <select
-                value={activeText.fontFamily || "Arial"}
+                value={textProperties.fontFamily}
                 onChange={(e) => {
-                  activeText.set("fontFamily", e.target.value);
+                  const newValue = e.target.value;
+                  activeText.set("fontFamily", newValue);
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    fontFamily: newValue,
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -567,9 +592,14 @@ const PlushDollDesign: React.FC = () => {
                 type="number"
                 min={10}
                 max={200}
-                value={activeText.fontSize}
+                value={textProperties.fontSize}
                 onChange={(e) => {
-                  activeText.set("fontSize", parseInt(e.target.value));
+                  const newValue = parseInt(e.target.value);
+                  activeText.set("fontSize", newValue);
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    fontSize: newValue,
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -578,9 +608,11 @@ const PlushDollDesign: React.FC = () => {
 
               <Input
                 type="color"
-                value={activeText.fill as string}
+                value={textProperties.fill}
                 onChange={(e) => {
-                  activeText.set("fill", e.target.value);
+                  const newValue = e.target.value;
+                  activeText.set("fill", newValue);
+                  setTextProperties((prev) => ({ ...prev, fill: newValue }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -588,13 +620,16 @@ const PlushDollDesign: React.FC = () => {
 
               <Button
                 variant={
-                  activeText.fontWeight === "bold" ? "default" : "outline"
+                  textProperties.fontWeight === "bold" ? "default" : "outline"
                 }
                 onClick={() => {
-                  activeText.set(
-                    "fontWeight",
-                    activeText.fontWeight === "bold" ? "normal" : "bold"
-                  );
+                  const newValue =
+                    textProperties.fontWeight === "bold" ? "normal" : "bold";
+                  activeText.set("fontWeight", newValue);
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    fontWeight: newValue,
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -604,13 +639,16 @@ const PlushDollDesign: React.FC = () => {
 
               <Button
                 variant={
-                  activeText.fontStyle === "italic" ? "default" : "outline"
+                  textProperties.fontStyle === "italic" ? "default" : "outline"
                 }
                 onClick={() => {
-                  activeText.set(
-                    "fontStyle",
-                    activeText.fontStyle === "italic" ? "normal" : "italic"
-                  );
+                  const newValue =
+                    textProperties.fontStyle === "italic" ? "normal" : "italic";
+                  activeText.set("fontStyle", newValue);
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    fontStyle: newValue,
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -620,10 +658,11 @@ const PlushDollDesign: React.FC = () => {
 
               <Button
                 variant={
-                  activeText.textAlign === "left" ? "default" : "outline"
+                  textProperties.textAlign === "left" ? "default" : "outline"
                 }
                 onClick={() => {
                   activeText.set("textAlign", "left");
+                  setTextProperties((prev) => ({ ...prev, textAlign: "left" }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -632,10 +671,14 @@ const PlushDollDesign: React.FC = () => {
               </Button>
               <Button
                 variant={
-                  activeText.textAlign === "center" ? "default" : "outline"
+                  textProperties.textAlign === "center" ? "default" : "outline"
                 }
                 onClick={() => {
                   activeText.set("textAlign", "center");
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    textAlign: "center",
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -644,10 +687,14 @@ const PlushDollDesign: React.FC = () => {
               </Button>
               <Button
                 variant={
-                  activeText.textAlign === "right" ? "default" : "outline"
+                  textProperties.textAlign === "right" ? "default" : "outline"
                 }
                 onClick={() => {
                   activeText.set("textAlign", "right");
+                  setTextProperties((prev) => ({
+                    ...prev,
+                    textAlign: "right",
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -656,6 +703,7 @@ const PlushDollDesign: React.FC = () => {
               </Button>
             </div>
           )}
+
           <div className="relative flex justify-center items-center bg-gray-100 h-full">
             <div
               ref={canvasWrapperRef}
