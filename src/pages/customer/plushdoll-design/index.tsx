@@ -138,7 +138,7 @@ const PlushDollDesign: React.FC = () => {
         fontFamily: textObj.fontFamily || "Arial",
         fontSize: textObj.fontSize || 20,
         fill: (textObj.fill as string) || "#000000",
-        fontWeight: textObj.fontWeight || "normal",
+        fontWeight: textObj.fontWeight+'' || "normal",
         fontStyle: textObj.fontStyle || "normal",
         textAlign: textObj.textAlign || "center",
         underline: textObj.underline || false,
@@ -812,7 +812,7 @@ const PlushDollDesign: React.FC = () => {
                   className="h-[30px] w-[30px]"
                   onClick={() => {
                     action();
-                    setTextProperties((prev) => ({
+                    setTextProperties((prev: any) => ({
                       ...prev,
                       fontWeight: activeText.fontWeight as string,
                       fontStyle: activeText.fontStyle as string,
