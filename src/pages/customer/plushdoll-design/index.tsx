@@ -10,13 +10,17 @@ import {
   Undo2,
   Redo2,
   Download,
-  UploadCloud,
   Bold,
   Italic,
   Underline,
   AlignLeft,
   AlignCenter,
   AlignRight,
+  RotateCw,
+  RotateCcw,
+  Layers,
+  ArrowUpFromLine,
+  ArrowDownFromLine,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -125,6 +129,9 @@ const PlushDollDesign: React.FC = () => {
     setToolbarVisible(true);
     updateToolbarPos(obj);
 
+    // Lưu lại index hiện tại của object
+    const currentIndex = getObjectIndex(obj);
+
     if (obj.type === "i-text") {
       // ✅ Auto convert sang Textbox luôn khi select
       convertToTextbox(obj as fabric.IText);
@@ -146,9 +153,39 @@ const PlushDollDesign: React.FC = () => {
     } else {
       setActiveText(null);
     }
+
+    // ✅ Đảm bảo object vẫn ở đúng layer sau khi select
+    if (canvasRef.current && currentIndex !== -1) {
+      // Đợi 1 tick để đảm bảo các thao tác khác đã hoàn thành
+      setTimeout(() => {
+        if (canvasRef.current) {
+          obj.moveTo(currentIndex);
+          canvasRef.current.setActiveObject(obj);
+          canvasRef.current.renderAll();
+        }
+      }, 0);
+    }
+  };
+
+  const getObjectIndex = (obj: fabric.Object) => {
+    if (!canvasRef.current) return -1;
+    return canvasRef.current.getObjects().indexOf(obj);
+  };
+
+  const isAtTop = (obj: fabric.Object) => {
+    if (!canvasRef.current) return false;
+    const objects = canvasRef.current.getObjects();
+    return getObjectIndex(obj) === objects.length - 1;
+  };
+
+  const isAtBottom = (obj: fabric.Object) => {
+    if (!canvasRef.current) return false;
+    return getObjectIndex(obj) === 0;
   };
 
   const convertToTextbox = (iTextObj: fabric.IText) => {
+    const index = getObjectIndex(iTextObj); // Lưu lại vị trí cũ
+
     const textbox = new fabric.Textbox(iTextObj.text || "", {
       left: iTextObj.left,
       top: iTextObj.top,
@@ -162,11 +199,33 @@ const PlushDollDesign: React.FC = () => {
       underline: iTextObj.underline,
       padding: 10,
     });
+
     canvasRef.current?.remove(iTextObj);
+
     canvasRef.current?.add(textbox);
-    canvasRef.current?.setActiveObject(textbox);
+
+    // ✅ Đợi 1 tick rồi mới move về đúng layer + setActiveObject để Fabric không đẩy lên top
+    setTimeout(() => {
+      if (canvasRef.current) {
+        textbox.moveTo(index);
+        canvasRef.current.setActiveObject(textbox);
+        canvasRef.current.renderAll();
+      }
+    }, 0);
+
+    // ✅ Update properties
+    setActiveText(textbox);
+    setTextProperties({
+      fontFamily: textbox.fontFamily || "Arial",
+      fontSize: textbox.fontSize || 20,
+      fill: (textbox.fill as string) || "#000000",
+      fontWeight: textbox.fontWeight || "normal",
+      fontStyle: textbox.fontStyle || "normal",
+      textAlign: textbox.textAlign || "center",
+      underline: textbox.underline || false,
+    });
+
     saveState();
-    handleSelection(textbox);
   };
 
   const updateToolbarPos = (obj: fabric.Object) => {
@@ -816,9 +875,10 @@ const PlushDollDesign: React.FC = () => {
                       ...prev,
                       fontWeight: activeText.fontWeight as string,
                       fontStyle: activeText.fontStyle as string,
-                      underline: activeText.underline,
+                      underline: activeText.underline ?? false,
                       textAlign:
-                        activeText.textAlign as fabric.Textbox["textAlign"],
+                        (activeText.textAlign as fabric.Textbox["textAlign"]) ??
+                        "center",
                     }));
                     activeText.setCoords();
                     canvasRef.current?.renderAll();
@@ -843,45 +903,109 @@ const PlushDollDesign: React.FC = () => {
             >
               <canvas ref={htmlCanvasRef} className="w-full h-full" />
 
-              {toolbarVisible && (
-                <div
-                  className="absolute z-50 bg-white shadow-lg rounded-md p-2 flex gap-2 select-none"
-                  style={{
-                    top: toolbarPos.y,
-                    left: toolbarPos.x,
-                    transform: "translateX(-50%)",
-                  }}
-                  onMouseDown={startDrag}
-                >
-                  <Button size="icon" variant="outline" onClick={undo}>
-                    <Undo2 className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="outline" onClick={redo}>
-                    <Redo2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={removeSelected}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={saveCanvasAsPNG}
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={saveCanvasAsJSON}
-                  >
-                    <UploadCloud className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
+              {toolbarVisible &&
+                (() => {
+                  const obj = canvasRef.current?.getActiveObject();
+                  const atTop = obj ? isAtTop(obj) : false;
+                  const atBottom = obj ? isAtBottom(obj) : false;
+
+                  return (
+                    <div
+                      className="absolute z-50 bg-white shadow-lg rounded-md p-2 flex gap-2 select-none"
+                      style={{
+                        top: toolbarPos.y,
+                        left: toolbarPos.x,
+                        transform: "translateX(-50%)",
+                      }}
+                      onMouseDown={startDrag}
+                    >
+                      {/* Rotate Cw */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj) {
+                            obj.rotate((obj.angle || 0) + 45);
+                            obj.setCoords();
+                            canvasRef.current?.renderAll();
+                            saveState();
+                          }
+                        }}
+                      >
+                        <RotateCw className="w-4 h-4" />
+                      </Button>
+                      {/* Rotate Ccw */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj) {
+                            obj.rotate((obj.angle || 0) - 45);
+                            obj.setCoords();
+                            canvasRef.current?.renderAll();
+                            saveState();
+                          }
+                        }}
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj && canvasRef.current) {
+                            canvasRef.current.discardActiveObject(); // ✅ Xóa chọn trước
+                            canvasRef.current.bringToFront(obj);
+                            canvasRef.current.setActiveObject(obj); // ✅ Đặt lại chọn
+                            obj.setCoords();
+                            canvasRef.current.requestRenderAll(); // ✅ Ưu tiên dùng requestRenderAll
+                            saveState();
+                          }
+                        }}
+                      >
+                        <Layers className="w-4 h-4" />
+                      </Button>
+
+                      {!atTop && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj && canvasRef.current) {
+                              canvasRef.current.discardActiveObject();
+                              canvasRef.current.bringForward(obj);
+                              canvasRef.current.setActiveObject(obj);
+                              obj.setCoords();
+                              canvasRef.current.requestRenderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <ArrowUpFromLine className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {!atBottom && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj && canvasRef.current) {
+                              canvasRef.current.discardActiveObject();
+                              canvasRef.current.sendBackwards(obj);
+                              canvasRef.current.setActiveObject(obj);
+                              obj.setCoords();
+                              canvasRef.current.requestRenderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <ArrowDownFromLine className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })()}
             </div>
           </div>
         </div>
