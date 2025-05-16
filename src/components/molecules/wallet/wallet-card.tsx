@@ -1,6 +1,7 @@
 import type React from "react"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { formatBankAccountNumber } from "@/components/utils"
 
 export interface WalletCardProps {
   balance: number
@@ -19,8 +20,6 @@ export const WalletCard = ({
   className,
   children,
 }: WalletCardProps) => {
-  // Format card number to show only last part
-  const formattedCardNumber = cardNumber.startsWith("*") ? cardNumber : `**** **** ****-${cardNumber.slice(-12)}`
 
   return (
     <Card className={cn("relative w-full max-w-md overflow-hidden rounded-xl p-6", className)}>
@@ -31,11 +30,10 @@ export const WalletCard = ({
         </div>
 
         <div className="mt-auto space-y-2">
-          <p className="text-sm opacity-90">{formattedCardNumber === null ? 'Chưa có': formattedCardNumber}</p>
+          <p className="text-2xl">{cardNumber === null ? 'Chưa có': formatBankAccountNumber(cardNumber)}</p>
           <p className="text-2xl font-semibold">{cardholderName === null ? 'Chưa có': cardholderName}</p>
         </div>
       </div>
-
       {children}
     </Card>
   )
