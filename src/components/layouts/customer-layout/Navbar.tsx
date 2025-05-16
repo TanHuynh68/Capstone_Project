@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/redux/userSlice";
 import { PATH, USER_ROUTES } from "@/routes/path";
 import Notification from "@/components/molecules/navbar/Notification";
+import Logo from "@/components/atoms/logo/Logo";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -83,7 +84,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold">ACME</span>
+          <Logo/>
         </Link>
 
         {/* Desktop Navigation */}

@@ -18,6 +18,8 @@ export enum USER_ROUTES {
     LOGIN_QR = 'login-qr',
     CHAT = 'chat',
     PLUSHDOLL_DESIGN = 'plushdoll-design',
+    ABOUT_PAGE = 'about',
+    CONTACT_PAGE = 'contact',
 }
 
 export enum AUTH_ROUTES {
