@@ -8,5 +8,4 @@ const ENV = {
   CLOUDINARY_NAME: import.meta.env.VITE_CLOUDINARY_NAME,
 };
 
-
 export default ENV;
