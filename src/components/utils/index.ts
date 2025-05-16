@@ -10,7 +10,7 @@ export {
 export {
     capitalizeWords, formatNumber, generateRandomId, isEmptyObject, isValidEmail, sleep, slugify, truncate,
     toLowerCase, formatCurrencyVND, getTransactionTypeLabel, getOrderType, cn,
-     getPaymentMethodFromDescription, getTransactionTypeName, isDepositOrder, isWithdrawalOrder
+     getPaymentMethodFromDescription, getTransactionTypeName, isDepositOrder, isWithdrawalOrder, formatBankAccountNumber
 } from './helpers'
 export {
     ValidationErrors, createValidationSchema, custom, email, maxLength, minLength, number, password, passwordConfirm,

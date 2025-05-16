@@ -173,5 +173,8 @@ export function getOrderType(description: string): "Nạp tiền" | "Rút tiền
   }
 }
 
+export function formatBankAccountNumber(accountNumber: string): string {
+  return accountNumber.replace(/(.{4})/g, '$1 ').trim();
+}
 
 

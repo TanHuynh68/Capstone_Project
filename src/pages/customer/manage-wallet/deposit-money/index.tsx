@@ -123,23 +123,23 @@ export default function DepositMoney() {
     return (
         <div className="mx-20">
             <div className="container mx-auto p-4 md:p-6 ">
-                <div className="grid grid-cols-2 gap-6 ">     
+                <div className="grid grid-cols-2 gap-6 ">
                     <div className="">
-                    <h2 className="text-2xl font-bold">Ví của tôi</h2>
+                        <h2 className="text-2xl font-bold">Ví của tôi</h2>
                         {
                             walletInfo && <div className="w-full grid grid-cols-12 gap-4 mt-5">
                                 <div className="col-span-8 w-full">
-                                <PdcWalletCard
-                                    balance={walletInfo?.balance}
-                                    cardNumber={walletInfo?.bankAccountNumber + ''}
-                                    holdAmount={walletInfo.locked}
-                                    cardholderName={walletInfo.accountHolderName}
-                                />
+                                    <PdcWalletCard
+                                        balance={walletInfo?.balance}
+                                        cardNumber={walletInfo?.bankAccountNumber + ''}
+                                        holdAmount={walletInfo.locked}
+                                        cardholderName={walletInfo.accountHolderName}
+                                    />
                                 </div>
                                 <div className="border-solid border-l-2 col-span-1">
                                 </div>
                                 <div className="col-span-3 ">
-                                    <div className="mt-5 ">
+                                    <div className="">
                                         Ngân hàng
                                     </div>
                                     <div className="font-semibold">
@@ -158,7 +158,7 @@ export default function DepositMoney() {
                                         {walletInfo?.accountHolderName === null ? 'Chưa có' : walletInfo?.accountHolderName}
                                     </div>
                                     <div>
-                                    <UpdateBankCardButton walletID={walletInfo.walletID}/>
+                                        <UpdateBankCardButton walletID={walletInfo.walletID} />
                                     </div>
                                 </div>
                             </div>
@@ -201,18 +201,18 @@ export default function DepositMoney() {
                                 <div className="grid gap-4">
                                     <h3 className="font-medium">Chọn phương thức thanh toán</h3>
 
-                                    <div className="grid grid-cols-2 gap-4 w-[350px]">
+                                    <div className="grid grid-cols-3 gap-4 w-[550px] mt-2">
                                         <Card
-                                            className={`cursor-pointer transition-colors ${selectedPayment === "vnpay" ? "border-primary bg-primary/5" : "hover:bg-muted"
+                                            className={` cursor-pointer h-[80px] transition-colors ${selectedPayment === "vnpay" ? "border-primary bg-primary/5" : "hover:bg-muted"
                                                 }`}
                                             onClick={() => !isSubmitting && setSelectedPayment("vnpay")}
                                         >
-                                            <CardContent className="flex items-center gap-4 p-4 ">
+                                            <CardContent className="flex items-center gap-4 p4">
                                                 <div
-                                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "vnpay" ? "bg-primary" : "bg-muted"
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-full ${selectedPayment === "vnpay" ? "bg-primary" : "bg-muted"
                                                         } text-primary-foreground`}
                                                 >
-                                                    <CreditCard className="h-6 w-6" />
+                                                    <CreditCard className="h-4 w-4" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <h3 className="font-medium">VNPAY</h3>
@@ -220,36 +220,35 @@ export default function DepositMoney() {
                                             </CardContent>
                                         </Card>
                                         <Card
-                                            className={`cursor-pointer transition-colors ${selectedPayment === "payos" ? "border-primary bg-primary/5" : "hover:bg-muted"
+                                            className={`cursor-pointer h-[80px] transition-colors ${selectedPayment === "payos" ? "border-primary bg-primary/5" : "hover:bg-muted"
                                                 }`}
                                             onClick={() => !isSubmitting && setSelectedPayment("payos")}
                                         >
-                                            <CardContent className="flex items-center gap-4 p-4">
+                                            <CardContent className="flex items-center gap-4">
                                                 <div
-                                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedPayment === "payos" ? "bg-primary" : "bg-muted"
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-full ${selectedPayment === "payos" ? "bg-primary" : "bg-muted"
                                                         } text-primary-foreground`}
                                                 >
-                                                    <Wallet className="h-6 w-6" />
+                                                    <Wallet className="h-4 w-4" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <h3 className="font-medium">payOs</h3>
                                                 </div>
                                             </CardContent>
                                         </Card>
+                                        <div className="flex justify-center items-center h-[100px]">
+                                            <Button type="submit" disabled={isSubmitting}>
+                                                {isSubmitting ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Đang xử lý...
+                                                    </>
+                                                ) : (
+                                                    "Thanh toán ngay"
+                                                )}
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div className="flex justify-center ">
-                                    <Button  type="submit" disabled={isSubmitting}>
-                                        {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Đang xử lý...
-                                            </>
-                                        ) : (
-                                            "Thanh toán ngay"
-                                        )}
-                                    </Button>
                                 </div>
                             </form>
                         </Form>

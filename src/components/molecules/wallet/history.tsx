@@ -6,9 +6,9 @@ import TransactionHistory from "@/components/atoms/wallet/transaction-history"
 const History = () => {
     return (
         <div>
-            <div className="mt-10">
+            <div className="mt-5">
                 <Tabs defaultValue="DepositWithdrawalHistory" >
-                    <TabsList className="grid  grid-cols-2">
+                    <TabsList className="grid grid-cols-2">
                         <TabsTrigger value="DepositWithdrawalHistory">Lịch sử nạp rút</TabsTrigger>
                         <TabsTrigger value="TransactionHistory">Lịch sử giao dịch</TabsTrigger>
                     </TabsList>
