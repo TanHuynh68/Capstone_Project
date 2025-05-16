@@ -39,7 +39,12 @@ const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
-  const clipboardRef = useRef<fabric.Object | null>(null);
+  const pasteCountRef = useRef(0);
+  const clipboardRef = useRef<
+    | { objects: fabric.Object[]; bbox: { left: number; top: number } }
+    | fabric.Object
+    | null
+  >(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -83,14 +88,29 @@ const PlushDollDesign: React.FC = () => {
     saveInitialState();
 
     // Selection events for smart toolbar
-    canvas.on(
-      "selection:created",
-      (e) => e.selected && handleSelection(e.selected[0])
-    );
-    canvas.on(
-      "selection:updated",
-      (e) => e.selected && handleSelection(e.selected[0])
-    );
+    canvas.on("selection:created", (e) => {
+      if (e.selected && e.selected.length > 0) {
+        // Nếu đang select nhiều object thì đừng handle từng cái
+        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+          setToolbarVisible(false); // Hide toolbar vì đang multi select
+          setActiveText(null);
+        } else {
+          handleSelection(e.selected[0]);
+        }
+      }
+    });
+
+    canvas.on("selection:updated", (e) => {
+      if (e.selected && e.selected.length > 0) {
+        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+          setToolbarVisible(false);
+          setActiveText(null);
+        } else {
+          handleSelection(e.selected[0]);
+        }
+      }
+    });
+
     canvas.on("selection:cleared", () => {
       setToolbarVisible(false);
       setActiveText(null);
@@ -145,7 +165,7 @@ const PlushDollDesign: React.FC = () => {
         fontFamily: textObj.fontFamily || "Arial",
         fontSize: textObj.fontSize || 20,
         fill: (textObj.fill as string) || "#000000",
-        fontWeight: textObj.fontWeight || "normal",
+        fontWeight: String(textObj.fontWeight || "normal"),
         fontStyle: textObj.fontStyle || "normal",
         textAlign: textObj.textAlign || "center",
         underline: textObj.underline || false,
@@ -193,7 +213,7 @@ const PlushDollDesign: React.FC = () => {
       fontSize: iTextObj.fontSize,
       fontFamily: iTextObj.fontFamily,
       fontStyle: iTextObj.fontStyle,
-      fontWeight: iTextObj.fontWeight,
+      fontWeight: String(iTextObj.fontWeight || "normal"),
       fill: iTextObj.fill,
       textAlign: iTextObj.textAlign || "center",
       underline: iTextObj.underline,
@@ -219,7 +239,7 @@ const PlushDollDesign: React.FC = () => {
       fontFamily: textbox.fontFamily || "Arial",
       fontSize: textbox.fontSize || 20,
       fill: (textbox.fill as string) || "#000000",
-      fontWeight: textbox.fontWeight || "normal",
+      fontWeight: String(textbox.fontWeight || "normal"),
       fontStyle: textbox.fontStyle || "normal",
       textAlign: textbox.textAlign || "center",
       underline: textbox.underline || false,
@@ -267,6 +287,21 @@ const PlushDollDesign: React.FC = () => {
       e.preventDefault();
       redo();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      // ✅ Select all objects
+      if (canvasRef.current) {
+        const allObjects = canvasRef.current.getObjects();
+        if (allObjects.length > 0) {
+          canvasRef.current.discardActiveObject();
+          const selection = new fabric.ActiveSelection(allObjects, {
+            canvas: canvasRef.current,
+          });
+          canvasRef.current.setActiveObject(selection);
+          canvasRef.current.requestRenderAll();
+        }
+      }
+    }
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       removeSelected();
@@ -281,31 +316,87 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
-  const copySelected = () => {
-    const activeObject = canvasRef.current?.getActiveObject();
-    if (activeObject) {
-      activeObject.clone((cloned: fabric.Object) => {
-        clipboardRef.current = cloned;
-        // toast.success("Đã copy object.");
+  const cloneObject = (obj: fabric.Object): Promise<fabric.Object> => {
+    return new Promise((resolve) => {
+      obj.clone((clonedObj: fabric.Object) => {
+        resolve(clonedObj);
       });
+    });
+  };
+
+  const copySelected = async () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return;
+
+    pasteCountRef.current = 0; // Reset khi copy mới
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      const bbox = activeObject.getBoundingRect(true, true);
+
+      const objects = selection.getObjects().map((obj) => {
+        const relLeft = (obj.left || 0) - bbox.left;
+        const relTop = (obj.top || 0) - bbox.top;
+        return { obj, relLeft, relTop };
+      });
+
+      clipboardRef.current = { objects, bbox };
+      console.log("📋 Copied activeSelection:", clipboardRef.current);
+    } else {
+      const cloned = await cloneObject(activeObject);
+      clipboardRef.current = cloned;
+      console.log("📋 Copied single object:", clipboardRef.current);
     }
   };
 
   const pasteClipboard = () => {
-    if (clipboardRef.current && canvasRef.current) {
-      clipboardRef.current.clone((clonedObj: fabric.Object) => {
+    if (!clipboardRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const pasteOffset = 20 * (pasteCountRef.current + 1);
+
+    if ("objects" in clipboardRef.current) {
+      const { objects, bbox } = clipboardRef.current;
+
+      const clonedObjects: fabric.Object[] = [];
+      objects.forEach(({ obj, relLeft, relTop }) => {
+        obj.clone((clonedObj: fabric.Object) => {
+          clonedObj.set({
+            left: bbox.left + relLeft + pasteOffset,
+            top: bbox.top + relTop + pasteOffset,
+            evented: true,
+          });
+
+          canvas.add(clonedObj);
+          clonedObjects.push(clonedObj);
+
+          // Khi clone xong tất cả object thì set selection
+          if (clonedObjects.length === objects.length) {
+            const selection = new fabric.ActiveSelection(clonedObjects, {
+              canvas,
+            });
+            canvas.setActiveObject(selection);
+            canvas.requestRenderAll();
+            saveState();
+          }
+        });
+      });
+    } else {
+      const obj = clipboardRef.current;
+      obj.clone((clonedObj: fabric.Object) => {
         clonedObj.set({
-          left: (clonedObj.left || 0) + 20,
-          top: (clonedObj.top || 0) + 20,
+          left: (clonedObj.left || 0) + pasteOffset,
+          top: (clonedObj.top || 0) + pasteOffset,
           evented: true,
         });
-        canvasRef.current?.add(clonedObj);
-        canvasRef.current?.setActiveObject(clonedObj);
-        canvasRef.current?.renderAll();
+        canvas.add(clonedObj);
+        canvas.setActiveObject(clonedObj);
+        canvas.requestRenderAll();
         saveState();
-        // toast.success("Đã paste object.");
       });
     }
+
+    pasteCountRef.current += 1;
   };
 
   const startDrag = (e: React.MouseEvent) => {
@@ -378,6 +469,18 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(states[index - 1], () => {
         canvasRef.current?.renderAll();
         historyRef.current.index = index - 1;
+
+        // ✅ Giữ lại selected object nếu có
+        if (canvasRef.current) {
+          const activeObj = canvasRef.current.getObjects().at(-1);
+          if (activeObj) {
+            canvasRef.current.setActiveObject(activeObj);
+            canvasRef.current.fire("selection:updated", {
+              selected: [activeObj],
+            });
+          }
+        }
+
         isRestoringRef.current = false;
       });
     }
@@ -390,6 +493,18 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(states[index + 1], () => {
         canvasRef.current?.renderAll();
         historyRef.current.index = index + 1;
+
+        // ✅ Giữ lại selected object nếu có
+        if (canvasRef.current) {
+          const activeObj = canvasRef.current.getObjects().at(-1);
+          if (activeObj) {
+            canvasRef.current.setActiveObject(activeObj);
+            canvasRef.current.fire("selection:updated", {
+              selected: [activeObj],
+            });
+          }
+        }
+
         isRestoringRef.current = false;
       });
     }
@@ -411,9 +526,21 @@ const PlushDollDesign: React.FC = () => {
   };
 
   const removeSelected = () => {
-    const obj = canvasRef.current?.getActiveObject();
-    if (obj) {
-      canvasRef.current?.remove(obj);
+    const activeObject = canvasRef.current?.getActiveObject();
+
+    if (activeObject) {
+      if (activeObject.type === "activeSelection") {
+        // ✅ Xóa nhiều object trong selection
+        const selection = activeObject as fabric.ActiveSelection;
+        selection.forEachObject((obj) => {
+          canvasRef.current?.remove(obj);
+        });
+        canvasRef.current?.discardActiveObject();
+      } else {
+        canvasRef.current?.remove(activeObject);
+      }
+
+      canvasRef.current?.requestRenderAll();
       saveState();
     }
   };
@@ -794,13 +921,13 @@ const PlushDollDesign: React.FC = () => {
                             }));
                             canvasRef.current?.renderAll();
                             saveState();
-                            setSizePopoverOpen(false); // ✅ đóng popover
+                            setSizePopoverOpen(false); 
                           }}
                           className={`text-center cursor-pointer h-[30px] leading-[30px] text-sm ${
                             textProperties.fontSize === size ? "bg-muted" : ""
                           }`}
                         >
-                          {size}px
+                          {size}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -873,8 +1000,8 @@ const PlushDollDesign: React.FC = () => {
                     action();
                     setTextProperties((prev) => ({
                       ...prev,
-                      fontWeight: activeText.fontWeight as string,
-                      fontStyle: activeText.fontStyle as string,
+                      fontWeight: String(activeText.fontWeight as string),
+                      fontStyle: String(activeText.fontStyle as string),
                       underline: activeText.underline ?? false,
                       textAlign:
                         (activeText.textAlign as fabric.Textbox["textAlign"]) ??
@@ -954,11 +1081,14 @@ const PlushDollDesign: React.FC = () => {
                         variant="outline"
                         onClick={() => {
                           if (obj && canvasRef.current) {
-                            canvasRef.current.discardActiveObject(); // ✅ Xóa chọn trước
                             canvasRef.current.bringToFront(obj);
-                            canvasRef.current.setActiveObject(obj); // ✅ Đặt lại chọn
                             obj.setCoords();
-                            canvasRef.current.requestRenderAll(); // ✅ Ưu tiên dùng requestRenderAll
+                            canvasRef.current.setActiveObject(obj);
+                            canvasRef.current.fire("selection:updated", {
+                              selected: [obj],
+                            }); // ✅ Force selection update
+                            updateToolbarPos(obj); // ✅ Update toolbar position
+                            canvasRef.current.requestRenderAll();
                             saveState();
                           }
                         }}
@@ -972,10 +1102,13 @@ const PlushDollDesign: React.FC = () => {
                           variant="outline"
                           onClick={() => {
                             if (obj && canvasRef.current) {
-                              canvasRef.current.discardActiveObject();
                               canvasRef.current.bringForward(obj);
-                              canvasRef.current.setActiveObject(obj);
                               obj.setCoords();
+                              canvasRef.current.setActiveObject(obj);
+                              canvasRef.current.fire("selection:updated", {
+                                selected: [obj],
+                              }); // ✅ Force selection update
+                              updateToolbarPos(obj);
                               canvasRef.current.requestRenderAll();
                               saveState();
                             }
@@ -991,10 +1124,13 @@ const PlushDollDesign: React.FC = () => {
                           variant="outline"
                           onClick={() => {
                             if (obj && canvasRef.current) {
-                              canvasRef.current.discardActiveObject();
                               canvasRef.current.sendBackwards(obj);
-                              canvasRef.current.setActiveObject(obj);
                               obj.setCoords();
+                              canvasRef.current.setActiveObject(obj);
+                              canvasRef.current.fire("selection:updated", {
+                                selected: [obj],
+                              }); // ✅ Force selection update
+                              updateToolbarPos(obj);
                               canvasRef.current.requestRenderAll();
                               saveState();
                             }
