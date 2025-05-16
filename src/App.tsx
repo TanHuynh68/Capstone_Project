@@ -9,10 +9,12 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/themes/theme-provider";
 import { InitUserFromToken } from "./services/InitUserFromToken";
 import { NotificationProvider } from "./components/atoms/notification/notification-context";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function App() {
   return (
     <>
+      <SpeedInsights />
       <NotificationProvider>
         <ThemeProvider defaultTheme="light" storageKey="theme">
           <Provider store={store}>
