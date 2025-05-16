@@ -31,6 +31,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
+import { convertToPixels } from "@/components/utils/convert";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -40,6 +41,7 @@ const PlushDollDesign: React.FC = () => {
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
   const pasteCountRef = useRef(0);
+  const unitRef = useRef<"px" | "cm" | "mm">("px");
   const clipboardRef = useRef<
     | { objects: fabric.Object[]; bbox: { left: number; top: number } }
     | fabric.Object
@@ -50,6 +52,10 @@ const PlushDollDesign: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
+  const [canvasWidthInput, setCanvasWidthInput] = useState("960");
+  const [canvasHeightInput, setCanvasHeightInput] = useState("540");
+  const [scaleRatio, setScaleRatio] = useState(1);
+  const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -81,7 +87,7 @@ const PlushDollDesign: React.FC = () => {
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "#ffffff",
     });
-    canvas.freeDrawingBrush.color = "#ff0000";
+    canvas.freeDrawingBrush.color = "#000000";
     canvas.freeDrawingBrush.width = 3;
     canvas.renderAll();
     canvasRef.current = canvas;
@@ -132,6 +138,39 @@ const PlushDollDesign: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const prevUnit = unitRef.current;
+    if (prevUnit === unit) return;
+
+    const widthPx = convertToPixels(
+      parseFloat(canvasWidthInput) || 0,
+      prevUnit
+    );
+    const heightPx = convertToPixels(
+      parseFloat(canvasHeightInput) || 0,
+      prevUnit
+    );
+
+    const newWidth =
+      unit === "px" ? widthPx : widthPx / convertToPixels(1, unit);
+    const newHeight =
+      unit === "px" ? heightPx : heightPx / convertToPixels(1, unit);
+
+    setCanvasWidthInput(newWidth.toFixed(3));
+    setCanvasHeightInput(newHeight.toFixed(3));
+
+    unitRef.current = unit;
+  }, [unit]);
+
+  useEffect(() => {
+    updateScaleRatio();
+  }, [canvasWidthInput, canvasHeightInput, unit]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateScaleRatio);
+    return () => window.removeEventListener("resize", updateScaleRatio);
+  }, []);
+
+  useEffect(() => {
     const resizeCanvas = () => {
       if (canvasWrapperRef.current && canvasRef.current) {
         const { clientWidth, clientHeight } = canvasWrapperRef.current;
@@ -144,6 +183,72 @@ const PlushDollDesign: React.FC = () => {
     resizeCanvas();
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
+
+  const createNewCanvas = () => {
+    const width = parseFloat(canvasWidthInput);
+    const height = parseFloat(canvasHeightInput);
+
+    if (unit === "cm" && (width < 1.058 || width > 211.664)) {
+      toast.error("Chiều rộng phải từ 1,058cm đến 211,664cm");
+      return;
+    }
+
+    if (unit === "cm" && (height < 1.058 || height > 83.336)) {
+      toast.error("Chiều cao phải từ 1,058cm đến 83,336cm");
+      return;
+    }
+
+    const widthPx = convertToPixels(width, unit);
+    const heightPx = convertToPixels(height, unit);
+
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+
+    canvasRef.current.setWidth(widthPx);
+    canvasRef.current.setHeight(heightPx);
+    canvasRef.current.clear();
+    canvasRef.current.backgroundColor = "#ffffff";
+    canvasRef.current.renderAll();
+
+    canvasWrapperRef.current.style.width = `${widthPx}px`;
+    canvasWrapperRef.current.style.height = `${heightPx}px`;
+
+    saveInitialState();
+
+    toast.success(`Tạo canvas mới ${width}x${height} ${unit}`);
+  };
+
+  const updateScaleRatio = () => {
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+
+    const wrapperParent = canvasWrapperRef.current.parentElement;
+    if (!wrapperParent) return;
+
+    const parentWidth = wrapperParent.clientWidth;
+    const parentHeight = wrapperParent.clientHeight;
+
+    const canvasWidth = convertToPixels(
+      parseFloat(canvasWidthInput) || 0,
+      unit
+    );
+    const canvasHeight = convertToPixels(
+      parseFloat(canvasHeightInput) || 0,
+      unit
+    );
+
+    const widthRatio = parentWidth / canvasWidth;
+    const heightRatio = parentHeight / canvasHeight;
+
+    const ratio = Math.min(widthRatio, heightRatio, 1); // fit cả width & height, không to hơn 1
+
+    canvasRef.current.setZoom(ratio);
+    canvasRef.current.requestRenderAll();
+
+    // Wrapper div chỉ để giữ vị trí, không scale
+    canvasWrapperRef.current.style.width = `${canvasWidth}px`;
+    canvasWrapperRef.current.style.height = `${canvasHeight}px`;
+
+    setScaleRatio(ratio); // Nếu cần hiển thị % scale trên UI thì giữ state này
+  };
 
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
@@ -630,6 +735,35 @@ const PlushDollDesign: React.FC = () => {
         <div className="font-bold text-lg text-primary">
           🎨 PlushDoll Studio
         </div>
+        <div className="flex gap-2 items-center">
+          <Input
+            type="number"
+            value={canvasWidthInput}
+            onChange={(e) => setCanvasWidthInput(e.target.value)}
+            placeholder="Width"
+            className="w-24"
+          />
+          <Input
+            type="number"
+            value={canvasHeightInput}
+            onChange={(e) => setCanvasHeightInput(e.target.value)}
+            placeholder="Height"
+            className="w-24"
+          />
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value as "px" | "cm" | "mm")}
+            className="border rounded px-2 h-[38px]"
+          >
+            <option value="px">px</option>
+            <option value="cm">cm</option>
+            <option value="mm">mm</option>
+          </select>
+          <Button variant="default" onClick={createNewCanvas}>
+            Tạo canvas mới
+          </Button>
+        </div>
+
         <div className="flex gap-2">
           <Button variant="outline" onClick={undo}>
             <Undo2 className="w-4 h-4 mr-1" />
@@ -726,7 +860,7 @@ const PlushDollDesign: React.FC = () => {
                 <label>Brush Color</label>
                 <Input
                   type="color"
-                  defaultValue="#ff0000"
+                  defaultValue="#000000"
                   onChange={(e) =>
                     (canvasRef.current!.freeDrawingBrush.color = e.target.value)
                   }
@@ -921,7 +1055,7 @@ const PlushDollDesign: React.FC = () => {
                             }));
                             canvasRef.current?.renderAll();
                             saveState();
-                            setSizePopoverOpen(false); 
+                            setSizePopoverOpen(false);
                           }}
                           className={`text-center cursor-pointer h-[30px] leading-[30px] text-sm ${
                             textProperties.fontSize === size ? "bg-muted" : ""
@@ -1021,11 +1155,17 @@ const PlushDollDesign: React.FC = () => {
           <div className="relative flex justify-center items-center bg-gray-100 h-full">
             <div
               ref={canvasWrapperRef}
-              className="relative bg-white shadow-md"
+              className="relative bg-white shadow-md origin-top"
               style={{
-                aspectRatio: "16 / 9",
-                width: "80%", // hoặc fix cứng 960px
-                maxWidth: "1280px",
+                width: `${convertToPixels(
+                  parseFloat(canvasWidthInput) || 0,
+                  unit
+                )}px`,
+                height: `${convertToPixels(
+                  parseFloat(canvasHeightInput) || 0,
+                  unit
+                )}px`,
+                transform: `scale(${scaleRatio})`,
               }}
             >
               <canvas ref={htmlCanvasRef} className="w-full h-full" />

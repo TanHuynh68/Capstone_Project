@@ -51,6 +51,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
   // useEffect(() => {
   //   console.log("Danh sách canvas: ", canvasList);
   // }, [canvasList]);
+  
 
   return (
     <div className="space-y-2">
