@@ -155,3 +155,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-start infinite;
+  font-size: 1.5rem;
+  font-weight: 400;
+  /* normal */
+  line-height: 1.5rem;
+}
+
+.cursor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  animation: blink 1s step-start infinite;
+}

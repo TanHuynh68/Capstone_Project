@@ -11,10 +11,23 @@ import {
   Redo2,
   Download,
   UploadCloud,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
 import CanvasList from "./get-canvas";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
+
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
@@ -26,6 +39,8 @@ const PlushDollDesign: React.FC = () => {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -39,6 +54,17 @@ const PlushDollDesign: React.FC = () => {
   });
 
   const { postCanvas } = CustomerService();
+
+  // Add this near other state declarations
+  const [textProperties, setTextProperties] = useState({
+    fontFamily: "Arial",
+    fontSize: 20,
+    fill: "#000000",
+    fontWeight: "normal",
+    fontStyle: "normal",
+    textAlign: "center",
+    underline: false,
+  });
 
   // Initial canvas & events setup
   useEffect(() => {
@@ -100,10 +126,47 @@ const PlushDollDesign: React.FC = () => {
     updateToolbarPos(obj);
 
     if (obj.type === "i-text") {
-      setActiveText(obj as fabric.IText);
+      // ✅ Auto convert sang Textbox luôn khi select
+      convertToTextbox(obj as fabric.IText);
+      return;
+    }
+
+    if (obj.type === "textbox") {
+      const textObj = obj as fabric.Textbox;
+      setActiveText(textObj);
+      setTextProperties({
+        fontFamily: textObj.fontFamily || "Arial",
+        fontSize: textObj.fontSize || 20,
+        fill: (textObj.fill as string) || "#000000",
+        fontWeight: textObj.fontWeight || "normal",
+        fontStyle: textObj.fontStyle || "normal",
+        textAlign: textObj.textAlign || "center",
+        underline: textObj.underline || false,
+      });
     } else {
       setActiveText(null);
     }
+  };
+
+  const convertToTextbox = (iTextObj: fabric.IText) => {
+    const textbox = new fabric.Textbox(iTextObj.text || "", {
+      left: iTextObj.left,
+      top: iTextObj.top,
+      width: Math.max(iTextObj.width || 0, 150),
+      fontSize: iTextObj.fontSize,
+      fontFamily: iTextObj.fontFamily,
+      fontStyle: iTextObj.fontStyle,
+      fontWeight: iTextObj.fontWeight,
+      fill: iTextObj.fill,
+      textAlign: iTextObj.textAlign || "center",
+      underline: iTextObj.underline,
+      padding: 10,
+    });
+    canvasRef.current?.remove(iTextObj);
+    canvasRef.current?.add(textbox);
+    canvasRef.current?.setActiveObject(textbox);
+    saveState();
+    handleSelection(textbox);
   };
 
   const updateToolbarPos = (obj: fabric.Object) => {
@@ -450,13 +513,17 @@ const PlushDollDesign: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  const text = new fabric.IText("Text here", {
+                  const text = new fabric.Textbox("Text here", {
                     left: 100,
                     top: 100,
+                    width: 150,
+                    textAlign: "center",
                     fontSize: 20,
                     fill: "#000",
+                    // padding: 10,
                   });
                   canvasRef.current?.add(text);
+                  canvasRef.current?.setActiveObject(text);
                   saveState();
                 }}
               >
@@ -524,6 +591,7 @@ const PlushDollDesign: React.FC = () => {
                     left: 100,
                     top: 100,
                     fontSize: 20,
+                    textAlign: "center",
                     fill: "#000",
                   });
                   canvasRef.current?.add(text);
@@ -548,114 +616,221 @@ const PlushDollDesign: React.FC = () => {
         {/* <Card className="flex-1 shadow-lg"> */}
         <div className="flex-1 relative bg-gray-50">
           {activeText && (
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
-              <select
-                value={activeText.fontFamily || "Arial"}
-                onChange={(e) => {
-                  activeText.set("fontFamily", e.target.value);
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                <option value="Arial">Arial</option>
-                <option value="Noto Sans">Noto Sans</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier New">Courier New</option>
-              </select>
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
+              <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <div className="w-40 h-[30px]">
+                    <Input
+                      type="text"
+                      value={textProperties.fontFamily}
+                      onClick={() => setFontPopoverOpen(true)}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        activeText.set("fontFamily", newValue);
+                        setTextProperties((prev) => ({
+                          ...prev,
+                          fontFamily: newValue,
+                        }));
+                        canvasRef.current?.renderAll();
+                        saveState();
+                      }}
+                      className="h-full text-center text-sm px-2"
+                    />
+                  </div>
+                </PopoverTrigger>
 
-              <Input
-                type="number"
-                min={10}
-                max={200}
-                value={activeText.fontSize}
-                onChange={(e) => {
-                  activeText.set("fontSize", parseInt(e.target.value));
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-                style={{ width: 60 }}
-              />
+                <PopoverContent className="w-40 p-0 max-h-[300px] overflow-y-auto">
+                  <Command>
+                    <CommandGroup>
+                      {[
+                        "Arial",
+                        "Noto Sans",
+                        "Times New Roman",
+                        "Courier New",
+                        "Roboto",
+                        "Inter",
+                      ].map((font) => (
+                        <CommandItem
+                          key={font}
+                          onMouseEnter={() => {
+                            activeText.set("fontFamily", font);
+                            canvasRef.current?.renderAll();
+                          }}
+                          onMouseLeave={() => {
+                            activeText.set(
+                              "fontFamily",
+                              textProperties.fontFamily
+                            );
+                            canvasRef.current?.renderAll();
+                          }}
+                          onSelect={() => {
+                            activeText.set("fontFamily", font);
+                            setTextProperties((prev) => ({
+                              ...prev,
+                              fontFamily: font,
+                            }));
+                            canvasRef.current?.renderAll();
+                            saveState();
+                            setFontPopoverOpen(false); // ✅ tắt popover khi chọn xong
+                          }}
+                          className={`cursor-pointer text-sm h-[30px] leading-[30px] ${
+                            textProperties.fontFamily === font ? "bg-muted" : ""
+                          }`}
+                          style={{ fontFamily: font }}
+                        >
+                          {font}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              <Popover open={sizePopoverOpen} onOpenChange={setSizePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <div className="w-20 h-[30px]">
+                    <Input
+                      type="number"
+                      min={10}
+                      max={200}
+                      value={textProperties.fontSize}
+                      onChange={(e) => {
+                        const newValue = parseInt(e.target.value);
+                        activeText.set("fontSize", newValue);
+                        setTextProperties((prev) => ({
+                          ...prev,
+                          fontSize: newValue,
+                        }));
+                        canvasRef.current?.renderAll();
+                        saveState();
+                      }}
+                      onClick={() => setSizePopoverOpen(true)}
+                      className="h-full text-center text-sm px-2"
+                    />
+                  </div>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-24 p-0 max-h-[420px] overflow-y-auto">
+                  <Command>
+                    <CommandGroup>
+                      {[
+                        6, 8, 10, 12, 14, 16, 18, 21, 24, 28, 32, 36, 42, 48,
+                        56, 64, 72, 80, 88, 96, 104, 120, 144,
+                      ].map((size) => (
+                        <CommandItem
+                          key={size}
+                          onMouseEnter={() => {
+                            activeText.set("fontSize", size);
+                            canvasRef.current?.renderAll();
+                          }}
+                          onMouseLeave={() => {
+                            activeText.set("fontSize", textProperties.fontSize);
+                            canvasRef.current?.renderAll();
+                          }}
+                          onSelect={() => {
+                            activeText.set("fontSize", size);
+                            setTextProperties((prev) => ({
+                              ...prev,
+                              fontSize: size,
+                            }));
+                            canvasRef.current?.renderAll();
+                            saveState();
+                            setSizePopoverOpen(false); // ✅ đóng popover
+                          }}
+                          className={`text-center cursor-pointer h-[30px] leading-[30px] text-sm ${
+                            textProperties.fontSize === size ? "bg-muted" : ""
+                          }`}
+                        >
+                          {size}px
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
               <Input
                 type="color"
-                value={activeText.fill as string}
+                value={textProperties.fill}
                 onChange={(e) => {
-                  activeText.set("fill", e.target.value);
+                  const newValue = e.target.value;
+                  activeText.set("fill", newValue);
+                  setTextProperties((prev) => ({ ...prev, fill: newValue }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
+                className="w-[30px] h-[30px] p-0 border rounded"
               />
 
-              <Button
-                variant={
-                  activeText.fontWeight === "bold" ? "default" : "outline"
-                }
-                onClick={() => {
-                  activeText.set(
-                    "fontWeight",
-                    activeText.fontWeight === "bold" ? "normal" : "bold"
-                  );
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                B
-              </Button>
-
-              <Button
-                variant={
-                  activeText.fontStyle === "italic" ? "default" : "outline"
-                }
-                onClick={() => {
-                  activeText.set(
-                    "fontStyle",
-                    activeText.fontStyle === "italic" ? "normal" : "italic"
-                  );
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                I
-              </Button>
-
-              <Button
-                variant={
-                  activeText.textAlign === "left" ? "default" : "outline"
-                }
-                onClick={() => {
-                  activeText.set("textAlign", "left");
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                ⬅️
-              </Button>
-              <Button
-                variant={
-                  activeText.textAlign === "center" ? "default" : "outline"
-                }
-                onClick={() => {
-                  activeText.set("textAlign", "center");
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                ⬆️
-              </Button>
-              <Button
-                variant={
-                  activeText.textAlign === "right" ? "default" : "outline"
-                }
-                onClick={() => {
-                  activeText.set("textAlign", "right");
-                  canvasRef.current?.renderAll();
-                  saveState();
-                }}
-              >
-                ➡️
-              </Button>
+              {[
+                {
+                  icon: Bold,
+                  active: textProperties.fontWeight === "bold",
+                  action: () =>
+                    activeText.set(
+                      "fontWeight",
+                      textProperties.fontWeight === "bold" ? "normal" : "bold"
+                    ),
+                },
+                {
+                  icon: Italic,
+                  active: textProperties.fontStyle === "italic",
+                  action: () =>
+                    activeText.set(
+                      "fontStyle",
+                      textProperties.fontStyle === "italic"
+                        ? "normal"
+                        : "italic"
+                    ),
+                },
+                {
+                  icon: Underline,
+                  active: textProperties.underline,
+                  action: () =>
+                    activeText.set("underline", !textProperties.underline),
+                },
+                {
+                  icon: AlignLeft,
+                  active: textProperties.textAlign === "left",
+                  action: () => activeText.set("textAlign", "left"),
+                },
+                {
+                  icon: AlignCenter,
+                  active: textProperties.textAlign === "center",
+                  action: () => activeText.set("textAlign", "center"),
+                },
+                {
+                  icon: AlignRight,
+                  active: textProperties.textAlign === "right",
+                  action: () => activeText.set("textAlign", "right"),
+                },
+              ].map(({ icon: Icon, active, action }, index) => (
+                <Button
+                  key={index}
+                  variant={active ? "default" : "outline"}
+                  size="icon"
+                  className="h-[30px] w-[30px]"
+                  onClick={() => {
+                    action();
+                    setTextProperties((prev) => ({
+                      ...prev,
+                      fontWeight: activeText.fontWeight as string,
+                      fontStyle: activeText.fontStyle as string,
+                      underline: activeText.underline,
+                      textAlign:
+                        activeText.textAlign as fabric.Textbox["textAlign"],
+                    }));
+                    activeText.setCoords();
+                    canvasRef.current?.renderAll();
+                    saveState();
+                  }}
+                >
+                  <Icon size={14} />
+                </Button>
+              ))}
             </div>
           )}
+
           <div className="relative flex justify-center items-center bg-gray-100 h-full">
             <div
               ref={canvasWrapperRef}

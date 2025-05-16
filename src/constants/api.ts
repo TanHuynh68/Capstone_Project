@@ -16,6 +16,7 @@ export const enum API_ENDPOINTS {
     CHANGE_ACTIVE = 'change-active',
     NOTIFICATION = 'notification',
     CANVAS = 'canvas',
+    REPUTATION = 'reputation'
 }
 
 export enum API_ROUTES {
@@ -70,7 +71,6 @@ export enum API_ROUTES {
     //Bank
     GET_BANKS = 'https://api.vietqr.io/v2/banks',
 
-
     //Rule
     CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
     GET_RULE = `${API_ENDPOINTS.RULE}`,
@@ -80,5 +80,10 @@ export enum API_ROUTES {
     //Canvas
     CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
     GET_CANVAS = `${API_ENDPOINTS.CANVAS}`,
-
+    
+    //Reputation
+    GET_REPUTATION = `${API_ENDPOINTS.REPUTATION}`,
+    GET_REPUTATION_HISTORY = `${API_ENDPOINTS.REPUTATION}/history`,
+    STAFF_CHANGE_REPUTATION = `/staff/${API_ENDPOINTS.REPUTATION}/change`,
+    STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
 }
