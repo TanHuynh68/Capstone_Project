@@ -15,3 +15,4 @@ export { default as PayOsPaymentResultPage } from './customer/manage-wallet/payo
 export { default as TransactionHistoryPage } from '../components/atoms/wallet/transaction-history'
 export { default as DepositWithdrawalHistoryPage } from '../components/atoms/wallet/deposit-withdrawal-history'
 export { default as Chat } from './customer/chat'
+export { default as AboutPage } from './general/about'
