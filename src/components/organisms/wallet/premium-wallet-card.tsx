@@ -1,4 +1,4 @@
-import GoldChipIcon from "@/components/atoms/GoldChipIcon"
+import GoldChipIcon from "@/components/atoms/login/GoldChipIcon"
 import { WalletCard, WalletCardProps } from "@/components/molecules/wallet/wallet-card"
 
 

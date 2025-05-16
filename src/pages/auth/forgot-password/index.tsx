@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, Check, X } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
+import { Button } from "@/components/atoms/login/Button";
+import { Input } from "@/components/atoms/login/Input";
 import {
   InputOTP,
   InputOTPGroup,

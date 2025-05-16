@@ -1,4 +1,4 @@
-import { Loading } from "@/components/atoms/Loading";
+import { Loading } from "@/components/atoms/login/Loading";
 import ENV from "@/config/env";
 import { PATH } from "@/routes/path";
 import WalletService from "@/services/WalletService";

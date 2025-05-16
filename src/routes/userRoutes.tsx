@@ -12,6 +12,7 @@ import {
   PaymentSuccessPage,
   Chat,
   AboutPage,
+  ContactPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
@@ -73,6 +74,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.ABOUT_PAGE,
         element: <AboutPage/>,
+      },
+      {
+        path: USER_ROUTES.CONTACT_PAGE,
+        element: <ContactPage/>,
       },
     ],
   },
