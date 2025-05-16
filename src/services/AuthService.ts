@@ -25,39 +25,35 @@ const useAuthService = () => {
   }, [callApi]);
 
   const login = useCallback(async (values: any) => {
-    try {
-      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
-      const jwtToken = res?.responseRequestModel?.jwtToken;
-      const token = jwtToken?.accessToken;
-      const refreshToken = jwtToken?.refreshToken;
+    const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
+    const jwtToken = res?.responseRequestModel?.jwtToken;
+    const token = jwtToken?.accessToken;
+    const refreshToken = jwtToken?.refreshToken;
 
-      // if (!token) throw new Error("Không tìm thấy token");
-      if (jwtToken) {
-        console.log("token")
-        localStorage.setItem("token", token);
-        localStorage.setItem("refreshToken", refreshToken);
-        const decoded = jwtDecode<DecodedUserRaw>(token);
-        const user = normalizeDecodedUser(decoded);
-        dispatch(loginSuccess(user));
-        toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
-        console.log("user.role", user.role);
-        switch (user.role) {
-          case ROLE.ADMIN:
-            navigate("/admin");
-            break;
-          case ROLE.STAFF:
-            navigate("/staff");
-            break;
-          default:
-            navigate("/");
-            break;
-        }
+    if (jwtToken) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
+      const decoded = jwtDecode<DecodedUserRaw>(token);
+      const user = normalizeDecodedUser(decoded);
+      dispatch(loginSuccess(user));
+      toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
+
+      switch (user.role) {
+        case ROLE.ADMIN:
+          navigate("/admin");
+          break;
+        case ROLE.STAFF:
+          navigate("/staff");
+          break;
+        default:
+          navigate("/");
+          break;
       }
-      return res;
-    } catch (err: any) {
-      console.log(err?.response?.data);
     }
+
+    return res;
   }, [callApi, dispatch, navigate]);
+
 
   const changePassword = useCallback(
     async (values: any) => {
