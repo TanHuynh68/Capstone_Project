@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
 
 interface CanvasItem {
-  id: string;
+  canvasInfoId: string;
   canvasTitle: string;
   canvasDescription: string;
 }
@@ -34,8 +34,6 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
     }
   }, [page, getCanvas, searchTitle]);
 
-
-
   const handleSelectCanvas = (description: string) => {
     onSelect(description);
   };
@@ -49,6 +47,11 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
   useEffect(() => {
     loadList();
   }, [searchTitle, page, loadList]);
+
+  // useEffect(() => {
+  //   console.log("Danh sách canvas: ", canvasList);
+  // }, [canvasList]);
+  
 
   return (
     <div className="space-y-2">
@@ -81,7 +84,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
         ) : (
           canvasList.map((item) => (
             <div
-              key={item.id}
+              key={item?.canvasInfoId}
               className="cursor-pointer p-1 border rounded hover:bg-gray-100 text-sm truncate"
               title={item.canvasTitle}
               onClick={() => handleSelectCanvas(item.canvasDescription)}

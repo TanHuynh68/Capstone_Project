@@ -10,13 +10,17 @@ import {
   Undo2,
   Redo2,
   Download,
-  UploadCloud,
   Bold,
   Italic,
   Underline,
   AlignLeft,
   AlignCenter,
   AlignRight,
+  RotateCw,
+  RotateCcw,
+  Layers,
+  ArrowUpFromLine,
+  ArrowDownFromLine,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -27,6 +31,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
+import { convertToPixels } from "@/components/utils/convert";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -35,12 +40,25 @@ const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
-  const clipboardRef = useRef<fabric.Object | null>(null);
+  const pasteCountRef = useRef(0);
+  const unitRef = useRef<"px" | "cm" | "mm">("px");
+  const clipboardRef = useRef<
+    | {
+        objects: { obj: fabric.Object; relLeft: number; relTop: number }[];
+        bbox: { left: number; top: number };
+      }
+    | fabric.Object
+    | null
+  >(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
+  const [canvasWidthInput, setCanvasWidthInput] = useState("960");
+  const [canvasHeightInput, setCanvasHeightInput] = useState("540");
+  const [scaleRatio, setScaleRatio] = useState(1);
+  const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -72,21 +90,36 @@ const PlushDollDesign: React.FC = () => {
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "#ffffff",
     });
-    canvas.freeDrawingBrush.color = "#ff0000";
+    canvas.freeDrawingBrush.color = "#000000";
     canvas.freeDrawingBrush.width = 3;
     canvas.renderAll();
     canvasRef.current = canvas;
     saveInitialState();
 
     // Selection events for smart toolbar
-    canvas.on(
-      "selection:created",
-      (e) => e.selected && handleSelection(e.selected[0])
-    );
-    canvas.on(
-      "selection:updated",
-      (e) => e.selected && handleSelection(e.selected[0])
-    );
+    canvas.on("selection:created", (e) => {
+      if (e.selected && e.selected.length > 0) {
+        // Nếu đang select nhiều object thì đừng handle từng cái
+        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+          setToolbarVisible(false); // Hide toolbar vì đang multi select
+          setActiveText(null);
+        } else {
+          handleSelection(e.selected[0]);
+        }
+      }
+    });
+
+    canvas.on("selection:updated", (e) => {
+      if (e.selected && e.selected.length > 0) {
+        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+          setToolbarVisible(false);
+          setActiveText(null);
+        } else {
+          handleSelection(e.selected[0]);
+        }
+      }
+    });
+
     canvas.on("selection:cleared", () => {
       setToolbarVisible(false);
       setActiveText(null);
@@ -108,6 +141,39 @@ const PlushDollDesign: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const prevUnit = unitRef.current;
+    if (prevUnit === unit) return;
+
+    const widthPx = convertToPixels(
+      parseFloat(canvasWidthInput) || 0,
+      prevUnit
+    );
+    const heightPx = convertToPixels(
+      parseFloat(canvasHeightInput) || 0,
+      prevUnit
+    );
+
+    const newWidth =
+      unit === "px" ? widthPx : widthPx / convertToPixels(1, unit);
+    const newHeight =
+      unit === "px" ? heightPx : heightPx / convertToPixels(1, unit);
+
+    setCanvasWidthInput(newWidth.toFixed(3));
+    setCanvasHeightInput(newHeight.toFixed(3));
+
+    unitRef.current = unit;
+  }, [unit]);
+
+  useEffect(() => {
+    updateScaleRatio();
+  }, [canvasWidthInput, canvasHeightInput, unit]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateScaleRatio);
+    return () => window.removeEventListener("resize", updateScaleRatio);
+  }, []);
+
+  useEffect(() => {
     const resizeCanvas = () => {
       if (canvasWrapperRef.current && canvasRef.current) {
         const { clientWidth, clientHeight } = canvasWrapperRef.current;
@@ -121,9 +187,78 @@ const PlushDollDesign: React.FC = () => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
+  const createNewCanvas = () => {
+    const width = parseFloat(canvasWidthInput);
+    const height = parseFloat(canvasHeightInput);
+
+    if (unit === "cm" && (width < 1.058 || width > 211.664)) {
+      toast.error("Chiều rộng phải từ 1,058cm đến 211,664cm");
+      return;
+    }
+
+    if (unit === "cm" && (height < 1.058 || height > 83.336)) {
+      toast.error("Chiều cao phải từ 1,058cm đến 83,336cm");
+      return;
+    }
+
+    const widthPx = convertToPixels(width, unit);
+    const heightPx = convertToPixels(height, unit);
+
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+
+    canvasRef.current.setWidth(widthPx);
+    canvasRef.current.setHeight(heightPx);
+    canvasRef.current.clear();
+    canvasRef.current.backgroundColor = "#ffffff";
+    canvasRef.current.renderAll();
+
+    canvasWrapperRef.current.style.width = `${widthPx}px`;
+    canvasWrapperRef.current.style.height = `${heightPx}px`;
+
+    saveInitialState();
+
+    toast.success(`Tạo canvas mới ${width}x${height} ${unit}`);
+  };
+
+  const updateScaleRatio = () => {
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+
+    const wrapperParent = canvasWrapperRef.current.parentElement;
+    if (!wrapperParent) return;
+
+    const parentWidth = wrapperParent.clientWidth;
+    const parentHeight = wrapperParent.clientHeight;
+
+    const canvasWidth = convertToPixels(
+      parseFloat(canvasWidthInput) || 0,
+      unit
+    );
+    const canvasHeight = convertToPixels(
+      parseFloat(canvasHeightInput) || 0,
+      unit
+    );
+
+    const widthRatio = parentWidth / canvasWidth;
+    const heightRatio = parentHeight / canvasHeight;
+
+    const ratio = Math.min(widthRatio, heightRatio, 1); // fit cả width & height, không to hơn 1
+
+    canvasRef.current.setZoom(ratio);
+    canvasRef.current.requestRenderAll();
+
+    // Wrapper div chỉ để giữ vị trí, không scale
+    canvasWrapperRef.current.style.width = `${canvasWidth}px`;
+    canvasWrapperRef.current.style.height = `${canvasHeight}px`;
+
+    setScaleRatio(ratio); // Nếu cần hiển thị % scale trên UI thì giữ state này
+  };
+
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
     updateToolbarPos(obj);
+
+    // Lưu lại index hiện tại của object
+    const currentIndex = getObjectIndex(obj);
 
     if (obj.type === "i-text") {
       // ✅ Auto convert sang Textbox luôn khi select
@@ -138,7 +273,7 @@ const PlushDollDesign: React.FC = () => {
         fontFamily: textObj.fontFamily || "Arial",
         fontSize: textObj.fontSize || 20,
         fill: (textObj.fill as string) || "#000000",
-        fontWeight: textObj.fontWeight+'' || "normal",
+        fontWeight: String(textObj.fontWeight || "normal"),
         fontStyle: textObj.fontStyle || "normal",
         textAlign: textObj.textAlign || "center",
         underline: textObj.underline || false,
@@ -146,9 +281,39 @@ const PlushDollDesign: React.FC = () => {
     } else {
       setActiveText(null);
     }
+
+    // ✅ Đảm bảo object vẫn ở đúng layer sau khi select
+    if (canvasRef.current && currentIndex !== -1) {
+      // Đợi 1 tick để đảm bảo các thao tác khác đã hoàn thành
+      setTimeout(() => {
+        if (canvasRef.current) {
+          obj.moveTo(currentIndex);
+          canvasRef.current.setActiveObject(obj);
+          canvasRef.current.renderAll();
+        }
+      }, 0);
+    }
+  };
+
+  const getObjectIndex = (obj: fabric.Object) => {
+    if (!canvasRef.current) return -1;
+    return canvasRef.current.getObjects().indexOf(obj);
+  };
+
+  const isAtTop = (obj: fabric.Object) => {
+    if (!canvasRef.current) return false;
+    const objects = canvasRef.current.getObjects();
+    return getObjectIndex(obj) === objects.length - 1;
+  };
+
+  const isAtBottom = (obj: fabric.Object) => {
+    if (!canvasRef.current) return false;
+    return getObjectIndex(obj) === 0;
   };
 
   const convertToTextbox = (iTextObj: fabric.IText) => {
+    const index = getObjectIndex(iTextObj); // Lưu lại vị trí cũ
+
     const textbox = new fabric.Textbox(iTextObj.text || "", {
       left: iTextObj.left,
       top: iTextObj.top,
@@ -156,17 +321,39 @@ const PlushDollDesign: React.FC = () => {
       fontSize: iTextObj.fontSize,
       fontFamily: iTextObj.fontFamily,
       fontStyle: iTextObj.fontStyle,
-      fontWeight: iTextObj.fontWeight,
+      fontWeight: String(iTextObj.fontWeight || "normal"),
       fill: iTextObj.fill,
       textAlign: iTextObj.textAlign || "center",
       underline: iTextObj.underline,
       padding: 10,
     });
+
     canvasRef.current?.remove(iTextObj);
+
     canvasRef.current?.add(textbox);
-    canvasRef.current?.setActiveObject(textbox);
+
+    // ✅ Đợi 1 tick rồi mới move về đúng layer + setActiveObject để Fabric không đẩy lên top
+    setTimeout(() => {
+      if (canvasRef.current) {
+        textbox.moveTo(index);
+        canvasRef.current.setActiveObject(textbox);
+        canvasRef.current.renderAll();
+      }
+    }, 0);
+
+    // ✅ Update properties
+    setActiveText(textbox);
+    setTextProperties({
+      fontFamily: textbox.fontFamily || "Arial",
+      fontSize: textbox.fontSize || 20,
+      fill: (textbox.fill as string) || "#000000",
+      fontWeight: String(textbox.fontWeight || "normal"),
+      fontStyle: textbox.fontStyle || "normal",
+      textAlign: textbox.textAlign || "center",
+      underline: textbox.underline || false,
+    });
+
     saveState();
-    handleSelection(textbox);
   };
 
   const updateToolbarPos = (obj: fabric.Object) => {
@@ -208,6 +395,21 @@ const PlushDollDesign: React.FC = () => {
       e.preventDefault();
       redo();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      // ✅ Select all objects
+      if (canvasRef.current) {
+        const allObjects = canvasRef.current.getObjects();
+        if (allObjects.length > 0) {
+          canvasRef.current.discardActiveObject();
+          const selection = new fabric.ActiveSelection(allObjects, {
+            canvas: canvasRef.current,
+          });
+          canvasRef.current.setActiveObject(selection);
+          canvasRef.current.requestRenderAll();
+        }
+      }
+    }
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       removeSelected();
@@ -222,31 +424,87 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
-  const copySelected = () => {
-    const activeObject = canvasRef.current?.getActiveObject();
-    if (activeObject) {
-      activeObject.clone((cloned: fabric.Object) => {
-        clipboardRef.current = cloned;
-        // toast.success("Đã copy object.");
+  const cloneObject = (obj: fabric.Object): Promise<fabric.Object> => {
+    return new Promise((resolve) => {
+      obj.clone((clonedObj: fabric.Object) => {
+        resolve(clonedObj);
       });
+    });
+  };
+
+  const copySelected = async () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return;
+
+    pasteCountRef.current = 0; // Reset khi copy mới
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      const bbox = activeObject.getBoundingRect(true, true);
+
+      const objects = selection.getObjects().map((obj) => {
+        const relLeft = (obj.left || 0) - bbox.left;
+        const relTop = (obj.top || 0) - bbox.top;
+        return { obj, relLeft, relTop };
+      });
+
+      clipboardRef.current = { objects, bbox };
+      console.log("📋 Copied activeSelection:", clipboardRef.current);
+    } else {
+      const cloned = await cloneObject(activeObject);
+      clipboardRef.current = cloned;
+      console.log("📋 Copied single object:", clipboardRef.current);
     }
   };
 
   const pasteClipboard = () => {
-    if (clipboardRef.current && canvasRef.current) {
-      clipboardRef.current.clone((clonedObj: fabric.Object) => {
+    if (!clipboardRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const pasteOffset = 20 * (pasteCountRef.current + 1);
+
+    if ("objects" in clipboardRef.current) {
+      const { objects, bbox } = clipboardRef.current;
+
+      const clonedObjects: fabric.Object[] = [];
+      objects.forEach(({ obj, relLeft, relTop }) => {
+        obj.clone((clonedObj: fabric.Object) => {
+          clonedObj.set({
+            left: bbox.left + relLeft + pasteOffset,
+            top: bbox.top + relTop + pasteOffset,
+            evented: true,
+          });
+
+          canvas.add(clonedObj);
+          clonedObjects.push(clonedObj);
+
+          // Khi clone xong tất cả object thì set selection
+          if (clonedObjects.length === objects.length) {
+            const selection = new fabric.ActiveSelection(clonedObjects, {
+              canvas,
+            });
+            canvas.setActiveObject(selection);
+            canvas.requestRenderAll();
+            saveState();
+          }
+        });
+      });
+    } else {
+      const obj = clipboardRef.current;
+      obj.clone((clonedObj: fabric.Object) => {
         clonedObj.set({
-          left: (clonedObj.left || 0) + 20,
-          top: (clonedObj.top || 0) + 20,
+          left: (clonedObj.left || 0) + pasteOffset,
+          top: (clonedObj.top || 0) + pasteOffset,
           evented: true,
         });
-        canvasRef.current?.add(clonedObj);
-        canvasRef.current?.setActiveObject(clonedObj);
-        canvasRef.current?.renderAll();
+        canvas.add(clonedObj);
+        canvas.setActiveObject(clonedObj);
+        canvas.requestRenderAll();
         saveState();
-        // toast.success("Đã paste object.");
       });
     }
+
+    pasteCountRef.current += 1;
   };
 
   const startDrag = (e: React.MouseEvent) => {
@@ -319,6 +577,18 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(states[index - 1], () => {
         canvasRef.current?.renderAll();
         historyRef.current.index = index - 1;
+
+        // ✅ Giữ lại selected object nếu có
+        if (canvasRef.current) {
+          const activeObj = canvasRef.current.getObjects().at(-1);
+          if (activeObj) {
+            canvasRef.current.setActiveObject(activeObj);
+            canvasRef.current.fire("selection:updated", {
+              selected: [activeObj],
+            });
+          }
+        }
+
         isRestoringRef.current = false;
       });
     }
@@ -331,6 +601,18 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(states[index + 1], () => {
         canvasRef.current?.renderAll();
         historyRef.current.index = index + 1;
+
+        // ✅ Giữ lại selected object nếu có
+        if (canvasRef.current) {
+          const activeObj = canvasRef.current.getObjects().at(-1);
+          if (activeObj) {
+            canvasRef.current.setActiveObject(activeObj);
+            canvasRef.current.fire("selection:updated", {
+              selected: [activeObj],
+            });
+          }
+        }
+
         isRestoringRef.current = false;
       });
     }
@@ -352,9 +634,21 @@ const PlushDollDesign: React.FC = () => {
   };
 
   const removeSelected = () => {
-    const obj = canvasRef.current?.getActiveObject();
-    if (obj) {
-      canvasRef.current?.remove(obj);
+    const activeObject = canvasRef.current?.getActiveObject();
+
+    if (activeObject) {
+      if (activeObject.type === "activeSelection") {
+        // ✅ Xóa nhiều object trong selection
+        const selection = activeObject as fabric.ActiveSelection;
+        selection.forEachObject((obj) => {
+          canvasRef.current?.remove(obj);
+        });
+        canvasRef.current?.discardActiveObject();
+      } else {
+        canvasRef.current?.remove(activeObject);
+      }
+
+      canvasRef.current?.requestRenderAll();
       saveState();
     }
   };
@@ -444,6 +738,35 @@ const PlushDollDesign: React.FC = () => {
         <div className="font-bold text-lg text-primary">
           🎨 PlushDoll Studio
         </div>
+        <div className="flex gap-2 items-center">
+          <Input
+            type="number"
+            value={canvasWidthInput}
+            onChange={(e) => setCanvasWidthInput(e.target.value)}
+            placeholder="Width"
+            className="w-24"
+          />
+          <Input
+            type="number"
+            value={canvasHeightInput}
+            onChange={(e) => setCanvasHeightInput(e.target.value)}
+            placeholder="Height"
+            className="w-24"
+          />
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value as "px" | "cm" | "mm")}
+            className="border rounded px-2 h-[38px]"
+          >
+            <option value="px">px</option>
+            <option value="cm">cm</option>
+            <option value="mm">mm</option>
+          </select>
+          <Button variant="default" onClick={createNewCanvas}>
+            Tạo canvas mới
+          </Button>
+        </div>
+
         <div className="flex gap-2">
           <Button variant="outline" onClick={undo}>
             <Undo2 className="w-4 h-4 mr-1" />
@@ -540,7 +863,7 @@ const PlushDollDesign: React.FC = () => {
                 <label>Brush Color</label>
                 <Input
                   type="color"
-                  defaultValue="#ff0000"
+                  defaultValue="#000000"
                   onChange={(e) =>
                     (canvasRef.current!.freeDrawingBrush.color = e.target.value)
                   }
@@ -735,13 +1058,13 @@ const PlushDollDesign: React.FC = () => {
                             }));
                             canvasRef.current?.renderAll();
                             saveState();
-                            setSizePopoverOpen(false); // ✅ đóng popover
+                            setSizePopoverOpen(false);
                           }}
                           className={`text-center cursor-pointer h-[30px] leading-[30px] text-sm ${
                             textProperties.fontSize === size ? "bg-muted" : ""
                           }`}
                         >
-                          {size}px
+                          {size}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -814,11 +1137,12 @@ const PlushDollDesign: React.FC = () => {
                     action();
                     setTextProperties((prev: any) => ({
                       ...prev,
-                      fontWeight: activeText.fontWeight as string,
-                      fontStyle: activeText.fontStyle as string,
-                      underline: activeText.underline,
+                      fontWeight: String(activeText.fontWeight as string),
+                      fontStyle: String(activeText.fontStyle as string),
+                      underline: activeText.underline ?? false,
                       textAlign:
-                        activeText.textAlign as fabric.Textbox["textAlign"],
+                        (activeText.textAlign as fabric.Textbox["textAlign"]) ??
+                        "center",
                     }));
                     activeText.setCoords();
                     canvasRef.current?.renderAll();
@@ -834,54 +1158,133 @@ const PlushDollDesign: React.FC = () => {
           <div className="relative flex justify-center items-center bg-gray-100 h-full">
             <div
               ref={canvasWrapperRef}
-              className="relative bg-white shadow-md"
+              className="relative bg-white shadow-md origin-top"
               style={{
-                aspectRatio: "16 / 9",
-                width: "80%", // hoặc fix cứng 960px
-                maxWidth: "1280px",
+                width: `${convertToPixels(
+                  parseFloat(canvasWidthInput) || 0,
+                  unit
+                )}px`,
+                height: `${convertToPixels(
+                  parseFloat(canvasHeightInput) || 0,
+                  unit
+                )}px`,
+                transform: `scale(${scaleRatio})`,
               }}
             >
               <canvas ref={htmlCanvasRef} className="w-full h-full" />
 
-              {toolbarVisible && (
-                <div
-                  className="absolute z-50 bg-white shadow-lg rounded-md p-2 flex gap-2 select-none"
-                  style={{
-                    top: toolbarPos.y,
-                    left: toolbarPos.x,
-                    transform: "translateX(-50%)",
-                  }}
-                  onMouseDown={startDrag}
-                >
-                  <Button size="icon" variant="outline" onClick={undo}>
-                    <Undo2 className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="outline" onClick={redo}>
-                    <Redo2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={removeSelected}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={saveCanvasAsPNG}
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={saveCanvasAsJSON}
-                  >
-                    <UploadCloud className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
+              {toolbarVisible &&
+                (() => {
+                  const obj = canvasRef.current?.getActiveObject();
+                  const atTop = obj ? isAtTop(obj) : false;
+                  const atBottom = obj ? isAtBottom(obj) : false;
+
+                  return (
+                    <div
+                      className="absolute z-50 bg-white shadow-lg rounded-md p-2 flex gap-2 select-none"
+                      style={{
+                        top: toolbarPos.y,
+                        left: toolbarPos.x,
+                        transform: "translateX(-50%)",
+                      }}
+                      onMouseDown={startDrag}
+                    >
+                      {/* Rotate Cw */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj) {
+                            obj.rotate((obj.angle || 0) + 45);
+                            obj.setCoords();
+                            canvasRef.current?.renderAll();
+                            saveState();
+                          }
+                        }}
+                      >
+                        <RotateCw className="w-4 h-4" />
+                      </Button>
+                      {/* Rotate Ccw */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj) {
+                            obj.rotate((obj.angle || 0) - 45);
+                            obj.setCoords();
+                            canvasRef.current?.renderAll();
+                            saveState();
+                          }
+                        }}
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (obj && canvasRef.current) {
+                            canvasRef.current.bringToFront(obj);
+                            obj.setCoords();
+                            canvasRef.current.setActiveObject(obj);
+                            canvasRef.current.fire("selection:updated", {
+                              selected: [obj],
+                            }); // ✅ Force selection update
+                            updateToolbarPos(obj); // ✅ Update toolbar position
+                            canvasRef.current.requestRenderAll();
+                            saveState();
+                          }
+                        }}
+                      >
+                        <Layers className="w-4 h-4" />
+                      </Button>
+
+                      {!atTop && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj && canvasRef.current) {
+                              canvasRef.current.bringForward(obj);
+                              obj.setCoords();
+                              canvasRef.current.setActiveObject(obj);
+                              canvasRef.current.fire("selection:updated", {
+                                selected: [obj],
+                              }); // ✅ Force selection update
+                              updateToolbarPos(obj);
+                              canvasRef.current.requestRenderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <ArrowUpFromLine className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {!atBottom && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj && canvasRef.current) {
+                              canvasRef.current.sendBackwards(obj);
+                              obj.setCoords();
+                              canvasRef.current.setActiveObject(obj);
+                              canvasRef.current.fire("selection:updated", {
+                                selected: [obj],
+                              }); // ✅ Force selection update
+                              updateToolbarPos(obj);
+                              canvasRef.current.requestRenderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <ArrowDownFromLine className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })()}
             </div>
           </div>
         </div>
