@@ -1,5 +1,5 @@
-import { PdcWalletCard } from "./wallet/pdc-wallet-card"
-import { PremiumWalletCard } from "./wallet/premium-wallet-card"
+import { PdcWalletCard } from "./pdc-wallet-card"
+import { PremiumWalletCard } from "./premium-wallet-card"
 
 
 export const WalletCardsDemo = () => {

@@ -86,4 +86,6 @@ export enum API_ROUTES {
     GET_REPUTATION_HISTORY = `${API_ENDPOINTS.REPUTATION}/history`,
     STAFF_CHANGE_REPUTATION = `/staff/${API_ENDPOINTS.REPUTATION}/change`,
     STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
+    //Post
+    CREATE_POST = 'project-post'
 }

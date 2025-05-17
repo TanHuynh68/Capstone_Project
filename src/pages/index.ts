@@ -16,3 +16,5 @@ export { default as TransactionHistoryPage } from '../components/atoms/wallet/tr
 export { default as DepositWithdrawalHistoryPage } from '../components/atoms/wallet/deposit-withdrawal-history'
 export { default as Chat } from './customer/chat'
 export { default as AboutPage } from './general/about'
+export { default as ContactPage } from './general/contact'
+export { default as PostFormPage } from './customer/upload-post'
