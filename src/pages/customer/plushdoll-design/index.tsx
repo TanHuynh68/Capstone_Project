@@ -43,7 +43,10 @@ const PlushDollDesign: React.FC = () => {
   const pasteCountRef = useRef(0);
   const unitRef = useRef<"px" | "cm" | "mm">("px");
   const clipboardRef = useRef<
-    | { objects: fabric.Object[]; bbox: { left: number; top: number } }
+    | {
+        objects: { obj: fabric.Object; relLeft: number; relTop: number }[];
+        bbox: { left: number; top: number };
+      }
     | fabric.Object
     | null
   >(null);
