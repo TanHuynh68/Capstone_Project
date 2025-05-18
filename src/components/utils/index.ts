@@ -40,6 +40,8 @@ export {
   isDepositOrder,
   isWithdrawalOrder,
   formatBankAccountNumber,
+  useCurrentUser,
+  isLoggedIn
 } from "./helpers";
 export {
   ValidationErrors,

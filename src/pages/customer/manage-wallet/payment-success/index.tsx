@@ -5,6 +5,7 @@
  */
 import { Separator } from "@/components/ui/separator"
 import { formatCurrencyVND } from "@/components/utils";
+import { PATH } from "@/routes/path";
 import { Link } from "react-router-dom"
 
 export default function PaymentSuccess() {
@@ -48,7 +49,7 @@ export default function PaymentSuccess() {
         <Separator className="my-6" />
         <div className="flex justify-center">
           <Link
-            to="/"
+            to={PATH.HOME}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
             Back to Homepage

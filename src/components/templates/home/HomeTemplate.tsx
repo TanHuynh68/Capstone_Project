@@ -7,7 +7,6 @@ import Pagination from "@/components/molecules/home/Pagination"
 import type { Product } from "@/components/molecules/home/ProductCard"
 import { mockProducts } from "./data"
 
-
 export default function HomeTemplate() {
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
