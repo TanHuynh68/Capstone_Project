@@ -1,8 +1,9 @@
 
-
+import { useSelector } from "react-redux";
 import { WALLET_TRANSACTION_TYPE } from "@/constants";
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { RootState } from "@/redux/store";
 /**
  * Kiểm tra xem một object có rỗng không (không có key nào).
  * @param obj - object bất kỳ
@@ -177,4 +178,13 @@ export function formatBankAccountNumber(accountNumber: string): string {
   return accountNumber.replace(/(.{4})/g, '$1 ').trim();
 }
 
+export const useCurrentUser = () => {
+  const user = useSelector((store: any) => store.user);
+  return user;
+};
 
+export const isLoggedIn = ()=>{
+  const userInfo = useSelector((state: RootState) => state.user);
+  if(userInfo && userInfo?.id != '') return true
+  return false
+}

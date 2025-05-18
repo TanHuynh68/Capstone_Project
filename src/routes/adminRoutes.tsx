@@ -2,11 +2,17 @@ import RuleManager from "@/pages/admin/dashboard/manager-rule";
 import { AdminLayout } from "../components/layouts";
 import { ADMIN_ROUTES } from "./path";
 import { AdminDashboard } from "@/pages";
+import { ProtectedRouteByRole } from "./protect";
+import { ROLE } from "@/constants";
 
 export const adminRoutes = [
   {
     path: ADMIN_ROUTES.ADMIN,
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRouteByRole allowedRoles={[ROLE.ADMIN]}>
+        <AdminLayout />
+      </ProtectedRouteByRole>
+    ),
     children: [
       {
         path: ADMIN_ROUTES.ADMIN_DASHBOARD,

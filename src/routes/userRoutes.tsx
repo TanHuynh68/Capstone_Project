@@ -5,14 +5,11 @@ import {
   ChangePasswordPage,
   CustomerEditProfile,
   CustomerProfilePage,
-  HomePage,
   PaymentFailedPage,
   DepositMoneyPage,
   PaymentResultPage,
   PaymentSuccessPage,
   Chat,
-  AboutPage,
-  ContactPage,
   PostFormPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
@@ -22,12 +19,8 @@ import PlushDollDesign from "@/pages/customer/plushdoll-design";
 export const userRoutes = [
   {
     path: USER_ROUTES.HOME,
-    element: <CustomerLayout />,
+    element:  <CustomerLayout />,
     children: [
-      {
-        path: USER_ROUTES.HOME_PAGE,
-        element: <HomePage />,
-      },
       {
         path: USER_ROUTES.CHANGE_PASSWORD,
         element: <ChangePasswordPage />,
@@ -71,14 +64,6 @@ export const userRoutes = [
       {
         path: USER_ROUTES.PLUSHDOLL_DESIGN,
         element: <PlushDollDesign />,
-      },
-      {
-        path: USER_ROUTES.ABOUT_PAGE,
-        element: <AboutPage/>,
-      },
-      {
-        path: USER_ROUTES.CONTACT_PAGE,
-        element: <ContactPage/>,
       },
       {
         path: USER_ROUTES.CUSTOMER_UPLOAD_PAGE,
