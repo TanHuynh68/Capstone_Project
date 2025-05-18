@@ -1,5 +1,11 @@
 import { AUTH_ROUTES } from "./path";
-import { ForgotPasswordPage, LoginPage, RegisterPage, VerifyAccountPage } from "@/pages";
+import {
+  ForgotPasswordPage,
+  LoginPage,
+  RegisterPage,
+  VerifyAccountPage,
+} from "@/pages";
+import PublicRoute from "./public";
 
 export const authRoutes = [
   {
@@ -7,19 +13,35 @@ export const authRoutes = [
     children: [
       {
         path: AUTH_ROUTES.LOGIN_IN,
-        element: <LoginPage />,
+        element: (
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        ),
       },
       {
         path: AUTH_ROUTES.REGISTER,
-        element: <RegisterPage />,
+        element: (
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        ),
       },
       {
         path: AUTH_ROUTES.FORGOT_PASSWORD,
-        element: <ForgotPasswordPage />,
+        element: (
+          <PublicRoute>
+            <ForgotPasswordPage />
+          </PublicRoute>
+        ),
       },
       {
         path: AUTH_ROUTES.VERIFY_ACCOUNT,
-        element: <VerifyAccountPage />,
+        element: (
+          <PublicRoute>
+            <VerifyAccountPage />
+          </PublicRoute>
+        ),
       },
     ],
   },

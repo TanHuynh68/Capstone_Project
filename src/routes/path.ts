@@ -1,6 +1,6 @@
 export enum USER_ROUTES {
     HOME = "/",
-    HOME_PAGE = "", // Đảm bảo rằng đường dẫn này không gây xung đột
+    HOME_PAGE = "/home", // Đảm bảo rằng đường dẫn này không gây xung đột
     AUTH = "/auth",
     CHANGE_PASSWORD = "change-password",
     PROFILE = "profile",
@@ -48,7 +48,7 @@ export enum STAFF_ROUTES {
 
 
 export enum PATH {
-    HOME = "/",
+    HOME = "/home",
     FORGOT_PASSWORD = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.FORGOT_PASSWORD,
     LOGIN_IN = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.LOGIN_IN,
     REGISTER = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REGISTER,

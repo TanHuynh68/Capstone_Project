@@ -1,4 +1,7 @@
 export const MESSAGE = {
+    //System
+    DO_NOT_HAVE_PERMISSION_TO_ACCESS: "Bạn không có quyền truy cập",
+    //
     GET_ADDRESS_SUCCESSFULLY: "Lấy địa chỉ thành công.",
     GET_ADDRESS_FAILED: "Lấy địa chỉ thất bại.",
     GET_PROFILE_FAILED: "Lấy thông tin người dùng thất bại.",
