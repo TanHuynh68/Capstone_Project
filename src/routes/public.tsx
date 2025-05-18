@@ -1,9 +1,10 @@
 import { Navigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { RootState } from "@/redux/store"
+import { ReactNode } from "react"
 
 interface PublicRouteProps {
-  children: JSX.Element
+  children: ReactNode
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {
