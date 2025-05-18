@@ -38,7 +38,7 @@ import { logout } from "@/redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
-import { PATH, STAFF_ROUTES } from "@/routes/path";
+import { PATH } from "@/routes/path";
 
 const data = {
   user: {
