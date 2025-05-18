@@ -20,10 +20,11 @@ import Cart from "@/components/atoms/navbar/Cart";
 import Post from "@/components/atoms/navbar/Post";
 import UserOption from "@/components/atoms/navbar/UserOption";
 import UserAuth from "@/components/atoms/navbar/UserAuth";
+import { ROLE } from "@/constants";
+import { isLoggedIn } from "@/components/utils";
+import { PATH } from "@/routes/path";
 
 const navItems = [
-  { title: "Home", href: "/" },
-  { title: "Products", href: "/products" },
   { title: "About", href: "/about" },
   { title: "Contact", href: "/contact" },
 ];
@@ -38,9 +39,8 @@ const categories = [
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const userInfo = useSelector((state: RootState) => state.user);
-  const isLoggedIn = !!userInfo;
 
-
+  console.log("userInfo: ", userInfo);
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
@@ -87,7 +87,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full bg-background border-b">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to={PATH.HOME} className="flex items-center space-x-2">
           <Logo />
         </Link>
 
@@ -155,17 +155,17 @@ export function Navbar() {
           )}
 
           <ThemeToggle />
-          <Notification />
-          <Cart />
-          <Post />
+          {isLoggedIn() && <Notification />}
+          {isLoggedIn() && <Cart />}
+          {userInfo?.role === ROLE.CUSTOMER && <Post />}
 
-          {isLoggedIn ? (
+          {isLoggedIn() ? (
             <div className="relative hidden md:flex">
-              <UserOption/>
+              <UserOption />
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              <UserAuth/>
+              <UserAuth />
             </div>
           )}
 
