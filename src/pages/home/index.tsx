@@ -1,10 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import HomeCarousel from "@/components/molecules/home/HomeCarousel";
-import HomeFullScreenCarousel from "@/components/molecules/home/HomeFullScreenCarousel";
 import Introduce from "@/components/organisms/introduce/Introduce";
 import SuccessLoginModal from "../auth/login-modal";
+import HomeTemplate from "@/components/templates/home/HomeTemplate";
 
 const HomePage: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
@@ -27,7 +26,7 @@ const HomePage: React.FC = () => {
         onClose={() => setShowModal(false)}
       />
 
-      <HomeFullScreenCarousel />
+      <HomeTemplate />
 
       <div className="text-center text-3xl font-semibold mt-10 text-purple-400">
         Top thiết kế tuần
