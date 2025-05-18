@@ -4,6 +4,7 @@ import StaffDashboard from "@/pages/staff";
 import ManagerUsersByStaff from "@/pages/staff/manage-users/get-users";
 import { ProtectedRouteByRole } from "./protect";
 import { ROLE } from "@/constants";
+import ManagerWalletOrderByStaff from "@/pages/staff/manager-wallet-order/get-wallet-order";
 
 export const staffRoutes = [
   {
@@ -19,8 +20,16 @@ export const staffRoutes = [
         element: <StaffDashboard />,
       },
       {
-        path: STAFF_ROUTES.STAFF_MANAGER_USERS,
+        path:
+          STAFF_ROUTES.STAFF_DASHBOARD + "/" + STAFF_ROUTES.STAFF_MANAGER_USERS,
         element: <ManagerUsersByStaff />,
+      },
+      {
+        path:
+          STAFF_ROUTES.STAFF_DASHBOARD +
+          "/" +
+          STAFF_ROUTES.STAFF_MANAGER_WITHDRAWAL,
+        element: <ManagerWalletOrderByStaff />,
       },
     ],
   },

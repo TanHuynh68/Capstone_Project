@@ -11,6 +11,7 @@ export const enum API_ENDPOINTS {
     RULE = 'rule',
     AUTH = 'auth',
     WALLET = 'wallet',
+    ORDER = 'order',
     ACCOUNT = 'account',
     USER = 'user',
     CHANGE_ACTIVE = 'change-active',
@@ -25,11 +26,18 @@ export enum API_ROUTES {
     GET_ADDRESSES = `${API_ENDPOINTS.ADDRESS}`,
     UPDATE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
     DELETE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
+
     //Manager user by staff
     // CREATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
     GET_USERES = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
     UPDATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.CHANGE_ACTIVE}`,
     // DELETE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}/:id`,
+
+    //Manager wallet order by staff
+    GET_WALLET_ORDER_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
+
+
+
 
     GENERATE_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/generate-code`,
     REDEEM_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/redeem-code`,

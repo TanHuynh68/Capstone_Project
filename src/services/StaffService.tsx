@@ -77,11 +77,48 @@ const StaffService = () => {
     [callApi]
   );
 
+  // const getWalletOrderByStaff = useCallback(
+  //   async (queryParams: any) => {
+  //     try {
+  //       const res = await callApi(
+  //         HTTP_METHOD.GET,
+  //         API_ROUTES.WALLET_ORDER,
+  //         undefined, // Không truyền body trong GET
+  //         queryParams // Truyền values vào query
+  //       );
+
+  //       // toast.success(MESSAGE.GET_USERS_SUCCESSFULLY);
+  //       return res;
+  //     } catch (err: any) {
+  //       toast.error(err?.response?.data || MESSAGE.GET_USERS_FAILED);
+  //     }
+  //   },
+  //   [callApi]
+  // );
+
+  const getWalletOrderByStaff = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.WALLET_ORDER,
+          values
+        );
+
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || "Lấy danh sách đơn ví thất bại.");
+      }
+    },
+    [callApi]
+  );
+
   return {
     getUserByStaff,
     changeActiveUserByStaff,
     putAddresses,
     deleteAddresses,
+    getWalletOrderByStaff,
     loading,
     setIsLoading,
   };
