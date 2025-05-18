@@ -1,8 +1,9 @@
 import { useCurrentUser } from "@/components/utils";
-import { ROLE } from "@/constants";
+import { MESSAGE, ROLE } from "@/constants";
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
+import { PATH } from "./path";
 
 interface ProtectedRouteByRoleProps {
   children: ReactNode;
@@ -16,8 +17,8 @@ export const ProtectedRouteByRole: React.FC<ProtectedRouteByRoleProps> = ({
   const user = useCurrentUser();
 
   if (!user || !allowedRoles.includes(user.role)) {
-    toast.error("You do not have permissions to access");
-    return <Navigate to="/" replace />;
+    toast.error(MESSAGE.DO_NOT_HAVE_PERMISSION_TO_ACCESS);
+    return <Navigate to={PATH.HOME} replace />;
   }
 
   return children;
