@@ -160,6 +160,19 @@ const WalletService = () => {
     }
   }, [callApi]);
 
+  const withdrawMoney = useCallback(async (data: any) => {
+    try {
+      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.WITHDRAW_MONEY, data);
+      return res;
+    } catch (err: any) {
+      return {
+        isSuccess: false,
+        message: err?.response?.data || "Rút tiền thất bại",
+      };
+    }
+  }, [callApi]);
+
+
   return {
     getWallet,
     getStaffWalletTransaction,
@@ -177,6 +190,7 @@ const WalletService = () => {
     cancelPayos,
     getBanks,
     updateWallet,
+    withdrawMoney,
     loading,
     setIsLoading,
   };
