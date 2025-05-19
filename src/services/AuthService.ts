@@ -34,7 +34,7 @@ const useAuthService = () => {
       const jwtToken = res?.responseRequestModel?.jwtToken;
       const token = jwtToken?.accessToken;
       const refreshToken = jwtToken?.refreshToken;
-   
+
       if (jwtToken) {
         localStorage.setItem("token", token);
         localStorage.setItem("refreshToken", refreshToken);
@@ -42,8 +42,13 @@ const useAuthService = () => {
         const user = normalizeDecodedUser(decoded);
         dispatch(loginSuccess(user));
         toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
-        console.log('user: ', user)
-           console.log('b: ', user.role === 'Staff')
+
+        // console.log(user.role, "user.role")
+
+        // console.log(ROLE.STAFF, "ROLE.STAFF")
+
+        // console.log('user: ', user)
+        // console.log('b: ', user.role === 'Staff')
         switch (user.role) {
           case ROLE.ADMIN:
             navigate(PATH.ADMIN_DASHBOARD);
@@ -223,7 +228,7 @@ const useAuthService = () => {
     },
     [callApi]
   );
-  
+
   return {
     login,
     register,
