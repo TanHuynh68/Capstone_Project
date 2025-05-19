@@ -1,22 +1,32 @@
-import { Navigate } from "react-router-dom"
-import { useSelector } from "react-redux"
-import { RootState } from "@/redux/store"
-import { ReactNode } from "react"
-import { PATH } from "./path"
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { ReactNode } from "react";
+import { PATH } from "./path";
+import { ROLE } from "@/constants";
 
 interface PublicRouteProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {
-  const user = useSelector((state: RootState) => state.user)
+  const user = useSelector((state: RootState) => state.user);
 
   // Nếu đã đăng nhập → chuyển về home
   if (user && user.id) {
-    return <Navigate to={PATH.HOME} replace />
+    switch (user.role) {
+      case ROLE.CUSTOMER:
+        return <Navigate to={PATH.HOME} replace />;
+      case ROLE.STAFF:
+        return <Navigate to={PATH.STAFF_DASHBOARD} replace />;
+      case ROLE.DESIGNER:
+        return <Navigate to={PATH.HOME} replace />;
+      case ROLE.ADMIN:
+        return <Navigate to={PATH.ADMIN_DASHBOARD} replace />;
+    }
   }
 
-  return children
-}
+  return children;
+};
 
-export default PublicRoute
+export default PublicRoute;
