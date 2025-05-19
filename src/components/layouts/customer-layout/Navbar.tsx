@@ -97,7 +97,7 @@ export function Navbar() {
           <ThemeToggle />
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}
-          {userInfo?.role === ROLE.CUSTOMER && <Post />}
+          {isLoggedIn() && <Post />}
 
           {isLoggedIn() ? (
             <div className="relative hidden md:flex">
