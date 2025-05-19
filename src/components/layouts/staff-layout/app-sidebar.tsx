@@ -54,7 +54,7 @@ const data = {
     },
     {
       title: "Manage Users",
-      url: `${PATH.STAFF_MANAGER_USERS}`,
+      url: `${PATH.STAFF_DASHBOARD_MANAGER_USERS}`,
       icon: UsersIcon,
     },
     {

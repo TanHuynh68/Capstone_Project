@@ -7,7 +7,7 @@ export const guestRoutes = [
     path: USER_ROUTES.HOME,
     element: <CustomerLayout />,
     children: [
-      { index: true, element: <HomePage /> },
+      {  index: true, element: <HomePage /> },
       {
         path: USER_ROUTES.ABOUT_PAGE,
         element: <AboutPage />,

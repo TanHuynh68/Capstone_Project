@@ -1,5 +1,5 @@
 import StaffLayout from "@/components/layouts/staff-layout";
-import { STAFF_ROUTES } from "./path";
+import { PATH, STAFF_ROUTES } from "./path";
 import StaffDashboard from "@/pages/staff";
 import ManagerUsersByStaff from "@/pages/staff/manage-users/get-users";
 import { ProtectedRouteByRole } from "./protect";
@@ -20,8 +20,7 @@ export const staffRoutes = [
         element: <StaffDashboard />,
       },
       {
-        path:
-          STAFF_ROUTES.STAFF_DASHBOARD + "/" + STAFF_ROUTES.STAFF_MANAGER_USERS,
+        path: PATH.STAFF_DASHBOARD_MANAGER_USERS,
         element: <ManagerUsersByStaff />,
       },
       {
