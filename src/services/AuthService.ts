@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { API_ROUTES, HTTP_METHOD, MESSAGE, ROLE } from "@/constants";
 import { loginSuccess } from "@/redux/userSlice";
 import { normalizeDecodedUser } from "@/components/utils/jwt";
+import { PATH } from "@/routes/path";
 
 const useAuthService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
@@ -46,15 +47,17 @@ const useAuthService = () => {
 
         // console.log(ROLE.STAFF, "ROLE.STAFF")
 
+        // console.log('user: ', user)
+        // console.log('b: ', user.role === 'Staff')
         switch (user.role) {
           case ROLE.ADMIN:
-            navigate("/admin");
+            navigate(PATH.ADMIN_DASHBOARD);
             break;
           case ROLE.STAFF:
-            navigate("/staff/dashboard");
+            navigate(PATH.STAFF_DASHBOARD);
             break;
           default:
-            navigate("/");
+            navigate(PATH.HOME);
             break;
         }
       }

@@ -15,11 +15,19 @@ export const ProtectedRouteByRole: React.FC<ProtectedRouteByRoleProps> = ({
   allowedRoles,
 }) => {
   const user = useCurrentUser();
-
   if (!user || !allowedRoles.includes(user.role)) {
     toast.error(MESSAGE.DO_NOT_HAVE_PERMISSION_TO_ACCESS);
-    return <Navigate to={PATH.HOME} replace />;
+    switch (allowedRoles) {
+      case [ROLE.CUSTOMER]:
+        return <Navigate to={PATH.HOME} replace />;
+      case [ROLE.STAFF]:
+        return <Navigate to={PATH.STAFF_DASHBOARD} replace />;
+      case [ROLE.DESIGNER]:
+        return <Navigate to={PATH.HOME} replace />;
+      case [ROLE.ADMIN]:
+        return <Navigate to={PATH.ADMIN_DASHBOARD} replace />;
+    }
   }
-
+ 
   return children;
 };
