@@ -10,6 +10,7 @@ import {
   PaymentSuccessPage,
   Chat,
   PostFormPage,
+  PostPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
@@ -21,7 +22,7 @@ export const userRoutes = [
   {
     path: USER_ROUTES.HOME,
     element: (
-      <ProtectedRouteByRole allowedRoles={[ROLE.CUSTOMER]}>
+      <ProtectedRouteByRole allowedRoles={[ROLE.CUSTOMER, ROLE.DESIGNER]}>
         <CustomerLayout />
       </ProtectedRouteByRole>
     ),
@@ -73,6 +74,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.CUSTOMER_UPLOAD_PAGE,
         element: <PostFormPage />,
+      },
+      {
+        path: USER_ROUTES.POST_PAGE,
+        element: <PostPage />,
       },
     ],
   },

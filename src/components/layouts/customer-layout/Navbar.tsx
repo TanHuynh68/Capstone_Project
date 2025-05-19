@@ -5,15 +5,12 @@ import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
 import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
-import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
 import Notification from "@/components/molecules/navbar/Notification";
 import Logo from "@/components/atoms/logo/Logo";
 import Cart from "@/components/atoms/navbar/Cart";
 import Post from "@/components/atoms/navbar/Post";
 import UserOption from "@/components/atoms/navbar/UserOption";
 import UserAuth from "@/components/atoms/navbar/UserAuth";
-import { ROLE } from "@/constants";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
 
@@ -24,7 +21,6 @@ const navItems = [
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const userInfo = useSelector((state: RootState) => state.user);
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
@@ -97,7 +93,7 @@ export function Navbar() {
           <ThemeToggle />
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}
-          {userInfo?.role === ROLE.CUSTOMER && <Post />}
+          {isLoggedIn() && <Post />}
 
           {isLoggedIn() ? (
             <div className="relative hidden md:flex">
