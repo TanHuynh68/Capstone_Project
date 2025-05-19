@@ -35,6 +35,8 @@ export enum API_ROUTES {
 
     //Manager wallet order by staff
     GET_WALLET_ORDER_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
+    PUT_WALLET_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
+    GET_QR_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
 
 
 
