@@ -20,6 +20,9 @@ import CreateAddress from "../../manage-address/create-address";
 import CustomerService from "@/services/CustomerService";
 import useAuthService from "@/services/AuthService";
 import ReputationService from "@/services/ReputationService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { RoleVietnamese } from "@/components/utils";
 
 const Profile = () => {
   const { getAddresses } = CustomerService();
@@ -28,7 +31,7 @@ const Profile = () => {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [profile, setProfile] = useState<Profile>();
   const [reputaion, setReputation] = useState<Reputation>();
-
+const userInfo = useSelector((state: RootState) => state.user);
   useEffect(() => {
     fetchAddresses();
     fetchProfile();
@@ -89,7 +92,6 @@ const Profile = () => {
               </Button>
             </div>
             <CardTitle>{profile?.fullName}</CardTitle>
-            <CardDescription>Member since January 2023</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -136,59 +138,23 @@ const Profile = () => {
         {/* Activity and Orders */}
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Account Activity</CardTitle>
-            <CardDescription>Your recent orders and activity</CardDescription>
+            {/* <CardTitle>Account Activity</CardTitle>
+            <CardDescription>Your recent orders and activity</CardDescription> */}
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium">Recent Orders</h3>
                 <Separator className="my-2" />
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Điểm uy tín: {reputaion?.currentScore}</p>
-                      <p className="text-sm text-muted-foreground">
-                        2 items • April 12, 2023
-                      </p>
                     </div>
-                    <Badge variant="outline">Delivered</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Order #12346</p>
-                      <p className="text-sm text-muted-foreground">
-                        1 item • March 24, 2023
-                      </p>
+                      <p className="font-medium">Vai trò: {RoleVietnamese(userInfo.role)}</p>
                     </div>
-                    <Badge variant="outline">Delivered</Badge>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium">Wishlist</h3>
-                <Separator className="my-2" />
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">
-                        Baby Three - Special Edition
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Added on May 3, 2023
-                      </p>
-                    </div>
-                    <Button size="sm">Add to Cart</Button>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Labubu Dragon Edition</p>
-                      <p className="text-sm text-muted-foreground">
-                        Added on April 18, 2023
-                      </p>
-                    </div>
-                    <Button size="sm">Add to Cart</Button>
                   </div>
                 </div>
               </div>

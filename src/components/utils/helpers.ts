@@ -1,8 +1,7 @@
-
 import { useSelector } from "react-redux";
-import { WALLET_TRANSACTION_TYPE } from "@/constants";
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { ROLE, WALLET_TRANSACTION_TYPE } from "@/constants";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { RootState } from "@/redux/store";
 /**
  * Kiểm tra xem một object có rỗng không (không có key nào).
@@ -10,7 +9,7 @@ import { RootState } from "@/redux/store";
  * @returns true nếu object rỗng
  */
 export const isEmptyObject = (obj: object): boolean => {
-    return Object.keys(obj).length === 0;
+  return Object.keys(obj).length === 0;
 };
 
 /**
@@ -19,7 +18,7 @@ export const isEmptyObject = (obj: object): boolean => {
  * @returns Chuỗi sau khi format, ví dụ: "hello world" => "Hello World"
  */
 export const capitalizeWords = (str: string): string => {
-    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 /**
@@ -29,7 +28,7 @@ export const capitalizeWords = (str: string): string => {
  * @returns chuỗi đã cắt
  */
 export const truncate = (str: string, maxLength: number): string => {
-    return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
+  return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
 };
 
 /**
@@ -38,7 +37,7 @@ export const truncate = (str: string, maxLength: number): string => {
  * @returns Promise
  */
 export const sleep = (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 /**
@@ -47,14 +46,14 @@ export const sleep = (ms: number): Promise<void> => {
  * @returns slug dạng url-friendly
  */
 export const slugify = (str: string): string => {
-    return str
-        .toLowerCase()
-        .normalize("NFD") // bỏ dấu tiếng Việt
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/[^\w-]+/g, "")
-        .replace(/--+/g, "-")
-        .replace(/^-+|-+$/g, "");
+  return str
+    .toLowerCase()
+    .normalize("NFD") // bỏ dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-")
+    .replace(/^-+|-+$/g, "");
 };
 
 /**
@@ -62,7 +61,7 @@ export const slugify = (str: string): string => {
  * @returns chuỗi ID ngẫu nhiên (vd: "a1b2c3")
  */
 export const generateRandomId = (length: number = 6): string => {
-    return Math.random().toString(36).substr(2, length);
+  return Math.random().toString(36).substr(2, length);
 };
 
 /**
@@ -71,7 +70,7 @@ export const generateRandomId = (length: number = 6): string => {
  * @returns chuỗi đã format (vd: 1000000 => "1,000,000")
  */
 export const formatNumber = (value: number): string => {
-    return value.toLocaleString("en-US");
+  return value.toLocaleString("en-US");
 };
 
 /**
@@ -80,102 +79,104 @@ export const formatNumber = (value: number): string => {
  * @returns true nếu hợp lệ
  */
 export const isValidEmail = (email: string): boolean => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
 // Hàm chuyển đổi
 export const toLowerCase = (role: any): any => {
-    const stringRole = role + ''
-    return stringRole.toLowerCase();
-}
+  const stringRole = role + "";
+  return stringRole.toLowerCase();
+};
 
 /**
  * Hàm format tiền Việt Nam (VND):
- * @param amount 
- * @returns 
+ * @param amount
+ * @returns
  */
-export const formatCurrencyVND =(amount: number)=> {
-    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-}
-
+export const formatCurrencyVND = (amount: number) => {
+  return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+};
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export const getTransactionTypeLabel = (type: WALLET_TRANSACTION_TYPE): string => {
-    switch (type) {
-      case WALLET_TRANSACTION_TYPE.Deposit:
-        return "Nạp tiền"
-      case WALLET_TRANSACTION_TYPE.Withdraw:
-        return "Rút tiền"
-      case WALLET_TRANSACTION_TYPE.Transfer:
-        return "Chuyển tiền"
-      case WALLET_TRANSACTION_TYPE.Receive:
-        return "Nhận tiền"
-      case WALLET_TRANSACTION_TYPE.PlaceDeposit:
-        return "Đặt cọc"
-      case WALLET_TRANSACTION_TYPE.RefundDeposit:
-        return "Hoàn cọc"
-      default:
-        return "Không xác định"
-    }
+export const getTransactionTypeLabel = (
+  type: WALLET_TRANSACTION_TYPE
+): string => {
+  switch (type) {
+    case WALLET_TRANSACTION_TYPE.Deposit:
+      return "Nạp tiền";
+    case WALLET_TRANSACTION_TYPE.Withdraw:
+      return "Rút tiền";
+    case WALLET_TRANSACTION_TYPE.Transfer:
+      return "Chuyển tiền";
+    case WALLET_TRANSACTION_TYPE.Receive:
+      return "Nhận tiền";
+    case WALLET_TRANSACTION_TYPE.PlaceDeposit:
+      return "Đặt cọc";
+    case WALLET_TRANSACTION_TYPE.RefundDeposit:
+      return "Hoàn cọc";
+    default:
+      return "Không xác định";
   }
+};
 
-  export const getTransactionTypeName = (type: string): string => {
-    switch (type) {
-      case 'Deposit':
-        return "Nạp tiền"
-      case 'Withdraw':
-        return "Rút tiền"
-      case 'Transfer':
-        return "Chuyển tiền"
-      case 'Receive':
-        return "Nhận tiền"
-      case 'PlaceDeposit':
-        return "Đặt cọc"
-      case 'RefundDeposit':
-        return "Hoàn cọc"
-      default:
-        return "Không xác định"
-    }
+export const getTransactionTypeName = (type: string): string => {
+  switch (type) {
+    case "Deposit":
+      return "Nạp tiền";
+    case "Withdraw":
+      return "Rút tiền";
+    case "Transfer":
+      return "Chuyển tiền";
+    case "Receive":
+      return "Nhận tiền";
+    case "PlaceDeposit":
+      return "Đặt cọc";
+    case "RefundDeposit":
+      return "Hoàn cọc";
+    default:
+      return "Không xác định";
   }
-
+};
 
 export function getPaymentMethodFromDescription(description: string): string {
   if (description.includes("VNPay")) {
-    return "VNPay"
+    return "VNPay";
   } else if (description.includes("PayOS")) {
-    return "PayOS"
+    return "PayOS";
   } else if (description.includes("MoMo")) {
-    return "MoMo"
+    return "MoMo";
   } else if (description.includes("ZaloPay")) {
-    return "ZaloPay"
+    return "ZaloPay";
   } else {
-    return "Khác"
+    return "Khác";
   }
 }
 
 export function isDepositOrder(description: string): boolean {
-  return description.includes("Nạp")
+  return description.includes("Nạp");
 }
 
 export function isWithdrawalOrder(description: string): boolean {
-  return description.includes("Rút")
+  return description.includes("Rút");
 }
 
-export function getOrderType(description: string): "Nạp tiền" | "Rút tiền" | "Khác" {
+export function getOrderType(
+  description: string
+): "Nạp tiền" | "Rút tiền" | "Khác" {
   if (isDepositOrder(description)) {
-    return "Nạp tiền"
+    return "Nạp tiền";
   } else if (isWithdrawalOrder(description)) {
-    return "Rút tiền"
+    return "Rút tiền";
   } else {
-    return "Khác"
+    return "Khác";
   }
 }
 
 export function formatBankAccountNumber(accountNumber: string): string {
-  return accountNumber.replace(/(.{4})/g, '$1 ').trim();
+  return accountNumber.replace(/(.{4})/g, "$1 ").trim();
 }
 
 export const useCurrentUser = () => {
@@ -183,8 +184,21 @@ export const useCurrentUser = () => {
   return user;
 };
 
-export const isLoggedIn = ()=>{
+export const isLoggedIn = () => {
   const userInfo = useSelector((state: RootState) => state.user);
-  if(userInfo && userInfo?.id != '') return true
-  return false
+  if (userInfo && userInfo?.id != "") return true;
+  return false;
+};
+
+export function RoleVietnamese(role: string) {
+  switch (role) {
+    case ROLE.DESIGNER:
+      return "Nhà thiết kế";
+    case ROLE.ADMIN:
+      return "Quản trị viên";
+    case ROLE.CUSTOMER:
+      return "Khách hàng";
+    case ROLE.STAFF:
+      return "Nhân viên";
+  }
 }
