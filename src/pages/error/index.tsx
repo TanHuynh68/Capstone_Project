@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { PATH } from "@/routes/path";
 import { useNavigate } from "react-router-dom";
 
 export default function ErrorPage() {
@@ -15,8 +16,8 @@ export default function ErrorPage() {
             Looks like you've ventured into the unknown digital realm.
           </p>
         </div>
-        <div onClick={() => navigate(-1)}>
-          <Button>Quay lại trang web</Button>
+        <div onClick={() => navigate(PATH.HOME)}>
+          <Button>Quay lại trang chủ</Button>
         </div>
       </div>
     </div>

@@ -1,51 +1,66 @@
 import { useEffect, useState } from "react";
 import "../../index.css";
+
 interface AnimatedTextProps {
-  text: string;
+  texts: string[]; // Mảng các đoạn text
   className?: string;
-  speed?: number; // tốc độ gõ từng ký tự (ms)
-  loop?: boolean;
-  eraseSpeed?: number; // tốc độ xóa từng ký tự (ms)
-  delayBetweenLoops?: number; // delay trước khi xóa/gõ lại (ms)
+  speed?: number; // tốc độ gõ
+  eraseSpeed?: number; // tốc độ xóa
+  delayBetweenLoops?: number; // delay giữa các vòng
+  delayBetweenTexts?: number; // delay giữa khi gõ xong và bắt đầu xóa
 }
 
 export default function AnimatedText({
-  text,
+  texts,
   className = "",
   speed = 80,
-  loop = false,
   eraseSpeed = 40,
   delayBetweenLoops = 1500,
+  delayBetweenTexts = 1000,
 }: AnimatedTextProps) {
   const [displayedText, setDisplayedText] = useState("");
-  const [index, setIndex] = useState(0);
-  const [erasing, setErasing] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
+  const [textIndex, setTextIndex] = useState(0);
+  const [isErasing, setIsErasing] = useState(false);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
+    const currentText = texts[textIndex];
 
-    if (!erasing && index < text.length) {
+    if (!isErasing && charIndex < currentText.length) {
       // Gõ từng ký tự
       timeout = setTimeout(() => {
-        setDisplayedText((prev) => prev + text.charAt(index));
-        setIndex((prev) => prev + 1);
+        setDisplayedText((prev) => prev + currentText.charAt(charIndex));
+        setCharIndex((prev) => prev + 1);
       }, speed);
-    } else if (!erasing && index === text.length && loop) {
-      // Tạm dừng trước khi bắt đầu xóa
-      timeout = setTimeout(() => setErasing(true), delayBetweenLoops);
-    } else if (erasing && index > 0) {
+    } else if (!isErasing && charIndex === currentText.length) {
+      // Đợi trước khi xóa
+      timeout = setTimeout(() => setIsErasing(true), delayBetweenTexts);
+    } else if (isErasing && charIndex > 0) {
       // Xóa từng ký tự
       timeout = setTimeout(() => {
         setDisplayedText((prev) => prev.slice(0, -1));
-        setIndex((prev) => prev - 1);
+        setCharIndex((prev) => prev - 1);
       }, eraseSpeed);
-    } else if (erasing && index === 0 && loop) {
-      // Sau khi xóa xong thì bắt đầu gõ lại
-      timeout = setTimeout(() => setErasing(false), delayBetweenLoops);
+    } else if (isErasing && charIndex === 0) {
+      // Sau khi xóa xong, chuyển sang đoạn tiếp theo
+      timeout = setTimeout(() => {
+        setIsErasing(false);
+        setTextIndex((prev) => (prev + 1) % texts.length); // Lặp lại
+      }, delayBetweenLoops);
     }
 
     return () => clearTimeout(timeout);
-  }, [index, erasing, text, speed, eraseSpeed, loop, delayBetweenLoops]);
+  }, [
+    charIndex,
+    isErasing,
+    texts,
+    textIndex,
+    speed,
+    eraseSpeed,
+    delayBetweenTexts,
+    delayBetweenLoops,
+  ]);
 
   return (
     <h2 className={className} style={{ minHeight: "1em" }}>

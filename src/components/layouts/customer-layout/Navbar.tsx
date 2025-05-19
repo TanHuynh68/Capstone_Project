@@ -1,46 +1,26 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, Search } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuPortal,
-} from "../../ui/dropdown-menu";
 import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
-import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
 import Notification from "@/components/molecules/navbar/Notification";
 import Logo from "@/components/atoms/logo/Logo";
 import Cart from "@/components/atoms/navbar/Cart";
 import Post from "@/components/atoms/navbar/Post";
 import UserOption from "@/components/atoms/navbar/UserOption";
 import UserAuth from "@/components/atoms/navbar/UserAuth";
-import { ROLE } from "@/constants";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
 
 const navItems = [
-  { title: "About", href: "/about" },
-  { title: "Contact", href: "/contact" },
-];
-
-const categories = [
-  { title: "Electronics", href: "/products/electronics" },
-  { title: "Clothing", href: "/products/clothing" },
-  { title: "Home & Garden", href: "/products/home-garden" },
-  { title: "Sports", href: "/products/sports" },
+  { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
+  { title: "Liên hệ", href: PATH.CONTACT_PAGE },
 ];
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const userInfo = useSelector((state: RootState) => state.user);
-
-  console.log("userInfo: ", userInfo);
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
@@ -52,32 +32,9 @@ export function Navbar() {
           {item.title}
         </Link>
       ))}
-      <div className="relative">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button
-              variant="ghost"
-              className="flex items-center justify-start px-0 font-medium"
-            >
-              Products <ChevronDown className="ml-1 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuContent align="start" className="w-48 z-50">
-              {categories.map((category) => (
-                <DropdownMenuItem key={category.title}>
-                  <Link to={category.href} className="w-full">
-                    {category.title}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenuPortal>
-        </DropdownMenu>
-      </div>
       <div className="pt-4">
         <Button className="w-full">
-          <Link to="/login">Sign In</Link>
+          <Link to={PATH.LOGIN_IN}>Đăng nhập</Link>
         </Button>
       </div>
     </div>
@@ -102,27 +59,6 @@ export function Navbar() {
               {item.title}
             </Link>
           ))}
-          <div className="relative">
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button
-                  variant="ghost"
-                  className="flex items-center text-sm font-medium"
-                >
-                  Products <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 z-50">
-                {categories.map((category) => (
-                  <DropdownMenuItem key={category.title}>
-                    <Link to={category.href} className="w-full">
-                      {category.title}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </nav>
 
         <div className="flex items-center space-x-2">
@@ -157,7 +93,7 @@ export function Navbar() {
           <ThemeToggle />
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}
-          {userInfo?.role === ROLE.CUSTOMER && <Post />}
+          {isLoggedIn() && <Post />}
 
           {isLoggedIn() ? (
             <div className="relative hidden md:flex">

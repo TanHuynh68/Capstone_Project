@@ -126,7 +126,7 @@ const userInfo = useSelector((state: RootState) => state.user);
                 className="flex items-center justify-center"
               >
                 <Lock className="mr-2 h-4 w-4" />
-                Change Password
+               Đổi mật khẩu
               </Link>
             </Button>
           </CardFooter>

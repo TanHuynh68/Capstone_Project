@@ -25,11 +25,11 @@ export function LoginForm({
     e.preventDefault();
     setLoading(true);
     const values = { username, password };
-    console.log("Dữ liệu gửi đi:", values);
+    // console.log("Dữ liệu gửi đi:", values);
     try {
       const response = await login(values);
       if (response) {
-        console.log("Đăng nhập thành công: ", response);
+        // console.log("Đăng nhập thành công: ", response);
       }
     } finally {
       setLoading(false);
@@ -38,7 +38,7 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden max-w-4xl w-full py-0">
+      <Card className="overflow-hidden w-full max-w-[1200px] mx-auto py-0">
         <CardContent className="grid h-full p-0  md:grid-cols-2">
           <form
             className="flex h-full flex-col justify-center p-6 md:p-8"
@@ -46,14 +46,20 @@ export function LoginForm({
           >
             <div className="flex flex-col gap-6 pt-16 pb-16">
               <div className="flex flex-col items-center text-center">
-                <div className="inline-flex items-center text-2xl font-bold gap-1">
+                <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
                   <AnimatedText
-                    text="Chào mừng bạn quay lại"
-                    loop
+                    texts={[
+                      "Rất vui khi gặp lại bạn! 😊",
+                      "Cùng tạo điều đáng yêu! 🧸",
+                      "Chúc bạn một ngày vui vẻ! 🌞",
+                      // "Labubu lên đồ – bạn là stylist pro! 😎",
+                    ]}
                     speed={80}
                     eraseSpeed={40}
-                    delayBetweenLoops={500}
+                    delayBetweenTexts={1000}
+                    delayBetweenLoops={1500}
                   />
+
                   <span className="cursor">|</span>
                 </div>
 

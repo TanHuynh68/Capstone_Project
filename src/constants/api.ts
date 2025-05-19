@@ -35,6 +35,8 @@ export enum API_ROUTES {
 
     //Manager wallet order by staff
     GET_WALLET_ORDER_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
+    PUT_WALLET_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
+    GET_QR_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
 
 
 
@@ -96,5 +98,6 @@ export enum API_ROUTES {
     STAFF_CHANGE_REPUTATION = `/staff/${API_ENDPOINTS.REPUTATION}/change`,
     STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
     //Post
-    CREATE_POST = 'project-post'
+    CREATE_POST = 'project-post',
+    GET_POSTS = 'project-posttoken?page=1&size=100',
 }
