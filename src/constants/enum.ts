@@ -12,7 +12,7 @@ export enum ROLE {
     CUSTOMER = 'Customer',
     STAFF = 'Staff',
     ADMIN = 'Admin',
-    ARTIST = 'Artist',
+    DESIGNER = 'Designer',
 }
 
 export enum HTTP_STATUS {

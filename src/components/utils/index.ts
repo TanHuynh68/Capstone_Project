@@ -41,7 +41,8 @@ export {
   isWithdrawalOrder,
   formatBankAccountNumber,
   useCurrentUser,
-  isLoggedIn
+  isLoggedIn,
+  RoleVietnamese
 } from "./helpers";
 export {
   ValidationErrors,
