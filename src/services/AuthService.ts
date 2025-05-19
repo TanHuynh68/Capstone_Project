@@ -13,88 +13,95 @@ const useAuthService = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const register = useCallback(async (values: any) => {
-    try {
-      const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_UP, {
-        ...values
-      });
-      return response;
-    } catch (e: any) {
-      toast.error(e?.response?.data || MESSAGE.REGISTER_FAILED);
-    }
-  }, [callApi]);
-
-  const login = useCallback(async (values: any) => {
-    const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
-    const jwtToken = res?.responseRequestModel?.jwtToken;
-    const token = jwtToken?.accessToken;
-    const refreshToken = jwtToken?.refreshToken;
-
-    if (jwtToken) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("refreshToken", refreshToken);
-      const decoded = jwtDecode<DecodedUserRaw>(token);
-      const user = normalizeDecodedUser(decoded);
-      dispatch(loginSuccess(user));
-      toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
-
-      switch (user.role) {
-        case ROLE.ADMIN:
-          navigate("/admin");
-          break;
-        case ROLE.STAFF:
-          navigate("/staff/dashboard");
-          break;
-        default:
-          navigate("/");
-          break;
+  const register = useCallback(
+    async (values: any) => {
+      try {
+        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_UP, {
+          ...values,
+        });
+        return response;
+      } catch (e: any) {
+        toast.error(e?.response?.data);
       }
-    }
+    },
+    [callApi]
+  );
 
-    return res;
-  }, [callApi, dispatch, navigate]);
+  const login = useCallback(
+    async (values: any) => {
+      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
+      const jwtToken = res?.responseRequestModel?.jwtToken;
+      const token = jwtToken?.accessToken;
+      const refreshToken = jwtToken?.refreshToken;
 
+      if (jwtToken) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+        const decoded = jwtDecode<DecodedUserRaw>(token);
+        const user = normalizeDecodedUser(decoded);
+        dispatch(loginSuccess(user));
+        toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
+
+        switch (user.role) {
+          case ROLE.ADMIN:
+            navigate("/admin");
+            break;
+          case ROLE.STAFF:
+            navigate("/staff/dashboard");
+            break;
+          default:
+            navigate("/");
+            break;
+        }
+      }
+
+      return res;
+    },
+    [callApi, dispatch, navigate]
+  );
 
   const changePassword = useCallback(
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.CHANGE_PASSWORD, values);
+        const response = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.CHANGE_PASSWORD,
+          values
+        );
         toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
         return response;
       } catch (err: any) {
-        toast.error(err?.response?.data || MESSAGE.CHANGE_PASSWORD_FAILED);
+        toast.error(err?.response?.data);
       }
     },
     [callApi]
   );
 
-  const getProfile = useCallback(
-    async () => {
-      try {
-        const response = await callApi(
-          HTTP_METHOD.GET,
-          API_ROUTES.GET_PROFILE,
-        );
-        return response;
-      } catch (err: any) {
-        toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
-      }
-    },
-    [callApi]
-  );
+  const getProfile = useCallback(async () => {
+    try {
+      const response = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_PROFILE);
+      return response;
+    } catch (err: any) {
+      toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
+    }
+  }, [callApi]);
 
   const verifyAccount = useCallback(
     /**
-     * 
+     *
      * @param values {
      * "email": "user@example.com",
-     *  "otp": "383562" 
+     *  "otp": "383562"
      * }
-     * @returns 
+     * @returns
      */
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.VERIFY_ACCOUNT, values);
+        const response = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.VERIFY_ACCOUNT,
+          values
+        );
         if (response) {
           toast.success(MESSAGE.VERIFY_ACCOUNT_SUCCESSFULLY);
         }
@@ -108,15 +115,19 @@ const useAuthService = () => {
 
   const resendOTP = useCallback(
     /**
-     * 
+     *
      * @param values {
      * "email": "user@example.com",
      * }
-     * @returns 
+     * @returns
      */
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.RESEND_OTP, values);
+        const response = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.RESEND_OTP,
+          values
+        );
         // if (response) {
         //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
         // }
@@ -130,16 +141,20 @@ const useAuthService = () => {
 
   const forgotPassword = useCallback(
     /**
-     * 
+     *
      * @param values {
      * "email": "user@example.com",
-     *  "otp": "383562" 
+     *  "otp": "383562"
      * }
-     * @returns 
+     * @returns
      */
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.FORGOT_PASSWORD, values);
+        const response = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.FORGOT_PASSWORD,
+          values
+        );
         if (response) {
           toast.success(MESSAGE.FORGOT_PASSWORD_SUCCESSFULLY);
         }
@@ -153,15 +168,19 @@ const useAuthService = () => {
 
   const sendResetPasswordEmail = useCallback(
     /**
-     * 
+     *
      * @param values {
      * "email": "user@example.com",
      * }
-     * @returns 
+     * @returns
      */
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SEND_RESET_PASSWORD_MAIL, values);
+        const response = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.SEND_RESET_PASSWORD_MAIL,
+          values
+        );
         // if (response) {
         //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
         // }
@@ -187,7 +206,11 @@ const useAuthService = () => {
      */
     async (values: any) => {
       try {
-        const response = await callApi(HTTP_METHOD.PUT, API_ROUTES.RESET_PASSWORD, values);
+        const response = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.RESET_PASSWORD,
+          values
+        );
         // if (response) {
         //   toast.success(MESSAGE.RESEND_OTP_SUCCESSFULLY);
         // }
@@ -198,7 +221,20 @@ const useAuthService = () => {
     },
     [callApi]
   );
-  return { login, register, loading, setIsLoading, changePassword, getProfile, verifyAccount, resendOTP, forgotPassword, sendResetPasswordEmail, resetPassword };
+  
+  return {
+    login,
+    register,
+    loading,
+    setIsLoading,
+    changePassword,
+    getProfile,
+    verifyAccount,
+    resendOTP,
+    forgotPassword,
+    sendResetPasswordEmail,
+    resetPassword,
+  };
 };
 
 export default useAuthService;
