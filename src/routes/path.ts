@@ -20,6 +20,7 @@ export enum USER_ROUTES {
   PLUSHDOLL_DESIGN = "plushdoll-design",
   ABOUT_PAGE = "about",
   CONTACT_PAGE = "contact",
+  POST_PAGE = "post",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
 }
 
