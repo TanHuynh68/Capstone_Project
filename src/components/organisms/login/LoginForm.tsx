@@ -25,11 +25,11 @@ export function LoginForm({
     e.preventDefault();
     setLoading(true);
     const values = { username, password };
-    console.log("Dữ liệu gửi đi:", values);
+    // console.log("Dữ liệu gửi đi:", values);
     try {
       const response = await login(values);
       if (response) {
-        console.log("Đăng nhập thành công: ", response);
+        // console.log("Đăng nhập thành công: ", response);
       }
     } finally {
       setLoading(false);

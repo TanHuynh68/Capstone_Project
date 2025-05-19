@@ -42,6 +42,10 @@ const useAuthService = () => {
         dispatch(loginSuccess(user));
         toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
 
+        // console.log(user.role, "user.role")
+
+        // console.log(ROLE.STAFF, "ROLE.STAFF")
+
         switch (user.role) {
           case ROLE.ADMIN:
             navigate("/admin");
@@ -221,7 +225,7 @@ const useAuthService = () => {
     },
     [callApi]
   );
-  
+
   return {
     login,
     register,
