@@ -113,12 +113,48 @@ const StaffService = () => {
     [callApi]
   );
 
+  const putWalletWithdrawByStaff = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.PUT_WALLET_WITHDRAW_BY_STAFF,
+          values
+        );
+
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || "Cập nhật rút tiền thất bại.");
+      }
+    },
+    [callApi]
+  );
+
+  const getQRWithdrawByStaff = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_QR_WITHDRAW_BY_STAFF,
+          values
+        );
+
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || "Lấy QR rút tiền thất bại.");
+      }
+    },
+    [callApi]
+  );
+
   return {
     getUserByStaff,
     changeActiveUserByStaff,
     putAddresses,
     deleteAddresses,
     getWalletOrderByStaff,
+    putWalletWithdrawByStaff,
+    getQRWithdrawByStaff,
     loading,
     setIsLoading,
   };
