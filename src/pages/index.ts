@@ -18,3 +18,4 @@ export { default as Chat } from "./customer/chat";
 export { default as AboutPage } from "./general/about";
 export { default as ContactPage } from "./general/contact";
 export { default as PostFormPage } from "./customer/upload-post";
+export { default as ErrorPage } from "./error";

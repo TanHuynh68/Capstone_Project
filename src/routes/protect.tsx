@@ -7,7 +7,7 @@ import { PATH } from "./path";
 
 interface ProtectedRouteByRoleProps {
   children: ReactNode;
-  allowedRoles: Array<ROLE.ADMIN | ROLE.ARTIST | ROLE.CUSTOMER | ROLE.STAFF>; // Các vai trò cho phép
+  allowedRoles: Array<ROLE.ADMIN | ROLE.DESIGNER | ROLE.CUSTOMER | ROLE.STAFF>; // Các vai trò cho phép
 }
 
 export const ProtectedRouteByRole: React.FC<ProtectedRouteByRoleProps> = ({
