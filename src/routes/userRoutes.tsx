@@ -1,4 +1,3 @@
-
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
 import {
@@ -15,11 +14,17 @@ import {
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
 import PlushDollDesign from "@/pages/customer/plushdoll-design";
+import { ROLE } from "@/constants";
+import { ProtectedRouteByRole } from "./protect";
 //
 export const userRoutes = [
   {
     path: USER_ROUTES.HOME,
-    element:  <CustomerLayout />,
+    element: (
+      <ProtectedRouteByRole allowedRoles={[ROLE.CUSTOMER]}>
+        <CustomerLayout />
+      </ProtectedRouteByRole>
+    ),
     children: [
       {
         path: USER_ROUTES.CHANGE_PASSWORD,
@@ -67,7 +72,7 @@ export const userRoutes = [
       },
       {
         path: USER_ROUTES.CUSTOMER_UPLOAD_PAGE,
-        element: <PostFormPage/>,
+        element: <PostFormPage />,
       },
     ],
   },

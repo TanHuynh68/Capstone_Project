@@ -29,7 +29,9 @@ export const MESSAGE = {
 
 
     REGISTER_SUCCESSFULLY: "Đăng kí thành công. Vui lòng kiểm tra email!",
+
     CHANGE_PASSWORD_SUCCESSFULLY: "Đổi mật khẩu thành công.",
+    PLEASE_LOGIN_AGAIN: 'hãy đăng nhập lại',
     CREATE_ADDRESS_FAILED: "Tạo địa chỉ thất bại.",
     UPDATE_ADDRESS_FAILED: "Cập nhật địa chỉ thất bại.",
     DELETE_ADDRESS_FAILED: "Xóa địa chỉ thất bại.",
