@@ -11,7 +11,6 @@ export default function AboutTPage() {
         <Hero />
         <Features />
         <Process />
-
         <CallToAction />
       </main>
     </div>
