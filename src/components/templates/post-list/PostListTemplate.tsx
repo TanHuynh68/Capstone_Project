@@ -99,7 +99,7 @@ export default function PostsTemplate() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-gray-500">
             {loading
@@ -118,13 +118,7 @@ export default function PostsTemplate() {
             className="my-8"
           />
         )}
-      </main>
-
-      <footer className="bg-gray-800 text-gray-300 py-4">
-        <div className="container mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} - Hệ thống quản lý bài đăng</p>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
