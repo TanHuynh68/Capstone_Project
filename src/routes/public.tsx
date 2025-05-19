@@ -11,7 +11,7 @@ interface PublicRouteProps {
 const PublicRoute = ({ children }: PublicRouteProps) => {
   const user = useSelector((state: RootState) => state.user)
 
-  // Nếu đã đăng nhập → chuyển về /home
+  // Nếu đã đăng nhập → chuyển về home
   if (user && user.id) {
     return <Navigate to={PATH.HOME} replace />
   }

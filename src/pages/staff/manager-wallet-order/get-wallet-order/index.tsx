@@ -7,22 +7,26 @@ import StaffService from "@/services/StaffService";
 import { toast } from "sonner";
 
 interface WalletOrder {
-  id: string;
+  walletOrderID: string;
+  walletID: string;
   amount: number;
-  method: string;
-  status: string;
-  createdAt: string;
+  orderStatusDisplay: string;
+  description: string;
+  orderDate: string;
+  walletOrderImage: string | null;
+  walletOrderNote: string | null;
 }
 
 interface Props {
   page?: number;
   size?: number;
+  walletID?: string;
 }
 
 const ManagerWalletOrderByStaff: React.FC<Props> = ({
-
   page = 1,
   size = 10,
+  walletID,
 }) => {
   const [orders, setOrders] = useState<WalletOrder[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,12 +37,14 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({
       setLoading(true);
       try {
         const res = await getWalletOrderByStaff({
-          page,
-          size,
+          // page,
+          // size,
+          walletID,
         });
 
-        if (res?.data?.items) {
-          setOrders(res.data.items);
+        const items = res?.responseRequestModel?.responseList?.items;
+        if (items && Array.isArray(items)) {
+          setOrders(items);
         } else {
           toast.error("Không tìm thấy đơn ví nào.");
         }
@@ -50,12 +56,12 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({
     };
 
     fetchWalletOrders();
-  }, [page, size]);
+  }, [page, size, walletID]);
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">
-        Danh sách đơn ví từ Wallet ID
+        Danh sách đơn ví {walletID ? `của ví ${walletID}` : ""}
       </h2>
       {loading ? (
         <p>Đang tải dữ liệu...</p>
@@ -67,23 +73,25 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-2 px-4 border-b">Mã đơn</th>
+                <th className="py-2 px-4 border-b">Mô tả</th>
                 <th className="py-2 px-4 border-b">Số tiền</th>
-                <th className="py-2 px-4 border-b">Phương thức</th>
                 <th className="py-2 px-4 border-b">Trạng thái</th>
                 <th className="py-2 px-4 border-b">Ngày tạo</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id}>
-                  <td className="py-2 px-4 border-b">{order.id}</td>
+                <tr key={order.walletOrderID}>
+                  <td className="py-2 px-4 border-b">{order.walletOrderID}</td>
+                  <td className="py-2 px-4 border-b">{order.description}</td>
                   <td className="py-2 px-4 border-b">
                     {order.amount.toLocaleString()}₫
                   </td>
-                  <td className="py-2 px-4 border-b">{order.method}</td>
-                  <td className="py-2 px-4 border-b">{order.status}</td>
                   <td className="py-2 px-4 border-b">
-                    {new Date(order.createdAt).toLocaleString("vi-VN")}
+                    {order.orderStatusDisplay}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    {new Date(order.orderDate).toLocaleString("vi-VN")}
                   </td>
                 </tr>
               ))}
