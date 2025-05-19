@@ -1,6 +1,4 @@
 "use client";
-
-import { Badge } from "@/components/ui/badge";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { User, Mail, Phone, Lock, Edit, Camera } from "lucide-react";
@@ -8,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
