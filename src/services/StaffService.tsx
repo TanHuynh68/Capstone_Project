@@ -101,7 +101,7 @@ const StaffService = () => {
       try {
         const res = await callApi(
           HTTP_METHOD.GET,
-          API_ROUTES.WALLET_ORDER,
+          API_ROUTES.GET_WALLET_ORDER_BY_STAFF,
           values
         );
 
