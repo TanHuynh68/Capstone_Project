@@ -1,4 +1,6 @@
 import moment from "moment"
+import { format, formatDistanceToNow } from "date-fns"
+import { vi } from "date-fns/locale"
 /**
  * 
  * @param date 
@@ -121,3 +123,65 @@ export const customFormatDate = (
 ): string => {
     return new Intl.DateTimeFormat(locale, options).format(new Date(date));
 };
+
+export function formatDateTimeVN(isoString: string) {
+    const date = new Date(isoString);
+    const datePart = new Intl.DateTimeFormat("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(date);
+
+    const timePart = date.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+
+    return `${datePart} ${timePart}`;
+}
+
+// 👉 Sử dụng:
+// formatDateTimeVN("2025-05-20T11:00:39.0757681"); // "20/05/2025 11:00"
+
+// export function formatFullDateWithDistance(isoString: string) {
+//     const createdAt = new Date(isoString);
+//     const now = new Date();
+
+//     console.log(createdAt, "createdAt")
+//     console.log(now, "now")
+
+//     const diffMs = now.getTime() - createdAt.getTime();
+
+//     console.log(diffMs, "diffMs")
+//     const correctedDate = new Date(createdAt.getTime() + diffMs); // = now luôn
+//     console.log(correctedDate, "correctedDate")
+//     const formatted = format(correctedDate, "dd/MM/yyyy HH:mm");
+//     const relative = formatDistanceToNow(correctedDate, {
+//         addSuffix: true,
+//         locale: vi,
+//     });
+
+//     return `${formatted} (${relative})`;
+// }
+
+
+// formatFullDateWithDistance("2025-05-20T12:12:00");
+// 👉 "20/05/2025 12:12 (2 giờ trước)"  — nếu bây giờ là 14:12
+
+export function formatFullDateWithDistance(isoString: string) {
+    const createdAt = new Date(isoString);
+
+    const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
+    const now = new Date();
+
+    const finalTime = corrected > now ? now : corrected;
+
+    const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
+    const relative = formatDistanceToNow(finalTime, {
+        addSuffix: true,
+        locale: vi,
+    });
+
+    return `${formatted} (${relative})`;
+}

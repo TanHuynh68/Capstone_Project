@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,13 +31,8 @@ const formSchema = z.object({
     }),
 });
 
-const LOCK_DURATION = 60; // giây
-
 export default function WithdrawMoney() {
   const { withdrawMoney } = WalletService();
-  const [failCount, setFailCount] = useState(0);
-  const [lockEndTime, setLockEndTime] = useState<number | null>(null);
-  const [remainingTime, setRemainingTime] = useState(0);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -46,64 +40,6 @@ export default function WithdrawMoney() {
   });
 
   const isSubmitting = form.formState.isSubmitting;
-  const isDisabled = failCount >= 3;
-
-  // Đọc từ localStorage khi load trang
-  useEffect(() => {
-    const storedFail = Number(localStorage.getItem("withdraw_fail_count") || 0);
-    const storedLock = Number(localStorage.getItem("withdraw_lock_until") || 0);
-
-    setFailCount(storedFail);
-
-    if (storedLock > Date.now()) {
-      setLockEndTime(storedLock);
-      updateRemainingTime(storedLock);
-    }
-  }, []);
-
-  // Đếm ngược mỗi giây khi đang khóa
-  useEffect(() => {
-    if (!lockEndTime) return;
-
-    const interval = setInterval(() => {
-      updateRemainingTime(lockEndTime);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [lockEndTime]);
-
-  const updateRemainingTime = (lockEnd: number) => {
-    const diff = Math.max(0, Math.ceil((lockEnd - Date.now()) / 1000));
-    setRemainingTime(diff);
-
-    if (diff <= 0) {
-      // Hết khóa
-      setFailCount(0);
-      setLockEndTime(null);
-      localStorage.removeItem("withdraw_fail_count");
-      localStorage.removeItem("withdraw_lock_until");
-      toast.success("Bạn đã có thể rút tiền lại!");
-    }
-  };
-
-  const increaseFail = (apiMessage?: string) => {
-    const newFail = failCount + 1;
-    setFailCount(newFail);
-    localStorage.setItem("withdraw_fail_count", newFail.toString());
-
-    if (apiMessage) {
-      toast.error(apiMessage); // ✅ Chỉ toast lỗi từ API 1 lần ở đây
-    }
-
-    if (newFail >= 3) {
-      const lockUntil = Date.now() + LOCK_DURATION * 1000;
-      setLockEndTime(lockUntil);
-      localStorage.setItem("withdraw_lock_until", lockUntil.toString());
-      //   toast.error("Bạn đã nhập sai quá 3 lần, chức năng rút tiền bị khóa 60s!");
-    } else {
-      //   toast.warning(`Sai ${newFail}/3 lần. Cẩn thận bị khóa nhé!`);
-    }
-  };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const res = await withdrawMoney({ amount: data.amount });
@@ -111,15 +47,9 @@ export default function WithdrawMoney() {
     if (res?.isSuccess) {
       toast.success(res.message || "Rút tiền thành công");
       form.reset();
-      setFailCount(0);
-      localStorage.removeItem("withdraw_fail_count");
     } else {
-      increaseFail(res?.message);
+      // toast.error(res?.message || "Rút tiền thất bại");
     }
-  };
-
-  const onInvalid = () => {
-    increaseFail();
   };
 
   const formatAmount = (value: string) => {
@@ -136,16 +66,6 @@ export default function WithdrawMoney() {
         <p className="text-muted-foreground">
           Nhập số tiền cần rút và xác nhận giao dịch.
         </p>
-        {isDisabled && lockEndTime && (
-          <p className="text-red-500">
-            Chức năng rút tiền bị khóa {remainingTime}s
-          </p>
-        )}
-        {!isDisabled && failCount > 0 && (
-          <p className="text-yellow-500">
-            Sai {failCount}/3 lần. Sai 3 lần sẽ bị khóa 60s.
-          </p>
-        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mt-4">
@@ -156,7 +76,6 @@ export default function WithdrawMoney() {
             type="button"
             onClick={() => form.setValue("amount", amount.toString())}
             className="px-4 py-2"
-            disabled={isDisabled}
           >
             {amount.toLocaleString("vi-VN")}
           </Button>
@@ -164,34 +83,37 @@ export default function WithdrawMoney() {
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
-          className="space-y-6 pt-5"
-        >
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Số tiền (VND)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Nhập số tiền"
-                    {...field}
-                    onChange={(e) => {
-                      const rawValue = e.target.value.replace(/[,.]/g, "");
-                      field.onChange(rawValue);
-                      e.target.value = formatAmount(rawValue);
-                    }}
-                    disabled={isDisabled || isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-center items-center h-[100px]">
-            <Button type="submit" disabled={isDisabled || isSubmitting}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="pt-5">
+          <div className="flex flex-col md:flex-row items-end gap-4">
+            <div className="w-full max-w-[350px]">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Số tiền (VND)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Nhập số tiền"
+                        {...field}
+                        onChange={(e) => {
+                          const rawValue = e.target.value.replace(/[,.]/g, "");
+                          field.onChange(rawValue);
+                          e.target.value = formatAmount(rawValue);
+                        }}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-1 md:mt-0 h-10"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
