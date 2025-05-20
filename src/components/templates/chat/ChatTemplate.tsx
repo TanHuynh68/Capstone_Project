@@ -4,25 +4,25 @@ import MessageList from "@/components/organisms/chat/MessageList"
 import MessageComposer from "@/components/molecules/chat/MessageComposer"
 
 interface ChatTemplateProps {
-  chats: Chat[]
+  message: Message[]
   users: UserChat[]
-  activeChat: string
-  onSelectChat: (chatId: string) => void
+  chatRoomID: string
+  onSelectChat: (chatRoomID: string) => void
   onSendMessage: (message: string) => void
 }
 
-export default function ChatTemplate({ chats, users, activeChat, onSelectChat, onSendMessage }: ChatTemplateProps) {
-  const currentChat = chats.find((chat) => chat.id === activeChat)
-  const currentChatUser = currentChat?.users.find((user) => user.id !== "current-user")
-
+export default function ChatTemplate({ message, users, chatRoomID, onSelectChat, onSendMessage }: ChatTemplateProps) {
+  console.log('users: ', users)
+  const currentChatUser = users[0]
+ console.log('messages: ', message)
   return (
-    <div className="flex w-full h-screen overflow-hidden border border-gray-800 bg-black text-white">
-      <ChatSidebar chats={chats} activeChat={activeChat} onSelectChat={onSelectChat} />
+    <div className="flex w-full h-screen  overflow-y-auto overflow-hidden border border-gray-800 bg-black text-white">
+      <ChatSidebar users={users} messages={message} activeChat={chatRoomID} onSelectChat={onSelectChat} />
 
       <div className="flex flex-1 flex-col">
-        <ChatHeader user={currentChatUser} />
+        <ChatHeader  user={currentChatUser} />
 
-        {currentChat && <MessageList messages={currentChat.messages} users={users} />}
+        {currentChatUser && <MessageList messages={message} users={users.filter(item=>item.chatRoomID===chatRoomID )} />}
 
         <MessageComposer onSendMessage={onSendMessage} />
       </div>
