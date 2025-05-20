@@ -52,7 +52,7 @@ export const columns: ColumnDef<WalletOrder>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="whitespace-nowrap"
         >
-          Số tiền
+         <div className="pl-1"> Số tiền</div>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )

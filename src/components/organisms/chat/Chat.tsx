@@ -101,7 +101,7 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex  w-full h-[845px] overflow-hidden rounded-lg border border-gray-800 bg-black text-white">
+    <div className="flex  w-full h-screen overflow-hidden rounded-lg border border-gray-800 bg-black text-white">
       {/* Sidebar */}
       <div className="flex w-80 flex-col border-r border-gray-800">
         <div className="flex items-center justify-between border-b border-gray-800 p-4">
