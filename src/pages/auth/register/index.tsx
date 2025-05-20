@@ -173,7 +173,7 @@ const Register = () => {
     setErrors(newErrors);
     return isValid;
   };
-
+  //api
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -186,15 +186,16 @@ const Register = () => {
       gender: parseInt(formData.gender),
     };
     setIsLoading(true);
-    const response = await register(valuesSubmit);
-    console.log("formData: ", formData);
-    if (response) {
-      console.log("response: ", response);
-      toast.success(MESSAGE.REGISTER_SUCCESSFULLY);
-      navigate(PATH.VERIFY_ACCOUNT, {
-        state: { email: formData.email },
-      });
-    }
+    console.log('valuesSubmit: ', valuesSubmit)
+    // const response = await register(valuesSubmit);
+    // console.log("formData: ", formData);
+    // if (response) {
+    //   console.log("response: ", response);
+    //   toast.success(MESSAGE.REGISTER_SUCCESSFULLY);
+    //   navigate(PATH.VERIFY_ACCOUNT, {
+    //     state: { email: formData.email },
+    //   });
+    // }
     setIsLoading(false);
   };
 
@@ -211,7 +212,7 @@ const Register = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center justify-center text-center">
           <h2 className="mt-6 text-2xl font-bold text-gray-900">
-            Create your account
+            Tạo tài khoản
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Join Acme Inc and start managing your projects
@@ -222,7 +223,7 @@ const Register = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <Label htmlFor="fullName">
-                FullName <span className="text-red-500">*</span>
+                Họ và tên <span className="text-red-500">*</span>
               </Label>
               <div className="mt-1">
                 <Input
@@ -233,7 +234,7 @@ const Register = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   className={errors.fullName ? "border-red-500" : ""}
-                  placeholder="FullName"
+                  placeholder="Họ và tên"
                 />
                 {errors.fullName && (
                   <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>
@@ -243,7 +244,7 @@ const Register = () => {
 
             <div>
               <Label htmlFor="password">
-                Password <span className="text-red-500">*</span>
+                Mật khẩu <span className="text-red-500">*</span>
               </Label>
               <div className="mt-1 relative">
                 <Input
@@ -255,7 +256,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className={errors.password ? "border-red-500 pr-10" : "pr-10"}
-                  placeholder="Password"
+                  placeholder="Mật khẩu "
                 />
                 <button
                   type="button"
@@ -314,7 +315,7 @@ const Register = () => {
             {/* Confirm Password */}
             <div>
               <Label htmlFor="confirmPassword">
-                Confirm Password <span className="text-red-500">*</span>
+                Xác nhận mật khẩu <span className="text-red-500">*</span>
               </Label>
               <div className="mt-1 relative">
                 <Input
@@ -327,7 +328,7 @@ const Register = () => {
                   className={
                     errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"
                   }
-                  placeholder="Confirm Password"
+                  placeholder="Xác nhận mật khẩu"
                 />
                 <button
                   style={{ zIndex: 10 }}
@@ -362,7 +363,7 @@ const Register = () => {
 
             <div>
               <Label htmlFor="phoneNumber">
-                PhoneNumber <span className="text-red-500">*</span>
+                Số điện thoại <span className="text-red-500">*</span>
               </Label>
               <div className="mt-1">
                 <Input
@@ -373,7 +374,7 @@ const Register = () => {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   className={errors.phoneNumber ? "border-red-500" : ""}
-                  placeholder="PhoneNumber"
+                  placeholder="Số điện thoại"
                 />
                 {errors.phoneNumber && (
                   <p className="mt-1 text-xs text-red-500">
@@ -397,7 +398,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className={errors.email ? "border-red-500" : ""}
-                  placeholder="Email"
+                  placeholder="Địa chỉ email"
                 />
                 {errors.email && (
                   <p className="mt-1 text-xs text-red-500">{errors.email}</p>
@@ -407,7 +408,7 @@ const Register = () => {
 
             <div>
               <Label htmlFor="gender">
-                Gender <span className="text-red-500">*</span>
+                Giới tính <span className="text-red-500">*</span>
               </Label>
               <div className="mt-1">
                 <Select
@@ -420,9 +421,9 @@ const Register = () => {
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Male</SelectItem>
-                    <SelectItem value="1">Female</SelectItem>
-                    <SelectItem value="2">Other</SelectItem>
+                    <SelectItem value="0">Nam</SelectItem>
+                    <SelectItem value="1">Nữ</SelectItem>
+                    <SelectItem value="2">Khác</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.gender && (
@@ -430,7 +431,30 @@ const Register = () => {
                 )}
               </div>
             </div>
-
+            <div>
+              <Label htmlFor="role">
+                Vai trò <span className="text-red-500">*</span>
+              </Label>
+              <div className="mt-1">
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => handleSelectChange("role", value)}
+                >
+                  <SelectTrigger
+                    className={errors.role ? "border-red-500" : ""}
+                  >
+                    <SelectValue placeholder="Chọn role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Khách hàng</SelectItem>
+                    <SelectItem value="1">Nhà thiết kế</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.role && (
+                  <p className="mt-1 text-xs text-red-500">{errors.role}</p>
+                )}
+              </div>
+            </div>
             <div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create account"}
