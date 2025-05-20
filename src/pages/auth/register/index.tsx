@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Apple, Check, Eye, EyeOff, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useAuthService from "@/services/AuthService";
 import { PATH } from "@/routes/path";
-import { toast } from "sonner";
-import { MESSAGE } from "@/constants";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register } = useAuthService();
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     password: "",
@@ -186,7 +181,7 @@ const Register = () => {
       gender: parseInt(formData.gender),
     };
     setIsLoading(true);
-    console.log('valuesSubmit: ', valuesSubmit)
+    console.log("valuesSubmit: ", valuesSubmit);
     // const response = await register(valuesSubmit);
     // console.log("formData: ", formData);
     // if (response) {
