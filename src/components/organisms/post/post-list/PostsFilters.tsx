@@ -6,6 +6,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchInput from "@/components/atoms/post/post-list/SearchInput";
 import FilterDropdown from "@/components/molecules/home/FilterDropdown";
 import { USER_ROUTES } from "@/routes/path";
+import {  useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 interface PostsFiltersProps {
   search: string;
@@ -76,12 +78,14 @@ export default function PostsFilters({
         <h1 className="text-2xl font-bold text-gray-900">
           Tài nguyên và Bài đăng
         </h1>
-        <Button
+        {
+         useCurrentUser().role === ROLE.CUSTOMER && <Button
           onClick={RedirectToCreatePostPage}
           className="bg-blue-600 hover:bg-blue-700"
         >
           Tạo bài đăng mới
         </Button>
+        }
       </div>
 
       <p className="text-gray-500">

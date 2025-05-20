@@ -1,7 +1,7 @@
 import type React from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatBankAccountNumber } from "@/components/utils";
+import { formatBankAccountNumber, formatCurrencyVND } from "@/components/utils";
 
 export interface WalletCardProps {
   balance: number;
@@ -31,10 +31,10 @@ export const WalletCard = ({
       <div className="flex flex-col h-full justify-between">
         <div className="space-y-1">
           <p className="text-xl font-medium">
-            Số dư ví: {balance.toLocaleString()} xu
+            Số dư ví: {formatCurrencyVND(balance)} 
           </p>
           <p className="text-xl font-medium">
-            Tạm giữ: {holdAmount.toLocaleString()} xu
+            Tạm giữ: {formatCurrencyVND(holdAmount)} 
           </p>
         </div>
 

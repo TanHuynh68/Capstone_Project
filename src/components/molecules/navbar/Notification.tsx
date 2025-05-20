@@ -5,11 +5,11 @@ import { useNotifications } from "@/hooks/use-notifications";
 import { Bell } from "lucide-react";
 
 const Notification = () => {
-  const { unreadCount } = useNotifications()
+  const { unreadCount } = useNotifications();
   return (
     <div>
       {/* Notification Icon */}
-      <NotificationDropdown >
+      <NotificationDropdown>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
@@ -17,14 +17,14 @@ const Notification = () => {
               variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
-              {unreadCount > 9 ? "9+" : unreadCount}
+              {unreadCount > 20 ? "20+" : unreadCount}
             </Badge>
           )}
           <span className="sr-only">Notifications</span>
         </Button>
       </NotificationDropdown>
     </div>
-  )
-}
+  );
+};
 
-export default Notification
+export default Notification;

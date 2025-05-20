@@ -5,8 +5,8 @@ export const bankCardSchema = z.object({
     .string()
     .min(1, { message: "Số tài khoản không được để trống" })
     .regex(/^\d+$/, { message: "Số tài khoản chỉ được chứa các chữ số" })
-    .min(12, { message: "Số tài khoản phải có 12 chữ số" })
-    .max(12, { message: "Số tài khoản không được vượt quá 12 chữ số" }),
+    .min(8, { message: "Số tài khoản phải có 12 chữ số" })
+    .max(16, { message: "Số tài khoản không được vượt quá 20 chữ số" }),
 
   bankName: z.string().min(1, { message: "Vui lòng chọn ngân hàng" }),
 

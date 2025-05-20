@@ -17,7 +17,8 @@ export const enum API_ENDPOINTS {
     CHANGE_ACTIVE = 'change-active',
     NOTIFICATION = 'notification',
     CANVAS = 'canvas',
-    REPUTATION = 'reputation'
+    REPUTATION = 'reputation',
+    CHAT = 'chat',
 }
 
 export enum API_ROUTES {
@@ -26,6 +27,8 @@ export enum API_ROUTES {
     GET_ADDRESSES = `${API_ENDPOINTS.ADDRESS}`,
     UPDATE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
     DELETE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
+
+
 
     //Manager user by staff
     // CREATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
@@ -37,9 +40,6 @@ export enum API_ROUTES {
     GET_WALLET_ORDER_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
     PUT_WALLET_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
     GET_QR_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
-
-
-
 
     GENERATE_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/generate-code`,
     REDEEM_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/redeem-code`,
@@ -77,8 +77,8 @@ export enum API_ROUTES {
     // Notification
     GET_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
     CREATE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
-    DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}`,
-
+    READ_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}/read`,
+    DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}/:id`,
     //Bank
     GET_BANKS = 'https://api.vietqr.io/v2/banks',
 
@@ -91,7 +91,7 @@ export enum API_ROUTES {
     //Canvas
     CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
     GET_CANVAS = `${API_ENDPOINTS.CANVAS}`,
-    
+
     //Reputation
     GET_REPUTATION = `${API_ENDPOINTS.REPUTATION}`,
     GET_REPUTATION_HISTORY = `${API_ENDPOINTS.REPUTATION}/history`,
@@ -100,4 +100,10 @@ export enum API_ROUTES {
     //Post
     CREATE_POST = 'project-post',
     GET_POSTS = 'project-posttoken?page=1&size=100',
+
+    //Chat
+    CREATE_CHAT = `${API_ENDPOINTS.CHAT}`,
+    CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
+    GET_MESSAGE = `${API_ENDPOINTS.CHAT}/message`,
+    GET_ROOMLIST = `${API_ENDPOINTS.CHAT}/room-list`,
 }
