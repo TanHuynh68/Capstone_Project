@@ -15,7 +15,7 @@ const useApiService = () => {
         let response;
 
         if (method === "get") {
-          response = await api.get(url, { params: data }); 
+          response = await api.get(url, { params: data });
         } else if (method === "post") {
           response = await api.post(url, data);
         } else if (method === "put") {

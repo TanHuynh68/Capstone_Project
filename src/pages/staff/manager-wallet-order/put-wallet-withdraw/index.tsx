@@ -167,6 +167,17 @@ const PutWalletWithdraw: React.FC<Props> = ({
           </label>
 
           <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const droppedFile = e.dataTransfer.files?.[0];
+              if (droppedFile) {
+                setFile(droppedFile);
+                const reader = new FileReader();
+                reader.onloadend = () => setPreviewUrl(reader.result as string);
+                reader.readAsDataURL(droppedFile);
+              }
+            }}
             className={`border-2 border-dashed rounded-lg p-4 transition-all ${
               previewUrl
                 ? "border-blue-400"
@@ -202,10 +213,10 @@ const PutWalletWithdraw: React.FC<Props> = ({
               <label className="flex flex-col items-center justify-center py-4 cursor-pointer">
                 <FileImage className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm font-medium text-gray-700">
-                  Chọn ảnh xác nhận
+                  Kéo & thả hoặc nhấn để chọn ảnh
                 </span>
                 <span className="text-xs text-gray-500 mt-1">
-                  Chỉ chấp nhận ảnh .jpg, .jpeg, .png dưới 1MB
+                  Chỉ .jpg, .jpeg, .png dưới 1MB
                 </span>
                 <input
                   type="file"
