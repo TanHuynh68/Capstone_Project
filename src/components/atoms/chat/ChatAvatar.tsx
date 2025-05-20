@@ -18,7 +18,7 @@ export default function ChatAvatar({ src, name, color, size = "md", className }:
   }
 
   const initials = name
-    .split(" ")
+    ?.split(" ")
     .map((n) => n[0])
     .join("")
 

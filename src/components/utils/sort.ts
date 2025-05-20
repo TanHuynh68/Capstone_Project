@@ -125,3 +125,14 @@ export const getUnique = <T, K extends keyof T>(list: T[], key: K): T[] => {
         return true;
     });
 };
+
+/**
+ * 
+ * @param arr 
+ * @returns 
+ */
+export function reverseArray<T>(arr: T[]): T[] {
+  return [...arr].reverse();
+}
+
+

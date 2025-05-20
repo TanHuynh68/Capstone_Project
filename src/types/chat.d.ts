@@ -1,22 +1,18 @@
 interface UserChat {
   id: string;
-  fullName: string;
-  avatar: string;
-  color: string;
-  status?: string;
+  chatRoomID: string;
+  account1ID: string;
+  account1Name: string;
+  account2ID: string;
+  account2Name: string;
+  updatedAt?: string;
+  avatar?: string;
 }
 
 interface Message {
-  id: string;
+  senderID: string;
   content: string;
-  timestamp: string;
-  senderId: string;
+  messageType: string;
+  sentAt: string;
 }
 
-interface Chat {
-  id: string;
-  users: UserChat[];
-  messages: Message[];
-  lastMessage?: string;
-  typing?: boolean;
-}

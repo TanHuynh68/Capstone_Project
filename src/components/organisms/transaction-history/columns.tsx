@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { WALLET_TRANSACTION_TYPE } from "@/constants"
+import { WALLET_TRANSACTION_V_TYPE } from "@/constants"
 import { getTransactionTypeName } from "@/components/utils/helpers"
 
 export const columns: ColumnDef<Transaction>[] = [
@@ -35,9 +35,9 @@ export const columns: ColumnDef<Transaction>[] = [
         <div className="flex items-center">
           <Badge
             variant={
-                type === WALLET_TRANSACTION_TYPE.Deposit+'' ||
-                type === WALLET_TRANSACTION_TYPE.Receive+'' ||
-                type === WALLET_TRANSACTION_TYPE.RefundDeposit+''
+                type === WALLET_TRANSACTION_V_TYPE.Deposit+'' ||
+                type === WALLET_TRANSACTION_V_TYPE.Receive+'' ||
+                type === WALLET_TRANSACTION_V_TYPE.RefundDeposit+''
                   ? "success"
                   : "default"
               }

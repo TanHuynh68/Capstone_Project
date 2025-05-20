@@ -20,6 +20,7 @@ export {
   debounce,
   getUnique,
   groupBy,
+  reverseArray
 } from "./sort";
 export {
   capitalizeWords,

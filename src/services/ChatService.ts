@@ -20,11 +20,11 @@ const ChatService = () => {
   );
 
   const getMessage = useCallback(
-    async (query: any) => {
+    async (chatRoomID: any) => {
       try {
         const res = await callApi(
           HTTP_METHOD.GET,
-          `${API_ROUTES.GET_MESSAGE}?chatRoomID=${query.chatRoomID}&page=1&size=100`
+          `${API_ROUTES.GET_MESSAGE}?chatRoomID=${chatRoomID}&page=1&size=100`
         );
         return res;
       } catch (err: any) {
@@ -51,12 +51,12 @@ const ChatService = () => {
   );
 
   const createChat = useCallback(
-    async (account2ID: string) => {
+    async (values: any) => {
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
           API_ROUTES.CREATE_CHAT,
-          account2ID
+          values
         );
         return res;
       } catch (err: any) {
