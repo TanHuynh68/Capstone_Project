@@ -45,6 +45,15 @@ export enum WALLET_TRANSACTION_TYPE {
   RefundDeposit = 5, // Hoàn cọc
 }
 
+export enum WALLET_TRANSACTION_V_TYPE {
+  Deposit = 'Deposit', // Nạp tiền
+  Withdraw = 'Withdraw', // Rút tiền
+  Transfer = 'Transfer', // Chuyển tiền
+  Receive = 'Receive', // Nhận tiền
+  PlaceDeposit = 'PlaceDeposit', // Đặt cọc
+  RefundDeposit = 'RefundDeposit', // Hoàn cọc
+}
+
 export enum NotificationType {
   ORDER = "order",
   PAYMENT = "payment",
