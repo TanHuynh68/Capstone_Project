@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants/message";
 import StaffService from "@/services/StaffService";
-import { User } from "@/types/user";
+
 import {
   Pagination,
   PaginationContent,
