@@ -6,5 +6,6 @@ export {
   HTTP_STATUS,
   WALLET_TRANSACTION_TYPE,
   MESSAGE_TYPE,
+  WALLET_TRANSACTION_V_TYPE
 } from "./enum";
 export { API_ENDPOINTS, API_ROUTES } from "./api";

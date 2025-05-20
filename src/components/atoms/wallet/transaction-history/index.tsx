@@ -3,7 +3,7 @@
 
 import { columns } from "@/components/organisms/transaction-history/columns"
 import { DataTable } from "@/components/organisms/transaction-history/data-table"
-import { WALLET_TRANSACTION_TYPE } from "@/constants"
+import { WALLET_TRANSACTION_V_TYPE } from "@/constants"
 import WalletService from "@/services/WalletService"
 import { useEffect, useState } from "react"
 
@@ -31,12 +31,12 @@ export default function TransactionHistory() {
 
     // Define filter options for transaction type
     const transactionTypeOptions = [
-        { label: "Nạp tiền", value: WALLET_TRANSACTION_TYPE.Deposit.toString() },
-        { label: "Rút tiền", value: WALLET_TRANSACTION_TYPE.Withdraw.toString() },
-        { label: "Chuyển tiền", value: WALLET_TRANSACTION_TYPE.Transfer.toString() },
-        { label: "Nhận tiền", value: WALLET_TRANSACTION_TYPE.Receive.toString() },
-        { label: "Đặt cọc", value: WALLET_TRANSACTION_TYPE.PlaceDeposit.toString() },
-        { label: "Hoàn cọc", value: WALLET_TRANSACTION_TYPE.RefundDeposit.toString() },
+        { label: "Nạp tiền", value: WALLET_TRANSACTION_V_TYPE.Deposit.toString() },
+        { label: "Rút tiền", value: WALLET_TRANSACTION_V_TYPE.Withdraw.toString() },
+        { label: "Chuyển tiền", value: WALLET_TRANSACTION_V_TYPE.Transfer.toString() },
+        { label: "Nhận tiền", value: WALLET_TRANSACTION_V_TYPE.Receive.toString() },
+        { label: "Đặt cọc", value: WALLET_TRANSACTION_V_TYPE.PlaceDeposit.toString() },
+        { label: "Hoàn cọc", value: WALLET_TRANSACTION_V_TYPE.RefundDeposit.toString() },
     ]
 
 

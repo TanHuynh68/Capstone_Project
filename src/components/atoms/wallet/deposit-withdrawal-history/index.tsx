@@ -19,6 +19,7 @@ export default function DepositWithdrawalHistory() {
     const getDepositWithDrawalHistory = async () => {
         const response = await getWalletOrder()
         if (response) {
+            console.log('response2: ', response)
             setData(response.responseRequestModel.responseList.items)
         }
     }

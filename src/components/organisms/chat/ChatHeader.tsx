@@ -11,7 +11,7 @@ export default function ChatHeader({ user }: ChatHeaderProps) {
 
   return (
     <div className="flex items-center justify-between border-b border-gray-800 p-4">
-      <UserHeader name={user.fullName} avatar={user.avatar || ''} color={user.color} status={user.status} />
+      <UserHeader name={user.account1Name} avatar={user.avatar || ''} />
       <div className="flex gap-1">
         <ChatButton>
           <Phone className="h-5 w-5" />

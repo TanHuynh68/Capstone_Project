@@ -6,12 +6,13 @@ import ChatButton from "@/components/atoms/chat/ChatButton"
 import ChatListItem from "@/components/molecules/chat/ChatListItem"
 
 interface ChatSidebarProps {
-  chats: Chat[]
+  users: UserChat[]
+  messages: Message[]
   activeChat: string
-  onSelectChat: (chatId: string) => void
+  onSelectChat: (chatRoomID: string) => void
 }
 
-export default function ChatSidebar({ chats, activeChat, onSelectChat }: ChatSidebarProps) {
+export default function ChatSidebar({ messages, users, onSelectChat }: ChatSidebarProps) {
   return (
     <div className="flex w-80 flex-col border-r border-gray-800">
       <div className="flex items-center justify-between border-b border-gray-800 p-4">
@@ -29,7 +30,7 @@ export default function ChatSidebar({ chats, activeChat, onSelectChat }: ChatSid
       </div>
 
       <div className="flex items-center justify-between p-4">
-        <h2 className="text-lg font-semibold">Cuộc trò chuyện ({chats.length})</h2>
+        <h2 className="text-lg font-semibold">Cuộc trò chuyện ({messages?.length})</h2>
         <div className="flex gap-2">
           <ChatButton>
             <span className="sr-only">Tùy chọn</span>
@@ -72,18 +73,14 @@ export default function ChatSidebar({ chats, activeChat, onSelectChat }: ChatSid
       </div>
 
       <ScrollArea className="flex-1">
-        {chats.map((chat) => {
-          const user = chat.users.find((u) => u.id !== "current-user")!
+        {users?.map((user) => {
           return (
             <ChatListItem
-              key={chat.id}
-              id={chat.id}
-              name={user.fullName}
-              avatar={user.avatar||""}
-              color={user.color||""}
-              lastMessage={chat.lastMessage || ""}
-              isActive={chat.id === activeChat}
-              onClick={() => onSelectChat(chat.id)}
+              key={user.chatRoomID}
+              id={user.chatRoomID}
+              name={user.account2Name}
+              avatar={""}
+              onClick={() => onSelectChat(user.chatRoomID)}
             />
           )
         })}

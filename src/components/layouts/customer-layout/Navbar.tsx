@@ -13,6 +13,7 @@ import UserOption from "@/components/atoms/navbar/UserOption";
 import UserAuth from "@/components/atoms/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
+import Message from "@/components/atoms/navbar/Message";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
@@ -94,7 +95,7 @@ export function Navbar() {
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}
           {isLoggedIn() && <Post />}
-
+          {isLoggedIn() && <Message />}
           {isLoggedIn() ? (
             <div className="relative hidden md:flex">
               <UserOption />
