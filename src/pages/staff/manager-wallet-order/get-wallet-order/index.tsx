@@ -19,7 +19,7 @@ import {
   DataTable,
   Column,
 } from "@/components/organisms/manager-withdrawal-by-staff";
-import { RefreshCw, Download, Search } from "lucide-react";
+import { RefreshCw, Download, Search, ImageIcon, XCircle } from "lucide-react";
 import PutWalletWithdraw from "../put-wallet-withdraw";
 import {
   Tooltip,
@@ -47,6 +47,14 @@ interface Props {
 }
 
 const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
+  const [qrResponseData, setQrResponseData] = useState<{
+    vietQrLink?: string;
+    sepayQrLink?: string;
+    balance?: number;
+    fullName?: string;
+    amount?: number;
+  } | null>(null);
+
   const [orders, setOrders] = useState<WalletOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -148,7 +156,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
     {
       header: "Số tiền",
       accessorKey: "amount",
-      cell: (row) => `${row.amount.toLocaleString()}₫`,
+      cell: (row) => `${row.amount.toLocaleString("vi-VN")} ₫`,
       sortable: true,
       className: "text-center",
     },
@@ -172,8 +180,8 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
             : status === "Completed"
             ? "bg-green-100 text-green-800"
             : status === "Canceled"
-            ? "bg-gray-200 text-gray-800"
-            : "bg-gray-100 text-gray-800";
+            ? "bg-red-200 text-red-800"
+            : "bg-red-100 text-red-800";
 
         return (
           <span
@@ -193,6 +201,76 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
       sortable: true,
       className: "text-center",
     },
+    // {
+    //   header: "Thao tác",
+    //   accessorKey: "walletOrderID",
+    //   className: "text-center",
+    //   cell: (row) => {
+    //     const isWithdraw = row.description?.toLowerCase().includes("rút");
+    //     const isPending = row.orderStatusDisplay === "Pending";
+
+    //     return isWithdraw && isPending ? (
+    //       <Button
+    //         variant="destructive"
+    //         size="sm"
+    //         onClick={() => handleShowWithdraw(row.walletOrderID)}
+    //       >
+    //         Hoàn tiền
+    //       </Button>
+    //     ) : null;
+    //   },
+    // },
+    // {
+    //   header: "Ghi chú",
+    //   className: "text-center",
+    //   cell: (row) => {
+    //     const hasImage = row.walletOrderImage || row.imageUrl;
+    //     const hasNote = row.walletOrderNote || row.note;
+
+    //     return hasImage || hasNote ? (
+    //       <Button
+    //         variant="outline"
+    //         size="sm"
+    //         onClick={() => {
+    //           toast.custom(
+    //             (t) => (
+    //               <div className="space-y-2 text-sm max-w-[280px] bg-white p-4 rounded-lg shadow-lg">
+    //                 {(row.walletOrderImage || row.imageUrl) && (
+    //                   <img
+    //                     src={row.walletOrderImage || row.imageUrl}
+    //                     alt="Ảnh minh chứng"
+    //                     className="w-full h-auto rounded-md border"
+    //                   />
+    //                 )}
+    //                 {(row.walletOrderNote || row.note) && (
+    //                   <div>
+    //                     <strong>Ghi chú:</strong>{" "}
+    //                     <p>{row.walletOrderNote || row.note}</p>
+    //                   </div>
+    //                 )}
+    //                 <div className="flex justify-end pt-1">
+    //                   <Button
+    //                     size="sm"
+    //                     onClick={() => toast.dismiss(t)}
+    //                     className="text-xs"
+    //                   >
+    //                     Đóng
+    //                   </Button>
+    //                 </div>
+    //               </div>
+    //             ),
+    //             {
+    //               duration: 10000,
+    //               position: "top-center",
+    //             }
+    //           );
+    //         }}
+    //       >
+    //         Xem
+    //       </Button>
+    //     ) : null;
+    //   },
+    // },
     {
       header: "Thao tác",
       accessorKey: "walletOrderID",
@@ -200,67 +278,151 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
       cell: (row) => {
         const isWithdraw = row.description?.toLowerCase().includes("rút");
         const isPending = row.orderStatusDisplay === "Pending";
-
-        return isWithdraw && isPending ? (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => handleShowWithdraw(row.walletOrderID)}
-          >
-            Hoàn tiền
-          </Button>
-        ) : null;
-      },
-    },
-    {
-      header: "Ghi chú",
-      className: "text-center",
-      cell: (row) => {
         const hasImage = row.walletOrderImage || row.imageUrl;
         const hasNote = row.walletOrderNote || row.note;
 
-        return hasImage || hasNote ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              toast.custom(
-                (t) => (
-                  <div className="space-y-2 text-sm max-w-[280px] bg-white p-4 rounded-lg shadow-lg">
-                    {(row.walletOrderImage || row.imageUrl) && (
-                      <img
-                        src={row.walletOrderImage || row.imageUrl}
-                        alt="Ảnh minh chứng"
-                        className="w-full h-auto rounded-md border"
-                      />
-                    )}
-                    {(row.walletOrderNote || row.note) && (
-                      <div>
-                        <strong>Ghi chú:</strong>{" "}
-                        <p>{row.walletOrderNote || row.note}</p>
+        if (isWithdraw && isPending) {
+          return (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleShowWithdraw(row.walletOrderID)}
+            >
+              Hoàn tiền
+            </Button>
+          );
+        }
+
+        if (hasImage || hasNote) {
+          return (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                toast.custom(
+                  (t) => {
+                    const statusMap: Record<string, string> = {
+                      Pending: "Chờ duyệt",
+                      Completed: "Hoàn tất",
+                      Canceled: "Đã hủy",
+                    };
+
+                    const statusDisplay =
+                      statusMap[row.orderStatusDisplay] ||
+                      row.orderStatusDisplay;
+
+                    return (
+                      <div className="bg-white rounded-xl shadow-xl border border-gray-300 max-w-md w-full p-6 relative font-mono">
+                        {/* Close button */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => toast.dismiss(t)}
+                          className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </Button>
+
+                        {/* Header */}
+                        <div className="text-center mb-4 border-b pb-2">
+                          <h2 className="text-xl font-bold text-gray-900">
+                            HÓA ĐƠN GIAO DỊCH
+                          </h2>
+                          <p className="text-xs text-gray-500">
+                            Ngày:{" "}
+                            {new Date(row.orderDate).toLocaleString("vi-VN")}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Mã giao dịch: {row.walletOrderID}
+                          </p>
+                        </div>
+
+                        {/* Body */}
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Họ tên:</span>
+                            <span className="font-semibold text-gray-800">
+                              {row.fullName}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Số tiền:</span>
+                            <span className="font-semibold text-gray-800">
+                              {row.amount.toLocaleString("vi-VN")} ₫
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Trạng thái:</span>
+                            <span
+                              className={
+                                row.orderStatusDisplay === "Completed"
+                                  ? "text-green-600 font-semibold"
+                                  : row.orderStatusDisplay === "Pending"
+                                  ? "text-yellow-600 font-semibold"
+                                  : "text-red-600 font-semibold"
+                              }
+                            >
+                              {statusDisplay}
+                            </span>
+                          </div>
+
+                          {row.description && (
+                            <div>
+                              <p className="text-gray-600 font-medium">
+                                Mô tả:
+                              </p>
+                              <p className="text-gray-700">{row.description}</p>
+                            </div>
+                          )}
+
+                          {row.note && (
+                            <div>
+                              <p className="text-gray-600 font-medium">
+                                Ghi chú:
+                              </p>
+                              <div className="bg-gray-50 border rounded px-3 py-2 text-gray-700 whitespace-pre-wrap">
+                                {row.note}
+                              </div>
+                            </div>
+                          )}
+
+                          {row.imageUrl && (
+                            <div className="pt-2">
+                              <p className="text-gray-600 font-medium mb-1 flex items-center gap-1">
+                                <ImageIcon className="w-4 h-4" />
+                                Ảnh minh chứng
+                              </p>
+                              <div className="overflow-hidden border rounded-lg">
+                                <img
+                                  src={row.imageUrl}
+                                  alt="Ảnh minh chứng"
+                                  className="w-full object-contain max-h-60 hover:scale-105 transition-transform duration-300 cursor-zoom-in"
+                                />
+                              </div>
+                              {/* <p className="text-xs text-gray-400 text-center mt-1">
+                                * Di chuột để phóng to ảnh
+                              </p> */}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    <div className="flex justify-end pt-1">
-                      <Button
-                        size="sm"
-                        onClick={() => toast.dismiss(t)}
-                        className="text-xs"
-                      >
-                        Đóng
-                      </Button>
-                    </div>
-                  </div>
-                ),
-                {
-                  duration: 10000,
-                  position: "top-center",
-                }
-              );
-            }}
-          >
-            Xem
-          </Button>
-        ) : null;
+                    );
+                  },
+                  {
+                    duration: 20000,
+                    position: "top-center",
+                  }
+                );
+              }}
+            >
+              Xem hóa đơn
+            </Button>
+          );
+        }
+
+        return null;
       },
     },
   ];
@@ -290,12 +452,25 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
     try {
       const res = await getQRWithdrawByStaff({ walletOrderID });
       const links = res?.responseRequestModel;
-      if (links?.vietQrLink && links?.sepayQrLink) {
+      const order = orders.find((o) => o.walletOrderID === walletOrderID);
+
+      if (links) {
         setQrLinks({
           vietQrLink: links.vietQrLink,
           sepayQrLink: links.sepayQrLink,
         });
-        setQrImage(links.vietQrLink);
+
+        if (links.vietQrLink || links.sepayQrLink) {
+          setQrImage(links.vietQrLink || links.sepayQrLink);
+        } else {
+          setQrImage(null);
+        }
+
+        setQrResponseData({
+          ...links,
+          fullName: order?.fullName,
+          amount: order?.amount,
+        });
         setSelectedOrderId(walletOrderID);
       }
     } catch {
@@ -413,66 +588,90 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
                     <h3 className="text-lg font-semibold text-gray-800">
                       Mã QR hoàn tiền
                     </h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        qrImage === qrLinks.vietQrLink
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {qrImage === qrLinks.vietQrLink ? "VietQR" : "SePay QR"}
-                    </span>
+                    {qrImage && (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          qrImage === qrLinks.vietQrLink
+                            ? "bg-red-100 text-red-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {qrImage === qrLinks.vietQrLink ? "VietQR" : "SePayQR"}
+                      </span>
+                    )}
                   </div>
                   <div className="relative mb-6">
                     <div className="relative aspect-square w-full overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-2 shadow-sm">
-                      <img
-                        src={qrImage ?? ""}
-                        alt="QR Code"
-                        className="h-full w-full object-contain"
-                        onError={() => {
-                          if (
-                            qrLinks?.sepayQrLink &&
-                            qrImage !== qrLinks.sepayQrLink
-                          ) {
-                            setQrImage(qrLinks.sepayQrLink);
-                          }
-                        }}
-                      />
+                      {qrImage ? (
+                        <img
+                          src={qrImage}
+                          alt="QR Code"
+                          className="h-full w-full object-contain"
+                          onError={() => {
+                            if (
+                              qrLinks?.sepayQrLink &&
+                              qrImage !== qrLinks.sepayQrLink
+                            ) {
+                              setQrImage(qrLinks.sepayQrLink);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full w-full text-center text-sm text-red-600 p-4">
+                          {/* Không thể tạo mã QR.
+                          <br /> */}
+                          Vui lòng kiểm tra số dư.
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex w-full gap-3">
-                    <button
-                      onClick={() => {
-                        setQrImage(
-                          qrImage === qrLinks.vietQrLink
-                            ? qrLinks.sepayQrLink
-                            : qrLinks.vietQrLink
-                        );
-                      }}
-                      className="flex-1 flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      {qrImage === qrLinks.vietQrLink ? "SePay QR" : "VietQR"}
-                    </button>
+                    {qrImage && (
+                      <div className="flex w-full gap-3">
+                        <button
+                          onClick={() => {
+                            setQrImage(
+                              qrImage === qrLinks?.vietQrLink
+                                ? qrLinks?.sepayQrLink
+                                : qrLinks?.vietQrLink
+                            );
+                          }}
+                          className="flex-1 flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                        >
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          {qrImage === qrLinks?.vietQrLink
+                            ? "SePayQR"
+                            : "VietQR"}
+                        </button>
 
-                    <button
-                      onClick={() => {
-                        if (qrImage) {
-                          // Create a temporary anchor element
-                          const a = document.createElement("a");
-                          a.href = qrImage;
-                          a.download = "qr-code.png";
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                        }
-                      }}
-                      className="flex-1 flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Tải xuống
-                    </button>
+                        <button
+                          onClick={() => {
+                            if (qrImage) {
+                              fetch(qrImage)
+                                .then((res) => res.blob())
+                                .then((blob) => {
+                                  const url = URL.createObjectURL(blob);
+                                  const a = document.createElement("a");
+                                  a.href = url;
+                                  a.download = "qr-code.png";
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  a.remove();
+                                  URL.revokeObjectURL(url);
+                                })
+                                .catch((err) => {
+                                  console.error("Lỗi khi tải ảnh:", err);
+                                });
+                            }
+                          }}
+                          className="flex-1 flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Tải xuống
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-6 rounded-lg bg-blue-50 p-4 border border-blue-100">
@@ -491,8 +690,8 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
 
               {/* Refund Information Section */}
               <div className="bg-gray-50 p-6 md:p-8 md:w-3/5">
-                <div className="max-w-lg mx-auto">
-                  <div className="flex items-center justify-between mb-6">
+                {/* <div className="max-w-lg mx-auto"> */}
+                {/* <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-gray-900">
                       Thông tin hoàn tiền
                     </h2>
@@ -519,19 +718,26 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
                         </span>
                       </div>
                     </div>
-                  </div>
-                  {/* Form xác nhận */}
-                  <div className="border-t border-gray-200 pt-6">
-                    <PutWalletWithdraw
-                      walletOrderID={selectedOrderId}
-                      onSuccess={() => {
-                        fetchWalletOrders();
-                        setSelectedOrderId(null);
-                      }}
-                      onClose={() => setSelectedOrderId(null)}
-                    />
-                  </div>
+                  </div> */}
+                {/* Form xác nhận */}
+                <div>
+                  <PutWalletWithdraw
+                    walletOrderID={selectedOrderId}
+                    responseData={qrResponseData || undefined}
+                    qrImage={qrImage}
+                    qrLinks={qrLinks}
+                    onSuccess={() => {
+                      fetchWalletOrders();
+                      setSelectedOrderId(null);
+                      setQrResponseData(null); // reset để tránh dùng data cũ
+                    }}
+                    onClose={() => {
+                      setSelectedOrderId(null);
+                      setQrResponseData(null);
+                    }}
+                  />
                 </div>
+                {/* </div> */}
               </div>
             </div>
           )}
