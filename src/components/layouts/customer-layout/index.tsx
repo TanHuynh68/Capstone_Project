@@ -10,11 +10,13 @@ const CustomerLayout = () => {
 
     return (
         <div className=" ">
-            <div className="border-b ">
+          {
+             !hideFooter && <div className="border-b ">
                 <div className="container mx-auto">
                     <Navbar />
                 </div>
             </div>
+          }
             <div className="">
                 <Outlet />
             </div>
