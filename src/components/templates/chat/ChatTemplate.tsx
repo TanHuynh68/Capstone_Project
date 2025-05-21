@@ -16,7 +16,7 @@ export default function ChatTemplate({ message, users, chatRoomID, onSelectChat,
   const currentChatUser = users[0]
  console.log('messages: ', message)
   return (
-    <div className="flex w-full h-screen  overflow-y-auto overflow-hidden border border-gray-800 bg-black text-white">
+    <div className="flex w-full h-screen overflow-y-auto overflow-hidden border border-gray-800 bg-black text-white">
       <ChatSidebar users={users} messages={message} activeChat={chatRoomID} onSelectChat={onSelectChat} />
 
       <div className="flex flex-1 flex-col">
