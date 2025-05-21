@@ -10,7 +10,7 @@ const Chat = () => {
   const [chats, setChats] = useState<Message[]>([]);
   const { getRoomList, getMessage, createChat } = ChatService();
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
-
+  const [shouldScroll, setShouldScroll] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Khi isChatOpen thay đổi, thay đổi overflow của body
@@ -38,7 +38,6 @@ const Chat = () => {
     const interval = setInterval(() => {
       getMessageOfChat();
     }, 1000);
- 
 
     return () => clearInterval(interval); // dọn dẹp khi chatRoomID thay đổi hoặc component unmount
   }, [chatRoomID]);
@@ -55,7 +54,7 @@ const Chat = () => {
     if (usersNeedToChat.length != 0) {
       const response = await getMessage(chatRoomID);
       if (response) {
-        setIsChatOpen(true)
+        setIsChatOpen(true);
         const sortDes: Message[] = reverseArray(
           response.responseRequestModel.responseList.items
         );
@@ -65,6 +64,7 @@ const Chat = () => {
   };
 
   const handleSendMessage = async (values: any) => {
+    setShouldScroll(true);
     console.log("values: ", values);
     const valuesSubmit = {
       roomChatID: chatRoomID,
@@ -78,9 +78,11 @@ const Chat = () => {
       getMessageOfChat();
     }
   };
-  
+
   return (
     <ChatTemplate
+      setShouldScroll={setShouldScroll}
+      shouldScrollToBottom={shouldScroll}
       message={chats}
       users={usersNeedToChat}
       chatRoomID={chatRoomID}

@@ -32,12 +32,12 @@ export default function ChatMessage({
       )}
       <div
         className={cn(
-          "max-w-[70%] rounded-lg px-4 py-2",
-          senderID === user.id ? "bg-white text-black" : "bg-gray-800"
+          "max-w-[70%] rounded-lg px-2 py-1",
+          senderID === user.id ? "bg-blue-500 text-white" : "bg-gray-800"
         )}
       >
         <p>{content}</p>
-        <ChatTime time={timestamp} isCurrentUser={senderID === user.id} />
+        <ChatTime className="text-white" time={timestamp} isCurrentUser={senderID === user.id} />
       </div>
       {senderID === user.id && (
         <ChatAvatar

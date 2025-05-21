@@ -15,7 +15,7 @@ interface ChatSidebarProps {
 export default function ChatSidebar({ messages, users, onSelectChat }: ChatSidebarProps) {
   return (
     <div className="flex w-80 flex-col border-r border-gray-800">
-      <div className="flex items-center justify-between border-b border-gray-800 p-4">
+      <div className="flex items-center justify-between border-b border-gray-800 p-4 sticky top-0 z-10 bg-gray-950">
         <h1 className="text-xl font-bold text-indigo-400">Trò Chuyện</h1>
         <div className="flex gap-2">
           <ChatButton>

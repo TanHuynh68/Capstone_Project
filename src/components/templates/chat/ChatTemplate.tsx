@@ -1,31 +1,58 @@
-import ChatSidebar from "@/components/organisms/chat/ChatSidebar"
-import ChatHeader from "@/components/organisms/chat/ChatHeader"
-import MessageList from "@/components/organisms/chat/MessageList"
-import MessageComposer from "@/components/molecules/chat/MessageComposer"
+import ChatSidebar from "@/components/organisms/chat/ChatSidebar";
+import ChatHeader from "@/components/organisms/chat/ChatHeader";
+import MessageList from "@/components/organisms/chat/MessageList";
+import MessageComposer from "@/components/molecules/chat/MessageComposer";
 
 interface ChatTemplateProps {
-  message: Message[]
-  users: UserChat[]
-  chatRoomID: string
-  onSelectChat: (chatRoomID: string) => void
-  onSendMessage: (message: string) => void
+  setShouldScroll: any;
+  message: Message[];
+  users: UserChat[];
+  chatRoomID: string;
+  onSelectChat: (chatRoomID: string) => void;
+  onSendMessage: (message: string) => void;
+  shouldScrollToBottom: boolean;
 }
 
-export default function ChatTemplate({ message, users, chatRoomID, onSelectChat, onSendMessage }: ChatTemplateProps) {
-  console.log('users: ', users)
-  const currentChatUser = users[0]
- console.log('messages: ', message)
+export default function ChatTemplate({
+  message,
+  users,
+  chatRoomID,
+  onSelectChat,
+  onSendMessage,
+  shouldScrollToBottom,
+  setShouldScroll
+}: ChatTemplateProps) {
+  const currentChatUser = users[0];
+
   return (
-    <div className="flex w-full h-screen overflow-y-auto overflow-hidden border border-gray-800 bg-black text-white">
-      <ChatSidebar users={users} messages={message} activeChat={chatRoomID} onSelectChat={onSelectChat} />
+    <div className="flex  w-full h-screen  overflow-hidden border border-gray-800 bg-gray-950 text-white">
+      <ChatSidebar
+        users={users}
+        messages={message}
+        activeChat={chatRoomID}
+        onSelectChat={onSelectChat}
+      />
 
       <div className="flex flex-1 flex-col">
-        <ChatHeader  user={currentChatUser} />
+        <div className="sticky top-0 z-10 bg-gray-950">
+          <ChatHeader user={currentChatUser} />
+        </div>
 
-        {currentChatUser && <MessageList messages={message} users={users.filter(item=>item.chatRoomID===chatRoomID )} />}
+        {currentChatUser && (
+          <div className="overflow-y-auto">
+            <MessageList
+            setShouldScroll={setShouldScroll}
+              shouldScrollToBottom={shouldScrollToBottom}
+              messages={message}
+              users={users.filter((item) => item.chatRoomID === chatRoomID)}
+            />
+          </div>
+        )}
 
-        <MessageComposer onSendMessage={onSendMessage} />
+        <div className="sticky bottom-0 z-10 bg-gray-950">
+          <MessageComposer onSendMessage={onSendMessage} />
+        </div>
       </div>
     </div>
-  )
+  );
 }
