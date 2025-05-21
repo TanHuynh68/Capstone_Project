@@ -20,7 +20,6 @@ export default function ChatTemplate({
   onSelectChat,
   onSendMessage,
   shouldScrollToBottom,
-  setShouldScroll
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
 
@@ -41,7 +40,6 @@ export default function ChatTemplate({
         {currentChatUser && (
           <div className="overflow-y-auto">
             <MessageList
-            setShouldScroll={setShouldScroll}
               shouldScrollToBottom={shouldScrollToBottom}
               messages={message}
               users={users.filter((item) => item.chatRoomID === chatRoomID)}
