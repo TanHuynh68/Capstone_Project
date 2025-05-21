@@ -1,28 +1,31 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "@/components/molecules/chat/ChatMessage";
 import { useEffect, useRef } from "react";
+import LoadingSpinner from "@/components/atoms/loading-spinner/LoadingSpinner";
 
 interface MessageListProps {
   messages: Message[];
   users: UserChat[];
   shouldScrollToBottom: boolean;
-  setShouldScroll: any;
 }
 
 export default function MessageList({
   messages,
   users,
   shouldScrollToBottom,
-  setShouldScroll,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (shouldScrollToBottom) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      setShouldScroll(false)
     }
+   
   }, [messages, shouldScrollToBottom]); // Theo dõi mảng messages
+
+  if (messages.length === 0) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <ScrollArea className="flex-1 p-4 ">

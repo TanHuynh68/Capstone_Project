@@ -22,7 +22,6 @@ const Chat = () => {
       // Bật lại scroll trang
       document.body.style.overflow = "";
     }
-
     // Cleanup khi component unmount hoặc isChatOpen thay đổi
     return () => {
       document.body.style.overflow = "";
@@ -41,12 +40,17 @@ const Chat = () => {
 
     return () => clearInterval(interval); // dọn dẹp khi chatRoomID thay đổi hoặc component unmount
   }, [chatRoomID]);
-
+  console.log("chatRoomID: ", chatRoomID);
   //api
   const getUsersNeedToChat = async () => {
     const response = await getRoomList();
     if (response) {
       setUsersNeedToChat(response.responseRequestModel.chatRooms);
+      console.log(
+        "getUsersNeedToChat: ",
+        response.responseRequestModel.chatRooms
+      );
+      setChatRoomId(response.responseRequestModel.chatRooms[0].chatRoomID);
     }
   };
 
@@ -76,6 +80,7 @@ const Chat = () => {
     console.log("createChat: ", response);
     if (response) {
       getMessageOfChat();
+      setTimeout(() => setShouldScroll(false), 100);
     }
   };
 
