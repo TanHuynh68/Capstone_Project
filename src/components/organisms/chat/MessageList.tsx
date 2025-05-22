@@ -7,12 +7,14 @@ interface MessageListProps {
   messages: Message[];
   users: UserChat[];
   shouldScrollToBottom: boolean;
+  loadingMessage: boolean;
 }
 
 export default function MessageList({
   messages,
   users,
   shouldScrollToBottom,
+  loadingMessage,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState<number>(0);
@@ -32,7 +34,17 @@ export default function MessageList({
   }, [messages, shouldScrollToBottom]); // Theo dõi mảng messages
 
   if (messages.length === 0) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <div>Chưa có tính nhắn nào</div>
+      </div>
+    );
+  }
+
+  if (loadingMessage) {
+    return (
+      <LoadingSpinner/>
+    );
   }
 
   return (

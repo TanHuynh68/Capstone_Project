@@ -11,6 +11,7 @@ interface ChatTemplateProps {
   onSelectChat: (chatRoomID: string) => void;
   onSendMessage: (message: string) => void;
   shouldScrollToBottom: boolean;
+  loadingMessage: boolean
 }
 
 export default function ChatTemplate({
@@ -20,6 +21,7 @@ export default function ChatTemplate({
   onSelectChat,
   onSendMessage,
   shouldScrollToBottom,
+  loadingMessage,
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
 
@@ -40,8 +42,9 @@ export default function ChatTemplate({
         </div>
 
         {currentChatUser && (
-          <div className="overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             <MessageList
+            loadingMessage={loadingMessage}
               shouldScrollToBottom={shouldScrollToBottom}
               messages={message}
               users={users.filter((item) => item.chatRoomID === chatRoomID)}
