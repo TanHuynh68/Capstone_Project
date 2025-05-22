@@ -32,6 +32,13 @@ const Chat = () => {
     getUsersNeedToChat();
   }, []);
 
+  // useEffect(() => {
+  //  if(chats.length != 0){
+  //   setShouldScroll(true)
+  //   setTimeout(()=>(setShouldScroll(false), 1000))
+  //  }
+  // }, [chats]);
+
   useEffect(() => {
     if (!chatRoomID) return;
     const interval = setInterval(() => {
@@ -46,10 +53,6 @@ const Chat = () => {
     const response = await getRoomList();
     if (response) {
       setUsersNeedToChat(response.responseRequestModel.chatRooms);
-      console.log(
-        "getUsersNeedToChat: ",
-        response.responseRequestModel.chatRooms
-      );
       setChatRoomId(response.responseRequestModel.chatRooms[0].chatRoomID);
     }
   };
@@ -69,15 +72,12 @@ const Chat = () => {
 
   const handleSendMessage = async (values: any) => {
     setShouldScroll(true);
-    console.log("values: ", values);
     const valuesSubmit = {
       roomChatID: chatRoomID,
       message: values,
       messageType: 0,
     };
-    console.log("valuesSubmit: ", valuesSubmit);
     const response = await createChat(valuesSubmit);
-    console.log("createChat: ", response);
     if (response) {
       getMessageOfChat();
       setTimeout(() => setShouldScroll(false), 100);
