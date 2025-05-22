@@ -185,3 +185,20 @@ export function formatFullDateWithDistance(isoString: string) {
 
     return `${formatted} (${relative})`;
 }
+
+export function formatFullDateWithDistance2(isoString: string) {
+    const createdAt = new Date(isoString);
+
+    const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
+    const now = new Date();
+
+    const finalTime = corrected > now ? now : corrected;
+
+    const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
+    // const relative = formatDistanceToNow(finalTime, {
+    //     addSuffix: true,
+    //     locale: vi,
+    // });
+
+    return `${formatted} `;
+}
