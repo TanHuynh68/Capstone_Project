@@ -22,7 +22,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
           <p className="text-sm font-medium">Dòng mỗi trang</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
+            onValueChange={(value: any) => {
               table.setPageSize(Number(value))
             }}
           >

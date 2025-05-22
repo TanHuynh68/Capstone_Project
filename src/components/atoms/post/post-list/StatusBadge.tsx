@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 
 interface StatusBadgeProps {
-  status: number
+  status: any
   className?: string
 }
 

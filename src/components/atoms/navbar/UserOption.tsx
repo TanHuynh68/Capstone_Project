@@ -48,6 +48,11 @@ const UserOption = () => {
             Ví
           </Link>
         </DropdownMenuItem>
+         <DropdownMenuItem>
+          <Link to={USER_ROUTES.MY_POST_PAGE} className="w-full">
+            Bài đăng của tôi
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             dispatch(logout());
