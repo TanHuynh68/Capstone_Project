@@ -12,7 +12,7 @@ const Chat = () => {
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-
+  const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
   // Khi isChatOpen thay đổi, thay đổi overflow của body
   useEffect(() => {
     if (isChatOpen) {
@@ -32,6 +32,13 @@ const Chat = () => {
     getUsersNeedToChat();
   }, []);
 
+  // useEffect(() => {
+  //  if(chats.length != 0){
+  //   setShouldScroll(true)
+  //   setTimeout(()=>(setShouldScroll(false), 1000))
+  //  }
+  // }, [chats]);
+
   useEffect(() => {
     if (!chatRoomID) return;
     const interval = setInterval(() => {
@@ -46,10 +53,6 @@ const Chat = () => {
     const response = await getRoomList();
     if (response) {
       setUsersNeedToChat(response.responseRequestModel.chatRooms);
-      console.log(
-        "getUsersNeedToChat: ",
-        response.responseRequestModel.chatRooms
-      );
       setChatRoomId(response.responseRequestModel.chatRooms[0].chatRoomID);
     }
   };
@@ -65,19 +68,17 @@ const Chat = () => {
         setChats(sortDes);
       }
     }
+    setLoadingMessage(false);
   };
 
   const handleSendMessage = async (values: any) => {
     setShouldScroll(true);
-    console.log("values: ", values);
     const valuesSubmit = {
       roomChatID: chatRoomID,
       message: values,
       messageType: 0,
     };
-    console.log("valuesSubmit: ", valuesSubmit);
     const response = await createChat(valuesSubmit);
-    console.log("createChat: ", response);
     if (response) {
       getMessageOfChat();
       setTimeout(() => setShouldScroll(false), 100);
@@ -86,6 +87,7 @@ const Chat = () => {
 
   return (
     <ChatTemplate
+      loadingMessage={loadingMessage}
       setShouldScroll={setShouldScroll}
       shouldScrollToBottom={shouldScroll}
       message={chats}
