@@ -1,7 +1,8 @@
-// components/posts/organisms/posts-table-columns.tsx
-import { ColumnDef } from "@tanstack/react-table";
+"use client";
+
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,46 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AvatarWithFallback } from "@/components/atoms/post/post-of-customer/AvatarWithFallback";
-// import { StatusBadge } from "@/components/atoms/post/post-of-customer/Badge";
+// import { StatusBadge } from "@/components/atoms/post/post-of-customer/Badge"
 import { PriceFormatter } from "@/components/atoms/post/post-of-customer/PriceFormatter";
 import { DateFormatter } from "@/components/atoms/post/post-of-customer/DateFormatter";
 
-export const columns: ColumnDef<Post>[] = [
-  {
-    accessorKey: "avatar",
-    header: "Ảnh đại diện",
-    cell: ({ row }) => {
-      const fullName = row.getValue("fullName") as string | null;
-      const avatar = row.getValue("avatar") as string | null;
-      
-      return (
-        <AvatarWithFallback
-          src={avatar}
-          alt={fullName || "Người dùng"}
-          fallbackText={fullName || undefined}
-        />
-      );
-    },
-  },
-  {
-    accessorKey: "fullName",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Tên người dùng
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const fullName = row.getValue("fullName") as string | null;
-      return <div>{fullName || "Chưa có tên"}</div>;
-    },
-  },
+// Thêm prop onDeletePost để xử lý sự kiện xóa
+interface PostsTableColumnsProps {
+  onDeletePost: (post: Post) => void;
+}
+
+export const getColumns = ({
+  onDeletePost,
+}: PostsTableColumnsProps): ColumnDef<Post>[] => [
   {
     accessorKey: "title",
     header: ({ column }) => {
@@ -174,10 +147,10 @@ export const columns: ColumnDef<Post>[] = [
     id: "actions",
     cell: ({ row }) => {
       const post = row.original;
-
+      console.log('post: ', post)
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger >
+          <DropdownMenuTrigger>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Mở menu</span>
               <MoreHorizontal className="h-4 w-4" />
@@ -194,7 +167,12 @@ export const columns: ColumnDef<Post>[] = [
             <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
             <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => onDeletePost(post)}
+            >
+              Xóa
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

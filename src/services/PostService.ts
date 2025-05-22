@@ -103,7 +103,23 @@ const PostService = () => {
     },
     [callApi]
   );
-  return { createPost, getPosts, getMyPosts };
+
+  const deletePost = useCallback(
+    async (id: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.DELETE,
+          `${API_ROUTES.DELETE_POST}`,
+         { projectPostID: id}
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  return { createPost, getPosts, getMyPosts, deletePost };
 };
 
 export default PostService;

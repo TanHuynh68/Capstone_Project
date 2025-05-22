@@ -98,6 +98,7 @@ export enum API_ROUTES {
   CREATE_POST = "project-post",
   GET_MY_POSTS = "project-post/token?page=1&size=100",
   GET_POSTS = "project-post?page=1&size=100",
+  DELETE_POST = "project-post",
   //Chat
   CREATE_CHAT = `${API_ENDPOINTS.CHAT}`,
   CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
