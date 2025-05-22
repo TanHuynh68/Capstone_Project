@@ -22,6 +22,7 @@ export enum USER_ROUTES {
   CONTACT_PAGE = "contact",
   POST_PAGE = "post",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
+  MY_POST_PAGE = "my-post",
 }
 
 export enum AUTH_ROUTES {

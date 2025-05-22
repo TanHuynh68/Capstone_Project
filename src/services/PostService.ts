@@ -27,6 +27,21 @@ const PostService = () => {
     [callApi]
   );
 
+  const getMyPosts = useCallback(
+    async () => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_MY_POSTS
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   const getPosts = useCallback(
     async (params: any) => {
       try {
@@ -88,7 +103,7 @@ const PostService = () => {
     },
     [callApi]
   );
-  return { createPost, getPosts };
+  return { createPost, getPosts, getMyPosts };
 };
 
 export default PostService;
