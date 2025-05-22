@@ -94,7 +94,7 @@ export function Navbar() {
           <ThemeToggle />
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}
-          {isLoggedIn() && <Post />}
+          {<Post />}
           {isLoggedIn() && <Message />}
           {isLoggedIn() ? (
             <div className="relative hidden md:flex">

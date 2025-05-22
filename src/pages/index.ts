@@ -20,3 +20,4 @@ export { default as ContactPage } from "./general/contact";
 export { default as PostFormPage } from "./customer/upload-post";
 export { default as ErrorPage } from "./error";
 export { default as PostPage } from "./post-list";
+export { default as CustomerManagePost } from "./customer/manage-post";
