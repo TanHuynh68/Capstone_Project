@@ -12,7 +12,7 @@ const Chat = () => {
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-
+  const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
   // Khi isChatOpen thay đổi, thay đổi overflow của body
   useEffect(() => {
     if (isChatOpen) {
@@ -68,6 +68,7 @@ const Chat = () => {
         setChats(sortDes);
       }
     }
+    setLoadingMessage(false);
   };
 
   const handleSendMessage = async (values: any) => {
@@ -86,6 +87,7 @@ const Chat = () => {
 
   return (
     <ChatTemplate
+      loadingMessage={loadingMessage}
       setShouldScroll={setShouldScroll}
       shouldScrollToBottom={shouldScroll}
       message={chats}
