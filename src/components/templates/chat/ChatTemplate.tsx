@@ -34,7 +34,9 @@ export default function ChatTemplate({
 
       <div className="flex flex-1 flex-col">
         <div className="sticky top-0 z-10 bg-gray-950">
-          <ChatHeader user={currentChatUser} />
+         {
+         currentChatUser&&  <ChatHeader user={users.filter((item) => item.chatRoomID === chatRoomID)} />
+         }
         </div>
 
         {currentChatUser && (

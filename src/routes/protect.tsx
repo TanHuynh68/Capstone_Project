@@ -15,7 +15,8 @@ export const ProtectedRouteByRole: React.FC<ProtectedRouteByRoleProps> = ({
   allowedRoles,
 }) => {
   const user = useCurrentUser();
-  if (!user) {
+  console.log('user: ', user)
+  if (user.role === '') {
     toast.info("Bạn cần đăng nhập trước");
     return <Navigate to={PATH.LOGIN_IN} replace />;
   }
