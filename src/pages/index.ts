@@ -1,4 +1,4 @@
-export { default as HomePage } from "./home";
+export { default as HomePage } from "./general/home";
 export { default as AdminDashboard } from "./admin/dashboard";
 export { default as LoginPage } from "./auth/login";
 export { default as RegisterPage } from "./auth/register";
@@ -19,5 +19,6 @@ export { default as AboutPage } from "./general/about";
 export { default as ContactPage } from "./general/contact";
 export { default as PostFormPage } from "./customer/upload-post";
 export { default as ErrorPage } from "./error";
-export { default as PostPage } from "./post-list";
+export { default as PostPage } from "./general/post/post-list";
 export { default as CustomerManagePost } from "./customer/manage-post";
+export { default as PostDetailPage } from "./general/post/post-detail";

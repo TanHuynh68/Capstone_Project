@@ -20,7 +20,7 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="outline" size="sm" className="ml-auto h-8 flex">
           <SlidersHorizontal className="mr-2 h-4 w-4" />
           Hiển thị

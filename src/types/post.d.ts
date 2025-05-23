@@ -1,4 +1,5 @@
 interface Post {
+  accountID: string;
   projectPostID: string;
   title: string;
   description: string;
@@ -9,6 +10,15 @@ interface Post {
   createdAt: string;
   endAt: string;
   postStatus: string;
+  originalImage: ProjectImage;
+  requestedImages: ProjectImage[];
+}
+
+interface ProjectImage {
+  projectImageID: string;
+  imageUrl: string;
+  imageType: "Original" | "Requested";
+  createdBy: string;
 }
 
 interface PostsResponse {
