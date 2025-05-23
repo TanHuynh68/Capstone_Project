@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import HomeCarousel from "@/components/molecules/home/HomeCarousel";
 import Introduce from "@/components/organisms/introduce/Introduce";
-import SuccessLoginModal from "../auth/login-modal";
 import HomeTemplate from "@/components/templates/home/HomeTemplate";
+import SuccessLoginModal from "@/pages/auth/login-modal";
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
 

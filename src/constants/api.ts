@@ -26,21 +26,17 @@ export enum API_ROUTES {
   GET_ADDRESSES = `${API_ENDPOINTS.ADDRESS}`,
   UPDATE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
   DELETE_ADDRESS = `${API_ENDPOINTS.ADDRESS}/:id`,
-
   //Manager user by staff
   // CREATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
   GET_USERES = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}`,
   UPDATE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.CHANGE_ACTIVE}`,
   // DELETE_USER = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.ACCOUNT}/${API_ENDPOINTS.USER}/:id`,
-
   //Manager wallet order by staff
   GET_WALLET_ORDER_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/order`,
   PUT_WALLET_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
   GET_QR_WITHDRAW_BY_STAFF = `${ROLE_ON_LINK.STAFF}/${API_ENDPOINTS.WALLET}/withdraw`,
-
   GENERATE_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/generate-code`,
   REDEEM_ADDRESS_CODE = `${API_ENDPOINTS.ADDRESS}/redeem-code`,
-
   // Auth APIs
   SIGN_IN = `${API_ENDPOINTS.AUTH}/sign-in`,
   SIGN_UP = `${API_ENDPOINTS.AUTH}/sign-up`,
@@ -48,10 +44,8 @@ export enum API_ROUTES {
   CHANGE_PASSWORD = `${API_ENDPOINTS.AUTH}/change-password`,
   VERIFY_ACCOUNT = `${API_ENDPOINTS.AUTH}/verify-account`,
   SEND_RESET_PASSWORD_MAIL = `${API_ENDPOINTS.AUTH}/send-reset-password-email`,
-
   RESET_PASSWORD = `${API_ENDPOINTS.AUTH}/reset-password`,
   FORGOT_PASSWORD = `${API_ENDPOINTS.AUTH}/forgot-password-otp-verify`,
-
   RESEND_OTP = `${API_ENDPOINTS.AUTH}/resend-verify-account-email`,
   // Test API
   TEST = `/test`,
@@ -78,17 +72,14 @@ export enum API_ROUTES {
   DELETE_NOTIFICATION = `${API_ENDPOINTS.NOTIFICATION}/:id`,
   //Bank
   GET_BANKS = "https://api.vietqr.io/v2/banks",
-
   //Rule
   CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
   GET_RULE = `${API_ENDPOINTS.RULE}`,
   GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
   // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
-
   //Canvas
   CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
   GET_CANVAS = `${API_ENDPOINTS.CANVAS}`,
-
   //Reputation
   GET_REPUTATION = `${API_ENDPOINTS.REPUTATION}`,
   GET_REPUTATION_HISTORY = `${API_ENDPOINTS.REPUTATION}/history`,
@@ -98,6 +89,7 @@ export enum API_ROUTES {
   CREATE_POST = "project-post",
   GET_MY_POSTS = "project-post/token?page=1&size=100",
   GET_POSTS = "project-post?page=1&size=100",
+  GET_POST_DETAIL = "project-post/detail?ProjectPostId",
   DELETE_POST = "project-post",
   //Chat
   CREATE_CHAT = `${API_ENDPOINTS.CHAT}`,
