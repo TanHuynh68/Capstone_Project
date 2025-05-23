@@ -9,8 +9,23 @@ interface Post {
   createdAt: string;
   endAt: string;
   postStatus: string;
+  originalImage:OriginalImage;
+  requestedImages: RequestedImages[];
 }
 
+interface RequestedImages {
+  createdBy: string;
+  projectImageID: string;
+  imageType: string;
+  imageUrl: string;
+}
+
+interface OriginalImage {
+  createdBy: string;
+  projectImageID: string;
+  imageType: string;
+  imageUrl: string;
+}
 interface PostsResponse {
   data: Post[];
   totalCount: number;
