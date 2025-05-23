@@ -1,6 +1,6 @@
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
-import { HomePage, AboutPage, ContactPage } from "../pages";
+import { HomePage, AboutPage, ContactPage, PostPage } from "../pages";
 //
 export const guestRoutes = [
   {
@@ -15,6 +15,10 @@ export const guestRoutes = [
       {
         path: USER_ROUTES.CONTACT_PAGE,
         element: <ContactPage />,
+      },
+            {
+        path: USER_ROUTES.POST_PAGE,
+        element: <PostPage />,
       },
     ],
   },

@@ -35,7 +35,7 @@ export default function PostCard({ post }: PostCardProps) {
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <div className="aspect-video bg-gray-100 overflow-hidden">
         <img
-          src={`/placeholder.svg?height=200&width=400&text=${encodeURIComponent(post.title)}`}
+          src={post.originalImage.imageUrl}
           alt={post.title}
           className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
         />
@@ -51,7 +51,7 @@ export default function PostCard({ post }: PostCardProps) {
           <h3 className="font-medium text-lg line-clamp-2">{post.title}</h3>
         </Link>
 
-        <p className="text-gray-600 text-sm line-clamp-3 mb-4">{post.description}</p>
+        <p className="text-gray-600 text-sm line-clamp-3 mb-4 truncate">{post.description}</p>
 
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
