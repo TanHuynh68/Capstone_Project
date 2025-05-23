@@ -23,6 +23,7 @@ export enum USER_ROUTES {
   POST_PAGE = "post",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
   MY_POST_PAGE = "my-post",
+  POST_DETAIL_PAGE = "post/detail/:id",
 }
 
 export enum AUTH_ROUTES {
@@ -47,6 +48,7 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  POST_DETAIL = "/post/detail",
   HOME = "/",
   ABOUT_PAGE = "/about",
   CONTACT_PAGE = "/contact",

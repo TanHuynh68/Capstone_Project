@@ -13,7 +13,7 @@ export default function ErrorPage() {
             404
           </h1>
           <p className="text-gray-500">
-            Looks like you've ventured into the unknown digital realm.
+            Có vẻ như bạn đã mạo hiểm bước vào thế giới kỹ thuật số chưa được biết đến.
           </p>
         </div>
         <div onClick={() => navigate(PATH.HOME)}>

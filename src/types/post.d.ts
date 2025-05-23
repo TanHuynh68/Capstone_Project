@@ -1,4 +1,5 @@
 interface Post {
+  accountID: string;
   projectPostID: string;
   title: string;
   description: string;
@@ -9,23 +10,17 @@ interface Post {
   createdAt: string;
   endAt: string;
   postStatus: string;
-  originalImage:OriginalImage;
-  requestedImages: RequestedImages[];
+  originalImage: ProjectImage;
+  requestedImages: ProjectImage[];
 }
 
-interface RequestedImages {
-  createdBy: string;
+interface ProjectImage {
   projectImageID: string;
-  imageType: string;
   imageUrl: string;
+  imageType: "Original" | "Requested";
+  createdBy: string;
 }
 
-interface OriginalImage {
-  createdBy: string;
-  projectImageID: string;
-  imageType: string;
-  imageUrl: string;
-}
 interface PostsResponse {
   data: Post[];
   totalCount: number;

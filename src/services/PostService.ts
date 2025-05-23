@@ -27,20 +27,14 @@ const PostService = () => {
     [callApi]
   );
 
-  const getMyPosts = useCallback(
-    async () => {
-      try {
-        const res = await callApi(
-          HTTP_METHOD.GET,
-          API_ROUTES.GET_MY_POSTS
-        );
-        return res;
-      } catch (err: any) {
-        console.error(err?.response?.data);
-      }
-    },
-    [callApi]
-  );
+  const getMyPosts = useCallback(async () => {
+    try {
+      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_MY_POSTS);
+      return res;
+    } catch (err: any) {
+      console.error(err?.response?.data);
+    }
+  }, [callApi]);
 
   const getPosts = useCallback(
     async (params: any) => {
@@ -104,13 +98,12 @@ const PostService = () => {
     [callApi]
   );
 
-  const deletePost = useCallback(
+  const getPostDetail = useCallback(
     async (id: string) => {
       try {
         const res = await callApi(
-          HTTP_METHOD.DELETE,
-          `${API_ROUTES.DELETE_POST}`,
-         { projectPostID: id}
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_POST_DETAIL}=${id}`
         );
         return res;
       } catch (err: any) {
@@ -119,7 +112,23 @@ const PostService = () => {
     },
     [callApi]
   );
-  return { createPost, getPosts, getMyPosts, deletePost };
+
+  const deletePost = useCallback(
+    async (id: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.DELETE,
+          `${API_ROUTES.DELETE_POST}`,
+          { projectPostID: id }
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  return { createPost, getPosts, getMyPosts, deletePost, getPostDetail };
 };
 
 export default PostService;
