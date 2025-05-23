@@ -28,22 +28,6 @@ export default function PostDetailContent({ post, className = "" }: PostDetailCo
             <PriceDisplay value={post.suggestedPrice} label="Giá đề xuất" />
           </div>
         </div>
-
-        {/* Tính toán chênh lệch */}
-        {post.suggestedPrice !== post.itemValue && (
-          <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-            <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Chênh lệch</p>
-              <p className="text-lg font-semibold text-yellow-700">
-                {post.suggestedPrice > post.itemValue ? "+" : ""}
-                {(post.suggestedPrice - post.itemValue).toLocaleString()}đ
-                <span className="text-sm font-normal ml-2">
-                  ({(((post.suggestedPrice - post.itemValue) / post.itemValue) * 100).toFixed(1)}%)
-                </span>
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Hình ảnh gốc */}

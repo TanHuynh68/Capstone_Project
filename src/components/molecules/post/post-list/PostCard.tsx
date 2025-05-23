@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DateDisplay from "@/components/atoms/post/post-list/DateDisplay";
 import { formatCurrencyVND } from "@/components/utils";
-import { PATH} from "@/routes/path";
+import { PATH } from "@/routes/path";
 
 interface PostCardProps {
   post: Post;
@@ -34,7 +34,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <div>
       <Link to={`${PATH.POST_DETAIL}/${post.projectPostID}`}>
-        <Card className="overflow-hidden transition-all hover:shadow-md">
+        <Card className="overflow-hidden transition-all hover:shadow-md p-0">
           <div className="aspect-video bg-gray-100 overflow-hidden">
             <img
               src={post.originalImage.imageUrl}
@@ -57,25 +57,29 @@ export default function PostCard({ post }: PostCardProps) {
               <h3 className="font-medium text-lg line-clamp-2">{post.title}</h3>
             </Link>
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={post.avatar || "/placeholder.svg"}
-                    alt="Avatar"
-                  />
-                  <AvatarFallback
-                    className={getRandomColor(post.projectPostID)}
-                  >
-                    {getInitials(post.title)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-xl mb-2">
-                  <p className="text-gray-500">{post.fullName}</p>
-                  <DateDisplay
-                    date={post.createdAt}
-                    format="short"
-                    className="text-xl text-gray-500"
-                  />
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-3 flex items-center mb-2">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage
+                      src={post.avatar || "/placeholder.svg"}
+                      alt="Avatar"
+                    />
+                    <AvatarFallback
+                      className={getRandomColor(post.projectPostID)}
+                    >
+                      {getInitials(post.title)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="text-md col-span-9">
+                  <p className="text-gray-500 ">{post.fullName}</p>
+                  <div className="">
+                    <DateDisplay
+                      date={post.createdAt}
+                      format="short"
+                      className="text-xs text-gray-500 mb-3"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

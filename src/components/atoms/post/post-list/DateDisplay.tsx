@@ -27,5 +27,5 @@ export default function DateDisplay({ date, format = "medium", className = "" }:
     return new Intl.DateTimeFormat("vi-VN", options).format(date)
   }
 
-  return <span className={className}>{formatDate(date, format)}</span>
+  return <div className={className}>{formatDate(date, format)}</div>
 }
