@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,15 +14,7 @@ import MultipleFileUpload from "@/components/molecules/post/customer-upload-post
 import { toast } from "sonner"
 import PostService from "@/services/PostService"
 import { MESSAGE } from "@/constants"
-
-const formSchema = z.object({
-    Title: z.string().min(1, { message: "Tiêu đề không được để trống" }),
-    Description: z.string().min(1, { message: "Mô tả không được để trống" }),
-    ItemValue: z.coerce.number().min(0.01, { message: "Giá trị sản phẩm phải lớn hơn 0.01" }),
-    SuggestedPrice: z.coerce.number().min(0.01, { message: "Giá đề xuất phải lớn hơn 0.01" }),
-})
-
-type FormValues = z.infer<typeof formSchema>
+import { UploadPostFormValues, uploadPostSchema } from "@/schemas/postSchema"
 
 export default function PostForm() {
     const [originalFile, setOriginalFile] = useState<File | null>(null)
@@ -36,17 +27,17 @@ export default function PostForm() {
         additionalFiles: "",
     })
 
-    const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
+    const form = useForm({
+        resolver: zodResolver(uploadPostSchema),
         defaultValues: {
             Title: "",
             Description: "",
-            ItemValue: undefined,
-            SuggestedPrice: undefined,
+            ItemValue: 0,
+            SuggestedPrice: 0,
         },
     })
 
-    const onSubmit = async (data: FormValues) => {
+    const onSubmit = async (data: UploadPostFormValues) => {
         // Validate files
         let hasErrors = false
         const errors = {
@@ -59,10 +50,10 @@ export default function PostForm() {
             hasErrors = true
         }
 
-        if (additionalFiles.length !== 3) {
-            errors.additionalFiles = "Vui lòng tải lên đủ 3 ảnh mẫu"
-            hasErrors = true
-        }
+        // if (additionalFiles.length !== 3) {
+        //     errors.additionalFiles = "Vui lòng tải lên đủ 3 ảnh mẫu"
+        //     hasErrors = true
+        // }
 
         setFormErrors(errors)
 
@@ -140,7 +131,7 @@ export default function PostForm() {
                                         </FormLabel>
 
                                         <FormControl>
-                                            <Input id="itemValue" type="number" step="0.01" {...field} className="bg-white" />
+                                            <Input id="itemValue" type="number" step="1" {...field} className="bg-white" />
                                         </FormControl>
                                         <FormError>{form.formState.errors.ItemValue?.message}</FormError>
                                     </FormItem>
@@ -157,7 +148,7 @@ export default function PostForm() {
                                         </FormLabel>
 
                                         <FormControl>
-                                            <Input id="suggestedPrice" type="number" step="0.01" {...field} className="bg-white" />
+                                            <Input id="suggestedPrice" type="number" step="1" {...field} className="bg-white" />
                                         </FormControl>
                                         <FormError>{form.formState.errors.SuggestedPrice?.message}</FormError>
                                     </FormItem>
@@ -179,7 +170,7 @@ export default function PostForm() {
                             </div>
 
                             <div>
-                                <FormLabel required htmlFor="attachmentFiles">
+                                <FormLabel htmlFor="attachmentFiles">
                                     Ảnh mẫu sản phẩm
                                 </FormLabel>
                                 <MultipleFileUpload

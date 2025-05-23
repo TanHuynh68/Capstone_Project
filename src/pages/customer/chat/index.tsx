@@ -32,13 +32,6 @@ const Chat = () => {
     getUsersNeedToChat();
   }, []);
 
-  // useEffect(() => {
-  //  if(chats.length != 0){
-  //   setShouldScroll(true)
-  //   setTimeout(()=>(setShouldScroll(false), 1000))
-  //  }
-  // }, [chats]);
-
   useEffect(() => {
     if (!chatRoomID) return;
     const interval = setInterval(() => {
