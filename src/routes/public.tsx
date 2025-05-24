@@ -4,6 +4,7 @@ import { RootState } from "@/redux/store";
 import { ReactNode } from "react";
 import { PATH } from "./path";
 import { ROLE } from "@/constants";
+import { toast } from "sonner";
 
 interface PublicRouteProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
 
   // Nếu đã đăng nhập → chuyển về home
   if (user && user.id) {
+    toast.info('Bạn đã đăng nhập')
     switch (user.role) {
       case ROLE.CUSTOMER:
         return <Navigate to={PATH.HOME} replace />;
