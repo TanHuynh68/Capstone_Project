@@ -138,9 +138,9 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4 items-center justify-center flex">
+      {/* <h1 className="text-xl font-bold mb-4 items-center justify-center flex">
         Danh sách địa chỉ
-      </h1>
+      </h1> */}
 
       {isLoading ? (
         <ul>{renderSkeleton(skeletonCount)}</ul>
