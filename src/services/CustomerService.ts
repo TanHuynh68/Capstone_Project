@@ -35,7 +35,7 @@ const CustomerService = () => {
           API_ROUTES.CREATE_ADDRESS,
           values
         );
-        toast.success(MESSAGE.CREATE_ADDRESS_SUCCESSFULLY);
+        // toast.success(MESSAGE.CREATE_ADDRESS_SUCCESSFULLY);
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.CREATE_ADDRESS_FAILED);
@@ -49,7 +49,7 @@ const CustomerService = () => {
       try {
         const url = API_ROUTES.UPDATE_ADDRESS.replace(":id", values.addressID);
         const res = await callApi(HTTP_METHOD.PUT, url, values);
-        toast.success(MESSAGE.UPDATE_ADDRESS_SUCCESSFULLY);
+        // toast.success(MESSAGE.UPDATE_ADDRESS_SUCCESSFULLY);
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.UPDATE_ADDRESS_FAILED);

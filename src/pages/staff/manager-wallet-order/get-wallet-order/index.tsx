@@ -278,10 +278,13 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
       cell: (row) => {
         const isWithdraw = row.description?.toLowerCase().includes("rút");
         const isPending = row.orderStatusDisplay === "Pending";
+        const isCompletedOrCanceled =
+          row.orderStatusDisplay === "Completed" ||
+          row.orderStatusDisplay === "Canceled";
         const hasImage = row.walletOrderImage || row.imageUrl;
         const hasNote = row.walletOrderNote || row.note;
 
-        if (isWithdraw && isPending) {
+        if (isWithdraw && isPending)  {
           return (
             <Button
               variant="destructive"
@@ -293,7 +296,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
           );
         }
 
-        if (hasImage || hasNote) {
+        if (hasImage || hasNote || isCompletedOrCanceled) {
           return (
             <Button
               variant="outline"

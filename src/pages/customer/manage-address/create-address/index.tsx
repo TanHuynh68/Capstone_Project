@@ -18,15 +18,21 @@ import {
 } from "@/components/ui/select";
 import CustomerService from "@/services/CustomerService";
 import { getDistricts, getWards } from "@/services/ghnApi";
+import { MapPinned } from "lucide-react";
 
 const HCM_PROVINCE_ID = 202;
 
 type CreateAddressProps = {
   onCreated: () => void;
-  addresses: any[]; // 👈 truyền danh sách địa chỉ hiện tại từ parent
+  addresses: any[];
+  className?: string;
 };
 
-const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
+const CreateAddress = ({
+  onCreated,
+  addresses = [],
+  className,
+}: CreateAddressProps) => {
   const { postAddresses } = CustomerService();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -101,8 +107,9 @@ const CreateAddress = ({ onCreated, addresses = [] }: CreateAddressProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="px-5 ">
+        <div className={`${className || ""}`}>
           <Button className="w-full" disabled={maxAddressesReached}>
+            <MapPinned className="mr-2 h-4 w-4" />
             Thêm địa chỉ
           </Button>
         </div>
