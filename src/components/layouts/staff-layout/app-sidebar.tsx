@@ -53,7 +53,7 @@ const data = {
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Manage Users",
+      title: "Quản lý người dùng",
       url: `${PATH.STAFF_DASHBOARD_MANAGER_USERS}`,
       icon: UsersIcon,
     },
