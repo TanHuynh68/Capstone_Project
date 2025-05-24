@@ -1,6 +1,6 @@
 import { useCurrentUser } from "@/components/utils";
 import { ROLE } from "@/constants";
-import { ReactNode, useEffect } from "react";
+import { ReactNode} from "react";
 import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteByRoleProps {
