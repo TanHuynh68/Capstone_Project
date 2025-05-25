@@ -8,7 +8,7 @@ interface ChatInputProps extends InputProps {
 export default function ChatInput({ placeholder = "Nhập tin nhắn...", ...props }: ChatInputProps) {
   return (
     <Input
-      className="flex-1 rounded-full bg-gray-800 border-0 focus-visible:ring-1 focus-visible:ring-gray-700"
+      className="flex-1 rounded-sm bg-gray-800 border-0 focus-visible:ring-1 focus-visible:ring-gray-700"
       placeholder={placeholder}
       {...props}
     />

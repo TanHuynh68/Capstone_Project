@@ -26,8 +26,9 @@ export default function ChatTemplate({
   const currentChatUser = users[0];
 
   return (
-    <div className="flex  w-full h-screen  overflow-hidden border border-gray-800 bg-gray-950 text-white">
-      <ChatSidebar
+    <div className=" p-2 bg-gray-200">
+     <div className="bg-white flex  w-full h-screen overflow-hidden border border-gray-800 rounded-sm">
+       <ChatSidebar
         users={users}
         messages={message}
         activeChat={chatRoomID}
@@ -35,7 +36,7 @@ export default function ChatTemplate({
       />
 
       <div className="flex flex-1 flex-col">
-        <div className="sticky top-0 z-10 bg-gray-950">
+        <div className="sticky top-0 z-10">
          {
          currentChatUser&&  <ChatHeader user={users.filter((item) => item.chatRoomID === chatRoomID)} />
          }
@@ -52,10 +53,11 @@ export default function ChatTemplate({
           </div>
         )}
 
-        <div className="sticky bottom-0 z-10 bg-gray-950">
+        <div className="sticky bottom-0 z-10">
           <MessageComposer onSendMessage={onSendMessage} />
         </div>
       </div>
+     </div>
     </div>
   );
 }

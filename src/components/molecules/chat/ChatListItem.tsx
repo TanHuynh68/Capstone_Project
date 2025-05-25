@@ -15,12 +15,12 @@ interface ChatListItemProps {
 export default function ChatListItem({ name, avatar, onClick }: ChatListItemProps) {
   return (
     <button
-      className={cn("flex w-full items-start gap-3 p-3 text-left hover:bg-gray-900")}
+      className={cn("flex w-full items-start gap-3 p-3 text-left hover:bg-gray-200")}
       onClick={onClick}
     >
       <ChatAvatar src={avatar} name={name} />
       <div className="flex-1 overflow-hidden">
-        <div className="font-medium">{name}</div>
+        <div className="font-medium text-blue-500">{name}</div>
         {/* <p className="truncate text-sm text-gray-400">{lastMessage}</p> */}
       </div>
     </button>

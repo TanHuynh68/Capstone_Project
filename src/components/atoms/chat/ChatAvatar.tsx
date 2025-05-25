@@ -23,7 +23,7 @@ export default function ChatAvatar({ src, name, color, size = "md", className }:
     .join("")
 
   return (
-    <Avatar className={cn(sizeClasses[size], "border-2", color, className)}>
+    <Avatar className={cn(sizeClasses[size], "", color, className)}>
       <AvatarImage src={src || IMG.AVATAR_TEMP} alt={name} />
       <AvatarFallback className={color}>{initials}</AvatarFallback>
     </Avatar>
