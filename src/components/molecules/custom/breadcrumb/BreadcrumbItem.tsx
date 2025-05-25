@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { BreadcrumbLink } from "@/components/atoms/custome/breadcrumb/BreadcrumbLink";
+import { BreadcrumbLink } from "@/components/atoms/custom/breadcrumb/BreadcrumbLink";
 
 interface BreadcrumbItemProps {
   href: string;
