@@ -26,8 +26,8 @@ export default function ChatTemplate({
   const currentChatUser = users[0];
 
   return (
-    <div className=" p-2 bg-gray-200">
-     <div className="bg-white flex  w-full h-screen overflow-hidden border border-gray-800 rounded-sm">
+    <div className="bg-gray-200">
+     <div className="bg-white flex  w-full h-screen overflow-hidden border border-gray-800">
        <ChatSidebar
         users={users}
         messages={message}
