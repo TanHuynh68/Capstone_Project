@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { WALLET_TRANSACTION_V_TYPE } from "@/constants";
-import { getTransactionTypeName } from "@/components/utils/helpers";
+import { getTransactionTypeName } from "@/components/utils/helpers/helpers";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
