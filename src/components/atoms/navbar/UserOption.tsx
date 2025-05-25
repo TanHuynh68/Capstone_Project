@@ -11,10 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 const UserOption = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useCurrentUser()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -39,20 +42,17 @@ const UserOption = () => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Link to="/settings" className="w-full">
-            Cài đặt
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
           <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
             Ví
           </Link>
         </DropdownMenuItem>
-         <DropdownMenuItem>
+        {
+        user.role === ROLE.CUSTOMER &&  <DropdownMenuItem>
           <Link to={USER_ROUTES.MY_POST_PAGE} className="w-full">
             Bài đăng của tôi
           </Link>
         </DropdownMenuItem>
+        }
         <DropdownMenuItem
           onClick={() => {
             dispatch(logout());

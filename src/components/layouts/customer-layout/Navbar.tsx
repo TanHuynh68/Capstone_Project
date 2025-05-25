@@ -7,7 +7,7 @@ import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
 import Notification from "@/components/molecules/navbar/Notification";
 import Logo from "@/components/atoms/logo/Logo";
-import Cart from "@/components/atoms/navbar/Cart";
+import Cart from "@/components/atoms/navbar/Paint";
 import Post from "@/components/atoms/navbar/Post";
 import UserOption from "@/components/atoms/navbar/UserOption";
 import UserAuth from "@/components/atoms/navbar/UserAuth";
