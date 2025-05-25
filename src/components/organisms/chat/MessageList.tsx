@@ -42,9 +42,7 @@ export default function MessageList({
   }
 
   if (loadingMessage) {
-    return (
-      <LoadingSpinner/>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -52,6 +50,7 @@ export default function MessageList({
       <div className="flex flex-col gap-4">
         {messages?.map((msg) => (
           <ChatMessage
+            messageType={msg.messageType}
             senderID={msg.senderID}
             key={msg.senderID}
             content={msg.content}

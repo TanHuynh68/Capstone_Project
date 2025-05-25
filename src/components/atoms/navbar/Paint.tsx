@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { USER_ROUTES } from "@/routes/path";
+import { Paintbrush2} from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Cart = () => {
+const Paint = () => {
   return (
     <div>
       <Button variant="ghost" size="icon" className="hidden md:flex">
-        <Link to="/cart">
-          <ShoppingCart className="h-5 w-5" />
+        <Link to={USER_ROUTES.PLUSHDOLL_DESIGN}>
+          <Paintbrush2 className="h-5 w-5" />
           <span className="sr-only">Cart</span>
         </Link>
       </Button>
@@ -15,4 +16,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default Paint;
