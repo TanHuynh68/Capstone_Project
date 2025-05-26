@@ -15,7 +15,6 @@ interface ChatSidebarProps {
 
 export default function ChatSidebar({ messages, users, onSelectChat }: ChatSidebarProps) {
   const userMain = useCurrentUser();
-  console.log('userMain: ', userMain)
   return (
     <div className="flex w-80 flex-col border-r border-gray-800">
       <div className="flex items-center justify-between border-b border-gray-800 p-4 sticky top-0 z-10 ">
