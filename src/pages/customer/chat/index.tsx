@@ -18,8 +18,6 @@ const Chat = () => {
   const [shouldScroll, setShouldScroll] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
-  const [connectionStatus, setConnectionStatus] =
-    useState<string>("Disconnected");
 
   // Sử dụng useRef để lưu trữ connection
   const connectionRef = useRef<HubConnection | null>(null);
@@ -60,6 +58,7 @@ const Chat = () => {
 
   // Kết nối tới ChatHub
   const connectToChatHub = async () => {
+    setShouldScroll(true);
     try {
       const token = localStorage.getItem("token") || "";
 
@@ -77,25 +76,25 @@ const Chat = () => {
         .build();
 
       // Xử lý các sự kiện connection
-      connection.onclose((error) => {
-        console.log("❌ SignalR connection closed:", error);
-        setConnectionStatus("Disconnected");
-      });
+      // connection.onclose((error) => {
+      //   console.log("❌ SignalR connection closed:", error);
+      //   setConnectionStatus("Disconnected");
+      // });
 
-      connection.onreconnecting((error) => {
-        console.log("🔄 SignalR reconnecting:", error);
-        setConnectionStatus("Reconnecting");
-      });
+      // connection.onreconnecting((error) => {
+      //   console.log("🔄 SignalR reconnecting:", error);
+      //   setConnectionStatus("Reconnecting");
+      // });
 
-      connection.onreconnected((connectionId) => {
-        console.log("✅ SignalR reconnected:", connectionId);
-        setConnectionStatus("Connected");
-        // Rejoin room nếu có
-        if (currentRoomRef.current) {
-          joinChatRoom(currentRoomRef.current);
-        }
-      });
-      setShouldScroll(true);
+      // connection.onreconnected((connectionId) => {
+      //   console.log("✅ SignalR reconnected:", connectionId);
+      //   setConnectionStatus("Connected");
+      //   // Rejoin room nếu có
+      //   if (currentRoomRef.current) {
+      //     joinChatRoom(currentRoomRef.current);
+      //   }
+      // });
+      
       // Lắng nghe tin nhắn mới
       connection.on("ReceiveMessage", (message: any) => {
         console.log("📨 Received message:", message);
@@ -125,12 +124,12 @@ const Chat = () => {
       // Bắt đầu kết nối
       await connection.start();
       console.log("✅ SignalR Connected successfully");
-      setConnectionStatus("Connected");
+      // setConnectionStatus("Connected");
 
       connectionRef.current = connection;
     } catch (error) {
       console.error("❌ Error connecting to SignalR:", error);
-      setConnectionStatus("Failed");
+      // setConnectionStatus("Failed");
     }
   };
 

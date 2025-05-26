@@ -20,12 +20,12 @@ export default function MessageList({
   const [count, setCount] = useState<number>(0);
 
   // đẩy tin nhắn mới nhất khi mới vào
-  // useEffect(() => {
-  //   if (count === 0) {
-  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  //   }
-  //   setCount(1);
-  // }, [messages, shouldScrollToBottom, count]); // Theo dõi mảng messages
+  useEffect(() => {
+    if (count === 0) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    setCount(1);
+  }, [messages, shouldScrollToBottom, count]); // Theo dõi mảng messages
 
   useEffect(() => {
     if (shouldScrollToBottom) {
