@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
-import { reverseArray } from "@/components/utils";
+import { detectInputType, reverseArray } from "@/components/utils";
 
 const Chat = () => {
   const [chatRoomID, setChatRoomId] = useState<string>("");
@@ -65,17 +65,21 @@ const Chat = () => {
   };
 
   const handleSendMessage = async (values: any) => {
+    // check input type
+    const msgTypeNumber = detectInputType(values)
     setShouldScroll(true);
     const valuesSubmit = {
-      roomChatID: chatRoomID,
-      message: values,
-      messageType: 0,
+      RoomChatID: chatRoomID,
+      Message: values,
+      MessageType: msgTypeNumber,
     };
+    console.log("valuesSubmit: ", valuesSubmit)
     const response = await createChat(valuesSubmit);
     if (response) {
       getMessageOfChat();
       setTimeout(() => setShouldScroll(false), 100);
     }
+    setShouldScroll(false);
   };
 
   return (

@@ -43,7 +43,8 @@ export {
   formatBankAccountNumber,
   useCurrentUser,
   isLoggedIn,
-  RoleVietnamese
+  RoleVietnamese,
+  detectInputType
 } from "./helpers/helpers";
 export {
   ValidationErrors,

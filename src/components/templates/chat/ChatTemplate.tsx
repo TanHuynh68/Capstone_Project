@@ -27,7 +27,7 @@ export default function ChatTemplate({
 
   return (
     <div className="bg-gray-200">
-     <div className="bg-white flex  w-full h-screen overflow-hidden border border-gray-800">
+     <div className="bg-white flex w-full h-screen overflow-hidden border border-gray-800">
        <ChatSidebar
         users={users}
         messages={message}
