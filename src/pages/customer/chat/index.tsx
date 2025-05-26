@@ -76,6 +76,7 @@ const Chat = () => {
       getMessageOfChat();
       setTimeout(() => setShouldScroll(false), 100);
     }
+    setShouldScroll(false);
   };
 
   return (
