@@ -11,7 +11,7 @@ interface ChatTemplateProps {
   onSelectChat: (chatRoomID: string) => void;
   onSendMessage: (message: string) => void;
   shouldScrollToBottom: boolean;
-  loadingMessage: boolean
+  loadingMessage: boolean;
 }
 
 export default function ChatTemplate({
@@ -27,37 +27,39 @@ export default function ChatTemplate({
 
   return (
     <div className="bg-gray-200">
-     <div className="bg-white flex w-full h-screen overflow-hidden border border-gray-800">
-       <ChatSidebar
-        users={users}
-        messages={message}
-        activeChat={chatRoomID}
-        onSelectChat={onSelectChat}
-      />
+      <div className="bg-white flex w-full h-screen overflow-hidden border border-gray-800">
+        <ChatSidebar
+          users={users}
+          messages={message}
+          activeChat={chatRoomID}
+          onSelectChat={onSelectChat}
+        />
 
-      <div className="flex flex-1 flex-col">
-        <div className="sticky top-0 z-10">
-         {
-         currentChatUser&&  <ChatHeader user={users.filter((item) => item.chatRoomID === chatRoomID)} />
-         }
-        </div>
-
-        {currentChatUser && (
-          <div className="flex-1 overflow-y-auto">
-            <MessageList
-            loadingMessage={loadingMessage}
-              shouldScrollToBottom={shouldScrollToBottom}
-              messages={message}
-              users={users.filter((item) => item.chatRoomID === chatRoomID)}
-            />
+        <div className="flex flex-1 flex-col">
+          <div className="sticky top-0 z-10">
+            {currentChatUser && (
+              <ChatHeader
+                user={users.filter((item) => item.chatRoomID === chatRoomID)}
+              />
+            )}
           </div>
-        )}
 
-        <div className="sticky bottom-0 z-10">
-          <MessageComposer onSendMessage={onSendMessage} />
+          {currentChatUser && (
+            <div className="flex-1 overflow-y-auto">
+              <MessageList
+                loadingMessage={loadingMessage}
+                shouldScrollToBottom={shouldScrollToBottom}
+                messages={message}
+                users={users.filter((item) => item.chatRoomID === chatRoomID)}
+              />
+            </div>
+          )}
+
+          <div className="sticky bottom-0 z-10">
+            <MessageComposer onSendMessage={onSendMessage} />
+          </div>
         </div>
       </div>
-     </div>
     </div>
   );
 }
