@@ -202,3 +202,29 @@ export function RoleVietnamese(role: string) {
       return "Nhân viên";
   }
 }
+/**
+ * 
+ * @param input 
+ * @returns 
+ */
+export const detectInputType = (input: string): number => {
+  const imageRegex = /\.(jpeg|jpg|gif|png|bmp|svg|webp)$/i;
+  const urlRegex = /^(https?:\/\/)[^\s/$.?#].[^\s]*$/i;
+
+  // 1. Kiểm tra JSON
+  try {
+    const parsed = JSON.parse(input);
+    if (typeof parsed === 'object' && parsed !== null) return 2;
+  } catch (e) {
+    // Không phải JSON
+  }
+
+  // 2. Kiểm tra Image
+  if (imageRegex.test(input)) return 1;
+
+  // 3. Kiểm tra Link (URL hợp lệ)
+  if (urlRegex.test(input)) return 3;
+
+  // 4. Mặc định là Text
+  return 0;
+};
