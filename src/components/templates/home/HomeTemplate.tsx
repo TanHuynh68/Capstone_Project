@@ -20,7 +20,7 @@ export default function HomeTemplate() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 10 // 2 rows of 5 products
+  const productsPerPage = 8 // 2 rows of 5 products
 
   // Load products
   useEffect(() => {

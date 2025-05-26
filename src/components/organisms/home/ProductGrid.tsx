@@ -10,9 +10,9 @@ export default function ProductGrid({ products, loading = false, className = "" 
   if (loading) {
     return (
       <div
-        className={`grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 ${className}`}
+        className={`grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ${className}`}
       >
-        {Array.from({ length: 10 }).map((_, index) => (
+        {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
             <div className="relative pt-[100%]">
               <div className="absolute inset-0 p-2">
@@ -40,7 +40,7 @@ export default function ProductGrid({ products, loading = false, className = "" 
   }
 
   return (
-    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 ${className}`}>
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ${className}`}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

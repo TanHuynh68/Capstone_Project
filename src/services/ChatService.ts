@@ -3,21 +3,15 @@ import useApiService from "../hooks/useApi";
 import { API_ROUTES, HTTP_METHOD } from "@/constants";
 
 const ChatService = () => {
-  const { callApi} = useApiService();
-  const getRoomList = useCallback(
-    async () => {
-      try {
-        const res = await callApi(
-          HTTP_METHOD.GET,
-          API_ROUTES.GET_ROOMLIST
-        );
-        return res;
-      } catch (err: any) {
-        console.error(err?.response?.data);
-      }
-    },
-    [callApi]
-  );
+  const { callApi } = useApiService();
+  const getRoomList = useCallback(async () => {
+    try {
+      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_ROOMLIST);
+      return res;
+    } catch (err: any) {
+      console.error(err?.response?.data);
+    }
+  }, [callApi]);
 
   const getMessage = useCallback(
     async (chatRoomID: any) => {
@@ -52,11 +46,15 @@ const ChatService = () => {
 
   const createChat = useCallback(
     async (values: any) => {
+      const formData = new FormData();
+      formData.append("RoomChatID", values.RoomChatID);
+      formData.append("Message", values.Message);
+      formData.append("MessageType", values.MessageType);
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
           API_ROUTES.CREATE_CHAT,
-          values
+          formData
         );
         return res;
       } catch (err: any) {
@@ -66,7 +64,7 @@ const ChatService = () => {
     [callApi]
   );
 
-  return { getRoomList, getMessage, createChatRoom, createChat};
+  return { getRoomList, getMessage, createChatRoom, createChat };
 };
 
 export default ChatService;
