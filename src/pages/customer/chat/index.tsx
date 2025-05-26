@@ -197,6 +197,7 @@ const Chat = () => {
     }
   };
 
+
   // Gửi tin nhắn qua SignalR
   const handleSendMessage = async (messageContent: string) => {
     setShouldScroll(true);
