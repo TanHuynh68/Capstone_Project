@@ -17,6 +17,7 @@ import QRLoginPage from "@/pages/auth/login-qr";
 import PlushDollDesign from "@/pages/customer/plushdoll-design";
 import { ROLE } from "@/constants";
 import { ProtectedRouteByRole } from "./protect";
+import PostOfferPage from "@/pages/customer/post-offer";
 //
 export const userRoutes = [
   {
@@ -77,8 +78,12 @@ export const userRoutes = [
       },
 
       {
+        path: USER_ROUTES.POST_OFFER_PAGE,
+        element: <CustomerManagePost />,
+      },
+      {
         path: USER_ROUTES.MY_POST_PAGE,
-        element: <CustomerManagePost/>,
+        element: <PostOfferPage />,
       },
     ],
   },

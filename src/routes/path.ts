@@ -24,6 +24,7 @@ export enum USER_ROUTES {
   CUSTOMER_UPLOAD_PAGE = "upload-post",
   MY_POST_PAGE = "my-post",
   POST_DETAIL_PAGE = "post/detail/:id",
+  POST_OFFER_PAGE = "post-offer",
 }
 
 export enum AUTH_ROUTES {

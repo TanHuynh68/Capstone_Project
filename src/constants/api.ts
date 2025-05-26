@@ -87,7 +87,7 @@ export enum API_ROUTES {
   STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
   //Post
   CREATE_POST = "project-post",
-  GET_MY_POSTS = "project-post/token?page=1&size=100",
+  GET_MY_POSTS = "project-post/token",
   GET_POSTS = "project-post?page=1&size=100",
   GET_POST_DETAIL = "project-post/detail?ProjectPostId",
   DELETE_POST = "project-post",
@@ -96,4 +96,8 @@ export enum API_ROUTES {
   CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
   GET_MESSAGE = `${API_ENDPOINTS.CHAT}/message`,
   GET_ROOMLIST = `${API_ENDPOINTS.CHAT}/room-list`,
+  //Offer
+  CREATE_OFFER = "offer",
+  GET_OFFERS_IN_POST = "offerall-offer-in-post",
+  GET_OFFER_TOKEN = "offer/token",
 }

@@ -27,9 +27,9 @@ const PostService = () => {
     [callApi]
   );
 
-  const getMyPosts = useCallback(async () => {
+  const getMyPosts = useCallback(async (values: any) => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_MY_POSTS);
+      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_MY_POSTS, values);
       return res;
     } catch (err: any) {
       console.error(err?.response?.data);
