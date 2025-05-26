@@ -5,6 +5,8 @@ import { format } from "date-fns";
 interface OfferCardProps {
   offer: Offer;
   onClick?: () => void;
+  onAccept?: (offerId: string) => void;
+  onReject?: (offerId: string) => void;
 }
 
 export function OfferCard({ offer, onClick }: OfferCardProps) {
@@ -89,4 +91,3 @@ export function OfferCard({ offer, onClick }: OfferCardProps) {
     </div>
   );
 }
-

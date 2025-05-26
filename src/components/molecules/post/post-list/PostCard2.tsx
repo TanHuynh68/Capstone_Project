@@ -2,12 +2,8 @@
 
 import { Avatar } from "@/components/atoms/avatar/avatar";
 import { Badge } from "@/components/atoms/badge/badge";
-import { Clock, DollarSign } from "lucide-react";
+import { Clock } from "lucide-react";
 
-interface ProjectImage {
-  projectImageID: string;
-  imageUrl: string;
-}
 
 interface PostCardProps {
   post: Post;
@@ -24,33 +20,33 @@ export function PostCard2({ post, onViewOffers }: PostCardProps) {
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("vi-VN");
 
-  const getStatusText = (status: number) => {
-    switch (status) {
-      case 0:
-        return "Đang chờ";
-      case 1:
-        return "Đang hoạt động";
-      case 2:
-        return "Hoàn thành";
-      case 3:
-        return "Đã hủy";
-      default:
-        return "Không xác định";
-    }
-  };
+  // const getStatusText = (status: number) => {
+  //   switch (status) {
+  //     case 0:
+  //       return "Đang chờ";
+  //     case 1:
+  //       return "Đang hoạt động";
+  //     case 2:
+  //       return "Hoàn thành";
+  //     case 3:
+  //       return "Đã hủy";
+  //     default:
+  //       return "Không xác định";
+  //   }
+  // };
 
-  const getStatusVariant = (status: number) => {
-    switch (status) {
-      case 1:
-        return "success";
-      case 2:
-        return "default";
-      case 3:
-        return "danger";
-      default:
-        return "warning";
-    }
-  };
+  // const getStatusVariant = (status: number) => {
+  //   switch (status) {
+  //     case 1:
+  //       return "success";
+  //     case 2:
+  //       return "default";
+  //     case 3:
+  //       return "danger";
+  //     default:
+  //       return "warning";
+  //   }
+  // };
 
   return (
     <div
