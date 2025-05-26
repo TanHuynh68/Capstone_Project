@@ -12,7 +12,7 @@
 // }
 
 
-export interface Offer {
+interface Offer {
     offerID: string
     projectPostID: string
     designerID: string
@@ -30,7 +30,7 @@ export interface Offer {
     deadlineEndAt: string
 }
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
     isSuccess: boolean
     message: string
     statusCode: number
@@ -46,7 +46,7 @@ export interface ApiResponse<T> {
 }
 
 
-export interface ProjectImage {
+interface ProjectImage {
     projectImageID: string
     imageUrl: string
     imageType: "Original" | "Requested"

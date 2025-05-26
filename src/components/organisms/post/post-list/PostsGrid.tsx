@@ -1,5 +1,4 @@
 import  PostCard  from "@/components/molecules/post/post-list/PostCard"
-import { Post } from "@/types/post"
 
 interface PostsGridProps {
   posts: Post[]

@@ -5,9 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/atoms/avatar/avatar";
 import { Badge } from "@/components/atoms/badge/badge";
 import { Clock, DollarSign, User } from "lucide-react";
-import type { Post } from "@/types/post";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
+
+interface ProjectImage {
+  projectImageID: string;
+  imageUrl: string;
+}
 
 interface PostCardProps {
   post: Post;
@@ -61,7 +65,7 @@ export function PostCard2({ post, onViewOffers }: PostCardProps) {
           <div className="flex items-center space-x-3">
             <Avatar
               src={post.avatar || "/placeholder.svg?height=40&width=40"}
-              alt={post.fullName}
+              alt={post.fullName || ""}
               size="md"
             />
             <div className="flex-1">
@@ -97,10 +101,6 @@ export function PostCard2({ post, onViewOffers }: PostCardProps) {
             <Clock className="w-4 h-4" />
             <span>Kết thúc: {formatDate(post.endAt)}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <Clock className="w-4 h-4" />
-            <span>Hoàn thành: {formatDate(post.finishDate)}</span>
-          </div>
         </div>
 
         {/* Display images */}
@@ -108,7 +108,7 @@ export function PostCard2({ post, onViewOffers }: PostCardProps) {
           post.requestedImages?.length > 0) && (
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
-              {post.originalImages?.slice(0, 2).map((img) => (
+              {post.originalImages?.slice(0, 2).map((img: ProjectImage) => (
                 <img
                   key={img.projectImageID}
                   src={img.imageUrl || "/placeholder.svg"}
@@ -116,7 +116,7 @@ export function PostCard2({ post, onViewOffers }: PostCardProps) {
                   className="w-16 h-16 object-cover rounded border"
                 />
               ))}
-              {post.requestedImages?.slice(0, 2).map((img) => (
+              {post.requestedImages?.slice(0, 2).map((img: ProjectImage) => (
                 <img
                   key={img.projectImageID}
                   src={img.imageUrl || "/placeholder.svg"}

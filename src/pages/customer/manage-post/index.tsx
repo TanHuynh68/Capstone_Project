@@ -16,7 +16,7 @@ export default function CustomerManagePost() {
 
   const getCustomerPost = async () => {
     setIsLoading(true);
-    const response = await getMyPosts();
+    const response = await getMyPosts({ page: 1, pageSize: 10 });
     if (response) {
       console.log(
         "getCustomerPost: ",

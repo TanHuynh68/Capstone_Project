@@ -2,7 +2,6 @@
 
 import { OfferCard } from "@/components/molecules/offer/offer-card";
 import { Loader2 } from "lucide-react";
-import type { Offer } from "@/types";
 
 interface OfferListProps {
   offers: Offer[];

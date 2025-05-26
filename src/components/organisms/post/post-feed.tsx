@@ -3,15 +3,21 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import type { Post } from "@/types/post";
 import { PostCard2 } from "@/components/molecules/post/post-list/PostCard2";
+
 interface PostFeedProps {
   posts: Post[];
+  loading?: boolean;
   onViewOffers?: (postId: string) => void;
   onRefresh?: () => void;
 }
 
-export function PostFeed({ posts, onViewOffers, onRefresh }: PostFeedProps) {
+export function PostFeed({
+  posts,
+  loading,
+  onViewOffers,
+  onRefresh,
+}: PostFeedProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -38,7 +44,11 @@ export function PostFeed({ posts, onViewOffers, onRefresh }: PostFeedProps) {
       </div>
 
       <div className="space-y-4">
-        {posts.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>Đang tải...</p>
+          </div>
+        ) : posts.length > 0 ? (
           posts.map((post) => (
             <PostCard2
               key={post.projectPostID}

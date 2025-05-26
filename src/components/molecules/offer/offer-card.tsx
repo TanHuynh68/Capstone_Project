@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Clock, DollarSign } from "lucide-react";
 import { Avatar } from "@/components/atoms/avatar/avatar";
 import { Badge } from "@/components/atoms/badge/badge";
-import { Offer } from "@/types/offer";
 
 interface OfferCardProps {
   offer: Offer;

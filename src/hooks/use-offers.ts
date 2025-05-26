@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react"
 import OfferService from "@/services/OfferService"
-import { ApiResponse, Offer } from "@/types/offer"
 
 export function useOffers() {
     const [offers, setOffers] = useState<Offer[]>([])

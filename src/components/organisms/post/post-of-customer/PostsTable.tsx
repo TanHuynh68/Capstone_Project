@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Post } from "@/types/post";
 import {
   flexRender,
   getCoreRowModel,

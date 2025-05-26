@@ -31,9 +31,9 @@ export default function PostDetailContent({ post, className = "" }: PostDetailCo
       </div>
 
       {/* Hình ảnh gốc */}
-      {post.originalImage && (
+      {post.originalImages && post.originalImages.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <ImageGallery images={[post.originalImage]} title="Hình ảnh gốc" />
+          <ImageGallery images={post.originalImages} title="Hình ảnh gốc" />
         </div>
       )}
 

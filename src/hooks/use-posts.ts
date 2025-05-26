@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react"
 import PostService from "@/services/PostService"
-import type { Post } from "@/types/post"
 
 export function usePosts() {
     const [posts, setPosts] = useState<Post[]>([])

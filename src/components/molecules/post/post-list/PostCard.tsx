@@ -37,7 +37,7 @@ export default function PostCard({ post }: PostCardProps) {
         <Card className="overflow-hidden transition-all hover:shadow-md p-0">
           <div className="aspect-video bg-gray-100 overflow-hidden">
             <img
-              src={post.originalImage?.imageUrl}
+              src={post.originalImages[0].imageUrl}
               alt={post.title}
               className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
             />

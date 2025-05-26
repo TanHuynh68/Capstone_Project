@@ -1,3 +1,21 @@
+interface Post {
+  projectPostID: string
+  accountID: string
+  fullName: string | null
+  avatar: string | null
+  title: string
+  description: string
+  postStatus: number
+  itemValue: number
+  suggestedPrice: number
+  createdAt: string
+  endAt: string
+  finishDate: string
+  isActive: boolean
+  originalImages: ProjectImage[]
+  requestedImages: ProjectImage[]
+}
+
 // interface Post {
 //   accountID: string;
 //   projectPostID: string;
@@ -14,25 +32,9 @@
 //   requestedImages: ProjectImage[];
 // }
 
-export interface Post {
-  projectPostID: string
-  accountID: string
-  fullName: string
-  avatar: string
-  title: string
-  description: string
-  postStatus: number
-  itemValue: number
-  suggestedPrice: number
-  createdAt: string
-  endAt: string
-  finishDate: string
-  isActive: boolean
-  originalImages: ProjectImage[]
-  requestedImages: ProjectImage[]
-}
 
-export interface ProjectImage {
+
+interface ProjectImage {
   projectImageID: string
   imageUrl: string
   imageType: "Original" | "Requested"
