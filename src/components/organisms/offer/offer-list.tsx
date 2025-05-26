@@ -91,7 +91,7 @@ export function OfferList({
             transform: translateY(0) scale(1);
             filter: blur(0);
           }
-
+buil
           .offer-list-container.exiting {
             animation: containerExit 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             animation-delay: 100ms;

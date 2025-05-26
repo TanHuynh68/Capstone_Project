@@ -18,7 +18,6 @@ import PlushDollDesign from "@/pages/customer/plushdoll-design";
 import { ROLE } from "@/constants";
 import { ProtectedRouteByRole } from "./protect";
 import PostOfferPage from "@/pages/customer/post-offer";
-import PostCustomerPage from "@/pages/general/post/post-customer";
 //
 export const userRoutes = [
   {
