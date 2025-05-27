@@ -11,9 +11,16 @@ const PostService = () => {
       formData.append("Description", data.Description);
       formData.append("ItemValue", String(data.ItemValue));
       formData.append("SuggestedPrice", String(data.SuggestedPrice));
-      formData.append("AttachmentFile", data.AttachmentFile);
-      formData.append("AttachmentFiles", data.AttachmentFiles);
+      formData.append("OriginalAttachmentFiles", data.OriginalAttachmentFiles);
+      if (data.RequestedAttachmentFiles?.length) {
+        data.RequestedAttachmentFiles.forEach((file: File) => {
+          formData.append("RequestedAttachmentFiles", file);
+          // Nếu BE yêu cầu dạng mảng: formData.append("RequestedAttachmentFiles[]", file);
+        });
+      }
+      formData.append("FinishDate", new Date(data.FinishDate).toISOString());
       try {
+        console.log('data: ', data)
         const res = await callApi(
           HTTP_METHOD.POST,
           API_ROUTES.CREATE_POST,

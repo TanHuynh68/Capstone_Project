@@ -9,6 +9,7 @@ interface PostDetailTemplateProps {
 }
 
 export default function PostDetailTemplate({ post, onBack, className = "" }: PostDetailTemplateProps) {
+  console.log("PostDetailTemplate: ", post)
   return (
     <div className={`min-h-screen bg-gray-50 ${className}`}>
       <div className="container mx-auto px-4 py-8">

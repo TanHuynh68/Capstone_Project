@@ -6,10 +6,24 @@ export const uploadPostSchema = z.object({
   Description: z.string().min(1, { message: "Mô tả không được để trống" }),
   ItemValue: z.coerce
     .number()
-    .min(minNumber, { message: `Giá trị sản phẩm phải lớn hơn hoặc bằng ${minNumber}` }),
+    .min(minNumber, {
+      message: `Giá trị sản phẩm phải lớn hơn hoặc bằng ${minNumber}`,
+    }),
   SuggestedPrice: z.coerce
     .number()
-    .min(minNumber, { message: `Giá đề xuất phải lớn hơn hoặc bằng ${minNumber}` }),
+    .min(minNumber, {
+      message: `Giá đề xuất phải lớn hơn hoặc bằng ${minNumber}`,
+    }),
+  FinishDate: z
+    .date({
+      required_error: "Vui lòng chọn ngày kết thúc",
+      invalid_type_error: "Ngày kết thúc không hợp lệ",
+    })
+    .refine((date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date >= today;
+    }, "Ngày kết thúc phải từ hôm nay trở đi"),
 });
 
 export type UploadPostFormValues = z.infer<typeof uploadPostSchema>;

@@ -11,7 +11,8 @@ export {
   formatDateTimeVN,
   formatDayAndTime,
   formatFullDateWithDistance,
-  formatFullDateWithDistance2
+  formatFullDateWithDistance2,
+  formatDateToSubmit
 } from "./date";
 export { uploadToCloudinary } from "./uploadImage";
 export {
@@ -48,7 +49,7 @@ export {
   useCurrentUser,
   isLoggedIn,
   RoleVietnamese,
-  detectInputType
+  detectInputType,
 } from "./helpers/helpers";
 export {
   ValidationErrors,

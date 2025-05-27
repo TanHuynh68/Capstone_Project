@@ -1,3 +1,4 @@
+import { formatDayAndTime } from "@/components/utils";
 import { Calendar, Clock } from "lucide-react";
 
 interface DateDisplayProps {
@@ -13,16 +14,6 @@ export default function DateDisplay({
   icon = "calendar",
   className = "",
 }: DateDisplayProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
 
   const IconComponent = icon === "calendar" ? Calendar : Clock;
 
@@ -32,7 +23,7 @@ export default function DateDisplay({
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-sm font-medium text-foreground">
-          {formatDate(date)}
+          {formatDayAndTime(date)}
         </p>
       </div>
     </div>
