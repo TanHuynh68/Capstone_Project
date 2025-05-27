@@ -8,6 +8,10 @@ export {
   isDateInRange,
   isFuture,
   subtractDays,
+  formatDateTimeVN,
+  formatDayAndTime,
+  formatFullDateWithDistance,
+  formatFullDateWithDistance2
 } from "./date";
 export { uploadToCloudinary } from "./uploadImage";
 export {

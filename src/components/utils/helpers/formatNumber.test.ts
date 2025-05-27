@@ -1,4 +1,4 @@
-// src/utils/formatNumber.test.ts
+
 import { describe, it, expect } from 'vitest';
 import { formatNumber } from './helpers';
 
