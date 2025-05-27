@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { WALLET_TRANSACTION_V_TYPE } from "@/constants";
 import { getTransactionTypeName } from "@/components/utils/helpers/helpers";
+import { formatDayAndTime } from "@/components/utils";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -184,25 +185,15 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.getValue("transactionDate"));
-
       // Format the date
-      const formatted = new Intl.DateTimeFormat("vi-VN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }).format(date);
-
-      return <div className="whitespace-nowrap">{formatted}</div>;
+      const formatDate = formatDayAndTime(date);
+      return <div className="whitespace-nowrap">{formatDate}</div>;
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
       const transaction = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger>

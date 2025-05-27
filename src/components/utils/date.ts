@@ -1,95 +1,117 @@
-import moment from "moment"
-import { format, formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
+import moment from "moment";
+import { format, formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 /**
- * 
- * @param date 
- * @returns 
+ *
+ * @param date
+ * @returns
  */
 export const formatDate = (date: string) => {
-    return moment(date).format("DD/MM/YYYY");
-}
+  return moment(date).format("DD/MM/YYYY");
+};
+
+export const formatDayAndTime = (data: any) => {
+  const date = new Date(data);
+
+  // Cộng thêm 7 giờ (7 * 60 * 60 * 1000 milliseconds)
+  const utcPlus7 = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+
+  const formatted = new Intl.DateTimeFormat("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Nếu bạn không muốn dùng AM/PM
+  }).format(utcPlus7);
+
+  return formatted;
+};
 
 /**
- * 
- * @param response 
- * @returns 
+ *
+ * @param response
+ * @returns
  */
 export const formatCreatedAt = (response: any) => {
-    const sortedData = response.data.sort(
-        (a: any, b: any) => moment(b.createdAt).unix() - moment(a.createdAt).unix()
-    );
-    return sortedData;
-}
+  const sortedData = response.data.sort(
+    (a: any, b: any) => moment(b.createdAt).unix() - moment(a.createdAt).unix()
+  );
+  return sortedData;
+};
 
 /**
  * Tính số ngày giữa 2 ngày (daysBetween)
- * @param start 
- * @param end 
- * @returns 
+ * @param start
+ * @param end
+ * @returns
  */
-export const daysBetween = (start: string | Date, end: string | Date): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diff = Math.abs(endDate.getTime() - startDate.getTime());
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
+export const daysBetween = (
+  start: string | Date,
+  end: string | Date
+): number => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const diff = Math.abs(endDate.getTime() - startDate.getTime());
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
 };
 
 /**
  * Kiểm tra ngày có nằm trong tương lai (isFuture)
- * @param date 
- * @returns 
+ * @param date
+ * @returns
  */
 export const isFuture = (date: string | Date): boolean => {
-    return new Date(date).getTime() > Date.now();
+  return new Date(date).getTime() > Date.now();
 };
 
 /**
  * Trừ ngày (subtractDays)
- * @param date 
- * @param days 
- * @returns 
+ * @param date
+ * @param days
+ * @returns
  */
 export const subtractDays = (date: string | Date, days: number): Date => {
-    const result = new Date(date);
-    result.setDate(result.getDate() - days);
-    return result;
+  const result = new Date(date);
+  result.setDate(result.getDate() - days);
+  return result;
 };
 
 /**
  * Cộng ngày (addDays)
- * @param date 
- * @param days 
- * @returns 
+ * @param date
+ * @param days
+ * @returns
  */
 export const addDays = (date: string | Date, days: number): Date => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 };
 
 /**
  * Kiểm tra ngày nằm trong khoảng (isDateInRange)
- * @param target 
- * @param start 
- * @param end 
- * @returns 
+ * @param target
+ * @param start
+ * @param end
+ * @returns
  */
 export const isDateInRange = (
-    target: string | Date,
-    start: string | Date,
-    end: string | Date
+  target: string | Date,
+  start: string | Date,
+  end: string | Date
 ): boolean => {
-    const d = new Date(target).getTime();
-    return d >= new Date(start).getTime() && d <= new Date(end).getTime();
+  const d = new Date(target).getTime();
+  return d >= new Date(start).getTime() && d <= new Date(end).getTime();
 };
 
 /**
  * Lấy ngày hôm nay (getToday)
- * @returns 
+ * @returns
  */
 export const getToday = (): string => {
-    return new Date().toISOString().split("T")[0]; // 👉 yyyy-mm-dd
+  return new Date().toISOString().split("T")[0]; // 👉 yyyy-mm-dd
 };
 
 /**
@@ -117,28 +139,28 @@ export const getToday = (): string => {
  * @returns 
  */
 export const customFormatDate = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions,
-    locale = "vi-VN"
+  date: string | Date,
+  options?: Intl.DateTimeFormatOptions,
+  locale = "vi-VN"
 ): string => {
-    return new Intl.DateTimeFormat(locale, options).format(new Date(date));
+  return new Intl.DateTimeFormat(locale, options).format(new Date(date));
 };
 
 export function formatDateTimeVN(isoString: string) {
-    const date = new Date(isoString);
-    const datePart = new Intl.DateTimeFormat("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(date);
+  const date = new Date(isoString);
+  const datePart = new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 
-    const timePart = date.toLocaleTimeString("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    });
+  const timePart = date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 
-    return `${datePart} ${timePart}`;
+  return `${datePart} ${timePart}`;
 }
 
 // 👉 Sử dụng:
@@ -165,40 +187,39 @@ export function formatDateTimeVN(isoString: string) {
 //     return `${formatted} (${relative})`;
 // }
 
-
 // formatFullDateWithDistance("2025-05-20T12:12:00");
 // 👉 "20/05/2025 12:12 (2 giờ trước)"  — nếu bây giờ là 14:12
 
 export function formatFullDateWithDistance(isoString: string) {
-    const createdAt = new Date(isoString);
+  const createdAt = new Date(isoString);
 
-    const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
-    const now = new Date();
+  const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
+  const now = new Date();
 
-    const finalTime = corrected > now ? now : corrected;
+  const finalTime = corrected > now ? now : corrected;
 
-    const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
-    const relative = formatDistanceToNow(finalTime, {
-        addSuffix: true,
-        locale: vi,
-    });
+  const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
+  const relative = formatDistanceToNow(finalTime, {
+    addSuffix: true,
+    locale: vi,
+  });
 
-    return `${formatted} (${relative})`;
+  return `${formatted} (${relative})`;
 }
 
 export function formatFullDateWithDistance2(isoString: string) {
-    const createdAt = new Date(isoString);
+  const createdAt = new Date(isoString);
 
-    const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
-    const now = new Date();
+  const corrected = new Date(createdAt.getTime() + 25560000 - 2000);
+  const now = new Date();
 
-    const finalTime = corrected > now ? now : corrected;
+  const finalTime = corrected > now ? now : corrected;
 
-    const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
-    // const relative = formatDistanceToNow(finalTime, {
-    //     addSuffix: true,
-    //     locale: vi,
-    // });
+  const formatted = format(finalTime, "dd/MM/yyyy HH:mm:ss");
+  // const relative = formatDistanceToNow(finalTime, {
+  //     addSuffix: true,
+  //     locale: vi,
+  // });
 
-    return `${formatted} `;
+  return `${formatted} `;
 }

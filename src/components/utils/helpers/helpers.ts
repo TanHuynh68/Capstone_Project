@@ -203,9 +203,9 @@ export function RoleVietnamese(role: string) {
   }
 }
 /**
- * 
- * @param input 
- * @returns 
+ *
+ * @param input
+ * @returns
  */
 export const detectInputType = (input: string): number => {
   const imageRegex = /\.(jpeg|jpg|gif|png|bmp|svg|webp)$/i;
@@ -214,7 +214,7 @@ export const detectInputType = (input: string): number => {
   // 1. Kiểm tra JSON
   try {
     const parsed = JSON.parse(input);
-    if (typeof parsed === 'object' && parsed !== null) return 2;
+    if (typeof parsed === "object" && parsed !== null) return 2;
   } catch (e) {
     // Không phải JSON
   }
