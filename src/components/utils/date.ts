@@ -10,6 +10,10 @@ export const formatDate = (date: string) => {
   return moment(date).format("DD/MM/YYYY");
 };
 
+export const formatDateToSubmit = (date: string) => {
+  return moment(date).format("YYYY-MM-DD");
+};
+
 export const formatDayAndTime = (data: any) => {
   const date = new Date(data);
 
@@ -22,7 +26,6 @@ export const formatDayAndTime = (data: any) => {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     hour12: false, // Nếu bạn không muốn dùng AM/PM
   }).format(utcPlus7);
 
