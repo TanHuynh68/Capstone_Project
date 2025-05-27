@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { MainLayout } from "@/components/templates/post-offer/PostOfferTemplate";
-import { PostFeed } from "@/components/organisms/post/post-feed";
 import { OfferList } from "@/components/organisms/offer/offer-list";
 import { usePosts } from "@/hooks/use-posts";
 import { useOffers } from "@/hooks/use-offers";
+import PostCustomerTemplate from "@/components/templates/post-customer-2/PostCustomerTemplate";
 
 export default function PostOfferPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>();
 
-  const { posts, loading: postsLoading, refreshPosts } = usePosts();
+  const { posts } = usePosts();
   const {
     offers,
     loading: offersLoading,
@@ -37,12 +37,23 @@ export default function PostOfferPage() {
   return (
     <MainLayout
       leftColumn={
-        <PostFeed
-          posts={posts}
-          loading={postsLoading}
-          onViewOffers={handleViewOffers}
-          onRefresh={refreshPosts}
-        />
+        posts.length > 0 ? (
+          <div className="space-y-8">
+            {posts.map((post, index) => (
+              <PostCustomerTemplate
+                key={post.projectPostID}
+                post={post}
+                onViewOffers={() => handleViewOffers(post.projectPostID)}
+                isSelected={selectedPostId === post.projectPostID}
+                postNumber={index + 1}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>Không có bài đăng nào</p>
+          </div>
+        )
       }
       rightColumn={
         <OfferList

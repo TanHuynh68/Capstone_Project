@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { getOrderType, getPaymentMethodFromDescription } from "@/components/utils"
+import { formatDayAndTime, getOrderType, getPaymentMethodFromDescription } from "@/components/utils"
 
 export const columns: ColumnDef<WalletOrder>[] = [
   {
@@ -137,18 +137,9 @@ export const columns: ColumnDef<WalletOrder>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.getValue("orderDate"))
-
       // Format the date
-      const formatted = new Intl.DateTimeFormat("vi-VN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }).format(date)
-
-      return <div className="whitespace-nowrap">{formatted}</div>
+      const formatDate = formatDayAndTime(date);
+      return <div className="whitespace-nowrap">{formatDate}</div>
     },
   },
   {

@@ -85,6 +85,10 @@ export const userRoutes = [
         path: USER_ROUTES.MY_POST_PAGE,
         element: <PostOfferPage />,
       },
+      // {
+      //   path: USER_ROUTES.MY_POST_PAGE,
+      //   element: <PostCustomerPage />,
+      // },
     ],
   },
 ];
