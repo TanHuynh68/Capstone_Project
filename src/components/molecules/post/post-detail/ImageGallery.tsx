@@ -1,45 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
+import { useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 
 interface ImageGalleryProps {
-  images: ProjectImage[]
-  title: string
-  className?: string
+  images: ProjectImage[];
+  title: string;
+  className?: string;
 }
 
-export default function ImageGallery({ images, title, className = "" }: ImageGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null)
+export default function ImageGallery({
+  images,
+  title,
+  className = "",
+}: ImageGalleryProps) {
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   const openModal = (index: number) => {
-    setSelectedImage(index)
-  }
+    setSelectedImage(index);
+  };
 
   const closeModal = () => {
-    setSelectedImage(null)
-  }
+    setSelectedImage(null);
+  };
 
   const nextImage = () => {
     if (selectedImage !== null) {
-      setSelectedImage((selectedImage + 1) % images.length)
+      setSelectedImage((selectedImage + 1) % images.length);
     }
-  }
+  };
 
   const prevImage = () => {
     if (selectedImage !== null) {
-      setSelectedImage(selectedImage === 0 ? images.length - 1 : selectedImage - 1)
+      setSelectedImage(
+        selectedImage === 0 ? images.length - 1 : selectedImage - 1
+      );
     }
-  }
+  };
 
   if (images.length === 0) {
     return (
       <div className={`text-center py-8 ${className}`}>
         <p className="text-gray-500">Không có hình ảnh</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -116,5 +122,5 @@ export default function ImageGallery({ images, title, className = "" }: ImageGal
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
