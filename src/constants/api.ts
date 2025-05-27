@@ -100,4 +100,6 @@ export enum API_ROUTES {
   CREATE_OFFER = "offer",
   GET_OFFERS_IN_POST = "offerall-offer-in-post",
   GET_OFFER_TOKEN = "offer/token",
+  //General
+  UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,
 }
