@@ -29,7 +29,7 @@ export default function ChatJson({ data, className = "", maxHeight = 300, showCo
     }
   }
 
-  const renderJsonValue = (value: any, depth = 0): JSX.Element => {
+  const renderJsonValue = (value: any, depth = 0) => {
 
     if (value === null) {
       return <span className="text-gray-500">null</span>
