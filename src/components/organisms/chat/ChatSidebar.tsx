@@ -10,7 +10,7 @@ interface ChatSidebarProps {
   users: UserChat[]
   messages: Message[]
   activeChat: string
-  onSelectChat: (chatRoomID: string) => void
+  onSelectChat: any
 }
 
 export default function ChatSidebar({ messages, users, onSelectChat }: ChatSidebarProps) {
@@ -82,7 +82,7 @@ export default function ChatSidebar({ messages, users, onSelectChat }: ChatSideb
               id={user.chatRoomID}
               name={userMain.id != user.account1ID ? user.account1Name : user.account2Name}
               avatar={""}
-              onClick={() => onSelectChat(user.chatRoomID)}
+              onClick={onSelectChat}
             />
           )
         })}

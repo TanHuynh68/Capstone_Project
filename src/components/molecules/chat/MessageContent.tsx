@@ -30,6 +30,5 @@ export default function MessageContent({
         return <ChatText content={content} isCurrentUser={isCurrentUser} className={className} />
     }
   }
-
   return <>{renderContent()}</>
 }

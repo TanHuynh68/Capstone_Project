@@ -1,158 +1,100 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
 import { detectInputType, reverseArray } from "@/components/utils";
-import {
-  HubConnectionBuilder,
-  LogLevel,
-  type HubConnection,
-} from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import axiosInstance from "@/config/axios";
 
 const Chat = () => {
   const [chatRoomID, setChatRoomId] = useState<string>("");
   const [chats, setChats] = useState<Message[]>([]);
-  const { getRoomList, getMessage, createChat } = ChatService();
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
-
-  // Sử dụng useRef để lưu trữ connection
+  // const [isConnectChatHub, setIsConnectChatHub] = useState<boolean>(false);
+  const { getRoomList, getMessage, createChat } = ChatService();
   const connectionRef = useRef<HubConnection | null>(null);
-  const currentRoomRef = useRef<string>("");
 
-  // Kết nối SignalR khi component mount
+  // Cleanup khi component unmount
   useEffect(() => {
-    connectToChatHub();
-    getUsersNeedToChat();
-
-    // Cleanup khi component unmount
     return () => {
       if (connectionRef.current) {
         connectionRef.current.stop();
+        console.log("🔌 Ngắt kết nối SignalR khi unmount");
       }
-      document.body.style.overflow = "";
     };
   }, []);
 
-  // Xử lý khi chatRoomID thay đổi
+  // Lấy danh sách người cần chat
   useEffect(() => {
-    console.log("chatRoomID: ");
-    console.log("connectionRef.current?.state: ");
-    if (chatRoomID != "") {
-      joinChatRoom(chatRoomID);
-      getMessageOfChat();
+    getUsersNeedToChat();
+  }, []);
+
+  // Khi chatRoomID thay đổi → kết nối lại và tham gia phòng mới
+  useEffect(() => {
+    if (chatRoomID) {
+      initChatHub(chatRoomID);
     }
   }, [chatRoomID]);
 
-  // Xử lý overflow body khi chat mở/đóng
+  // Khóa scroll khi mở chat
   useEffect(() => {
-    if (isChatOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isChatOpen ? "hidden" : "";
   }, [isChatOpen]);
 
-  // Kết nối tới ChatHub
-  const connectToChatHub = async () => {
-    setShouldScroll(true);
-    try {
-      const token = localStorage.getItem("token") || "";
-
-      if (!token) {
-        console.error("Không tìm thấy token");
-        return;
-      }
-
-      const connection = new HubConnectionBuilder()
-        .withUrl("https://pdcbackendapi.tlog.website/chatHub", {
-          accessTokenFactory: () => token,
-        })
-        .withAutomaticReconnect([0, 2000, 10000, 30000]) // Tự động kết nối lại
-        .configureLogging(LogLevel.Information)
-        .build();
-
-      // Xử lý các sự kiện connection
-      // connection.onclose((error) => {
-      //   console.log("❌ SignalR connection closed:", error);
-      //   setConnectionStatus("Disconnected");
-      // });
-
-      // connection.onreconnecting((error) => {
-      //   console.log("🔄 SignalR reconnecting:", error);
-      //   setConnectionStatus("Reconnecting");
-      // });
-
-      // connection.onreconnected((connectionId) => {
-      //   console.log("✅ SignalR reconnected:", connectionId);
-      //   setConnectionStatus("Connected");
-      //   // Rejoin room nếu có
-      //   if (currentRoomRef.current) {
-      //     joinChatRoom(currentRoomRef.current);
-      //   }
-      // });
-      
-      // Lắng nghe tin nhắn mới
-      connection.on("ReceiveMessage", (message: any) => {
-        console.log("📨 Received message:", message);
-        // Cập nhật tin nhắn realtime
-        setChats((prevChats) => {
-          return prevChats;
-        });
-
-        setTimeout(() => setShouldScroll(false), 200);
-      });
-
-      // Lắng nghe khi user join room
-      connection.on("UserJoinedRoom", (roomId: string, userId: string) => {
-        console.log(`👤 User ${userId} joined room ${roomId}`);
-      });
-
-      // Lắng nghe khi user leave room
-      connection.on("UserLeftRoom", (roomId: string, userId: string) => {
-        console.log(`👋 User ${userId} left room ${roomId}`);
-      });
-
-      // Lắng nghe lỗi
-      connection.on("Error", (error: string) => {
-        console.error("❌ SignalR Error:", error);
-      });
-
-      // Bắt đầu kết nối
-      await connection.start();
-      console.log("✅ SignalR Connected successfully");
-      // setConnectionStatus("Connected");
-
-      connectionRef.current = connection;
-    } catch (error) {
-      console.error("❌ Error connecting to SignalR:", error);
-      // setConnectionStatus("Failed");
-    }
-  };
-
-  // Join vào room chat
-  const joinChatRoom = async (roomId: string) => {
-    if (!connectionRef.current || connectionRef.current.state !== "Connected") {
-      console.warn("SignalR connection not ready");
+  const initChatHub = async (roomId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("❌ Không tìm thấy token");
       return;
     }
 
-    try {
-      // Leave room cũ nếu có
-      if (currentRoomRef.current && currentRoomRef.current !== roomId) {
-        await connectionRef.current.invoke("LeaveRoom", currentRoomRef.current);
-        console.log(`👋 Left room: ${currentRoomRef.current}`);
-      }
+    // Ngắt kết nối cũ nếu có
+    if (connectionRef.current) {
+      await connectionRef.current.stop();
+      console.log("🔁 Ngắt kết nối cũ trước khi tạo kết nối mới");
+    }
 
-      // Join room mới
-      await connectionRef.current.invoke("JoinRoom", roomId);
-      console.log(`👤 Joined room: ${roomId}`);
-      currentRoomRef.current = roomId;
+    const connection = new HubConnectionBuilder()
+      .withUrl("https://pdcbackendapi.tlog.website/chatHub", {
+        accessTokenFactory: () => token,
+      })
+      .withAutomaticReconnect()
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    connection.on("ReceiveMessage", async () => {
+      console.log("📩 Nhận sự kiện ReceiveMessage");
+      if (roomId) {
+        await getMessageOfChat(roomId);
+      }
+    });
+
+    try {
+      await connection.start();
+      console.log("✅ Kết nối SignalR thành công");
+      connectionRef.current = connection;
+      await joinChatRoom(roomId);
     } catch (error) {
-      console.error("❌ Error joining room:", error);
+      console.error("❌ Lỗi kết nối SignalR:", error);
+    }
+  };
+
+  // Tham gia phòng chat
+  const joinChatRoom = async (roomId: string) => {
+    try {
+      console.log("🚪 Tham gia phòng:", roomId);
+      await axiosInstance.post(`https://pdcbackendapi.tlog.website/api/v1/chat`, {
+        roomChatID: roomId,
+        message: "[JOIN_ROOM]",
+        messageType: 0,
+      });
+      await getMessageOfChat(roomId);
+    } catch (error) {
+      console.error("❌ Lỗi khi join room:", error);
     }
   };
 
@@ -160,101 +102,63 @@ const Chat = () => {
   const getUsersNeedToChat = async () => {
     try {
       const response = await getRoomList();
-      if (response) {
-        setUsersNeedToChat(response.responseRequestModel.chatRooms);
-        // Tự động chọn room đầu tiên nếu có
-        if (response.responseRequestModel.chatRooms.length > 0) {
-          setChatRoomId(response.responseRequestModel.chatRooms[0].chatRoomID);
-          console.log(
-            "getUsersNeedToChat: ",
-            response.responseRequestModel.chatRooms[0].chatRoomID
-          );
-        }
+      const rooms = response?.responseRequestModel?.chatRooms ?? [];
+
+      setUsersNeedToChat(rooms);
+
+      if (rooms.length > 0) {
+        setChatRoomId(rooms[0].chatRoomID); // auto chọn room đầu
       }
     } catch (error) {
-      console.error("Error getting chat rooms:", error);
+      console.error("❌ Lỗi lấy danh sách chat:", error);
     }
   };
 
-  // Lấy tin nhắn của room
-  const getMessageOfChat = async () => {
-    if (usersNeedToChat.length === 0 || !chatRoomID) return;
-
+  // Lấy tin nhắn theo phòng
+  const getMessageOfChat = async (roomId: string) => {
+    if (!roomId) return;
     try {
-      setLoadingMessage(true);
-      const response = await getMessage(chatRoomID);
-      if (response) {
-        setIsChatOpen(true);
-        const sortedMessages: Message[] = reverseArray(
-          response.responseRequestModel.responseList.items
-        );
-        setChats(sortedMessages);
-      }
+      setShouldScroll(true);
+      const response = await getMessage(roomId);
+      const messages = response?.responseRequestModel?.responseList?.items ?? [];
+      const sortedMessages: Message[] = reverseArray(messages);
+      setChats(sortedMessages);
+      setIsChatOpen(true);
     } catch (error) {
-      console.error("Error getting messages:", error);
+      console.error("❌ Lỗi lấy tin nhắn:", error);
     } finally {
       setLoadingMessage(false);
     }
   };
 
-
-  // Gửi tin nhắn qua SignalR
+  // Gửi tin nhắn
   const handleSendMessage = async (messageContent: string) => {
-    setShouldScroll(true);
-    if (!connectionRef.current || connectionRef.current.state !== "Connected") {
-      console.warn("SignalR connection not ready");
-      return;
-    }
-
-    if (!chatRoomID || !messageContent.trim()) {
-      console.warn("Missing chatRoomID or message content");
-      return;
-    }
-
+    if (!chatRoomID || !messageContent.trim()) return;
     try {
-      // Detect message type
       const msgTypeNumber = detectInputType(messageContent);
-
       const messageData = {
-        RoomChatID: chatRoomID,
-        Message: messageContent.trim(),
-        MessageType: msgTypeNumber,
+        roomChatID: chatRoomID,
+        message: messageContent.trim(),
+        messageType: msgTypeNumber,
       };
-
-      console.log("📤 Sending message:", messageData);
-
-      // Gửi tin nhắn qua SignalR
-      await connectionRef.current.invoke("SendMessage", messageData);
-    } catch (error) {
-      console.error("❌ Error sending message:", error);
-
-      // Fallback: nếu SignalR fail thì dùng API
-      try {
-        const response = await createChat({
-          RoomChatID: chatRoomID,
-          Message: messageContent.trim(),
-          MessageType: detectInputType(messageContent),
-        });
-
-        if (response) {
-          getMessageOfChat();
-          setShouldScroll(false);
-        }
-      } catch (apiError) {
-        console.error("❌ API fallback also failed:", apiError);
+      const response = await createChat(messageData);
+      if (response) {
+        await getMessageOfChat(chatRoomID);
       }
+    } catch (error) {
+      console.error("❌ Lỗi gửi tin nhắn:", error);
     }
   };
 
-  // Xử lý khi chọn chat room khác
+  // Chọn người cần chat
   const handleSelectChat = (newChatRoomID: string) => {
+    if (newChatRoomID === chatRoomID) return;
+    console.log("🧑‍💬 Chọn người chat:", newChatRoomID);
     setChatRoomId(newChatRoomID);
   };
 
   return (
     <div className="h-screen w-full">
-      {/* Hiển thị trạng thái kết nối */}
-
       <ChatTemplate
         loadingMessage={loadingMessage}
         setShouldScroll={setShouldScroll}
