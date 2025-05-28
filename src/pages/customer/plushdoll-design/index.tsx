@@ -26,11 +26,11 @@ import {
   Check,
   X,
   Image as ImageIcon,
-  Scissors,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
 import CanvasList from "./get-canvas";
+import ItemLibrary from "./ItemLibrary";
 import {
   Popover,
   PopoverTrigger,
@@ -43,141 +43,8 @@ import RemoveBackgroundButton from "./RemoveBackgroundButton";
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
-// Update LibraryItem interface
-interface LibraryItem {
-  id: string;
-  name: string;
-  imageUrl: string;
-  category: string;
-  tags?: string[];
-}
-
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
-
-// Update ItemLibrary component
-const ItemLibrary: React.FC<{
-  onSelect: (imageUrl: string) => void;
-  isOpen: boolean;
-}> = ({ onSelect, isOpen }) => {
-  const [items] = useState<LibraryItem[]>([
-    {
-      id: "1",
-      name: "Labubu 1",
-      imageUrl: "/images/labubu-1.png",
-      category: "Characters",
-      tags: ["cute", "animal"],
-    },
-    {
-      id: "2",
-      name: "Labubu 2",
-      imageUrl: "/images/labubu-2.png",
-      category: "Characters",
-      tags: ["cute", "animal"],
-    },
-    {
-      id: "3",
-      name: "Labubu 3",
-      imageUrl: "/images/labubu-3.png",
-      category: "Characters",
-      tags: ["cute", "animal"],
-    },
-    // Add more items as needed
-  ]);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const filteredItems = items.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    const matchesCategory =
-      !selectedCategory || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const categories = Array.from(new Set(items.map((item) => item.category)));
-
-  const handleDragStart = (e: DragEvent<HTMLDivElement>, imageUrl: string) => {
-    e.dataTransfer.setData("text/plain", imageUrl);
-    e.dataTransfer.effectAllowed = "copy";
-
-    // Create a ghost image for better drag feedback
-    const img = new Image();
-    img.src = imageUrl;
-    e.dataTransfer.setDragImage(img, 50, 50);
-  };
-
-  const handleItemClick = (imageUrl: string) => {
-    onSelect(imageUrl);
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="w-[300px] h-full border-l bg-white flex flex-col">
-      <div className="p-4 border-b">
-        <h3 className="font-medium mb-4">Các mẫu Labubu</h3>
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4"
-        />
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            variant={selectedCategory === null ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedCategory(null)}
-          >
-            Tất cả
-          </Button>
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 gap-4">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="cursor-move group"
-              onClick={() => handleItemClick(item.imageUrl)}
-              draggable
-              onDragStart={(e) => handleDragStart(e, item.imageUrl)}
-            >
-              <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
-                  draggable={false}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-              </div>
-              <p className="text-sm text-center text-gray-600 truncate">
-                {item.name}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
