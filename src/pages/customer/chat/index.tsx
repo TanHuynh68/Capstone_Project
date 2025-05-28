@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
 import { detectInputType, reverseArray } from "@/components/utils";
-import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
 import axiosInstance from "@/config/axios";
 
 const Chat = () => {
@@ -12,9 +16,7 @@ const Chat = () => {
   const [chats, setChats] = useState<Message[]>([]);
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
-  // const [isConnectChatHub, setIsConnectChatHub] = useState<boolean>(false);
   const { getRoomList, getMessage, createChat } = ChatService();
   const connectionRef = useRef<HubConnection | null>(null);
 
@@ -39,11 +41,6 @@ const Chat = () => {
       initChatHub(chatRoomID);
     }
   }, [chatRoomID]);
-
-  // Khóa scroll khi mở chat
-  useEffect(() => {
-    document.body.style.overflow = isChatOpen ? "hidden" : "";
-  }, [isChatOpen]);
 
   const initChatHub = async (roomId: string) => {
     const token = localStorage.getItem("token");
@@ -87,11 +84,14 @@ const Chat = () => {
   const joinChatRoom = async (roomId: string) => {
     try {
       console.log("🚪 Tham gia phòng:", roomId);
-      await axiosInstance.post(`https://pdcbackendapi.tlog.website/api/v1/chat`, {
-        roomChatID: roomId,
-        message: "[JOIN_ROOM]",
-        messageType: 0,
-      });
+      await axiosInstance.post(
+        `https://pdcbackendapi.tlog.website/api/v1/chat`,
+        {
+          roomChatID: roomId,
+          message: "[JOIN_ROOM]",
+          messageType: 0,
+        }
+      );
       await getMessageOfChat(roomId);
     } catch (error) {
       console.error("❌ Lỗi khi join room:", error);
@@ -120,10 +120,11 @@ const Chat = () => {
     try {
       setShouldScroll(true);
       const response = await getMessage(roomId);
-      const messages = response?.responseRequestModel?.responseList?.items ?? [];
+      const messages =
+        response?.responseRequestModel?.responseList?.items ?? [];
       const sortedMessages: Message[] = reverseArray(messages);
       setChats(sortedMessages);
-      setIsChatOpen(true);
+      // setIsChatOpen(true);
     } catch (error) {
       console.error("❌ Lỗi lấy tin nhắn:", error);
     } finally {
@@ -133,6 +134,8 @@ const Chat = () => {
 
   // Gửi tin nhắn
   const handleSendMessage = async (messageContent: string) => {
+    console.log("messageContent: ", messageContent);
+    console.log("chatRoomID: ", chatRoomID);
     if (!chatRoomID || !messageContent.trim()) return;
     try {
       const msgTypeNumber = detectInputType(messageContent);

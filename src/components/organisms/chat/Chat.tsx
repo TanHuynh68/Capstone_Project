@@ -108,7 +108,7 @@ export function ChatInterface() {
           <h1 className="text-xl font-bold text-indigo-400">shadcn-chat</h1>
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" className="rounded-full">
-              <Github className="h-5 w-5" />
+              <Github className="h-5 w-5" /> 
             </Button>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Moon className="h-5 w-5" />

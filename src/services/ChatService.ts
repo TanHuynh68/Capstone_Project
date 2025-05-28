@@ -60,7 +60,65 @@ const ChatService = () => {
     [callApi]
   );
 
-  return { getRoomList, getMessage, createChatRoom, createChat };
+  const uploadImageMessage = useCallback(
+    async (file: any) => {
+      const formData = new FormData();
+      formData.append("ImageFile", file);
+
+      try {
+        console.log("ImageFile: ", file);
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.CHAT_UPLOAD_IMAGE,
+          formData
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  const updateMessage = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.CREATE_CHAT,
+          values
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.DELETE,
+          API_ROUTES.DELETE_MESSAGE_CHAT,
+          messageId
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  return {
+    getRoomList,
+    getMessage,
+    createChatRoom,
+    createChat,
+    updateMessage,
+    deleteMessage,
+    uploadImageMessage,
+  };
 };
 
 export default ChatService;
