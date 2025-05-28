@@ -96,6 +96,9 @@ export enum API_ROUTES {
   CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
   GET_MESSAGE = `${API_ENDPOINTS.CHAT}/message`,
   GET_ROOMLIST = `${API_ENDPOINTS.CHAT}/room-list`,
+  CHAT_UPLOAD_IMAGE = `${API_ENDPOINTS.CHAT}/upload-image`,
+  UPDATE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
+  DELETE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
   //Offer
   CREATE_OFFER = "offer",
   GET_OFFERS_IN_POST = "offerall-offer-in-post",

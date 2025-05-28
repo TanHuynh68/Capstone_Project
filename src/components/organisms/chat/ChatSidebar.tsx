@@ -1,6 +1,6 @@
 "use client"
 
-import { Github, Moon } from "lucide-react"
+import {Moon } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ChatButton from "@/components/atoms/chat/ChatButton"
 import ChatListItem from "@/components/molecules/chat/ChatListItem"
@@ -20,10 +20,6 @@ export default function ChatSidebar({ messages, users, onSelectChat }: ChatSideb
       <div className="flex items-center justify-between border-b border-gray-800 p-4 sticky top-0 z-10 ">
         <h1 className="text-xl font-bold text-indigo-400">Trò Chuyện</h1>
         <div className="flex gap-2">
-          <ChatButton>
-            <Github className="h-5 w-5" />
-            <span className="sr-only">Github</span>
-          </ChatButton>
           <ChatButton>
             <Moon className="h-5 w-5" />
             <span className="sr-only">Chế độ tối</span>

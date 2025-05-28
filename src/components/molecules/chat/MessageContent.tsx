@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import ChatImage from "@/components/atoms/chat/ChatImage"
-import ChatLink from "@/components/atoms/chat/ChatLink"
-import ChatText from "@/components/atoms/chat/ChatText"
+import ChatImage from "@/components/atoms/chat/ChatImage";
+import ChatJson from "@/components/atoms/chat/ChatJson";
+import ChatLink from "@/components/atoms/chat/ChatLink";
+import ChatText from "@/components/atoms/chat/ChatText";
 
 interface MessageContentProps {
-  content: string
-  messageType: string
-  isCurrentUser?: boolean
-  className?: string
+  content: string;
+  messageType: string;
+  isCurrentUser?: boolean;
+  className?: string;
 }
 
 export default function MessageContent({
@@ -20,15 +21,34 @@ export default function MessageContent({
   const renderContent = () => {
     switch (messageType?.toLowerCase()) {
       case "image":
-        return <ChatImage src={content} alt="Hình ảnh tin nhắn" isCurrentUser={isCurrentUser} className={className} />
-
+        return (
+          <ChatImage
+            src={content}
+            alt="Hình ảnh tin nhắn"
+            isCurrentUser={isCurrentUser}
+            className={className}
+          />
+        );
       case "link":
-        return <ChatLink url={content} isCurrentUser={isCurrentUser} className={className} />
-
+        return (
+          <ChatLink
+            url={content}
+            isCurrentUser={isCurrentUser}
+            className={className}
+          />
+        );
+      case "json":
+        return <ChatJson data={content} className={className} />;
       case "text":
       default:
-        return <ChatText content={content} isCurrentUser={isCurrentUser} className={className} />
+        return (
+          <ChatText
+            content={content}
+            isCurrentUser={isCurrentUser}
+            className={className}
+          />
+        );
     }
-  }
-  return <>{renderContent()}</>
+  };
+  return <div className="max-w-[800px]">{renderContent()}</div>;
 }

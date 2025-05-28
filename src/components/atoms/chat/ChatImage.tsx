@@ -23,6 +23,7 @@ export default function ChatImage({
   const [imageError, setImageError] = useState(false);
 
   const handleImageClick = () => {
+    console.log('handleImageClick')
     setIsModalOpen(true);
   };
 
@@ -59,15 +60,15 @@ export default function ChatImage({
 
   return (
     <>
-      <div className={cn("relative group cursor-pointer", className)}>
+      <div className={cn("relative group cursor-pointer", className)} onClick={handleImageClick}>
         <div className="relative overflow-hidden rounded-lg max-w-xs">
           {!imageLoaded && (
             <div className="w-48 h-32 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
               <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
             </div>
           )}
-
-          <img
+          <div  >
+            <img
             src={src || "/placeholder.svg"}
             alt={alt}
             className={cn(
@@ -76,9 +77,8 @@ export default function ChatImage({
             )}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
-            onClick={handleImageClick}
           />
-
+          </div>
           {imageLoaded && (
             <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center rounded-lg">
               <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />

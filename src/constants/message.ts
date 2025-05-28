@@ -76,5 +76,8 @@ export const MESSAGE = {
     GET_CANVAS_FAILED: "Lấy bản vẽ thất bại.",
 
     //POST
-    CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!"
+    CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!",
+    //CHAT
+    DELETE_MESSAGE_SUCCESSFULLY:"Xóa tin nhắn thành công",
+    
 }
