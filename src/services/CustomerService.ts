@@ -97,7 +97,7 @@ const CustomerService = () => {
           API_ROUTES.CREATE_CANVAS,
           values
         );
-        toast.success(MESSAGE.CREATE_CANVAS_SUCCESSFULLY);
+        // toast.success(MESSAGE.CREATE_CANVAS_SUCCESSFULLY);
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.CREATE_CANVAS_FAILED);
@@ -106,10 +106,42 @@ const CustomerService = () => {
     [callApi]
   );
 
+  const putCanvas = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.UPDATE_CANVAS,
+          values
+        );
+        // toast.success(MESSAGE.CREATE_CANVAS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.UPDATE_CANVAS_FAILED);
+      }
+    },
+    [callApi]
+  );
 
- 
+  const deleteCanvas = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.DELETE,
+          API_ROUTES.DELETE_CANVAS,
+          values
+        );
+        // toast.success(MESSAGE.DELETE_CANVAS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.DELETE_CANVAS_FAILED);
+      }
+    },
+    [callApi]
+  );
 
-  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, loading, setIsLoading };
+
+  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, putCanvas, deleteCanvas, loading, setIsLoading };
 };
 
 export default CustomerService;

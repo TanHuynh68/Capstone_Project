@@ -6,6 +6,7 @@ const ENV = {
   GHN_SHOP_ID: import.meta.env.VITE_GHN_SHOP_ID,
   CLOUDINARY_UPLOAD_PRESET: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
   CLOUDINARY_NAME: import.meta.env.VITE_CLOUDINARY_NAME,
+  VITE_REMOVE_BACKGROUND: import.meta.env.VITE_REMOVE_BACKGROUND,
 };
 
 export default ENV;

@@ -9,7 +9,11 @@ interface CanvasItem {
 }
 
 interface CanvasListProps {
-  onSelect: (canvasDescription: string) => void;
+  onSelect: (
+    canvasDescription: string,
+    canvasTitle: string,
+    canvasId: string
+  ) => void;
 }
 
 const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
@@ -27,6 +31,15 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
       setLoading(true);
       const data = await getCanvas({ canvasTitle: searchTitle, page, size });
       setCanvasList(data?.responseRequestModel?.responseList?.items || []);
+
+      // Dispatch event với tổng số canvas
+      const totalCount =
+        data?.responseRequestModel?.responseList?.totalCount || 0;
+      window.dispatchEvent(
+        new CustomEvent("canvasCountUpdated", {
+          detail: { totalCount },
+        })
+      );
     } catch (error) {
       console.error("Lỗi tải canvas:", error);
     } finally {
@@ -34,8 +47,12 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
     }
   }, [page, getCanvas, searchTitle]);
 
-  const handleSelectCanvas = (description: string) => {
-    onSelect(description);
+  const handleSelectCanvas = (
+    description: string,
+    title: string,
+    id: string
+  ) => {
+    onSelect(description, title, id);
   };
 
   const handleSearch = () => {
@@ -48,10 +65,22 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
     loadList();
   }, [searchTitle, page, loadList]);
 
+  // Thêm event listener để load lại danh sách khi canvas được lưu
+  useEffect(() => {
+    const handleCanvasSaved = () => {
+      setPage(1); // Reset về trang 1
+      loadList(); // Load lại danh sách
+    };
+
+    window.addEventListener("canvasSaved", handleCanvasSaved);
+    return () => {
+      window.removeEventListener("canvasSaved", handleCanvasSaved);
+    };
+  }, [loadList]);
+
   // useEffect(() => {
   //   console.log("Danh sách canvas: ", canvasList);
   // }, [canvasList]);
-  
 
   return (
     <div className="space-y-2">
@@ -87,7 +116,13 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
               key={item?.canvasInfoId}
               className="cursor-pointer p-1 border rounded hover:bg-gray-100 text-sm truncate"
               title={item.canvasTitle}
-              onClick={() => handleSelectCanvas(item.canvasDescription)}
+              onClick={() =>
+                handleSelectCanvas(
+                  item.canvasDescription,
+                  item.canvasTitle,
+                  item.canvasInfoId
+                )
+              }
             >
               {item.canvasTitle}
             </div>

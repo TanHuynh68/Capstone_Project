@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LoginImage from "../../atoms/login/LoginImage";
+import LoginVideo from "../../atoms/login/LoginVideo";
 import { PATH } from "@/routes/path";
 import useAuthService from "@/services/AuthService";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -20,9 +20,14 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [usernameShake, setUsernameShake] = useState(false);
+  const [passwordShake, setPasswordShake] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     const values = { username, password };
     // console.log("Dữ liệu gửi đi:", values);
@@ -34,6 +39,37 @@ export function LoginForm({
     } finally {
       setLoading(false);
     }
+  };
+
+  const triggerShake = (
+    setShake: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    setShake(true);
+    setTimeout(() => {
+      setShake(false);
+    }, 500); // Reset after animation completes
+  };
+
+  const validate = () => {
+    let valid = true;
+
+    if (!username.trim()) {
+      setUsernameError("Vui lòng nhập email hoặc số điện thoại");
+      triggerShake(setUsernameShake);
+      valid = false;
+    } else {
+      setUsernameError("");
+    }
+
+    if (!password.trim()) {
+      setPasswordError("Vui lòng nhập mật khẩu");
+      triggerShake(setPasswordShake);
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    return valid;
   };
 
   return (
@@ -69,16 +105,41 @@ export function LoginForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="username">Email</Label>
+                <Label htmlFor="username">Email/Số điện thoại</Label>
                 <Input
+                  key={usernameShake ? "username-shake" : "username"} // ép re-render
                   id="username"
                   type="text"
                   placeholder="m@example.com"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    if (usernameError) setUsernameError("");
+                  }}
+                  onFocus={() => {
+                    setUsernameError("");
+                    setUsernameShake(false);
+                  }}
+                  onBlur={() => {
+                    if (!username.trim()) {
+                      setUsernameError(
+                        "Vui lòng nhập email hoặc số điện thoại"
+                      );
+                      triggerShake(setUsernameShake);
+                    } else {
+                      setUsernameError("");
+                    }
+                  }}
+                  className={cn(
+                    usernameError && "border-red-500",
+                    usernameShake && "animate-[shake_0.5s_ease-in-out]"
+                  )}
                   disabled={loading}
                 />
+
+                {usernameError && (
+                  <p className="text-red-500 text-sm mt-1">{usernameError}</p>
+                )}
               </div>
 
               <div className="grid gap-2">
@@ -93,13 +154,33 @@ export function LoginForm({
                 </div>
                 <div className="relative">
                   <Input
+                    key={passwordShake ? "password-shake" : "password"} // ép re-render
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (passwordError) setPasswordError("");
+                    }}
+                    onFocus={() => {
+                      setPasswordError("");
+                      setPasswordShake(false);
+                    }}
+                    onBlur={() => {
+                      if (!password.trim()) {
+                        setPasswordError("Vui lòng nhập mật khẩu");
+                        triggerShake(setPasswordShake);
+                      } else {
+                        setPasswordError("");
+                      }
+                    }}
+                    className={cn(
+                      passwordError && "border-red-500",
+                      passwordShake && "animate-[shake_0.5s_ease-in-out]"
+                    )}
                     disabled={loading}
                   />
+
                   <button
                     type="button"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -113,6 +194,9 @@ export function LoginForm({
                     )}
                   </button>
                 </div>
+                {passwordError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
@@ -121,19 +205,21 @@ export function LoginForm({
               </Button>
 
               <div className="text-center text-sm">
-                Chưa có tài khoản?{" "}
-                <Link
-                  to="/auth/register"
-                  className="underline underline-offset-4"
-                >
-                  Đăng ký
-                </Link>
+                <p className="text-gray-600">
+                  Chưa có tài khoản?{" "}
+                  <Link
+                    to="/auth/register"
+                    className="font-medium text-blue-600 hover:text-blue-500"
+                  >
+                    Đăng ký
+                  </Link>
+                </p>
               </div>
             </div>
           </form>
 
           <div className="relative hidden h-full bg-muted md:block">
-            <LoginImage />
+            <LoginVideo />
           </div>
         </CardContent>
       </Card>

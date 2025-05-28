@@ -75,6 +75,12 @@ export const MESSAGE = {
     GET_CANVAS_SUCCESSFULLY: "Lấy bản vẽ thành công.",
     GET_CANVAS_FAILED: "Lấy bản vẽ thất bại.",
 
+    UPDATE_CANVAS_SUCCESSFULLY: "Cập nhật bản vẽ thành công.",
+    UPDATE_CANVAS_FAILED: "Cập nhật bản vẽ thất bại.",
+
+    DELETE_CANVAS_SUCCESSFULLY: "Xóa bản vẽ thành công.",
+    DELETE_CANVAS_FAILED: "Xóa bản vẽ thất bại.",
+
     //POST
     CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!"
 }

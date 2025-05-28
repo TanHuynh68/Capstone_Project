@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, DragEvent } from "react";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,12 @@ import {
   Layers,
   ArrowUpFromLine,
   ArrowDownFromLine,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  X,
+  Image as ImageIcon,
+  Scissors,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -32,9 +38,146 @@ import {
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { convertToPixels } from "@/components/utils/convert";
+import RemoveBackgroundButton from "./RemoveBackgroundButton";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
+
+// Update LibraryItem interface
+interface LibraryItem {
+  id: string;
+  name: string;
+  imageUrl: string;
+  category: string;
+  tags?: string[];
+}
+
+// Add proper type for drag events
+type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
+
+// Update ItemLibrary component
+const ItemLibrary: React.FC<{
+  onSelect: (imageUrl: string) => void;
+  isOpen: boolean;
+}> = ({ onSelect, isOpen }) => {
+  const [items] = useState<LibraryItem[]>([
+    {
+      id: "1",
+      name: "Labubu 1",
+      imageUrl: "/images/labubu-1.png",
+      category: "Characters",
+      tags: ["cute", "animal"],
+    },
+    {
+      id: "2",
+      name: "Labubu 2",
+      imageUrl: "/images/labubu-2.png",
+      category: "Characters",
+      tags: ["cute", "animal"],
+    },
+    {
+      id: "3",
+      name: "Labubu 3",
+      imageUrl: "/images/labubu-3.png",
+      category: "Characters",
+      tags: ["cute", "animal"],
+    },
+    // Add more items as needed
+  ]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const filteredItems = items.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags?.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    const matchesCategory =
+      !selectedCategory || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = Array.from(new Set(items.map((item) => item.category)));
+
+  const handleDragStart = (e: DragEvent<HTMLDivElement>, imageUrl: string) => {
+    e.dataTransfer.setData("text/plain", imageUrl);
+    e.dataTransfer.effectAllowed = "copy";
+
+    // Create a ghost image for better drag feedback
+    const img = new Image();
+    img.src = imageUrl;
+    e.dataTransfer.setDragImage(img, 50, 50);
+  };
+
+  const handleItemClick = (imageUrl: string) => {
+    onSelect(imageUrl);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="w-[300px] h-full border-l bg-white flex flex-col">
+      <div className="p-4 border-b">
+        <h3 className="font-medium mb-4">Các mẫu Labubu</h3>
+        <Input
+          type="text"
+          placeholder="Tìm kiếm..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mb-4"
+        />
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant={selectedCategory === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory(null)}
+          >
+            Tất cả
+          </Button>
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="grid grid-cols-2 gap-4">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className="cursor-move group"
+              onClick={() => handleItemClick(item.imageUrl)}
+              draggable
+              onDragStart={(e) => handleDragStart(e, item.imageUrl)}
+            >
+              <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+                  draggable={false}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              </div>
+              <p className="text-sm text-center text-gray-600 truncate">
+                {item.name}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
@@ -57,6 +200,8 @@ const PlushDollDesign: React.FC = () => {
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const [canvasWidthInput, setCanvasWidthInput] = useState("960");
   const [canvasHeightInput, setCanvasHeightInput] = useState("540");
+  const [actualCanvasWidth, setActualCanvasWidth] = useState("960");
+  const [actualCanvasHeight, setActualCanvasHeight] = useState("540");
   const [scaleRatio, setScaleRatio] = useState(1);
   const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
 
@@ -71,7 +216,7 @@ const PlushDollDesign: React.FC = () => {
     index: -1,
   });
 
-  const { postCanvas } = CustomerService();
+  const { postCanvas, getCanvas, putCanvas } = CustomerService();
 
   // Add this near other state declarations
   const [textProperties, setTextProperties] = useState({
@@ -83,6 +228,34 @@ const PlushDollDesign: React.FC = () => {
     textAlign: "center",
     underline: false,
   });
+
+  const [totalCanvasCount, setTotalCanvasCount] = useState(0);
+  const [currentCanvasTitle, setCurrentCanvasTitle] =
+    useState<string>("Thiết kế mới");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [currentCanvasId, setCurrentCanvasId] = useState<string>("");
+
+  const [libraryOpen, setLibraryOpen] = useState(false);
+
+  // Thêm useEffect để lấy số lượng canvas khi component mount
+  useEffect(() => {
+    const fetchCanvasCount = async () => {
+      try {
+        const data = await getCanvas({ page: 1, size: 100 });
+        console.log(data, "data");
+        const totalCount =
+          data?.responseRequestModel?.responseList?.totalItems || 0;
+        setTotalCanvasCount(totalCount);
+        setCurrentCanvasTitle(`Thiết kế ${totalCount + 1}`);
+      } catch (error) {
+        console.error("Lỗi khi lấy số lượng canvas:", error);
+        setCurrentCanvasTitle("Thiết kế mới");
+      }
+    };
+
+    fetchCanvasCount();
+  }, [getCanvas]);
 
   // Initial canvas & events setup
   useEffect(() => {
@@ -99,9 +272,8 @@ const PlushDollDesign: React.FC = () => {
     // Selection events for smart toolbar
     canvas.on("selection:created", (e) => {
       if (e.selected && e.selected.length > 0) {
-        // Nếu đang select nhiều object thì đừng handle từng cái
         if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          setToolbarVisible(false); // Hide toolbar vì đang multi select
+          setToolbarVisible(false);
           setActiveText(null);
         } else {
           handleSelection(e.selected[0]);
@@ -187,7 +359,7 @@ const PlushDollDesign: React.FC = () => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
-  const createNewCanvas = () => {
+  const createNewCanvas = async () => {
     const width = parseFloat(canvasWidthInput);
     const height = parseFloat(canvasHeightInput);
 
@@ -200,6 +372,24 @@ const PlushDollDesign: React.FC = () => {
       toast.error("Chiều cao phải từ 1,058cm đến 83,336cm");
       return;
     }
+
+    // Reset canvas ID when creating new canvas
+    setCurrentCanvasId("");
+
+    // Fetch latest canvas count before creating new canvas
+    try {
+      const data = await getCanvas({ page: 1, size: 100 });
+      const latestCount =
+        data?.responseRequestModel?.responseList?.totalItems || 0;
+      setTotalCanvasCount(latestCount);
+      setCurrentCanvasTitle(`Thiết kế ${latestCount + 1}`);
+    } catch (error) {
+      console.error("Lỗi khi lấy số lượng canvas:", error);
+      setCurrentCanvasTitle(`Thiết kế ${totalCanvasCount + 1}`);
+    }
+
+    setActualCanvasWidth(canvasWidthInput);
+    setActualCanvasHeight(canvasHeightInput);
 
     const widthPx = convertToPixels(width, unit);
     const heightPx = convertToPixels(height, unit);
@@ -217,7 +407,7 @@ const PlushDollDesign: React.FC = () => {
 
     saveInitialState();
 
-    toast.success(`Tạo canvas mới ${width}x${height} ${unit}`);
+    toast.success(`Đã tạo canvas mới ${width}x${height} ${unit}`);
   };
 
   const updateScaleRatio = () => {
@@ -230,27 +420,26 @@ const PlushDollDesign: React.FC = () => {
     const parentHeight = wrapperParent.clientHeight;
 
     const canvasWidth = convertToPixels(
-      parseFloat(canvasWidthInput) || 0,
+      parseFloat(actualCanvasWidth) || 0,
       unit
     );
     const canvasHeight = convertToPixels(
-      parseFloat(canvasHeightInput) || 0,
+      parseFloat(actualCanvasHeight) || 0,
       unit
     );
 
     const widthRatio = parentWidth / canvasWidth;
     const heightRatio = parentHeight / canvasHeight;
 
-    const ratio = Math.min(widthRatio, heightRatio, 1); // fit cả width & height, không to hơn 1
+    const ratio = Math.min(widthRatio, heightRatio, 1);
 
     canvasRef.current.setZoom(ratio);
     canvasRef.current.requestRenderAll();
 
-    // Wrapper div chỉ để giữ vị trí, không scale
     canvasWrapperRef.current.style.width = `${canvasWidth}px`;
     canvasWrapperRef.current.style.height = `${canvasHeight}px`;
 
-    setScaleRatio(ratio); // Nếu cần hiển thị % scale trên UI thì giữ state này
+    setScaleRatio(ratio);
   };
 
   const handleSelection = (obj: fabric.Object) => {
@@ -312,7 +501,7 @@ const PlushDollDesign: React.FC = () => {
   };
 
   const convertToTextbox = (iTextObj: fabric.IText) => {
-    const index = getObjectIndex(iTextObj); // Lưu lại vị trí cũ
+    const index = getObjectIndex(iTextObj);
 
     const textbox = new fabric.Textbox(iTextObj.text || "", {
       left: iTextObj.left,
@@ -329,10 +518,8 @@ const PlushDollDesign: React.FC = () => {
     });
 
     canvasRef.current?.remove(iTextObj);
-
     canvasRef.current?.add(textbox);
 
-    // ✅ Đợi 1 tick rồi mới move về đúng layer + setActiveObject để Fabric không đẩy lên top
     setTimeout(() => {
       if (canvasRef.current) {
         textbox.moveTo(index);
@@ -341,7 +528,6 @@ const PlushDollDesign: React.FC = () => {
       }
     }, 0);
 
-    // ✅ Update properties
     setActiveText(textbox);
     setTextProperties({
       fontFamily: textbox.fontFamily || "Arial",
@@ -543,15 +729,62 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [dragging]);
 
-  const loadCanvasFromDescription = (canvasDescription: string) => {
-    if (!canvasRef.current) return;
+  const loadCanvasFromDescription = (
+    canvasDescription: string,
+    canvasTitle: string,
+    canvasId: string
+  ) => {
+    console.log("loadCanvasFromDescription called with:", {
+      canvasId,
+      canvasTitle,
+      hasCanvasId: !!canvasId,
+      descriptionLength: canvasDescription?.length,
+    });
+
+    if (!canvasRef.current) {
+      console.error("Canvas ref is not available");
+      return;
+    }
+
+    if (!canvasId) {
+      console.error("Canvas ID is missing");
+      toast.error("Không tìm thấy thông tin canvas");
+      return;
+    }
+
+    if (!canvasDescription) {
+      console.error("Canvas description is missing");
+      toast.error("Không tìm thấy dữ liệu canvas");
+      return;
+    }
+
     isRestoringRef.current = true;
     const safeJson = sanitizeCanvasJSON(canvasDescription);
-    canvasRef.current.loadFromJSON(safeJson, () => {
-      canvasRef.current?.renderAll();
+
+    try {
+      canvasRef.current.loadFromJSON(safeJson, () => {
+        canvasRef.current?.renderAll();
+        isRestoringRef.current = false;
+
+        // Set all required state
+        setCurrentCanvasTitle(canvasTitle);
+        setCurrentCanvasId(canvasId);
+        setEditingTitle(canvasTitle);
+        setIsEditingTitle(false);
+
+        console.log("Canvas loaded successfully:", {
+          canvasId,
+          canvasTitle,
+          currentCanvasId: canvasId, // Verify ID is set
+        });
+
+        toast.success("Đã tải canvas thành công!");
+      });
+    } catch (error) {
+      console.error("Error loading canvas:", error);
+      toast.error("Có lỗi xảy ra khi tải canvas");
       isRestoringRef.current = false;
-      toast.success("Đã tải canvas thành công!");
-    });
+    }
   };
 
   const saveInitialState = () => {
@@ -663,32 +896,136 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
-  const saveCanvasAsJSON = async () => {
-    if (!canvasRef.current) return;
-    const canvasJson = canvasRef.current.toJSON();
-    console.log(canvasJson, "canvasJson");
-    const canvasDescription = JSON.stringify(canvasJson); // Đúng yêu cầu: JSON.stringify vào description
+  const handleUpdateTitle = async () => {
+    console.log("handleUpdateTitle called with:", {
+      currentCanvasId,
+      editingTitle,
+      trimmedTitle: editingTitle.trim(),
+      isEmpty: !editingTitle.trim(),
+      isNewCanvas: !currentCanvasId,
+    });
 
-    const canvasTitle = prompt("Nhập tiêu đề cho canvas:");
-    if (!canvasTitle) {
-      toast.error("Bạn cần nhập tiêu đề canvas.");
+    // Kiểm tra title sau khi trim
+    const trimmedTitle = editingTitle.trim();
+    if (!trimmedTitle) {
+      toast.error("Tiêu đề không được để trống");
+      return;
+    }
+
+    // Nếu title không thay đổi thì không cần update
+    if (trimmedTitle === currentCanvasTitle) {
+      setIsEditingTitle(false);
       return;
     }
 
     try {
-      await postCanvas({
-        canvasTitle,
-        canvasDescription,
+      if (!currentCanvasId) {
+        console.log("Updating title for new canvas");
+        // For new canvas, just update the title locally
+        setCurrentCanvasTitle(trimmedTitle);
+        setIsEditingTitle(false);
+        return;
+      }
+
+      console.log("Updating title for existing canvas:", currentCanvasId);
+
+      // Get current canvas data
+      const canvasData = canvasRef.current?.toJSON();
+      if (!canvasData) {
+        toast.error("Không thể lấy dữ liệu canvas");
+        return;
+      }
+
+      // Convert canvas data to string
+      const canvasDescription = JSON.stringify(canvasData);
+
+      // Update existing canvas with correct format
+      const response = await putCanvas({
+        canvasInfoId: currentCanvasId,
+        canvasTitle: trimmedTitle,
+        canvasDescription: canvasDescription,
       });
 
-      // Sau khi gọi API xong, tải file JSON
+      // Check if update was successful
+      if (!response?.isSuccess) {
+        throw new Error(response?.message || "Cập nhật thất bại");
+      }
+
+      setCurrentCanvasTitle(trimmedTitle);
+      setIsEditingTitle(false);
+      toast.success("Đã cập nhật tiêu đề thành công");
+
+      // Dispatch event để cập nhật danh sách canvas
+      window.dispatchEvent(new CustomEvent("canvasSaved"));
+    } catch (error: unknown) {
+      console.error("Error updating title:", error);
+      // Show specific error message from API if available
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi cập nhật tiêu đề";
+      toast.error(errorMessage);
+      // Reset editing state on error
+      setEditingTitle(currentCanvasTitle);
+      setIsEditingTitle(false);
+    }
+  };
+
+  const saveCanvasAsJSON = async () => {
+    if (!canvasRef.current) return;
+    const canvasJson = canvasRef.current.toJSON();
+    console.log("Saving canvas:", {
+      currentCanvasId,
+      currentCanvasTitle,
+      hasCanvasId: !!currentCanvasId,
+    });
+
+    const canvasDescription = JSON.stringify(canvasJson);
+
+    try {
+      if (currentCanvasId) {
+        // Update existing canvas with correct format
+        const response = await putCanvas({
+          canvasInfoId: currentCanvasId,
+          canvasTitle: currentCanvasTitle,
+          canvasDescription,
+        });
+
+        if (!response?.isSuccess) {
+          throw new Error(response?.message || "Cập nhật thất bại");
+        }
+      } else {
+        // Create new canvas with correct format
+        const response = await postCanvas({
+          canvasTitle: currentCanvasTitle,
+          canvasDescription,
+        });
+
+        if (!response?.isSuccess) {
+          throw new Error(response?.message || "Tạo mới thất bại");
+        }
+
+        // Set the new canvas ID from response
+        if (response?.responseRequestModel?.canvasInfoId) {
+          setCurrentCanvasId(response.responseRequestModel.canvasInfoId);
+        }
+      }
+
       const blob = new Blob([canvasDescription], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "canvas.json";
       link.click();
-    } catch (err) {
-      console.error("Lỗi gửi canvas:", err);
+
+      // Dispatch event khi lưu thành công
+      window.dispatchEvent(new CustomEvent("canvasSaved"));
+
+      toast.success("Đã lưu canvas thành công!");
+    } catch (error: unknown) {
+      console.error("Lỗi khi lưu canvas:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu canvas";
+      toast.error(errorMessage);
     }
   };
 
@@ -731,26 +1068,231 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
+  // Add new function to handle item selection
+  const handleItemSelect = (imageUrl: string) => {
+    fabric.Image.fromURL(imageUrl, (img) => {
+      // Set initial size - smaller default size
+      const maxSize = 150; // Reduced from 200 to 150
+      const aspectRatio = img.width! / img.height!;
+
+      if (aspectRatio > 1) {
+        img.scaleToWidth(maxSize);
+      } else {
+        img.scaleToHeight(maxSize);
+      }
+
+      // Place at center of canvas
+      const centerX = canvasRef.current!.width! / 2;
+      const centerY = canvasRef.current!.height! / 2;
+
+      img.set({
+        left: centerX,
+        top: centerY,
+        selectable: true,
+        originX: "center",
+        originY: "center",
+      });
+
+      canvasRef.current?.add(img);
+      canvasRef.current?.setActiveObject(img);
+      saveState();
+    });
+  };
+
+  // Update drag and drop handlers for canvas
+  useEffect(() => {
+    if (
+      !canvasRef.current ||
+      !htmlCanvasRef.current ||
+      !canvasWrapperRef.current
+    )
+      return;
+
+    const canvas = canvasRef.current;
+    const canvasElement = htmlCanvasRef.current;
+    const wrapper = canvasWrapperRef.current;
+
+    const handleDragOver: DragEventHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "copy";
+    };
+
+    const handleDrop: DragEventHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const imageUrl = e.dataTransfer.getData("text/plain");
+      if (!imageUrl) return;
+
+      // Get canvas position and scale
+      const wrapperRect = wrapper.getBoundingClientRect();
+
+      // Calculate position relative to canvas wrapper
+      const x = e.clientX - wrapperRect.left;
+      const y = e.clientY - wrapperRect.top;
+
+      // Convert to canvas coordinates
+      const canvasX = x / scaleRatio;
+      const canvasY = y / scaleRatio;
+
+      // Create and add image
+      fabric.Image.fromURL(imageUrl, (img) => {
+        // Set initial size
+        const maxSize = 150;
+        const aspectRatio = img.width! / img.height!;
+
+        if (aspectRatio > 1) {
+          img.scaleToWidth(maxSize);
+        } else {
+          img.scaleToHeight(maxSize);
+        }
+
+        // Calculate image dimensions after scaling
+        const scaledWidth = img.width! * img.scaleX!;
+        const scaledHeight = img.height! * img.scaleY!;
+
+        // Place image center at cursor position
+        img.set({
+          left: canvasX - scaledWidth / 2,
+          top: canvasY - scaledHeight / 2,
+          selectable: true,
+          originX: "left",
+          originY: "top",
+        });
+
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.requestRenderAll();
+        saveState();
+      });
+    };
+
+    // Add event listeners to canvas wrapper instead of canvas element
+    wrapper.addEventListener(
+      "dragover",
+      handleDragOver as unknown as EventListener
+    );
+    wrapper.addEventListener("drop", handleDrop as unknown as EventListener);
+
+    return () => {
+      wrapper.removeEventListener(
+        "dragover",
+        handleDragOver as unknown as EventListener
+      );
+      wrapper.removeEventListener(
+        "drop",
+        handleDrop as unknown as EventListener
+      );
+    };
+  }, [scaleRatio]);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b p-4 flex items-center justify-between shadow-sm">
-        <div className="font-bold text-lg text-primary">
-          🎨 PlushDoll Studio
+        <div className="flex items-center gap-6">
+          <div className="font-bold text-xl text-primary flex items-center gap-2">
+            <span className="bg-primary/10 p-2 rounded-lg">🎨</span>
+            <span>PlushDoll Design</span>
+          </div>
+          <div className="text-sm text-gray-600 border-l pl-6">
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <input
+                  type="text"
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleUpdateTitle();
+                    } else if (e.key === "Escape") {
+                      setIsEditingTitle(false);
+                      setEditingTitle(currentCanvasTitle);
+                    }
+                  }}
+                  className="border rounded px-2 py-1 text-sm w-[150px] bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                  autoFocus
+                  placeholder="Nhập tiêu đề..."
+                />
+                <div className="flex items-center">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleUpdateTitle}
+                    className="h-7 w-7 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditingTitle(false);
+                      setEditingTitle(currentCanvasTitle);
+                    }}
+                    className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-500 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="group flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-gray-200 transition-all"
+                onClick={() => {
+                  setIsEditingTitle(true);
+                  setEditingTitle(currentCanvasTitle);
+                }}
+              >
+                <span className="text-gray-700 font-medium">
+                  {currentCanvasTitle}
+                </span>
+                <span className="opacity-0 group-hover:opacity-100 text-gray-400 transition-opacity">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex gap-2 items-center">
           <Input
             type="number"
             value={canvasWidthInput}
             onChange={(e) => setCanvasWidthInput(e.target.value)}
-            placeholder="Width"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                createNewCanvas();
+              }
+            }}
+            placeholder="Chiều rộng"
             className="w-24"
           />
           <Input
             type="number"
             value={canvasHeightInput}
             onChange={(e) => setCanvasHeightInput(e.target.value)}
-            placeholder="Height"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                createNewCanvas();
+              }
+            }}
+            placeholder="Chiều cao"
             className="w-24"
           />
           <select
@@ -770,19 +1312,19 @@ const PlushDollDesign: React.FC = () => {
         <div className="flex gap-2">
           <Button variant="outline" onClick={undo}>
             <Undo2 className="w-4 h-4 mr-1" />
-            Undo
+            Hoàn tác
           </Button>
           <Button variant="outline" onClick={redo}>
             <Redo2 className="w-4 h-4 mr-1" />
-            Redo
+            Làm lại
           </Button>
           <Button variant="outline" onClick={saveCanvasAsPNG}>
             <Download className="w-4 h-4 mr-1" />
-            PNG
+            Xuất PNG
           </Button>
           <Button variant="outline" onClick={saveCanvasAsJSON}>
             <Download className="w-4 h-4 mr-1" />
-            JSON
+            Lưu JSON
           </Button>
           <Input
             type="file"
@@ -790,12 +1332,13 @@ const PlushDollDesign: React.FC = () => {
             onChange={(e) =>
               e.target.files && loadCanvasFromJSON(e.target.files[0])
             }
+            className="w-[120px]"
           />
         </div>
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* Main sidebar */}
         <aside
           className={`${
             isSidebarCollapsed ? "w-16" : "w-64"
@@ -804,25 +1347,32 @@ const PlushDollDesign: React.FC = () => {
           <Button
             size="icon"
             variant="outline"
-            className="absolute -right-4 top-4 z-10"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 shadow-md rounded-full w-6 h-6 flex items-center justify-center"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
           >
-            {isSidebarCollapsed ? "➡️" : "⬅️"}
+            {isSidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
           </Button>
 
           {!isSidebarCollapsed ? (
             <>
               <Button
-                variant="outline"
+                variant={isDrawing ? "default" : "outline"}
                 onClick={() =>
                   setIsDrawing((prev) => {
                     canvasRef.current!.isDrawingMode = !prev;
                     return !prev;
                   })
                 }
+                className={
+                  isDrawing ? "bg-blue-500 hover:bg-blue-600 text-white" : ""
+                }
               >
                 <Pencil className="w-4 h-4 mr-1" />
-                {isDrawing ? "Disable" : "Enable"} Draw
+                Vẽ: {isDrawing ? "[Tắt]" : "[Bật]"}
               </Button>
 
               <Input
@@ -831,19 +1381,19 @@ const PlushDollDesign: React.FC = () => {
                 onChange={(e) =>
                   e.target.files && uploadImage(e.target.files[0])
                 }
+                className="w-full"
               />
 
               <Button
                 variant="outline"
                 onClick={() => {
-                  const text = new fabric.Textbox("Text here", {
+                  const text = new fabric.Textbox("Nhập văn bản", {
                     left: 100,
                     top: 100,
                     width: 150,
                     textAlign: "center",
                     fontSize: 20,
                     fill: "#000",
-                    // padding: 10,
                   });
                   canvasRef.current?.add(text);
                   canvasRef.current?.setActiveObject(text);
@@ -851,16 +1401,16 @@ const PlushDollDesign: React.FC = () => {
                 }}
               >
                 <FilePlus className="w-4 h-4 mr-1" />
-                Add Text
+                Thêm văn bản
               </Button>
 
               <Button variant="destructive" onClick={removeSelected}>
                 <Trash2 className="w-4 h-4 mr-1" />
-                Delete
+                Xóa
               </Button>
 
               <div>
-                <label>Brush Color</label>
+                <label>Màu bút vẽ</label>
                 <Input
                   type="color"
                   defaultValue="#000000"
@@ -871,7 +1421,7 @@ const PlushDollDesign: React.FC = () => {
               </div>
 
               <div>
-                <label>Brush Size</label>
+                <label>Độ dày bút vẽ</label>
                 <Slider
                   defaultValue={[3]}
                   min={1}
@@ -882,35 +1432,40 @@ const PlushDollDesign: React.FC = () => {
                   }
                 />
               </div>
-              {/* <CopilotImageGenerator />
 
-              <ImageGenerator /> */}
+              <Button
+                variant={libraryOpen ? "default" : "outline"}
+                className="w-full"
+                onClick={() => setLibraryOpen(!libraryOpen)}
+              >
+                <ImageIcon className="w-4 h-4 mr-1" />
+                Các mẫu Labubu
+              </Button>
 
-              {/* CanvasList luôn được mount, chỉ toggle hiển thị UI bằng hidden */}
               <div className={isSidebarCollapsed ? "hidden" : ""}>
-                <CanvasList onSelect={loadCanvasFromDescription} />
+                <CanvasList
+                  onSelect={(description, title, id) => {
+                    console.log("Canvas selected:", { id, title });
+                    loadCanvasFromDescription(description, title, id);
+                  }}
+                />
               </div>
             </>
           ) : (
             <>
               <Button
                 size="icon"
-                variant="outline"
-                onClick={() =>
-                  setIsDrawing((prev) => {
-                    canvasRef.current!.isDrawingMode = !prev;
-                    return !prev;
-                  })
-                }
+                variant={libraryOpen ? "default" : "outline"}
+                onClick={() => setLibraryOpen(!libraryOpen)}
               >
-                <Pencil className="w-4 h-4" />
+                <ImageIcon className="w-4 h-4" />
               </Button>
 
               <Button
                 size="icon"
                 variant="outline"
                 onClick={() => {
-                  const text = new fabric.IText("Text", {
+                  const text = new fabric.IText("Nhập văn bản", {
                     left: 100,
                     top: 100,
                     fontSize: 20,
@@ -934,9 +1489,11 @@ const PlushDollDesign: React.FC = () => {
             </>
           )}
         </aside>
+
+        {/* Item Library Sidebar */}
+        <ItemLibrary onSelect={handleItemSelect} isOpen={libraryOpen} />
+
         {/* Canvas */}
-        {/* <div className="flex-1 p-4 pt-8 flex relative"> */}
-        {/* <Card className="flex-1 shadow-lg"> */}
         <div className="flex-1 relative bg-gray-50">
           {activeText && (
             <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
@@ -1161,11 +1718,11 @@ const PlushDollDesign: React.FC = () => {
               className="relative bg-white shadow-md origin-top"
               style={{
                 width: `${convertToPixels(
-                  parseFloat(canvasWidthInput) || 0,
+                  parseFloat(actualCanvasWidth) || 0,
                   unit
                 )}px`,
                 height: `${convertToPixels(
-                  parseFloat(canvasHeightInput) || 0,
+                  parseFloat(actualCanvasHeight) || 0,
                   unit
                 )}px`,
                 transform: `scale(${scaleRatio})`,
@@ -1178,6 +1735,7 @@ const PlushDollDesign: React.FC = () => {
                   const obj = canvasRef.current?.getActiveObject();
                   const atTop = obj ? isAtTop(obj) : false;
                   const atBottom = obj ? isAtBottom(obj) : false;
+                  const isImage = obj?.type === "image";
 
                   return (
                     <div
@@ -1282,16 +1840,22 @@ const PlushDollDesign: React.FC = () => {
                           <ArrowDownFromLine className="w-4 h-4" />
                         </Button>
                       )}
+
+                      {isImage && (
+                        <RemoveBackgroundButton
+                          canvas={canvasRef.current}
+                          onStateChange={() => {
+                            // You can add additional state handling here if needed
+                          }}
+                          onSaveState={saveState}
+                        />
+                      )}
                     </div>
                   );
                 })()}
             </div>
           </div>
         </div>
-        {/* </CardContent> */}
-        {/* </Card> */}
-        {/* </CardContent> */}
-        {/* </Card> */}
       </div>
     </div>
   );
