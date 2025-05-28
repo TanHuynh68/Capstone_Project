@@ -16,9 +16,7 @@ const Chat = () => {
   const [chats, setChats] = useState<Message[]>([]);
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
   const [shouldScroll, setShouldScroll] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
-  // const [isConnectChatHub, setIsConnectChatHub] = useState<boolean>(false);
   const { getRoomList, getMessage, createChat } = ChatService();
   const connectionRef = useRef<HubConnection | null>(null);
 
@@ -43,11 +41,6 @@ const Chat = () => {
       initChatHub(chatRoomID);
     }
   }, [chatRoomID]);
-
-  // Khóa scroll khi mở chat
-  useEffect(() => {
-    document.body.style.overflow = isChatOpen ? "hidden" : "";
-  }, [isChatOpen]);
 
   const initChatHub = async (roomId: string) => {
     const token = localStorage.getItem("token");
@@ -131,7 +124,7 @@ const Chat = () => {
         response?.responseRequestModel?.responseList?.items ?? [];
       const sortedMessages: Message[] = reverseArray(messages);
       setChats(sortedMessages);
-      setIsChatOpen(true);
+      // setIsChatOpen(true);
     } catch (error) {
       console.error("❌ Lỗi lấy tin nhắn:", error);
     } finally {
