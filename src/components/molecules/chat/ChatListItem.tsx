@@ -9,14 +9,14 @@ interface ChatListItemProps {
   avatar: string
   // lastMessage: string
   // isActive: boolean
-  onClick: () => void
+  onClick: any
 }
 
-export default function ChatListItem({ name, avatar, onClick }: ChatListItemProps) {
+export default function ChatListItem({ name, avatar, onClick, id }: ChatListItemProps) {
   return (
     <button
       className={cn("flex w-full items-start gap-3 p-3 text-left hover:bg-gray-200")}
-      onClick={onClick}
+      onClick={()=>onClick(id)}
     >
       <ChatAvatar src={avatar} name={name} />
       <div className="flex-1 overflow-hidden">

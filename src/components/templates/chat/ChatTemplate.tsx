@@ -8,7 +8,7 @@ interface ChatTemplateProps {
   message: Message[];
   users: UserChat[];
   chatRoomID: string;
-  onSelectChat: (chatRoomID: string) => void;
+  onSelectChat: any;
   onSendMessage: (message: string) => void;
   shouldScrollToBottom: boolean;
   loadingMessage: boolean;
