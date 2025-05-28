@@ -1,20 +1,25 @@
-"use client"
+"use client";
 
-import {Moon } from "lucide-react"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import ChatButton from "@/components/atoms/chat/ChatButton"
-import ChatListItem from "@/components/molecules/chat/ChatListItem"
-import { useCurrentUser } from "@/components/utils"
+import { Moon } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import ChatButton from "@/components/atoms/chat/ChatButton";
+import ChatListItem from "@/components/molecules/chat/ChatListItem";
+import { useCurrentUser } from "@/components/utils";
 
 interface ChatSidebarProps {
-  users: UserChat[]
-  messages: Message[]
-  activeChat: string
-  onSelectChat: any
+  users: UserChat[];
+  messages: Message[];
+  activeChat: string;
+  onSelectChat: any;
 }
 
-export default function ChatSidebar({ messages, users, onSelectChat }: ChatSidebarProps) {
+export default function ChatSidebar({
+  messages,
+  users,
+  onSelectChat,
+}: ChatSidebarProps) {
   const userMain = useCurrentUser();
+  console.log('users: ',users)
   return (
     <div className="flex w-80 flex-col border-r border-gray-800">
       <div className="flex items-center justify-between border-b border-gray-800 p-4 sticky top-0 z-10 ">
@@ -28,7 +33,9 @@ export default function ChatSidebar({ messages, users, onSelectChat }: ChatSideb
       </div>
 
       <div className="flex items-center justify-between p-4">
-        <h2 className="text-lg font-semibold">Cuộc trò chuyện ({messages?.length})</h2>
+        <h2 className="text-lg font-semibold">
+          Cuộc trò chuyện ({messages?.length})
+        </h2>
         <div className="flex gap-2">
           <ChatButton>
             <span className="sr-only">Tùy chọn</span>
@@ -74,15 +81,20 @@ export default function ChatSidebar({ messages, users, onSelectChat }: ChatSideb
         {users?.map((user) => {
           return (
             <ChatListItem
+              lastMessage={''}
               key={user.chatRoomID}
               id={user.chatRoomID}
-              name={userMain.id != user.account1ID ? user.account1Name : user.account2Name}
+              name={
+                userMain.id != user.account1ID
+                  ? user.account1Name
+                  : user.account2Name
+              }
               avatar={""}
               onClick={onSelectChat}
             />
-          )
+          );
         })}
       </ScrollArea>
     </div>
-  )
+  );
 }
