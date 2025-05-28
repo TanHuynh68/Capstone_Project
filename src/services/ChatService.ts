@@ -46,15 +46,11 @@ const ChatService = () => {
 
   const createChat = useCallback(
     async (values: any) => {
-      const formData = new FormData();
-      formData.append("RoomChatID", values.RoomChatID);
-      formData.append("Message", values.Message);
-      formData.append("MessageType", values.MessageType);
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
           API_ROUTES.CREATE_CHAT,
-          formData
+          values
         );
         return res;
       } catch (err: any) {
