@@ -7,5 +7,5 @@ interface ChatTextProps {
 }
 
 export default function ChatText({ content, className = "" }: ChatTextProps) {
-  return <div className={cn("whitespace-pre-wrap break-words max-w-[800px]", className)}>{content}</div>
+  return <div className={cn("whitespace-pre-wrap break-words", className)}>{content}</div>
 }

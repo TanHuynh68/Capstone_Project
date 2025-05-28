@@ -1,65 +1,73 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
-import ChatMessage from "@/components/molecules/chat/ChatMessage";
-import { useEffect, useRef, useState } from "react";
-import LoadingSpinner from "@/components/atoms/loading-spinner/LoadingSpinner";
+"use client"
+
+import { useRef, useEffect } from "react"
+import ChatMessage from "@/components/molecules/chat/ChatMessage"
+
 
 interface MessageListProps {
-  messages: Message[];
-  users: UserChat[];
-  shouldScrollToBottom: boolean;
-  loadingMessage: boolean;
+  messages: Message[]
+  users: UserChat[]
+  loading?: boolean
+  className?: string
+  onDeleteMessage?: (messageId: string) => Promise<void>
+  onEditMessage?: (messageId: string, newContent: string) => Promise<void>
 }
 
 export default function MessageList({
   messages,
   users,
-  shouldScrollToBottom,
-  loadingMessage,
+  loading = false,
+  className = "",
+  onDeleteMessage,
+  onEditMessage,
 }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const [count, setCount] = useState<number>(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // đẩy tin nhắn mới nhất khi mới vào
+  // Scroll to bottom when new messages are added
   useEffect(() => {
-    if (count === 0) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
-    setCount(1);
-  }, [messages, shouldScrollToBottom, count]); // Theo dõi mảng messages
+  }, [messages])
 
-  useEffect(() => {
-    if (shouldScrollToBottom) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, shouldScrollToBottom]); // Theo dõi mảng messages
+  if (loading) {
+    return (
+      <div className={`flex h-full items-center justify-center ${className}`}>
+        <div className="flex flex-col items-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+          <p className="mt-2 text-sm text-gray-500">Đang tải tin nhắn...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (messages.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
-        <div>Chưa có tính nhắn nào</div>
+      <div className={`flex h-full items-center justify-center ${className}`}>
+        <div className="text-center">
+          <p className="text-gray-500">Chưa có tin nhắn nào.</p>
+          <p className="text-sm text-gray-400">Hãy bắt đầu cuộc trò chuyện!</p>
+        </div>
       </div>
-    );
-  }
-
-  if (loadingMessage) {
-    return <LoadingSpinner />;
+    )
   }
 
   return (
-    <ScrollArea className="flex-1 p-4 ">
-      <div className="flex flex-col gap-4">
-        {messages?.map((msg) => (
-          <ChatMessage
-            messageType={msg.messageType}
-            senderID={msg.senderID}
-            key={msg.senderID}
-            content={msg.content}
-            timestamp={msg.sentAt}
-            users={users}
-          />
-        ))}
-      </div>
-      <div ref={bottomRef} />
-    </ScrollArea>
-  );
+    <div className={`flex flex-col space-y-4 p-4 ${className}`} data-testid="message-list">
+      {messages.map((message) => (
+        <ChatMessage
+          key={message.senderID}
+          id={message.senderID}
+          content={message.content}
+          timestamp={message.sentAt}
+          messageType={message.messageType}
+          users={users}
+          senderID={message.senderID}
+          onDeleteMessage={onDeleteMessage}
+          onEditMessage={onEditMessage}
+        />
+      ))}
+      <div ref={messagesEndRef} />
+    </div>
+  )
 }
