@@ -64,10 +64,12 @@ const ChatService = () => {
     async (file: any) => {
       const formData = new FormData();
       formData.append("ImageFile", file);
+
       try {
+        console.log("ImageFile: ", file);
         const res = await callApi(
           HTTP_METHOD.POST,
-          API_ROUTES.CREATE_CHAT,
+          API_ROUTES.CHAT_UPLOAD_IMAGE,
           formData
         );
         return res;

@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
 import { detectInputType, reverseArray } from "@/components/utils";
-import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
 import axiosInstance from "@/config/axios";
 
 const Chat = () => {
@@ -87,11 +91,14 @@ const Chat = () => {
   const joinChatRoom = async (roomId: string) => {
     try {
       console.log("🚪 Tham gia phòng:", roomId);
-      await axiosInstance.post(`https://pdcbackendapi.tlog.website/api/v1/chat`, {
-        roomChatID: roomId,
-        message: "[JOIN_ROOM]",
-        messageType: 0,
-      });
+      await axiosInstance.post(
+        `https://pdcbackendapi.tlog.website/api/v1/chat`,
+        {
+          roomChatID: roomId,
+          message: "[JOIN_ROOM]",
+          messageType: 0,
+        }
+      );
       await getMessageOfChat(roomId);
     } catch (error) {
       console.error("❌ Lỗi khi join room:", error);
@@ -120,7 +127,8 @@ const Chat = () => {
     try {
       setShouldScroll(true);
       const response = await getMessage(roomId);
-      const messages = response?.responseRequestModel?.responseList?.items ?? [];
+      const messages =
+        response?.responseRequestModel?.responseList?.items ?? [];
       const sortedMessages: Message[] = reverseArray(messages);
       setChats(sortedMessages);
       setIsChatOpen(true);
@@ -133,6 +141,8 @@ const Chat = () => {
 
   // Gửi tin nhắn
   const handleSendMessage = async (messageContent: string) => {
+    console.log("messageContent: ", messageContent);
+    console.log("chatRoomID: ", chatRoomID);
     if (!chatRoomID || !messageContent.trim()) return;
     try {
       const msgTypeNumber = detectInputType(messageContent);
