@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Phone, Mail, Star, PlusCircle } from "lucide-react";
+import { MessageCircle, PlusCircle } from "lucide-react";
 import OfferService from "@/services/OfferService";
 import CreateOfferModal from "@/pages/designer/manage-offer-designer/CreateOfferModal";
 import { useSelector } from "react-redux";
