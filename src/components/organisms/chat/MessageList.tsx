@@ -56,8 +56,8 @@ export default function MessageList({
     <div className={`flex flex-col space-y-4 p-4 ${className}`} data-testid="message-list">
       {messages.map((message) => (
         <ChatMessage
-          key={message.senderID}
-          id={message.senderID}
+          key={message.messageID}
+          id={message.messageID}
           content={message.content}
           timestamp={message.sentAt}
           messageType={message.messageType}
