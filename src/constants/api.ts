@@ -103,7 +103,7 @@ export enum API_ROUTES {
   DELETE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
   //Offer
   CREATE_OFFER = "offer",
-  GET_OFFERS_IN_POST = "offerall-offer-in-post",
+  GET_OFFERS_IN_POST = "offer/all-offer-in-post",
   GET_OFFER_TOKEN = "offer/token",
   //General
   UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,

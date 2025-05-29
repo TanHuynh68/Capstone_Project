@@ -37,52 +37,29 @@ export default function PostDetailActions({
   );
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Hành động</h2>
+    <div
+      className={`bg-card text-card-foreground rounded-lg shadow-sm border border-border p-6 ${className}`}
+    >
+      <h2 className="text-xl font-semibold mb-4">Hành động</h2>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
         <Button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           size="lg"
         >
           <MessageCircle className="mr-2 h-5 w-5" />
           Liên hệ ngay
         </Button>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            className="border-green-300 text-green-700 hover:bg-green-50"
-          >
-            <Phone className="mr-2 h-4 w-4" />
-            Gọi điện
-          </Button>
-
-          <Button
-            variant="outline"
-            className="border-purple-300 text-purple-700 hover:bg-purple-50"
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Email
-          </Button>
-        </div>
-
-        <Button
-          variant="outline"
-          className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-50"
-        >
-          <Star className="mr-2 h-4 w-4" />
-          Đánh giá bài đăng
-        </Button>
-
         {role?.trim().toLowerCase() === "designer" && (
           <Button
             onClick={() => setShowModal(true)}
-            variant="outline"
-            className="w-full border-cyan-300 text-cyan-700 hover:bg-cyan-50"
+            // variant="outline"
+            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <PlusCircle className="mr-2 h-4 w-4" />
-            Tạo offer
+            Tạo đề xuất
           </Button>
         )}
       </div>

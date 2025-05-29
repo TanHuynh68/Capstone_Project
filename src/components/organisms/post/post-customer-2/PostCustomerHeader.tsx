@@ -6,10 +6,13 @@ import DateDisplay from "@/components/atoms/post/post-detail/DateDisplay";
 import UserInfo from "@/components/molecules/post/post-detail/UserInfo";
 import StatusBadge from "@/components/atoms/post/post-list/StatusBadge";
 import { Breadcrumb } from "../../custom/breadcrumb/Breadcrumb";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDeleteConfirmation } from "@/hooks/useDeleteConfirmation";
 import DeleteConfirmationModal from "@/components/molecules/delete/DeleteConfirmationModal";
 import { useNavigate } from "react-router-dom";
+
+// Global state to track offer visibility for each post
+const offerVisibilityMap = new Map<string, boolean>();
 
 interface PostCustomerHeaderProps {
   post: Post;
@@ -33,6 +36,51 @@ export default function PostCustomerHeader({
 }: PostCustomerHeaderProps) {
   const navigate = useNavigate();
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [localIsSelected, setLocalIsSelected] = useState(() => {
+    // Initialize from global state or prop, but invert the logic
+    // isSelected = true means offers are visible, so button should show "Ẩn offers"
+    return offerVisibilityMap.has(post.projectPostID)
+      ? offerVisibilityMap.get(post.projectPostID) ?? false
+      : isSelected;
+  });
+
+  // Update global state when local state changes
+  useEffect(() => {
+    // Store the actual visibility state (true = offers visible)
+    offerVisibilityMap.set(post.projectPostID, localIsSelected);
+  }, [localIsSelected, post.projectPostID]);
+
+  // Update local state when prop changes (only if not already set in global state)
+  useEffect(() => {
+    if (!offerVisibilityMap.has(post.projectPostID)) {
+      setLocalIsSelected(isSelected);
+    }
+  }, [isSelected, post.projectPostID]);
+
+  // Listen for offer visibility changes from any source
+  useEffect(() => {
+    const handleOfferVisibilityChange = (e: CustomEvent) => {
+      if (e.detail.postId === post.projectPostID) {
+        // Only update if the change didn't come from this button
+        // This prevents double updates when clicking the button
+        if (e.detail.source !== "button") {
+          setLocalIsSelected(e.detail.isVisible);
+          offerVisibilityMap.set(post.projectPostID, e.detail.isVisible);
+        }
+      }
+    };
+
+    window.addEventListener(
+      "offer-visibility-change",
+      handleOfferVisibilityChange as EventListener
+    );
+    return () => {
+      window.removeEventListener(
+        "offer-visibility-change",
+        handleOfferVisibilityChange as EventListener
+      );
+    };
+  }, [post.projectPostID]);
 
   const {
     isOpen: isDeleteModalOpen,
@@ -60,24 +108,45 @@ export default function PostCustomerHeader({
     if (onViewOffers && !isTransitioning) {
       setIsTransitioning(true);
 
-      if (isSelected) {
-        // Khi ẩn offers, đợi animation hoàn thành trước khi gọi callback
-        setTimeout(() => {
-          onViewOffers();
-          // Đợi thêm một chút để đảm bảo animation hoàn thành
-          setTimeout(() => {
-            setIsTransitioning(false);
-          }, 100);
-        }, 400); // Thời gian đủ để animation exit hoàn thành
-      } else {
-        // Khi hiện offers, gọi callback ngay lập tức
+      // Determine new state based on current button state
+      const willShowOffers = !localIsSelected;
+
+      // Update button state immediately
+      setLocalIsSelected(willShowOffers);
+      offerVisibilityMap.set(post.projectPostID, willShowOffers);
+
+      if (willShowOffers) {
+        // When showing offers:
+        // 1. Update button to "Ẩn offers" immediately
+        // 2. Show offers
         onViewOffers();
         setTimeout(() => {
           setIsTransitioning(false);
         }, 300);
+      } else {
+        // When hiding offers:
+        // 1. Update button to "Xem offers" immediately
+        // 2. Hide offers with animation
+        setTimeout(() => {
+          onViewOffers();
+          setTimeout(() => {
+            setIsTransitioning(false);
+          }, 100);
+        }, 400);
       }
+
+      // Notify about visibility change after state update
+      window.dispatchEvent(
+        new CustomEvent("offer-visibility-change", {
+          detail: {
+            postId: post.projectPostID,
+            isVisible: willShowOffers,
+            source: "button", // Add source to identify button clicks
+          },
+        })
+      );
     }
-  }, [onViewOffers, isSelected, isTransitioning]);
+  }, [onViewOffers, localIsSelected, isTransitioning, post.projectPostID]);
 
   const items = [
     { href: "/", title: "Trang chủ" },
@@ -95,7 +164,7 @@ export default function PostCustomerHeader({
         <div className="flex items-center gap-2">
           {onViewOffers && (
             <Button
-              variant={isSelected ? "default" : "outline"}
+              variant={localIsSelected ? "default" : "outline"}
               onClick={handleViewOffers}
               disabled={isTransitioning}
               className={`flex items-center gap-2 transition-all duration-300 ${
@@ -104,10 +173,10 @@ export default function PostCustomerHeader({
             >
               <Eye
                 className={`h-4 w-4 transition-transform duration-300 ${
-                  isSelected ? "rotate-180" : ""
+                  localIsSelected ? "rotate-180" : ""
                 }`}
               />
-              {isSelected ? "Ẩn offers" : "Xem offers"}
+              {localIsSelected ? "Ẩn offers" : "Xem offers"}
             </Button>
           )}
           <Button

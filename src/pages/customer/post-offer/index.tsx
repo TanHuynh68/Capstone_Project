@@ -46,6 +46,7 @@ export default function PostOfferPage() {
                 onViewOffers={() => handleViewOffers(post.projectPostID)}
                 isSelected={selectedPostId === post.projectPostID}
                 postNumber={index + 1}
+                isFirstPost={index === 0}
               />
             ))}
           </div>
@@ -62,6 +63,7 @@ export default function PostOfferPage() {
           selectedPostId={selectedPostId}
           onAcceptOffer={handleAcceptOffer}
           onRejectOffer={handleRejectOffer}
+          isVisible={!!selectedPostId}
         />
       }
     />
