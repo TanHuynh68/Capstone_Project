@@ -11,12 +11,28 @@ interface RemoveBackgroundButtonProps {
   onSaveState?: () => void;
 }
 
+const SUPPORTED_FORMATS = ["image/png", "image/jpeg", "image/jpg"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
   canvas,
   onStateChange,
   onSaveState,
 }) => {
   const [isRemovingBg, setIsRemovingBg] = useState(false);
+
+  const getImageFormat = (src: string): string => {
+    const extension = src.split(".").pop()?.toLowerCase();
+    switch (extension) {
+      case "png":
+        return "image/png";
+      case "jpg":
+      case "jpeg":
+        return "image/jpeg";
+      default:
+        return "image/png"; // Default to PNG
+    }
+  };
 
   const handleRemoveBackground = async () => {
     const activeObject = canvas?.getActiveObject();
@@ -26,19 +42,76 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
     }
 
     const img = activeObject as fabric.Image;
-    const imgData = img.toDataURL({ format: "png" });
-
-    setIsRemovingBg(true);
-    onStateChange?.(true);
+    const imgSrc = img.getSrc();
+    const format = getImageFormat(imgSrc);
 
     try {
+      // Create a new image element to handle cross-origin
+      const imgElement = new Image();
+      imgElement.crossOrigin = "anonymous";
+
+      // Create a promise to handle image loading
+      const loadImage = new Promise((resolve, reject) => {
+        imgElement.onload = () => {
+          // Check file size
+          const canvas = document.createElement("canvas");
+          canvas.width = imgElement.width;
+          canvas.height = imgElement.height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(imgElement, 0, 0);
+
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error("Không thể tạo blob từ hình ảnh"));
+              return;
+            }
+
+            if (blob.size > MAX_FILE_SIZE) {
+              reject(new Error("Kích thước hình ảnh quá lớn (tối đa 10MB)"));
+              return;
+            }
+
+            if (!SUPPORTED_FORMATS.includes(format)) {
+              reject(
+                new Error(
+                  "Định dạng hình ảnh không được hỗ trợ (chỉ hỗ trợ PNG, JPEG, JPG)"
+                )
+              );
+              return;
+            }
+
+            resolve(imgElement);
+          }, format);
+        };
+        imgElement.onerror = () => reject(new Error("Không thể tải hình ảnh"));
+        imgElement.src = imgSrc;
+      });
+
+      // Wait for the image to load
+      await loadImage;
+
+      // Create a temporary canvas to get the image data
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      if (!tempCtx) throw new Error("Không thể tạo canvas context");
+
+      tempCanvas.width = imgElement.width;
+      tempCanvas.height = imgElement.height;
+      tempCtx.drawImage(imgElement, 0, 0);
+
+      const imgData = tempCanvas.toDataURL(format);
+
+      setIsRemovingBg(true);
+      onStateChange?.(true);
+
       // Convert base64 to blob
       const response = await fetch(imgData);
       const blob = await response.blob();
 
-      // Create form data
+      // Create form data with proper file extension
       const formData = new FormData();
-      formData.append("image_file", blob, "image.png");
+      const fileExtension = format === "image/png" ? "png" : "jpg";
+      formData.append("image_file", blob, `image.${fileExtension}`);
 
       // Call remove.bg API
       const removeBgResponse = await fetch(
@@ -53,39 +126,46 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
       );
 
       if (!removeBgResponse.ok) {
-        throw new Error("Failed to remove background");
+        const errorData = await removeBgResponse.json().catch(() => ({}));
+        throw new Error(errorData.message || "Không thể xóa nền");
       }
 
       const processedBlob = await removeBgResponse.blob();
       const processedUrl = URL.createObjectURL(processedBlob);
 
       // Replace the image on canvas
-      fabric.Image.fromURL(processedUrl, (newImg) => {
-        // Copy properties from old image
-        newImg.set({
-          left: img.left,
-          top: img.top,
-          scaleX: img.scaleX,
-          scaleY: img.scaleY,
-          angle: img.angle,
-          selectable: true,
-        });
+      fabric.Image.fromURL(
+        processedUrl,
+        (newImg) => {
+          // Copy properties from old image
+          newImg.set({
+            left: img.left,
+            top: img.top,
+            scaleX: img.scaleX,
+            scaleY: img.scaleY,
+            angle: img.angle,
+            selectable: true,
+          });
 
-        // Remove old image and add new one
-        canvas?.remove(img);
-        canvas?.add(newImg);
-        canvas?.setActiveObject(newImg);
-        canvas?.requestRenderAll();
-        onSaveState?.();
+          // Remove old image and add new one
+          canvas?.remove(img);
+          canvas?.add(newImg);
+          canvas?.setActiveObject(newImg);
+          canvas?.requestRenderAll();
+          onSaveState?.();
 
-        // Clean up
-        toast.success("Đã xóa nền thành công!");
-      });
+          // Clean up
+          URL.revokeObjectURL(processedUrl);
+          toast.success("Đã xóa nền thành công!");
+        },
+        { crossOrigin: "anonymous" }
+      );
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi xóa nền");
+      console.error("Error in remove background:", error);
       toast.error(
         error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa nền"
       );
+    } finally {
       setIsRemovingBg(false);
       onStateChange?.(false);
     }
@@ -98,7 +178,7 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
       onClick={handleRemoveBackground}
       disabled={isRemovingBg}
       className={isRemovingBg ? "opacity-50 cursor-not-allowed" : ""}
-      title="Xóa nền"
+      title="Xóa nền (hỗ trợ PNG, JPEG, JPG)"
     >
       <Scissors className="w-4 h-4" />
     </Button>

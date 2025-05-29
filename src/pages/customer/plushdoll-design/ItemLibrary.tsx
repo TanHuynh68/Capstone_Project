@@ -1,6 +1,7 @@
 import React, { useState, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import UnsplashLibrary from "./UnsplashLibrary";
 
 // Update LibraryItem interface
 export interface LibraryItem {
@@ -9,17 +10,20 @@ export interface LibraryItem {
   imageUrl: string;
   category: string;
   tags?: string[];
+  source: "local" | "unsplash";
 }
-
-// Add proper type for drag events
-type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
 
 interface ItemLibraryProps {
   onSelect: (imageUrl: string) => void;
   isOpen: boolean;
+  showUnsplash?: boolean;
 }
 
-const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
+const ItemLibrary: React.FC<ItemLibraryProps> = ({
+  onSelect,
+  isOpen,
+  showUnsplash,
+}) => {
   const [items] = useState<LibraryItem[]>([
     {
       id: "1",
@@ -27,6 +31,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-1.png",
       category: "Dễ thương",
       tags: ["cute", "animal"],
+      source: "local",
     },
     {
       id: "2",
@@ -34,6 +39,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-2.png",
       category: "Giàu",
       tags: ["cute", "animal"],
+      source: "local",
     },
     {
       id: "3",
@@ -41,6 +47,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-3.png",
       category: "Dễ thương",
       tags: ["cute", "animal"],
+      source: "local",
     },
     {
       id: "4",
@@ -48,6 +55,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-4.png",
       category: "Hài hước",
       tags: ["cool", "animal"],
+      source: "local",
     },
     {
       id: "5",
@@ -55,6 +63,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-5.png",
       category: "Giàu",
       tags: ["cute", "animal"],
+      source: "local",
     },
     {
       id: "6",
@@ -62,6 +71,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-6.png",
       category: "Hài hước",
       tags: ["funny", "animal"],
+      source: "local",
     },
     {
       id: "7",
@@ -69,6 +79,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-7.png",
       category: "Dễ thương",
       tags: ["cool", "animal"],
+      source: "local",
     },
     {
       id: "8",
@@ -76,6 +87,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-8.png",
       category: "Hài hước",
       tags: ["funny", "animal"],
+      source: "local",
     },
     {
       id: "9",
@@ -83,6 +95,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-9.png",
       category: "Dễ thương",
       tags: ["cute", "animal"],
+      source: "local",
     },
     {
       id: "10",
@@ -90,24 +103,12 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
       imageUrl: "/images/labubu-10.png",
       category: "Giàu",
       tags: ["cool", "animal"],
+      source: "local",
     },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const filteredItems = items.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    const matchesCategory =
-      !selectedCategory || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const categories = Array.from(new Set(items.map((item) => item.category)));
 
   const handleDragStart = (e: DragEvent<HTMLDivElement>, imageUrl: string) => {
     e.dataTransfer.setData("text/plain", imageUrl);
@@ -123,71 +124,98 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({ onSelect, isOpen }) => {
     onSelect(imageUrl);
   };
 
-  if (!isOpen) return null;
+  const filteredItems = items.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags?.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    const matchesCategory =
+      !selectedCategory || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = Array.from(new Set(items.map((item) => item.category)));
+
+  if (!isOpen && !showUnsplash) return null;
 
   return (
     <div className="w-[300px] h-full border-l bg-white flex flex-col">
-      <div className="p-4 border-b">
-        <h3 className="font-medium mb-4">Các mẫu Labubu</h3>
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4"
-        />
-        <div className="relative">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            <Button
-              variant={selectedCategory === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(null)}
-              className="whitespace-nowrap"
-            >
-              Tất cả
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="whitespace-nowrap"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white pointer-events-none" />
-        </div>
-      </div>
-
-      <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="grid grid-cols-2 gap-4">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="cursor-move group"
-              onClick={() => handleItemClick(item.imageUrl)}
-              draggable
-              onDragStart={(e) => handleDragStart(e, item.imageUrl)}
-            >
-              <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
-                  draggable={false}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+      {isOpen && (
+        <>
+          <div className="p-4 border-b">
+            <h3 className="font-medium mb-4">Các mẫu Labubu</h3>
+            <Input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-4"
+            />
+            <div className="relative">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                <Button
+                  variant={selectedCategory === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                  className="whitespace-nowrap"
+                >
+                  Tất cả
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={
+                      selectedCategory === category ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                    className="whitespace-nowrap"
+                  >
+                    {category}
+                  </Button>
+                ))}
               </div>
-              <p className="text-sm text-center text-gray-600 truncate">
-                {item.name}
-              </p>
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white pointer-events-none" />
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+
+          <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="grid grid-cols-2 gap-4">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="cursor-move group"
+                  onClick={() => handleItemClick(item.imageUrl)}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, item.imageUrl)}
+                >
+                  <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </div>
+                  <p className="text-sm text-center text-gray-600 truncate">
+                    {item.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {showUnsplash && (
+        <UnsplashLibrary
+          onSelect={onSelect}
+          isOpen={showUnsplash}
+          onDragStart={handleDragStart}
+        />
+      )}
     </div>
   );
 };

@@ -26,6 +26,9 @@ import {
   Check,
   X,
   Image as ImageIcon,
+  ImagePlus,
+  ImageUp,
+  PawPrint,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -104,6 +107,7 @@ const PlushDollDesign: React.FC = () => {
   const [currentCanvasId, setCurrentCanvasId] = useState<string>("");
 
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [showUnsplash, setShowUnsplash] = useState(false);
 
   // Thêm useEffect để lấy số lượng canvas khi component mount
   useEffect(() => {
@@ -896,20 +900,20 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
-  const loadCanvasFromJSON = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (!e.target?.result) return;
-      isRestoringRef.current = true;
-      const safeJson = sanitizeCanvasJSON(e.target.result as string);
-      canvasRef.current?.loadFromJSON(safeJson, () => {
-        canvasRef.current?.renderAll();
-        saveState();
-        isRestoringRef.current = false;
-      });
-    };
-    reader.readAsText(file);
-  };
+  // const loadCanvasFromJSON = (file: File) => {
+  //   const reader = new FileReader();
+  //   reader.onload = (e) => {
+  //     if (!e.target?.result) return;
+  //     isRestoringRef.current = true;
+  //     const safeJson = sanitizeCanvasJSON(e.target.result as string);
+  //     canvasRef.current?.loadFromJSON(safeJson, () => {
+  //       canvasRef.current?.renderAll();
+  //       saveState();
+  //       isRestoringRef.current = false;
+  //     });
+  //   };
+  //   reader.readAsText(file);
+  // };
 
   const sanitizeCanvasJSON = (jsonString: string): string => {
     try {
@@ -976,7 +980,6 @@ const PlushDollDesign: React.FC = () => {
       return;
 
     const canvas = canvasRef.current;
-    const canvasElement = htmlCanvasRef.current;
     const wrapper = canvasWrapperRef.current;
 
     const handleDragOver: DragEventHandler = (e) => {
@@ -1193,14 +1196,14 @@ const PlushDollDesign: React.FC = () => {
             <Download className="w-4 h-4 mr-1" />
             Lưu JSON
           </Button>
-          <Input
+          {/* <Input
             type="file"
             accept=".json"
             onChange={(e) =>
               e.target.files && loadCanvasFromJSON(e.target.files[0])
             }
             className="w-[120px]"
-          />
+          /> */}
         </div>
       </header>
 
@@ -1227,6 +1230,38 @@ const PlushDollDesign: React.FC = () => {
           {!isSidebarCollapsed ? (
             <>
               <Button
+                variant={libraryOpen ? "default" : "outline"}
+                className="w-full"
+                onClick={() => {
+                  if (showUnsplash) {
+                    setShowUnsplash(false);
+                    setLibraryOpen(true);
+                  } else {
+                    setLibraryOpen(!libraryOpen);
+                  }
+                }}
+              >
+                <PawPrint className="w-4 h-4 mr-1" />
+                Các mẫu Labubu
+              </Button>
+
+              <Button
+                variant={showUnsplash ? "default" : "outline"}
+                className="w-full"
+                onClick={() => {
+                  if (libraryOpen) {
+                    setLibraryOpen(false);
+                    setShowUnsplash(!showUnsplash);
+                  } else {
+                    setShowUnsplash(!showUnsplash);
+                  }
+                }}
+              >
+                <ImageIcon className="w-4 h-4 mr-1" />
+                Thành phần
+              </Button>
+
+              <Button
                 variant={isDrawing ? "default" : "outline"}
                 onClick={() =>
                   setIsDrawing((prev) => {
@@ -1242,14 +1277,43 @@ const PlushDollDesign: React.FC = () => {
                 Vẽ: {isDrawing ? "[Tắt]" : "[Bật]"}
               </Button>
 
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  e.target.files && uploadImage(e.target.files[0])
-                }
-                className="w-full"
-              />
+              {!isSidebarCollapsed ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) uploadImage(file);
+                    };
+                    input.click();
+                  }}
+                  className="w-full hover:bg-primary/10 hover:text-primary transition-colors"
+                >
+                  <ImagePlus className="w-4 h-4 mr-1" />
+                  Tải ảnh lên
+                </Button>
+              ) : (
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) uploadImage(file);
+                    };
+                    input.click();
+                  }}
+                  className="hover:bg-primary/10 hover:text-primary transition-colors"
+                >
+                  <ImageUp className="w-4 h-4" />
+                </Button>
+              )}
 
               <Button
                 variant="outline"
@@ -1271,10 +1335,10 @@ const PlushDollDesign: React.FC = () => {
                 Thêm văn bản
               </Button>
 
-              <Button variant="destructive" onClick={removeSelected}>
+              {/* <Button variant="destructive" onClick={removeSelected}>
                 <Trash2 className="w-4 h-4 mr-1" />
                 Xóa
-              </Button>
+              </Button> */}
 
               <div>
                 <label>Màu bút vẽ</label>
@@ -1300,15 +1364,6 @@ const PlushDollDesign: React.FC = () => {
                 />
               </div>
 
-              <Button
-                variant={libraryOpen ? "default" : "outline"}
-                className="w-full"
-                onClick={() => setLibraryOpen(!libraryOpen)}
-              >
-                <ImageIcon className="w-4 h-4 mr-1" />
-                Các mẫu Labubu
-              </Button>
-
               <div className={isSidebarCollapsed ? "hidden" : ""}>
                 <CanvasList
                   onSelect={(description, title, id) => {
@@ -1323,7 +1378,29 @@ const PlushDollDesign: React.FC = () => {
               <Button
                 size="icon"
                 variant={libraryOpen ? "default" : "outline"}
-                onClick={() => setLibraryOpen(!libraryOpen)}
+                onClick={() => {
+                  if (showUnsplash) {
+                    setShowUnsplash(false);
+                    setLibraryOpen(true);
+                  } else {
+                    setLibraryOpen(!libraryOpen);
+                  }
+                }}
+              >
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+
+              <Button
+                size="icon"
+                variant={showUnsplash ? "default" : "outline"}
+                onClick={() => {
+                  if (libraryOpen) {
+                    setLibraryOpen(false);
+                    setShowUnsplash(!showUnsplash);
+                  } else {
+                    setShowUnsplash(!showUnsplash);
+                  }
+                }}
               >
                 <ImageIcon className="w-4 h-4" />
               </Button>
@@ -1358,7 +1435,11 @@ const PlushDollDesign: React.FC = () => {
         </aside>
 
         {/* Item Library Sidebar */}
-        <ItemLibrary onSelect={handleItemSelect} isOpen={libraryOpen} />
+        <ItemLibrary
+          onSelect={handleItemSelect}
+          isOpen={libraryOpen}
+          showUnsplash={showUnsplash}
+        />
 
         {/* Canvas */}
         <div className="flex-1 relative bg-gray-50">
