@@ -83,8 +83,8 @@ const ChatService = () => {
     async (values: any) => {
       try {
         const res = await callApi(
-          HTTP_METHOD.POST,
-          API_ROUTES.CREATE_CHAT,
+          HTTP_METHOD.PUT,
+          API_ROUTES.UPDATE_MESSAGE_CHAT,
           values
         );
         return res;
@@ -95,12 +95,12 @@ const ChatService = () => {
     [callApi]
   );
   const deleteMessage = useCallback(
-    async (messageId: string) => {
+    async (messageID: string) => {
       try {
         const res = await callApi(
           HTTP_METHOD.DELETE,
-          API_ROUTES.DELETE_MESSAGE_CHAT,
-          messageId
+          `${API_ROUTES.DELETE_MESSAGE_CHAT}?messageID=${messageID}`,
+          messageID
         );
         return res;
       } catch (err: any) {

@@ -11,6 +11,7 @@ interface UserChat {
 
 interface Message {
   senderID: string;
+  messageID: string;
   content: string;
   messageType: string;
   sentAt: string;
