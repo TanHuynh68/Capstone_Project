@@ -82,5 +82,8 @@ export const MESSAGE = {
     DELETE_CANVAS_FAILED: "Xóa bản vẽ thất bại.",
 
     //POST
-    CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!"
+    CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!",
+    //CHAT
+    DELETE_MESSAGE_SUCCESSFULLY:"Xóa tin nhắn thành công",
+    
 }
