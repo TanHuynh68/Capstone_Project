@@ -361,7 +361,7 @@ const UnsplashLibrary: React.FC<UnsplashLibraryProps> = ({
   return (
     <div className="w-[300px] h-full border-l bg-white flex flex-col">
       <div className="p-4 border-b">
-        <h3 className="font-medium mb-4">Thư viện Unsplash</h3>
+        <h3 className="font-medium mb-4">Thành phần</h3>
         <div className="flex gap-2">
           <input
             type="text"
