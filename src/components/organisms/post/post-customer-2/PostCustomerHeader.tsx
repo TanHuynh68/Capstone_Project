@@ -233,7 +233,11 @@ export default function PostCustomerHeader({
         {/* Thông tin thời gian */}
         <div className="flex flex-wrap gap-6">
           <DateDisplay date={post.createdAt} label="Ngày tạo" icon="calendar" />
-          <DateDisplay date={post.endAt} label="Ngày kết thúc" icon="clock" />
+          <DateDisplay
+            date={post.finishDate}
+            label="Ngày hoàn thành:"
+            icon="clock"
+          />
         </div>
       </div>
     </div>

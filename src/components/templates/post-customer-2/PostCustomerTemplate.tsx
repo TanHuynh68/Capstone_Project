@@ -45,6 +45,7 @@ export default function PostCustomerTemplate({
   const [showOfferWarningModal, setShowOfferWarningModal] = useState(false);
   const [isExpanded, setIsExpanded] = useState(isFirstPost);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [areOffersVisible, setAreOffersVisible] = useState(false);
 
   // Reset offers when post changes
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function PostCustomerTemplate({
   useEffect(() => {
     const handleOfferVisibilityChange = (e: CustomEvent) => {
       if (e.detail.postId === post.projectPostID) {
+        setAreOffersVisible(e.detail.isVisible);
         if (e.detail.isVisible) {
           // Reset and fetch fresh offers when they become visible
           resetOffers();
@@ -105,8 +107,7 @@ export default function PostCustomerTemplate({
     const handleOtherPostExpand = (expandedPostId: string) => {
       // If another post is being expanded
       if (expandedPostId !== post.projectPostID) {
-        // Immediately hide offers and reset them
-        resetOffers();
+        // Immediately hide offers
         window.dispatchEvent(
           new CustomEvent("offer-visibility-change", {
             detail: { postId: post.projectPostID, isVisible: false },
@@ -133,7 +134,7 @@ export default function PostCustomerTemplate({
         handleOtherPostExpand(e.detail.postId);
       }) as EventListener);
     };
-  }, [isExpanded, post.projectPostID, resetOffers]);
+  }, [isExpanded, post.projectPostID]);
 
   const handleToggleExpand = () => {
     if (isAnimating) return; // Prevent multiple clicks during animation
@@ -143,8 +144,7 @@ export default function PostCustomerTemplate({
 
     // If we're expanding this post, notify others to collapse
     if (newExpandedState) {
-      // First hide all offers immediately and reset them
-      resetOffers();
+      // First hide all offers immediately
       window.dispatchEvent(
         new CustomEvent("offer-visibility-change", {
           detail: { postId: post.projectPostID, isVisible: false },
@@ -158,12 +158,12 @@ export default function PostCustomerTemplate({
         })
       );
 
-      // Finally fetch fresh offers for this post
+      // Finally reset and fetch fresh offers for this post
+      resetOffers();
       fetchOffers(post.projectPostID);
     } else {
-      // When collapsing, first hide offers with animation and reset them
-      resetOffers();
-      if (onViewOffers) {
+      // When collapsing, only hide offers if they were actually visible
+      if (areOffersVisible && onViewOffers) {
         // Simulate clicking the view offers button to hide offers
         onViewOffers();
       }
@@ -175,12 +175,14 @@ export default function PostCustomerTemplate({
             detail: { postId: post.projectPostID },
           })
         );
-        // Also notify that offers should be hidden
-        window.dispatchEvent(
-          new CustomEvent("offer-visibility-change", {
-            detail: { postId: post.projectPostID, isVisible: false },
-          })
-        );
+        // Only notify that offers should be hidden if they were visible
+        if (areOffersVisible) {
+          window.dispatchEvent(
+            new CustomEvent("offer-visibility-change", {
+              detail: { postId: post.projectPostID, isVisible: false },
+            })
+          );
+        }
       }, 100);
     }
 
@@ -395,12 +397,12 @@ export default function PostCustomerTemplate({
         {/* Show a preview when collapsed */}
         {!isExpanded && (
           <div
-            className={`post-preview p-4 border rounded-lg bg-gray-50 ${
+            className={`post-preview p-4 border rounded-lg bg-card text-card-foreground ${
               isAnimating ? "animate-expand-preview" : ""
             }`}
           >
             <h3 className="font-medium">{post.title}</h3>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
               {post.description}
             </p>
           </div>
