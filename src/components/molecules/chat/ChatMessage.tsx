@@ -70,9 +70,9 @@ export default function ChatMessage({
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteConfirm = async (messageId: string) => {
+  const handleDeleteConfirm = async (messageID: string) => {
     if (onDeleteMessage) {
-      await onDeleteMessage(messageId);
+      await onDeleteMessage(messageID);
     }
   };
 

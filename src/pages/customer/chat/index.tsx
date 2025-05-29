@@ -10,8 +10,11 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import axiosInstance from "@/config/axios";
+import { toast } from "sonner";
+import { MESSAGE } from "@/constants";
 
 const Chat = () => {
+  const { deleteMessage, updateMessage } = ChatService();
   const [chatRoomID, setChatRoomId] = useState<string>("");
   const [chats, setChats] = useState<Message[]>([]);
   const [usersNeedToChat, setUsersNeedToChat] = useState<UserChat[]>([]);
@@ -160,9 +163,36 @@ const Chat = () => {
     setChatRoomId(newChatRoomID);
   };
 
+  const handleDeleteMessage = async (messageID: string) => {
+    console.log("messageID: ", messageID);
+    const response = await deleteMessage(messageID);
+    console.log("handleDeleteMessage: ", response);
+    if (response) {
+      await getMessageOfChat(chatRoomID);
+      toast.success(MESSAGE.DELETE_MESSAGE_SUCCESSFULLY);
+    }
+  };
+
+  // Xử lý chỉnh sửa tin nhắn
+  const handleEditMessage = async (messageId: string, newContent: string) => {
+    console.log("handleEditMessage: ", {
+      messageID: messageId,
+      content: newContent,
+    });
+    const response = await updateMessage({
+      messageID: messageId,
+      content: newContent,
+    });
+    console.log('response', response)
+    if (response) {
+      await getMessageOfChat(chatRoomID);
+    }
+  };
   return (
     <div className="h-screen w-full">
       <ChatTemplate
+        onDeletMessage={handleDeleteMessage}
+        onEditMessage={handleEditMessage}
         loadingMessage={loadingMessage}
         setShouldScroll={setShouldScroll}
         shouldScrollToBottom={shouldScroll}

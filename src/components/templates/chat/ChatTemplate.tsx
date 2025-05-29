@@ -2,9 +2,6 @@ import ChatSidebar from "@/components/organisms/chat/ChatSidebar";
 import ChatHeader from "@/components/organisms/chat/ChatHeader";
 import MessageList from "@/components/organisms/chat/MessageList";
 import MessageComposer from "@/components/molecules/chat/MessageComposer";
-import ChatService from "@/services/ChatService";
-import { toast } from "sonner";
-import { MESSAGE } from "@/constants";
 
 interface ChatTemplateProps {
   setShouldScroll: any;
@@ -15,6 +12,8 @@ interface ChatTemplateProps {
   onSendMessage: (message: string) => void;
   shouldScrollToBottom: boolean;
   loadingMessage: boolean;
+  onDeletMessage: any,
+  onEditMessage: any
 }
 
 export default function ChatTemplate({
@@ -23,25 +22,10 @@ export default function ChatTemplate({
   chatRoomID,
   onSelectChat,
   onSendMessage,
+  onDeletMessage,
+  onEditMessage
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
-  const { deleteMessage, updateMessage } = ChatService();
-
-  const handleDeleteMessage = async (messageId: string) => {
-    const response = await deleteMessage(messageId);
-    if (response) {
-      toast.success(MESSAGE.DELETE_MESSAGE_SUCCESSFULLY);
-    }
-  };
-
-  // Xử lý chỉnh sửa tin nhắn
-  const handleEditMessage = async (messageId: string, newContent: string) => {
-    console.log('handleEditMessage: ',{
-      messageId, newContent
-    })
-    await updateMessage({ messageID: messageId, content: newContent });
-  };
-
   return (
     <div className="bg-gray-200">
       <div className="bg-white flex w-full h-screen overflow-hidden border border-gray-800">
@@ -63,8 +47,8 @@ export default function ChatTemplate({
           {currentChatUser && (
             <div className="flex-1 overflow-y-auto">
               <MessageList
-                onDeleteMessage={handleDeleteMessage}
-                onEditMessage={handleEditMessage}
+                onDeleteMessage={onDeletMessage}
+                onEditMessage={onEditMessage}
                 messages={message}
                 users={users.filter((item) => item.chatRoomID === chatRoomID)}
               />
