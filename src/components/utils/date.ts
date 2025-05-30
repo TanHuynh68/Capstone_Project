@@ -243,6 +243,13 @@ export const formatVietnamDate = (date: DateInput, formatStr: string = "dd/MM/yy
   return format(vietnamDate, formatStr, { locale: vi });
 };
 
+export const formatVietnamDateHours = (date: DateInput, formatStr: string = "dd/MM/yyyy HH:mm:ss"): string => {
+  const utcDate = new Date(date);
+  // Convert to UTC+7 by adding 7 hours
+  const vietnamDate = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
+  return format(vietnamDate, formatStr, { locale: vi });
+};
+
 /**
  * Format date to UTC+7 with full date format (Vietnam timezone)
  * Example: "15 tháng 3 năm 2024"

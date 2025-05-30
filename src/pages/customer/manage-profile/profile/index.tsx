@@ -40,6 +40,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/components/utils";
 import { toast } from "sonner";
+import ReputationHistory from "@/components/reputation/ReputationHistory";
 
 interface Profile {
   accountID: string;
@@ -635,21 +636,7 @@ const Profile = () => {
                 isClosing ? "animate-slide-out-right" : "animate-slide-in-right"
               }`}
             >
-              <Card className="shadow-sm h-full flex flex-col">
-                <CardContent className="pt-0">
-                  <CardTitle className="relative flex justify-between pb-0 z-10">
-                    Lịch sử điểm
-                    <button onClick={handleCloseHistory}>
-                      <X className="h-5 w-5" />
-                    </button>
-                  </CardTitle>
-                  <CardContent className="overflow-y-auto p-4 space-y-3">
-                    <p>• 23/04/2025: +5 điểm - Hoàn thành đơn hàng</p>
-                    <p>• 10/05/2025: -3 điểm - Bị khiếu nại</p>
-                    <p>• 28/05/2025: +10 điểm - Được đánh giá 5 sao</p>
-                  </CardContent>
-                </CardContent>
-              </Card>
+              <ReputationHistory onClose={handleCloseHistory} />
             </div>
           )}
         </div>
