@@ -77,7 +77,7 @@ export function OfferList({
     }, 400);
   };
 
-  if (!isVisible && visibleOffers.length === 0 && !isExiting) return null;
+  // if (!isVisible && visibleOffers.length === 0 && !isExiting) return null;
 
   return (
     <>
@@ -91,7 +91,7 @@ export function OfferList({
             transform: translateY(0) scale(1);
             filter: blur(0);
           }
-buil
+
           .offer-list-container.exiting {
             animation: containerExit 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             animation-delay: 100ms;
@@ -196,7 +196,7 @@ buil
           .offer-list > *:nth-child(n+6) { animation-delay: 500ms !important; }
         `}
       </style>
-      <div className={`offer-list-container ${isExiting ? "exiting" : ""}`}>
+      <div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">

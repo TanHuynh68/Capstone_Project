@@ -28,6 +28,14 @@ interface Offer {
     offerStatus: number
     createdAt: string
     deadlineEndAt: string
+    // Additional properties for profile card
+    image1?: string
+    image2?: string
+    image3?: string
+    location?: string
+    appreciations?: string
+    followers?: string
+    views?: string
 }
 
 interface ApiResponse<T> {
