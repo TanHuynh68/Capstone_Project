@@ -15,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OfferEditorDialog } from "@/components/organisms/offer/OfferEditorDialog";
+import { useState } from "react";
 
 interface OfferCardProps {
   offer: Offer;
@@ -23,12 +25,15 @@ interface OfferCardProps {
   onReject?: (offerId: string) => void;
   onEdit?: (offerId: string) => void;
   onDelete?: (offerId: string) => void;
+  onUpdate?: (offerId: string) => void;
 }
 
-export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
+export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
   const currentUser = useSelector((state: RootState) => state.user);
   const isCreator = currentUser?.id === offer.designerID;
-  const { deleteOffer } = useOfferService();
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const { deleteOffer, updateOffer } = useOfferService();
   const { fetchOffers } = useOffers();
 
   const formatCurrency = (amount: number) =>
@@ -55,6 +60,29 @@ export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
           ? error.message
           : "Có lỗi xảy ra khi xóa đề xuất";
       toast.error(errorMessage);
+    }
+  };
+
+  const handleEdit = () => {
+    setSelectedOffer(offer);
+    setOpenEditDialog(true);
+  };
+
+  const handleSave = async (values: {
+    offerID: string;
+    note: string;
+    initPrice: number;
+    deadlineEndAt: string;
+  }) => {
+    const res = await updateOffer(values);
+    if (res?.isSuccess === true) {
+      toast.success("Cập nhật thành công");
+      console.log(onUpdate?.(offer.offerID), "???");
+      onUpdate?.(offer.offerID);
+      await fetchOffers(offer.projectPostID);
+      setOpenEditDialog(false);
+    } else {
+      // toast.error("Cập nhật thất bại");
     }
   };
 
@@ -113,7 +141,7 @@ export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
               <DropdownMenuContent className="w-40 p-1 z-50 rounded-md shadow-md border bg-popover text-popover-foreground border-border dark:bg-zinc-900 dark:text-white dark:border-zinc-700">
                 {/* Chỉnh sửa */}
                 <DropdownMenuItem
-                  onSelect={() => onEdit?.(offer.offerID)}
+                  onSelect={handleEdit}
                   className="flex items-center px-3 py-2 rounded-md text-sm hover:bg-accent/40 hover:text-primary dark:hover:bg-accent/20 dark:hover:text-primary transition-colors"
                 >
                   <Pencil className="mr-2 h-4 w-4" />
@@ -169,6 +197,13 @@ export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
       <div className="text-xs text-muted-foreground italic">
         Đã đăng {createdAt}
       </div>
+
+      <OfferEditorDialog
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        initialData={selectedOffer}
+        onSave={handleSave}
+      />
     </div>
   );
 }

@@ -61,6 +61,7 @@ export default function PostDetailTemplate({
                     loading={loading}
                     selectedPostId={post.projectPostID}
                     onDeleteOffer={() => refetch()}
+                    onUpdateOffer={() => refetch()}
                   />
                 ) : (
                   <div className="bg-card text-card-foreground p-4 rounded-lg shadow border border-border">

@@ -11,6 +11,7 @@ interface OfferListProps {
   onAcceptOffer?: (offerId: string) => void;
   onRejectOffer?: (offerId: string) => void;
   onDeleteOffer?: (offerId: string) => void;
+  onUpdateOffer?: (offerId: string) => void;
   isVisible?: boolean;
 }
 
@@ -21,6 +22,7 @@ export function OfferInAllPost({
   onAcceptOffer,
   onRejectOffer,
   onDeleteOffer,
+  onUpdateOffer,
   isVisible = true,
 }: OfferListProps) {
   const [exitingOffers, setExitingOffers] = useState<Set<string>>(new Set());
@@ -92,6 +94,25 @@ export function OfferInAllPost({
         return next;
       });
     }, 400);
+  };
+
+  const handleUpdateOffer = async (offerId: string) => {
+    try {
+      console.log(offerId, "offerIdofferIdofferId");
+      setExitingOffers((prev) => new Set([...prev, offerId]));
+      onUpdateOffer?.(offerId);
+    } catch (error) {
+      console.error("Error updating offer:", error);
+    } finally {
+      // Clean up exiting state after animation
+      setTimeout(() => {
+        setExitingOffers((prev) => {
+          const next = new Set(prev);
+          next.delete(offerId);
+          return next;
+        });
+      }, 400);
+    }
   };
 
   if (!isVisible && visibleOffers.length === 0 && !isExiting) return null;
@@ -244,6 +265,7 @@ buil
                       onAccept={() => handleAcceptOffer(offer.offerID)}
                       onReject={() => handleRejectOffer(offer.offerID)}
                       onDelete={handleDeleteOffer}
+                      onUpdate={() => handleUpdateOffer(offer.offerID)}
                     />
                   </div>
                 ))}
