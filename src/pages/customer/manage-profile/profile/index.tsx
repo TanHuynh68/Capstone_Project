@@ -61,6 +61,43 @@ interface Reputation {
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
+const keyframes = `
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s ease-out forwards;
+}
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = keyframes;
+document.head.appendChild(styleSheet);
+
 const Profile = () => {
   const { getAddresses } = CustomerService();
   const { getReputation } = ReputationService();
@@ -79,6 +116,7 @@ const Profile = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isDragAndDrop, setIsDragAndDrop] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -166,9 +204,11 @@ const Profile = () => {
   }) => {
     return (
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`
+        fixed top-0 right-0 h-full w-full md:w-[400px] bg-white shadow-lg z-50
+        transform transition-transform duration-300 ease-in-out
+        ${open ? "translate-x-0" : "translate-x-full"}
+      `}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="text-lg font-semibold">Lịch sử điểm uy tín</h2>
@@ -176,11 +216,11 @@ const Profile = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-4 space-y-2">
-          {/* Replace with your actual history content */}
+        <div className="p-4 space-y-3 overflow-y-auto">
           <p>• 23/04/2025: +5 điểm - Hoàn thành đơn hàng</p>
           <p>• 10/05/2025: -3 điểm - Bị khiếu nại</p>
           <p>• 28/05/2025: +10 điểm - Được đánh giá 5 sao</p>
+          {/* You can fetch more history from API and map here */}
         </div>
       </div>
     );
@@ -301,6 +341,14 @@ const Profile = () => {
     }
     // Reset drag & drop flag
     setIsDragAndDrop(false);
+  };
+
+  const handleCloseHistory = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowHistoryPanel(false);
+      setIsClosing(false);
+    }, 300); // Match animation duration
   };
 
   if (isLoading) {
@@ -538,7 +586,11 @@ const Profile = () => {
                           type="button"
                           variant="outline"
                           className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                          onClick={() => setShowHistoryPanel((prev) => !prev)}
+                          onClick={() =>
+                            showHistoryPanel
+                              ? handleCloseHistory()
+                              : setShowHistoryPanel(true)
+                          }
                         >
                           <Award className="w-4 h-4 mr-2" />
                           {showHistoryPanel ? "Ẩn lịch sử" : "Lịch sử điểm"}
@@ -576,14 +628,18 @@ const Profile = () => {
             </Card>
           </div>
 
-          {/* History Panel - chỉ render khi showHistoryPanel */}
-          {showHistoryPanel && (
-            <div className="md:col-span-3 transition-all duration-500 ease-in-out">
+          {/* History Panel */}
+          {(showHistoryPanel || isClosing) && (
+            <div
+              className={`md:col-span-3 transition-all duration-500 ease-in-out ${
+                isClosing ? "animate-slide-out-right" : "animate-slide-in-right"
+              }`}
+            >
               <Card className="shadow-sm h-full flex flex-col">
                 <CardContent className="pt-0">
                   <CardTitle className="relative flex justify-between pb-0 z-10">
                     Lịch sử điểm
-                    <button onClick={() => setShowHistoryPanel(false)}>
+                    <button onClick={handleCloseHistory}>
                       <X className="h-5 w-5" />
                     </button>
                   </CardTitle>
@@ -598,134 +654,6 @@ const Profile = () => {
           )}
         </div>
       </div>
-      <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-s emibold text-center">
-              Thay đổi ảnh đại diện
-            </DialogTitle>
-          </DialogHeader>
-          '{" "}
-          <div className="flex flex-col items-center space-y-4 py-4">
-            {/* Drop Zone */}
-            <div
-              className={`relative w-48 h-48 rounded-full overflow-hidden border-2 ${
-                isDragging
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-dashed border-gray-200 bg-gray-50"
-              } transition-colors duration-200 ease-in-out cursor-pointer`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={handleClick}
-            >
-              {previewUrl ? (
-                <>
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="flex flex-col items-center justify-center text-gray-400">
-                    {isDragging ? (
-                      <>
-                        <Camera className="w-12 h-12 mb-2 text-blue-500" />
-                        <span className="text-sm text-blue-500">
-                          Thả ảnh vào đây
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Camera className="w-12 h-12 mb-2" />
-                        <span className="text-sm">Kéo thả hoặc chọn ảnh</span>
-                      </>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-gray-400">
-                  {isDragging ? (
-                    <>
-                      <Camera className="w-12 h-12 mb-2 text-blue-500" />
-                      <span className="text-sm text-blue-500">
-                        Thả ảnh vào đây
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="w-12 h-12 mb-2" />
-                      <span className="text-sm">Kéo thả hoặc chọn ảnh</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* File Input Area */}
-            <div className="w-full space-y-2">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center justify-center">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full max-w-[200px]"
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
-                    Chọn ảnh
-                  </Button>
-                  <input
-                    type="file"
-                    accept=".jpg,.jpeg,.png"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </div>
-
-                <p className="text-xs text-gray-500 text-center">
-                  Định dạng: JPG, JPEG, PNG (tối đa 1MB)
-                </p>
-              </div>
-
-              {fileError && (
-                <p className="text-sm text-red-500 text-center mt-2">
-                  {fileError}
-                </p>
-              )}
-
-              {selectedFile && !fileError && (
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
-                    Đã chọn:{" "}
-                    <span className="font-medium">{selectedFile.name}</span>
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={handleDialogClose}
-              className="w-full sm:w-auto"
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleConfirmUpload}
-              disabled={!selectedFile || !!fileError}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
-            >
-              Xác nhận
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
