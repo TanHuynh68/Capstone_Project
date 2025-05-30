@@ -57,46 +57,50 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-200 border-t-gray-600"></div>
             </div>
           ) : history.length > 0 ? (
-            history.map((item) => (
-              <div
-                key={item.reputationHistoryID}
-                className="p-3 bg-white border rounded-lg"
-              >
-                <div className="grid grid-cols-[1fr,auto] gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Điểm:</span>
-                      <span
-                        className={cn(
-                          "font-medium flex items-center gap-1",
-                          item.scoreChange > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        )}
-                      >
-                        {item.scoreChange > 0 ? (
-                          <TrendingUp className="h-4 w-4" />
-                        ) : (
-                          <TrendingDown className="h-4 w-4" />
-                        )}
-                        {item.scoreChange > 0 ? "+" : ""}
-                        {item.scoreChange}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="text-sm text-gray-500">Lý do:</span>
-                      <p className="text-sm text-gray-700">{item.reason}</p>
+            <div className="max-h-[calc(4*7rem)] overflow-y-auto pr-1">
+              <div className="space-y-3">
+                {history.map((item) => (
+                  <div
+                    key={item.reputationHistoryID}
+                    className="p-3 bg-white border rounded-lg"
+                  >
+                    <div className="grid grid-cols-[1fr,auto] gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">Điểm:</span>
+                          <span
+                            className={cn(
+                              "font-medium flex items-center gap-1",
+                              item.scoreChange > 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            )}
+                          >
+                            {item.scoreChange > 0 ? (
+                              <TrendingUp className="h-4 w-4" />
+                            ) : (
+                              <TrendingDown className="h-4 w-4" />
+                            )}
+                            {item.scoreChange > 0 ? "+" : ""}
+                            {item.scoreChange}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-sm text-gray-500">Lý do:</span>
+                          <p className="text-sm text-gray-700">{item.reason}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm text-gray-500 flex items-center gap-1 justify-end">
+                          <Clock className="h-3.5 w-3.5" />
+                          {formatVietnamDateHours(item.changedAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm text-gray-500 flex items-center gap-1 justify-end">
-                      <Clock className="h-3.5 w-3.5" />
-                      {formatVietnamDateHours(item.changedAt)}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               <p className="font-medium mb-1">Chưa có lịch sử điểm uy tín</p>
