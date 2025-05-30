@@ -163,6 +163,7 @@ const Chat = () => {
     setChatRoomId(newChatRoomID);
   };
 
+  //
   const handleDeleteMessage = async (messageID: string) => {
     console.log("messageID: ", messageID);
     const response = await deleteMessage(messageID);
