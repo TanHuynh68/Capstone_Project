@@ -44,6 +44,10 @@ export default function PostOfferPage() {
     }
   };
 
+  const selectedPost = posts.find(
+    (post) => post.projectPostID === selectedPostId
+  );
+
   return (
     <MainLayout
       leftColumn={
@@ -82,6 +86,7 @@ export default function PostOfferPage() {
           onAcceptOffer={handleAcceptOffer}
           onRejectOffer={handleRejectOffer}
           isVisible={!!selectedPostId}
+          postFinishDate={selectedPost?.finishDate || ""}
         />
       }
     />

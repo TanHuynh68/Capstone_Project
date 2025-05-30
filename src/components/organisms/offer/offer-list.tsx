@@ -11,6 +11,7 @@ interface OfferListProps {
   onAcceptOffer?: (offerId: string) => void;
   onRejectOffer?: (offerId: string) => void;
   isVisible?: boolean;
+  postFinishDate: string;
 }
 
 export function OfferList({
@@ -20,6 +21,7 @@ export function OfferList({
   onAcceptOffer,
   onRejectOffer,
   isVisible = true,
+  postFinishDate,
 }: OfferListProps) {
   const [exitingOffers, setExitingOffers] = useState<Set<string>>(new Set());
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
@@ -212,7 +214,7 @@ export function OfferList({
               </div>
             ) : visibleOffers.length > 0 ? (
               <div className="offer-list space-y-3">
-                {visibleOffers.map((offer) => (
+                {visibleOffers.map((offer: Offer) => (
                   <div
                     key={offer.offerID}
                     className={`offer-item ${
@@ -226,6 +228,7 @@ export function OfferList({
                       offer={offer}
                       onAccept={() => handleAcceptOffer(offer.offerID)}
                       onReject={() => handleRejectOffer(offer.offerID)}
+                      postFinishDate={postFinishDate}
                     />
                   </div>
                 ))}
