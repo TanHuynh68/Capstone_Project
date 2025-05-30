@@ -18,6 +18,8 @@ export const enum API_ENDPOINTS {
   CANVAS = "canvas",
   REPUTATION = "reputation",
   CHAT = "chat",
+  OFFER = "offer",
+  PROJECT_POST = "project-post",
 }
 
 export enum API_ROUTES {
@@ -88,11 +90,11 @@ export enum API_ROUTES {
   STAFF_CHANGE_REPUTATION = `/staff/${API_ENDPOINTS.REPUTATION}/change`,
   STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
   //Post
-  CREATE_POST = "project-post",
-  GET_MY_POSTS = "project-post/token",
-  GET_POSTS = "project-post?page=1&size=100",
-  GET_POST_DETAIL = "project-post/detail?ProjectPostId",
-  DELETE_POST = "project-post",
+  CREATE_POST = `${API_ENDPOINTS.PROJECT_POST}`,
+  GET_MY_POSTS = `${API_ENDPOINTS.PROJECT_POST}/token`,
+  GET_POSTS = `${API_ENDPOINTS.PROJECT_POST}?page=1&size=100`,
+  GET_POST_DETAIL = `${API_ENDPOINTS.PROJECT_POST}/detail?ProjectPostId`,
+  DELETE_POST = `${API_ENDPOINTS.PROJECT_POST}`,
   //Chat
   CREATE_CHAT = `${API_ENDPOINTS.CHAT}`,
   CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
@@ -102,9 +104,11 @@ export enum API_ROUTES {
   UPDATE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
   DELETE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
   //Offer
-  CREATE_OFFER = "offer",
+  CREATE_OFFER = `${API_ENDPOINTS.OFFER}`,
   GET_OFFERS_IN_POST = "offer/all-offer-in-post",
   GET_OFFER_TOKEN = "offer/token",
+  UPDATE_OFFER = `${API_ENDPOINTS.OFFER}`,
+  DELETE_OFFER = `${API_ENDPOINTS.OFFER}`,
   //General
   UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,
 }

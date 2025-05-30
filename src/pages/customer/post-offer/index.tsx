@@ -10,7 +10,7 @@ import PostCustomerTemplate from "@/components/templates/post-customer-2/PostCus
 export default function PostOfferPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>();
 
-  const { posts } = usePosts();
+  const { posts, fetchPosts } = usePosts();
   const {
     offers,
     loading: offersLoading,
@@ -34,6 +34,16 @@ export default function PostOfferPage() {
     // TODO: Call API to actually reject the offer
   };
 
+  const handlePostDataChange = async (post: Post | null) => {
+    // If post is null, it means the post was deleted
+    if (post === null) {
+      // Clear selected post if it was deleted
+      setSelectedPostId(undefined);
+      // Refresh the posts list
+      await fetchPosts();
+    }
+  };
+
   return (
     <MainLayout
       leftColumn={
@@ -47,6 +57,7 @@ export default function PostOfferPage() {
                 isSelected={selectedPostId === post.projectPostID}
                 postNumber={index + 1}
                 isFirstPost={index === 0}
+                onDataChange={handlePostDataChange}
               />
             ))}
           </div>

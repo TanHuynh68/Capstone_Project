@@ -9,7 +9,7 @@ import { Breadcrumb } from "../../custom/breadcrumb/Breadcrumb";
 import { useState, useCallback, useEffect } from "react";
 import { useDeleteConfirmation } from "@/hooks/useDeleteConfirmation";
 import DeleteConfirmationModal from "@/components/molecules/delete/DeleteConfirmationModal";
-import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // Global state to track offer visibility for each post
 const offerVisibilityMap = new Map<string, boolean>();
@@ -21,7 +21,7 @@ interface PostCustomerHeaderProps {
   onViewOffers?: () => void;
   isSelected?: boolean;
   onDelete?: (post: Post) => Promise<void>;
-  onDeleteClick?: () => void;
+  onRefresh?: () => void;
   hasUnresolvedOffers?: boolean;
 }
 
@@ -31,10 +31,9 @@ export default function PostCustomerHeader({
   onViewOffers,
   isSelected = false,
   onDelete,
-  onDeleteClick,
+  onRefresh,
   hasUnresolvedOffers = false,
 }: PostCustomerHeaderProps) {
-  const navigate = useNavigate();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localIsSelected, setLocalIsSelected] = useState(() => {
     // Initialize from global state or prop, but invert the logic
@@ -91,16 +90,27 @@ export default function PostCustomerHeader({
     confirmDelete,
   } = useDeleteConfirmation<Post>({
     onDelete: async (postToDelete) => {
-      if (onDelete) {
-        await onDelete(postToDelete);
-      } else {
-        // If no onDelete prop provided, you can implement default delete behavior here
-        // For example: await deletePostAPI(postToDelete.id);
-        throw new Error("Delete function not implemented");
+      try {
+        if (onDelete) {
+          await onDelete(postToDelete);
+          // Show success toast
+          toast.success("Xóa bài đăng thành công");
+          // Refresh posts if refresh function is provided
+          if (onRefresh) {
+            onRefresh();
+          }
+        } else {
+          throw new Error("Delete function not implemented");
+        }
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        toast.error("Có lỗi xảy ra khi xóa bài đăng");
+        throw error;
       }
     },
     onSuccess: () => {
-      navigate("/post"); // Redirect to posts list after successful deletion
+      // Close the modal after successful deletion
+      closeDeleteModal();
     },
   });
 
@@ -182,7 +192,7 @@ export default function PostCustomerHeader({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onDeleteClick || (() => openDeleteModal(post))}
+            onClick={() => openDeleteModal(post)}
             className={`text-destructive hover:text-destructive/90 ${
               hasUnresolvedOffers ? "opacity-50 cursor-not-allowed" : ""
             }`}

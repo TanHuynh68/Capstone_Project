@@ -198,13 +198,13 @@ export default function PostCustomerTemplate({
     (offer) => offer.offerStatus !== 1 && offer.offerStatus !== 3 // 2: ACCEPTED, 3: REJECTED
   );
 
-  const handleDeleteClick = () => {
-    if (hasUnresolvedOffers) {
-      setShowOfferWarningModal(true);
-      return;
-    }
-    handleDeletePost(post);
-  };
+  // const handleDeleteClick = () => {
+  //   if (hasUnresolvedOffers) {
+  //     setShowOfferWarningModal(true);
+  //     return;
+  //   }
+  //   handleDeletePost(post);
+  // };
 
   const handleDeletePost = async (postToDelete: Post) => {
     try {
@@ -388,7 +388,7 @@ export default function PostCustomerTemplate({
             onViewOffers={onViewOffers}
             isSelected={isSelected}
             onDelete={handleDeletePost}
-            onDeleteClick={handleDeleteClick}
+            onRefresh={() => onDataChange?.(null)}
             hasUnresolvedOffers={hasUnresolvedOffers}
           />
           <PostCustomerContent post={post} />
