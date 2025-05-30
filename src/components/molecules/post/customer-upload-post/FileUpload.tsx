@@ -12,8 +12,9 @@ interface FileUploadProps {
   error?: string
   accept?: string
   maxSize?: number // in bytes
+  maxFiles?: number
 }
-
+//
 export default function FileUpload({
   id,
   onChange,
