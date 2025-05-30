@@ -20,7 +20,19 @@ const ReputationService = () => {
     [callApi]
   );
 
-  return { getReputation };
+  const getReputationHistory = useCallback(
+    async () => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_REPUTATION_HISTORY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  return { getReputation, getReputationHistory };
 };
 
 export default ReputationService;

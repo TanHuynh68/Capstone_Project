@@ -10,7 +10,10 @@ interface OfferListProps {
   selectedPostId?: string;
   onAcceptOffer?: (offerId: string) => void;
   onRejectOffer?: (offerId: string) => void;
+  onDeleteOffer?: (offerId: string) => void;
+  onUpdateOffer?: (offerId: string) => void;
   isVisible?: boolean;
+  postFinishDate: string;
 }
 
 export function OfferInAllPost({
@@ -19,14 +22,17 @@ export function OfferInAllPost({
   selectedPostId,
   onAcceptOffer,
   onRejectOffer,
+  onDeleteOffer,
+  onUpdateOffer,
   isVisible = true,
+  postFinishDate,
 }: OfferListProps) {
   const [exitingOffers, setExitingOffers] = useState<Set<string>>(new Set());
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
   const [isExiting, setIsExiting] = useState(false);
 
-//   console.log(selectedPostId, "selectedPostIdselectedPostIdselectedPostId");
-//   console.log(offers, "offersoffersoffers");
+  //   console.log(selectedPostId, "selectedPostIdselectedPostIdselectedPostId");
+  //   console.log(offers, "offersoffersoffers");
 
   // Handle smooth transitions when offers change or visibility changes
   useEffect(() => {
@@ -78,6 +84,37 @@ export function OfferInAllPost({
         return next;
       });
     }, 400);
+  };
+
+  const handleDeleteOffer = (offerId: string) => {
+    setExitingOffers((prev) => new Set([...prev, offerId]));
+    setTimeout(() => {
+      onDeleteOffer?.(offerId);
+      setExitingOffers((prev) => {
+        const next = new Set(prev);
+        next.delete(offerId);
+        return next;
+      });
+    }, 400);
+  };
+
+  const handleUpdateOffer = async (offerId: string) => {
+    try {
+      console.log(offerId, "offerIdofferIdofferId");
+      setExitingOffers((prev) => new Set([...prev, offerId]));
+      onUpdateOffer?.(offerId);
+    } catch (error) {
+      console.error("Error updating offer:", error);
+    } finally {
+      // Clean up exiting state after animation
+      setTimeout(() => {
+        setExitingOffers((prev) => {
+          const next = new Set(prev);
+          next.delete(offerId);
+          return next;
+        });
+      }, 400);
+    }
   };
 
   if (!isVisible && visibleOffers.length === 0 && !isExiting) return null;
@@ -203,7 +240,7 @@ buil
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">
-              Offers {selectedPostId && `(${visibleOffers.length})`}
+              Đề xuất {selectedPostId && `(${visibleOffers.length})`}
             </h2>
           </div>
 
@@ -229,6 +266,9 @@ buil
                       offer={offer}
                       onAccept={() => handleAcceptOffer(offer.offerID)}
                       onReject={() => handleRejectOffer(offer.offerID)}
+                      onDelete={handleDeleteOffer}
+                      onUpdate={() => handleUpdateOffer(offer.offerID)}
+                      postFinishDate={postFinishDate}
                     />
                   </div>
                 ))}
@@ -237,8 +277,8 @@ buil
               <div className="text-center py-8 text-gray-500">
                 <p className="text-sm">
                   {selectedPostId
-                    ? "Chưa có offer nào cho bài đăng này"
-                    : "Chọn một bài đăng để xem offers"}
+                    ? "Chưa có đề xuất nào cho bài đăng này"
+                    : "Chọn một bài đăng để xem đề xuất"}
                 </p>
               </div>
             )}

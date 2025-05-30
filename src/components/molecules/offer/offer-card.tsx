@@ -1,34 +1,108 @@
+import { useSelector } from "react-redux";
+import { Ellipsis, Pencil, Trash2 } from "lucide-react";
+import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/atoms/avatar/avatar";
 import { Badge } from "@/components/atoms/badge/badge";
-import { format } from "date-fns";
+import { ProfilePopup } from "@/components/molecules/profile/profile-popup";
+import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
+import useOfferService from "@/services/OfferService";
+import { useOffers } from "@/hooks/use-offers";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { OfferEditorDialog } from "@/components/organisms/offer/OfferEditorDialog";
+import { useState } from "react";
+import { formatVietnamDate } from "@/components/utils/date";
+import { OfferEditImage } from "@/components/organisms/offer/OfferEditImage";
 
 interface OfferCardProps {
   offer: Offer;
   onClick?: () => void;
   onAccept?: (offerId: string) => void;
   onReject?: (offerId: string) => void;
+  onEdit?: (offerId: string) => void;
+  onDelete?: (offerId: string) => void;
+  onUpdate?: (offerId: string) => void;
+  postFinishDate: string;
 }
 
-export function OfferCard({ offer, onClick }: OfferCardProps) {
+export function OfferCard({
+  offer,
+  onDelete,
+  onUpdate,
+  postFinishDate,
+}: OfferCardProps) {
+  const currentUser = useSelector((state: RootState) => state.user);
+  const isCreator = currentUser?.id === offer.designerID;
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const { deleteOffer, updateOffer } = useOfferService();
+  const { fetchOffers } = useOffers();
+
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(amount);
 
-  const createdAt = format(new Date(offer.createdAt), "dd/MM/yyyy");
-  const deadline = format(new Date(offer.deadlineEndAt), "dd/MM/yyyy");
+  const createdAt = formatVietnamDate(offer.createdAt);
+  const deadline = formatVietnamDate(offer.deadlineEndAt);
+  const [openEditImageDialog, setOpenEditImageDialog] = useState(false);
+  const handleDeleteOffer = async () => {
+    try {
+      const response = await deleteOffer({ offerID: offer.offerID });
+      if (response?.isSuccess === true) {
+        toast.success("Xóa đề xuất thành công");
+        onDelete?.(offer.offerID);
+        await fetchOffers(offer.projectPostID);
+      }
+    } catch (error) {
+      console.error("Error deleting offer:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi xóa đề xuất";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleEdit = () => {
+    setSelectedOffer(offer);
+    setOpenEditDialog(true);
+  };
+
+  const handleSave = async (values: {
+    offerID: string;
+    note: string;
+    initPrice: number;
+    deadlineEndAt: string;
+  }) => {
+    const res = await updateOffer(values);
+    if (res?.isSuccess === true) {
+      toast.success("Cập nhật thành công");
+      console.log(onUpdate?.(offer.offerID), "???");
+      onUpdate?.(offer.offerID);
+      await fetchOffers(offer.projectPostID);
+      setOpenEditDialog(false);
+    } else {
+      // toast.error("Cập nhật thất bại");
+    }
+  };
+
+  const handleEditImage = () => {
+    setOpenEditImageDialog(true);
+  };
 
   return (
-    <div
-      onClick={onClick}
-      className="bg-card text-card-foreground rounded-xl border border-border p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-accent/5 dark:hover:bg-accent/10"
-    >
+    <div className="bg-card text-card-foreground rounded-xl border border-border p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-accent/5 dark:hover:bg-accent/10">
       {/* Avatar + name + status */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <div className="relative group flex text-center justify-center">
-            {/* Avatar */}
             <div className="flex items-center justify-center">
               <Avatar
                 src={offer.avatar || "/unknown-user.png"}
@@ -38,102 +112,73 @@ export function OfferCard({ offer, onClick }: OfferCardProps) {
               />
               <div className="text-sm font-medium ml-2">{offer.fullName}</div>
             </div>
-
-            {/* Hover popup profile card */}
-            <div className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-1 w-[300px] bg-popover text-popover-foreground rounded-2xl shadow-xl p-4 border border-border opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top pointer-events-none group-hover:pointer-events-auto">
-              {/* Top images */}
-              <div className="grid grid-cols-3 gap-1 mb-3 overflow-hidden rounded">
-                <img
-                  src={"/images/labubu-3.png"}
-                  alt="ảnh giới thiệu"
-                  className="w-full h-[60px] object-contain"
-                />
-                <img
-                  src={"/images/labubu-4.png"}
-                  alt="ảnh giới thiệu"
-                  className="w-full h-[60px] object-contain"
-                />
-                <img
-                  src={"/images/labubu-5.png"}
-                  alt="ảnh giới thiệu"
-                  className="w-full h-[60px] object-contain"
-                />
-              </div>
-
-              {/* Avatar and info */}
-              <div className="flex flex-col items-center text-center mb-3">
-                <img
-                  src={offer.avatar || "/unknown-user.png"}
-                  alt={offer.fullName}
-                  className="w-16 h-16 rounded-full border-2 border-background -mt-8 shadow-md"
-                />
-                <div className="font-semibold text-base mt-2">
-                  {offer.fullName}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {offer.location || "Vietnam"}
-                </div>
-                <span className="mt-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">
-                  Freelance
-                </span>
-              </div>
-
-              {/* Stats */}
-              <div className="flex justify-center text-center text-sm text-muted-foreground mb-4">
-                {[
-                  { label: "Yêu thích", value: offer.appreciations || "51.6K" },
-                  { label: "Theo dõi", value: offer.followers || "12.8K" },
-                  { label: "Lượt xem", value: offer.views || "527.4K" },
-                ].map((item, index, array) => (
-                  <div
-                    key={index}
-                    className={`relative px-4 ${
-                      index !== array.length - 1
-                        ? "after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:w-px after:h-5 after:bg-border"
-                        : ""
-                    }`}
-                  >
-                    <div className="font-semibold text-foreground">
-                      {item.value}
-                    </div>
-                    <div className="text-xs">{item.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-2">
-                <button className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors">
-                  Hồ sơ thiết kế
-                </button>
-                <button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors">
-                  Nhắn tin
-                </button>
-              </div>
-
-              {/* Dropdown triangle */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-4 h-4 rotate-45 bg-popover border-l border-t border-border"></div>
-            </div>
+            <ProfilePopup
+              fullName={offer.fullName}
+              avatar={offer.avatar}
+              location={offer.location}
+              appreciations={offer.appreciations}
+              followers={offer.followers}
+              views={offer.views}
+            />
           </div>
         </div>
 
-        {/* Trạng thái: chấm tròn + badge hover */}
-        {offer.offerStatus === 0 && (
-          <div className="relative group w-fit h-fit pl-2">
-            <div
-              className="w-3 h-3 bg-yellow-400 dark:bg-yellow-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
-              title="Chờ xét"
-            />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
-              <Badge
-                variant="warning"
-                className="text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-500/20 whitespace-nowrap"
-              >
-                Chờ xét
-              </Badge>
+        <div className="flex items-center gap-2">
+          {offer.offerStatus === 0 && (
+            <div className="relative group w-fit h-fit pl-2">
+              <div
+                className="w-3 h-3 bg-yellow-400 dark:bg-yellow-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
+                title="Chờ xét"
+              />
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
+                <Badge
+                  variant="warning"
+                  className="text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-500/20 whitespace-nowrap"
+                >
+                  Chờ xét
+                </Badge>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {isCreator && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-md hover:bg-accent/50 dark:hover:bg-accent/20 cursor-pointer transition-colors">
+                  <Ellipsis className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-45 p-1 z-50 rounded-md shadow-md border bg-popover text-popover-foreground border-border dark:bg-zinc-900 dark:text-white dark:border-zinc-700">
+                {/* Chỉnh sửa */}
+                <DropdownMenuItem
+                  onSelect={handleEdit}
+                  className="flex items-center px-3 py-2 rounded-md text-sm hover:bg-accent/40 hover:text-primary dark:hover:bg-accent/20 dark:hover:text-primary transition-colors"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Chỉnh sửa đề xuất</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onSelect={handleEditImage}
+                  className="flex items-center px-3 py-2 rounded-md text-sm hover:bg-accent/40 hover:text-primary dark:hover:bg-accent/20 dark:hover:text-primary transition-colors"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Chỉnh sửa ảnh</span>
+                </DropdownMenuItem>
+
+                {/* Xóa đề xuất */}
+                <DropdownMenuItem
+                  onSelect={handleDeleteOffer}
+                  className="flex items-center px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 transition-colors"
+                >
+                  <Trash2 className="mr-2 h-4 w-4 text-destructive dark:text-destructive" />
+                  <span>Xóa đề xuất</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {/* Giá + deadline */}
@@ -157,11 +202,12 @@ export function OfferCard({ offer, onClick }: OfferCardProps) {
 
       {/* Ảnh minh họa */}
       {offer.sampleImage && (
-        <div className="w-full rounded-md overflow-hidden border border-border mb-3 bg-background flex justify-center items-center">
-          <img
-            src={offer.sampleImage}
-            alt="sample"
-            className="w-full max-h-[250px] object-contain"
+        <div className="mb-3">
+          <SingleImageGallery
+            imageUrl={offer.sampleImage}
+            title=""
+            className="!mb-0"
+            alt={`Ảnh đề xuất của ${offer.fullName}`}
           />
         </div>
       )}
@@ -170,6 +216,24 @@ export function OfferCard({ offer, onClick }: OfferCardProps) {
       <div className="text-xs text-muted-foreground italic">
         Đã đăng {createdAt}
       </div>
+
+      <OfferEditorDialog
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        initialData={selectedOffer}
+        onSave={handleSave}
+        postFinishDate={postFinishDate}
+      />
+
+      <OfferEditImage
+        open={openEditImageDialog}
+        onOpenChange={setOpenEditImageDialog}
+        offerId={offer.offerID}
+        onSuccess={async () => {
+          await fetchOffers(offer.projectPostID);
+          onUpdate?.(offer.offerID);
+        }}
+      />
     </div>
   );
 }

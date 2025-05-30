@@ -46,16 +46,23 @@ export default function PostDetailTemplate({
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <PostDetailActions
-                post={post}
-                onOfferCreated={handleOfferCreated}
-              />
+              {!loading && (
+                <PostDetailActions
+                  post={post}
+                  onOfferCreated={handleOfferCreated}
+                  loading={loading}
+                  offers={offers}
+                />
+              )}
               <div className="mt-4">
                 {isAuthorizedRole ? (
                   <OfferInAllPost
                     offers={offers}
                     loading={loading}
                     selectedPostId={post.projectPostID}
+                    onDeleteOffer={() => refetch()}
+                    onUpdateOffer={() => refetch()}
+                    postFinishDate={post.finishDate}
                   />
                 ) : (
                   <div className="bg-card text-card-foreground p-4 rounded-lg shadow border border-border">

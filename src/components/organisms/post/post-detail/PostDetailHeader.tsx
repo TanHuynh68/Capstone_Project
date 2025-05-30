@@ -23,7 +23,9 @@ export default function PostDetailHeader({
     { href: "", title: "Bài đăng chi tiết" },
   ];
   return (
-    <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
+    <div
+      className={`bg-card text-card-foreground rounded-lg shadow-sm border p-6 ${className}`}
+    >
       {/* Navigation và Actions */}
       <div className="flex items-center justify-between mb-6">
         <Breadcrumb items={items} />
@@ -38,7 +40,7 @@ export default function PostDetailHeader({
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               {post.title}
             </h1>
             <StatusBadge status={post.postStatus} />
@@ -55,7 +57,11 @@ export default function PostDetailHeader({
         {/* Thông tin thời gian */}
         <div className="flex flex-wrap gap-6">
           <DateDisplay date={post.createdAt} label="Ngày tạo" icon="calendar" />
-          <DateDisplay date={post.endAt} label="Ngày kết thúc" icon="clock" />
+          <DateDisplay
+            date={post.finishDate}
+            label="Ngày hoàn thành:"
+            icon="clock"
+          />
         </div>
       </div>
     </div>

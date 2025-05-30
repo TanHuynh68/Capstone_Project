@@ -10,12 +10,16 @@ interface PostDetailActionsProps {
   post: Post;
   className?: string;
   onOfferCreated?: () => void;
+  loading?: boolean;
+  offers?: Offer[];
 }
 
 export default function PostDetailActions({
   post,
   className = "",
   onOfferCreated,
+  loading = true,
+  offers = [],
 }: PostDetailActionsProps) {
   const { createOffer } = OfferService();
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +46,15 @@ export default function PostDetailActions({
     >
       <h2 className="text-xl font-semibold mb-4">Hành động</h2>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div
+        className={`grid ${
+          role?.trim().toLowerCase() === "designer" &&
+          !loading &&
+          offers.length === 0
+            ? "grid-cols-2"
+            : "grid-cols-1"
+        } gap-3`}
+      >
         <Button
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           size="lg"
@@ -51,17 +63,18 @@ export default function PostDetailActions({
           Liên hệ ngay
         </Button>
 
-        {role?.trim().toLowerCase() === "designer" && (
-          <Button
-            onClick={() => setShowModal(true)}
-            // variant="outline"
-            size="lg"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Tạo đề xuất
-          </Button>
-        )}
+        {role?.trim().toLowerCase() === "designer" &&
+          !loading &&
+          offers.length === 0 && (
+            <Button
+              onClick={() => setShowModal(true)}
+              size="lg"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Tạo đề xuất
+            </Button>
+          )}
       </div>
 
       {/* Modal */}

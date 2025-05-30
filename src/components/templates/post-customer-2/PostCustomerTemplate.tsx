@@ -198,13 +198,13 @@ export default function PostCustomerTemplate({
     (offer) => offer.offerStatus !== 1 && offer.offerStatus !== 3 // 2: ACCEPTED, 3: REJECTED
   );
 
-  const handleDeleteClick = () => {
-    if (hasUnresolvedOffers) {
-      setShowOfferWarningModal(true);
-      return;
-    }
-    handleDeletePost(post);
-  };
+  // const handleDeleteClick = () => {
+  //   if (hasUnresolvedOffers) {
+  //     setShowOfferWarningModal(true);
+  //     return;
+  //   }
+  //   handleDeletePost(post);
+  // };
 
   const handleDeletePost = async (postToDelete: Post) => {
     try {
@@ -388,7 +388,7 @@ export default function PostCustomerTemplate({
             onViewOffers={onViewOffers}
             isSelected={isSelected}
             onDelete={handleDeletePost}
-            onDeleteClick={handleDeleteClick}
+            onRefresh={() => onDataChange?.(null)}
             hasUnresolvedOffers={hasUnresolvedOffers}
           />
           <PostCustomerContent post={post} />
@@ -418,8 +418,8 @@ export default function PostCustomerTemplate({
               <DialogTitle>Không thể xóa bài đăng</DialogTitle>
               <DialogDescription className="space-y-4">
                 <p>
-                  Bài đăng này còn có offers chưa được giải quyết. Vui lòng xử
-                  lý các offers trước khi xóa bài đăng.
+                  Bài đăng này còn có đề xuất chưa được giải quyết. Vui lòng xử
+                  lý các đề xuất trước khi xóa bài đăng.
                 </p>
                 <div className="flex justify-end gap-2">
                   <Button
@@ -435,7 +435,7 @@ export default function PostCustomerTemplate({
                         onViewOffers();
                       }}
                     >
-                      Xem offers
+                      Xem đề xuất
                     </Button>
                   )}
                 </div>

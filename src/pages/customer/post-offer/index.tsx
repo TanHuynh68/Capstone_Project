@@ -10,7 +10,7 @@ import PostCustomerTemplate from "@/components/templates/post-customer-2/PostCus
 export default function PostOfferPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>();
 
-  const { posts } = usePosts();
+  const { posts, fetchPosts } = usePosts();
   const {
     offers,
     loading: offersLoading,
@@ -34,6 +34,20 @@ export default function PostOfferPage() {
     // TODO: Call API to actually reject the offer
   };
 
+  const handlePostDataChange = async (post: Post | null) => {
+    // If post is null, it means the post was deleted
+    if (post === null) {
+      // Clear selected post if it was deleted
+      setSelectedPostId(undefined);
+      // Refresh the posts list
+      await fetchPosts();
+    }
+  };
+
+  const selectedPost = posts.find(
+    (post) => post.projectPostID === selectedPostId
+  );
+
   return (
     <MainLayout
       leftColumn={
@@ -47,12 +61,20 @@ export default function PostOfferPage() {
                 isSelected={selectedPostId === post.projectPostID}
                 postNumber={index + 1}
                 isFirstPost={index === 0}
+                onDataChange={handlePostDataChange}
               />
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <p>Không có bài đăng nào</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-xl font-bold">
+                <h2 className="text-xl font-bold">Bài đăng của tôi</h2>
+              </div>
+            </div>
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">Không có bài đăng nào</p>
+            </div>
           </div>
         )
       }
@@ -64,6 +86,7 @@ export default function PostOfferPage() {
           onAcceptOffer={handleAcceptOffer}
           onRejectOffer={handleRejectOffer}
           isVisible={!!selectedPostId}
+          postFinishDate={selectedPost?.finishDate || ""}
         />
       }
     />

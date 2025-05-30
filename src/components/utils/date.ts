@@ -1,6 +1,9 @@
 import moment from "moment";
 import { format, formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+
+type DateInput = string | Date;
+
 /**
  *
  * @param date
@@ -226,3 +229,41 @@ export function formatFullDateWithDistance2(isoString: string) {
 
   return `${formatted} `;
 }
+
+/**
+ * Format date to UTC+7 (Vietnam timezone)
+ * @param date - Date string or Date object
+ * @param formatStr - Format string (default: "dd/MM/yyyy")
+ * @returns Formatted date string in UTC+7
+ */
+export const formatVietnamDate = (date: DateInput, formatStr: string = "dd/MM/yyyy"): string => {
+  const utcDate = new Date(date);
+  // Convert to UTC+7 by adding 7 hours
+  const vietnamDate = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
+  return format(vietnamDate, formatStr, { locale: vi });
+};
+
+export const formatVietnamDateHours = (date: DateInput, formatStr: string = "dd/MM/yyyy HH:mm:ss"): string => {
+  const utcDate = new Date(date);
+  // Convert to UTC+7 by adding 7 hours
+  const vietnamDate = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
+  return format(vietnamDate, formatStr, { locale: vi });
+};
+
+/**
+ * Format date to UTC+7 with full date format (Vietnam timezone)
+ * Example: "15 tháng 3 năm 2024"
+ */
+export const formatVietnamFullDate = (date: DateInput): string => {
+  return formatVietnamDate(date, "d 'tháng' M 'năm' yyyy");
+};
+
+/**
+ * Convert date to UTC+7 timezone
+ * @param date - Date string or Date object
+ * @returns Date object in UTC+7
+ */
+export const toVietnamTime = (date: DateInput): Date => {
+  const utcDate = new Date(date);
+  return new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
+}; 

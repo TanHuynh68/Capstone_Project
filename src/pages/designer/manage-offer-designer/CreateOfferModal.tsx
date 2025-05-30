@@ -6,11 +6,32 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
+import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface CreateOfferModalProps {
   open: boolean;
@@ -19,27 +40,57 @@ interface CreateOfferModalProps {
   post: Post;
 }
 
+// Update formatDate to only show date
+const formatDate = (date: string) => {
+  return format(new Date(date), "PPP", { locale: vi });
+};
+
 export default function CreateOfferModal({
   open,
   onClose,
   onSubmit,
   post,
 }: CreateOfferModalProps) {
-  const [initPrice, setInitPrice] = useState("");
-  const [note, setNote] = useState("");
-  const [deadline, setDeadline] = useState("");
   const [image, setImage] = useState<File | null>(null);
-  const [priceError, setPriceError] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const role = useSelector((state: RootState) => state.user.role);
 
+  const formSchema = z.object({
+    initPrice: z.string().refine((val) => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num > post.itemValue;
+    }, "Giá đề xuất phải lớn hơn giá trị sản phẩm."),
+    note: z.string().min(1, "Vui lòng nhập ghi chú"),
+    deadline: z.string().optional(),
+  });
+
+  type FormValues = z.infer<typeof formSchema>;
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      initPrice: (post.itemValue + 1000).toString(),
+      note: "",
+      deadline: "",
+    },
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
+
   const resetForm = () => {
-    setInitPrice("");
-    setNote("");
-    setDeadline("");
+    form.reset({
+      initPrice: (post.itemValue + 1000).toString(),
+      note: "",
+      deadline: "",
+    });
     setImage(null);
-    setPriceError(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
     setImageError(null);
     setIsSubmitting(false);
   };
@@ -47,22 +98,9 @@ export default function CreateOfferModal({
   // Set giá trị mặc định cho input giá đề xuất khi mở modal hoặc đổi post
   useEffect(() => {
     if (open && post) {
-      setInitPrice((post.itemValue + 1000).toString());
-      setPriceError(null);
+      form.setValue("initPrice", (post.itemValue + 1000).toString());
     }
-  }, [open, post]);
-
-  // Xử lý thay đổi giá đề xuất và báo lỗi ngay khi nhập sai
-  const handleInitPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInitPrice(value);
-    const numberValue = parseFloat(value);
-    if (!value || isNaN(numberValue) || numberValue <= post.itemValue) {
-      setPriceError("Giá đề xuất phải lớn hơn giá trị sản phẩm.");
-    } else {
-      setPriceError(null);
-    }
-  };
+  }, [open, post, form]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,6 +112,7 @@ export default function CreateOfferModal({
       if (!allowedTypes.includes(file.type)) {
         setImageError("Chỉ chấp nhận file ảnh có định dạng JPG, JPEG hoặc PNG");
         setImage(null);
+        setImagePreview(null);
         return;
       }
 
@@ -81,18 +120,29 @@ export default function CreateOfferModal({
       if (file.size > 1024 * 1024) {
         setImageError("Kích thước file không được vượt quá 1MB");
         setImage(null);
+        setImagePreview(null);
         return;
       }
 
       setImage(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
   };
 
-  const handleSubmit = () => {
-    const initPriceNumber = parseFloat(initPrice);
+  // Cleanup preview URL when component unmounts or image changes
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
-    if (!initPrice || !note || !deadline || !image) {
-      setPriceError("Vui lòng điền đầy đủ thông tin.");
+  const handleSubmit = (values: FormValues) => {
+    if (!image) {
+      setImageError("Vui lòng chọn hình ảnh mẫu");
       return;
     }
 
@@ -100,17 +150,27 @@ export default function CreateOfferModal({
       return;
     }
 
-    if (initPriceNumber <= post.itemValue) {
-      setPriceError("Giá đề xuất phải lớn hơn giá trị sản phẩm.");
+    if (!values.deadline) {
+      form.setError("deadline", { message: "Vui lòng chọn thời hạn" });
       return;
     }
 
     const formData = new FormData();
-    formData.append("InitPrice", initPrice);
-    formData.append("Note", note);
-    formData.append("DeadlineEndAt", new Date(deadline).toISOString());
+    formData.append("InitPrice", values.initPrice);
+    formData.append("Note", values.note);
+
+    try {
+      const deadlineDate = new Date(values.deadline);
+      if (isNaN(deadlineDate.getTime())) {
+        throw new Error("Invalid date");
+      }
+      formData.append("DeadlineEndAt", deadlineDate.toISOString());
+    } catch (error) {
+      console.error("Invalid deadline date:", error);
+      return;
+    }
+
     formData.append("SampleImage", image);
-    setPriceError(null);
     setIsSubmitting(true);
     onSubmit(formData);
     resetForm();
@@ -131,7 +191,7 @@ export default function CreateOfferModal({
       <DialogContent className="max-w-none min-w-[1000px]">
         <DialogHeader className="pb-2">
           {role === "Designer" && (
-            <DialogTitle className="text-xl">Tạo offer mới</DialogTitle>
+            <DialogTitle className="text-xl">Tạo đề xuất mới</DialogTitle>
           )}
         </DialogHeader>
 
@@ -246,7 +306,7 @@ export default function CreateOfferModal({
                           }`}
                         >
                           {post.postStatus === 1
-                            ? "Đang mở"
+                            ? "Đang hoạt động"
                             : post.postStatus === 2
                             ? "Đang thực hiện"
                             : "Đã đóng"}
@@ -283,99 +343,169 @@ export default function CreateOfferModal({
           </div>
 
           {/* Cột phải - Form nhập thông tin */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center max-h-[70vh] overflow-y-auto">
             <div className="w-full max-w-sm space-y-3 p-4 bg-white/50 rounded-lg border border-gray-100">
               <div className="text-center mb-2">
                 <h3 className="text-lg font-bold text-gray-700">
-                  Thông tin offer
+                  Thông tin đề xuất
                 </h3>
                 <p className="text-base text-gray-500 mt-1">
                   Vui lòng điền đầy đủ thông tin bên dưới
                 </p>
               </div>
 
-              {/* Giá đề xuất */}
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">
-                  Giá đề xuất
-                </Label>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    placeholder="Nhập giá đề xuất"
-                    value={initPrice}
-                    onChange={handleInitPriceChange}
-                    min={post.itemValue + 1}
-                    step="1000"
-                    required
-                    className="pr-20 h-9 text-sm"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleSubmit)}
+                  className="space-y-3"
+                >
+                  {/* Giá đề xuất */}
+                  <FormField
+                    control={form.control}
+                    name="initPrice"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Giá đề xuất</FormLabel>
+                        <div className="relative w-full">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Nhập giá đề xuất"
+                              {...field}
+                              min={post.itemValue + 1000}
+                              step="1000"
+                              className="w-full  h-9 text-sm"
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">
-                    đ
+
+                  {/* Ghi chú */}
+                  <FormField
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Ghi chú</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Ví dụ: Tôi có thể làm thiết kế này..."
+                            {...field}
+                            className="w-full h-9 text-sm"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Deadline */}
+                  <FormField
+                    control={form.control}
+                    name="deadline"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Thời hạn hoàn thành</FormLabel>
+                        <Popover
+                          open={isCalendarOpen}
+                          onOpenChange={setIsCalendarOpen}
+                        >
+                          <PopoverTrigger>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal bg-white",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  formatDate(field.value)
+                                ) : (
+                                  <span>Chọn thời hạn</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-auto p-0"
+                            align="center"
+                            side="top"
+                            sideOffset={5}
+                          >
+                            <Calendar
+                              mode="single"
+                              selected={
+                                field.value ? new Date(field.value) : undefined
+                              }
+                              onSelect={(date) => {
+                                if (date) {
+                                  date.setHours(23, 59, 59, 999);
+                                  field.onChange(date.toISOString());
+                                  setIsCalendarOpen(false);
+                                }
+                              }}
+                              disabled={(date) => {
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const finishDate = post.finishDate
+                                  ? new Date(post.finishDate)
+                                  : null;
+                                if (finishDate) {
+                                  finishDate.setHours(23, 59, 59, 999);
+                                  return date < today || date > finishDate;
+                                }
+                                return date < today;
+                              }}
+                              initialFocus
+                              locale={vi}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Hình ảnh mẫu */}
+                  <div className="w-full space-y-3">
+                    <FormLabel>Hình mẫu minh hoạ</FormLabel>
+                    <div className="space-y-4">
+                      <Input
+                        type="file"
+                        accept=".jpg,.jpeg,.png"
+                        onChange={handleImageChange}
+                        className="w-full h-9 text-sm file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                      />
+                      {imageError && (
+                        <p className="text-xs text-red-600">{imageError}</p>
+                      )}
+                      {imagePreview && (
+                        <SingleImageGallery
+                          imageUrl={imagePreview}
+                          title="Hình mẫu đã chọn"
+                          className="mt-2"
+                          alt="Hình mẫu minh hoạ"
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                {priceError && (
-                  <p className="text-xs text-red-600 mt-1">{priceError}</p>
-                )}
-              </div>
 
-              {/* Ghi chú */}
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">
-                  Ghi chú
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Ví dụ: Tôi có thể làm thiết kế này..."
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  required
-                  className="h-9 text-sm"
-                />
-              </div>
-
-              {/* Deadline */}
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">
-                  Thời hạn hoàn thành
-                </Label>
-                <div className="relative flex justify-center">
-                  <Input
-                    type="datetime-local"
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    min={new Date().toISOString().slice(0, 16)}
-                    required
-                    className="w-56 h-10 text-sm pr-10 mx-auto"
-                  />
-                </div>
-              </div>
-
-              {/* Hình ảnh mẫu */}
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">
-                  Hình mẫu minh hoạ
-                </Label>
-                <Input
-                  type="file"
-                  accept=".jpg,.jpeg,.png"
-                  onChange={handleImageChange}
-                  required
-                  className="h-9 text-sm file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                />
-                {imageError && (
-                  <p className="text-xs text-red-600 mt-1">{imageError}</p>
-                )}
-              </div>
-
-              {/* Submit button */}
-              <Button
-                onClick={handleSubmit}
-                className="w-full h-9 mt-2 text-sm font-medium"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Đang xử lý..." : "Gửi offer"}
-              </Button>
+                  {/* Submit button */}
+                  <Button
+                    type="submit"
+                    className="w-full h-9 mt-2 text-sm font-medium"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Đang xử lý..." : "Gửi đề xuất"}
+                  </Button>
+                </form>
+              </Form>
             </div>
           </div>
         </div>
