@@ -12,8 +12,8 @@ interface ChatTemplateProps {
   onSendMessage: (message: string) => void;
   shouldScrollToBottom: boolean;
   loadingMessage: boolean;
-  onDeletMessage: any,
-  onEditMessage: any
+  onDeletMessage: any;
+  onEditMessage: any;
 }
 
 export default function ChatTemplate({
@@ -23,7 +23,7 @@ export default function ChatTemplate({
   onSelectChat,
   onSendMessage,
   onDeletMessage,
-  onEditMessage
+  onEditMessage,
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
   return (
@@ -55,9 +55,15 @@ export default function ChatTemplate({
             </div>
           )}
 
-          <div className="sticky bottom-0 z-10">
-            <MessageComposer onSendMessage={onSendMessage} />
-          </div>
+          {currentChatUser ? (
+            <div className="sticky bottom-0 z-10">
+              <MessageComposer onSendMessage={onSendMessage} />
+            </div>
+          )
+        : <div className="flex justify-center items-center h-screen">
+          Chưa có ai để trò chuyện
+        </div>
+        }
         </div>
       </div>
     </div>

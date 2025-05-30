@@ -5,7 +5,7 @@ import { USER_ROUTES } from "@/routes/path";
 
 const CustomerLayout = () => {
     const location = useLocation();
-    const HIDE_FOOTER_ROUTES = [`/${USER_ROUTES.CHAT}`]; // thêm route bạn muốn ẩn Footer
+    const HIDE_FOOTER_ROUTES = [`${USER_ROUTES.CHAT}`]; // thêm route bạn muốn ẩn Footer
     const hideFooter = HIDE_FOOTER_ROUTES.includes(location.pathname);
 
     return (

@@ -1,3 +1,7 @@
+import { PATH} from "@/routes/path";
+import ChatService from "@/services/ChatService";
+import { useNavigate } from "react-router-dom";
+
 interface ProfilePopupProps {
   fullName: string;
   avatar?: string;
@@ -5,9 +9,11 @@ interface ProfilePopupProps {
   appreciations?: string | number;
   followers?: string | number;
   views?: string | number;
+  designerID: string;
 }
 
 export function ProfilePopup({
+  designerID,
   fullName,
   avatar,
   location = "Vietnam",
@@ -15,6 +21,18 @@ export function ProfilePopup({
   followers = "12.8K",
   views = "527.4K",
 }: ProfilePopupProps) {
+  const { createChatRoom } = ChatService();
+  const navigate = useNavigate();
+
+  const createChatRoomByCustomer = async () => {
+    console.log('designerID: ',designerID)
+    const response = await createChatRoom(designerID);
+    console.log('createChatRoom: ', response)
+    if (response) {
+      navigate(PATH.CHAT_PAGE)
+    }
+  };
+  
   return (
     <div className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-1 w-[300px] bg-popover text-popover-foreground rounded-2xl shadow-xl p-4 border border-border opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top pointer-events-none group-hover:pointer-events-auto">
       {/* Top images */}
@@ -76,7 +94,7 @@ export function ProfilePopup({
         <button className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors">
           Hồ sơ
         </button>
-        <button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors">
+        <button onClick={createChatRoomByCustomer} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors">
           Nhắn tin
         </button>
       </div>
