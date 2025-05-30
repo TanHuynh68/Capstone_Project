@@ -25,8 +25,8 @@ export function OfferInAllPost({
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
   const [isExiting, setIsExiting] = useState(false);
 
-//   console.log(selectedPostId, "selectedPostIdselectedPostIdselectedPostId");
-//   console.log(offers, "offersoffersoffers");
+  //   console.log(selectedPostId, "selectedPostIdselectedPostIdselectedPostId");
+  //   console.log(offers, "offersoffersoffers");
 
   // Handle smooth transitions when offers change or visibility changes
   useEffect(() => {
@@ -203,7 +203,7 @@ buil
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">
-              Offers {selectedPostId && `(${visibleOffers.length})`}
+              Đề xuất {selectedPostId && `(${visibleOffers.length})`}
             </h2>
           </div>
 
@@ -237,8 +237,8 @@ buil
               <div className="text-center py-8 text-gray-500">
                 <p className="text-sm">
                   {selectedPostId
-                    ? "Chưa có offer nào cho bài đăng này"
-                    : "Chọn một bài đăng để xem offers"}
+                    ? "Chưa có đề xuất nào cho bài đăng này"
+                    : "Chọn một bài đăng để xem đề xuất"}
                 </p>
               </div>
             )}

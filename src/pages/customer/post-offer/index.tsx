@@ -51,8 +51,15 @@ export default function PostOfferPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <p>Không có bài đăng nào</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-xl font-bold">
+                <h2 className="text-xl font-bold">Bài đăng của tôi</h2>
+              </div>
+            </div>
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">Không có bài đăng nào</p>
+            </div>
           </div>
         )
       }

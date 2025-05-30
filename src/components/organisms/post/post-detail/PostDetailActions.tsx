@@ -42,7 +42,13 @@ export default function PostDetailActions({
     >
       <h2 className="text-xl font-semibold mb-4">Hành động</h2>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div
+        className={`grid ${
+          role?.trim().toLowerCase() === "designer"
+            ? "grid-cols-2"
+            : "grid-cols-1"
+        } gap-3`}
+      >
         <Button
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           size="lg"

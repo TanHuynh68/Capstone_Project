@@ -176,7 +176,7 @@ export default function PostCustomerHeader({
                   localIsSelected ? "rotate-180" : ""
                 }`}
               />
-              {localIsSelected ? "Ẩn offers" : "Xem offers"}
+              {localIsSelected ? "Ẩn đề xuất" : "Xem đề xuất"}
             </Button>
           )}
           <Button

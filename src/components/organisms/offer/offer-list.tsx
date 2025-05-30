@@ -200,7 +200,7 @@ export function OfferList({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">
-              Offers {selectedPostId && `(${visibleOffers.length})`}
+              Đề xuất {selectedPostId && `(${visibleOffers.length})`}
             </h2>
           </div>
 
@@ -208,7 +208,7 @@ export function OfferList({
             {loading ? (
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">Đang tải offers...</p>
+                <p className="text-gray-500 text-sm">Đang tải đề xuất...</p>
               </div>
             ) : visibleOffers.length > 0 ? (
               <div className="offer-list space-y-3">
@@ -234,8 +234,8 @@ export function OfferList({
               <div className="text-center py-8 text-gray-500">
                 <p className="text-sm">
                   {selectedPostId
-                    ? "Chưa có offer nào cho bài đăng này"
-                    : "Chọn một bài đăng để xem offers"}
+                    ? "Chưa có đề xuất nào cho bài đăng này"
+                    : "Chọn một bài đăng để xem đề xuất"}
                 </p>
               </div>
             )}

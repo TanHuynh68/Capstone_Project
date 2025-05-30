@@ -246,7 +246,7 @@ export default function CreateOfferModal({
                           }`}
                         >
                           {post.postStatus === 1
-                            ? "Đang mở"
+                            ? "Đang hoạt động"
                             : post.postStatus === 2
                             ? "Đang thực hiện"
                             : "Đã đóng"}
