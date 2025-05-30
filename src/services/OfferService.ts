@@ -51,6 +51,15 @@ const OfferService = () => {
         }
     }, [callApi]);
 
+    const editOfferImage = useCallback(async (values: any) => {
+        try {
+            const res = await callApi(HTTP_METHOD.PUT, API_ROUTES.EDIT_OFFER_IMAGE, values);
+            return res;
+        } catch (err: any) {
+            console.error(err?.response?.data);
+        }
+    }, [callApi]);
+
     const deleteOffer = useCallback(async (values: any) => {
         try {
             const res = await callApi(HTTP_METHOD.DELETE, API_ROUTES.DELETE_OFFER, values);
@@ -62,7 +71,7 @@ const OfferService = () => {
 
 
 
-    return { createOffer, getOfferToken, getAllOffersInPost, deleteOffer, updateOffer};
+    return { createOffer, getOfferToken, getAllOffersInPost, deleteOffer, updateOffer, editOfferImage};
 };
 
 export default OfferService;

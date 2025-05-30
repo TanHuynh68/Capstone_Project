@@ -13,6 +13,7 @@ interface OfferListProps {
   onDeleteOffer?: (offerId: string) => void;
   onUpdateOffer?: (offerId: string) => void;
   isVisible?: boolean;
+  postFinishDate: string;
 }
 
 export function OfferInAllPost({
@@ -24,6 +25,7 @@ export function OfferInAllPost({
   onDeleteOffer,
   onUpdateOffer,
   isVisible = true,
+  postFinishDate,
 }: OfferListProps) {
   const [exitingOffers, setExitingOffers] = useState<Set<string>>(new Set());
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
@@ -266,6 +268,7 @@ buil
                       onReject={() => handleRejectOffer(offer.offerID)}
                       onDelete={handleDeleteOffer}
                       onUpdate={() => handleUpdateOffer(offer.offerID)}
+                      postFinishDate={postFinishDate}
                     />
                   </div>
                 ))}

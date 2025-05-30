@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import { format } from "date-fns";
 import { Ellipsis, Pencil, Trash2 } from "lucide-react";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/atoms/avatar/avatar";
@@ -17,6 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { OfferEditorDialog } from "@/components/organisms/offer/OfferEditorDialog";
 import { useState } from "react";
+import { formatVietnamDate } from "@/components/utils/date";
+import { OfferEditImage } from "@/components/organisms/offer/OfferEditImage";
 
 interface OfferCardProps {
   offer: Offer;
@@ -26,9 +27,15 @@ interface OfferCardProps {
   onEdit?: (offerId: string) => void;
   onDelete?: (offerId: string) => void;
   onUpdate?: (offerId: string) => void;
+  postFinishDate: string;
 }
 
-export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
+export function OfferCard({
+  offer,
+  onDelete,
+  onUpdate,
+  postFinishDate,
+}: OfferCardProps) {
   const currentUser = useSelector((state: RootState) => state.user);
   const isCreator = currentUser?.id === offer.designerID;
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -42,9 +49,9 @@ export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
       currency: "VND",
     }).format(amount);
 
-  const createdAt = format(new Date(offer.createdAt), "dd/MM/yyyy");
-  const deadline = format(new Date(offer.deadlineEndAt), "dd/MM/yyyy");
-
+  const createdAt = formatVietnamDate(offer.createdAt);
+  const deadline = formatVietnamDate(offer.deadlineEndAt);
+  const [openEditImageDialog, setOpenEditImageDialog] = useState(false);
   const handleDeleteOffer = async () => {
     try {
       const response = await deleteOffer({ offerID: offer.offerID });
@@ -84,6 +91,10 @@ export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
     } else {
       // toast.error("Cập nhật thất bại");
     }
+  };
+
+  const handleEditImage = () => {
+    setOpenEditImageDialog(true);
   };
 
   return (
@@ -138,14 +149,22 @@ export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
                 </button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-40 p-1 z-50 rounded-md shadow-md border bg-popover text-popover-foreground border-border dark:bg-zinc-900 dark:text-white dark:border-zinc-700">
+              <DropdownMenuContent className="w-45 p-1 z-50 rounded-md shadow-md border bg-popover text-popover-foreground border-border dark:bg-zinc-900 dark:text-white dark:border-zinc-700">
                 {/* Chỉnh sửa */}
                 <DropdownMenuItem
                   onSelect={handleEdit}
                   className="flex items-center px-3 py-2 rounded-md text-sm hover:bg-accent/40 hover:text-primary dark:hover:bg-accent/20 dark:hover:text-primary transition-colors"
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  <span>Chỉnh sửa</span>
+                  <span>Chỉnh sửa đề xuất</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onSelect={handleEditImage}
+                  className="flex items-center px-3 py-2 rounded-md text-sm hover:bg-accent/40 hover:text-primary dark:hover:bg-accent/20 dark:hover:text-primary transition-colors"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Chỉnh sửa ảnh</span>
                 </DropdownMenuItem>
 
                 {/* Xóa đề xuất */}
@@ -203,6 +222,17 @@ export function OfferCard({ offer, onDelete, onUpdate }: OfferCardProps) {
         onOpenChange={setOpenEditDialog}
         initialData={selectedOffer}
         onSave={handleSave}
+        postFinishDate={postFinishDate}
+      />
+
+      <OfferEditImage
+        open={openEditImageDialog}
+        onOpenChange={setOpenEditImageDialog}
+        offerId={offer.offerID}
+        onSuccess={async () => {
+          await fetchOffers(offer.projectPostID);
+          onUpdate?.(offer.offerID);
+        }}
       />
     </div>
   );

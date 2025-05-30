@@ -17,15 +17,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { toVietnamTime, formatVietnamFullDate } from "@/components/utils/date";
 
 export function OfferEditorDialog({
   open,
   onOpenChange,
   initialData,
   onSave,
+  postFinishDate,
 }: {
   open: boolean;
   onOpenChange: (val: boolean) => void;
@@ -36,18 +37,20 @@ export function OfferEditorDialog({
     initPrice: number;
     deadlineEndAt: string;
   }) => void;
+  postFinishDate: string;
 }) {
   const [note, setNote] = useState("");
   const [price, setPrice] = useState("");
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
   const [priceError, setPriceError] = useState("");
   const [dateError, setDateError] = useState("");
+  const [openCalendar, setOpenCalendar] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setNote(initialData.note || "");
       setPrice((initialData.initPrice + 1000).toString());
-      setDeadline(new Date(initialData.deadlineEndAt));
+      setDeadline(toVietnamTime(initialData.deadlineEndAt));
       setPriceError("");
       setDateError("");
     }
@@ -59,11 +62,11 @@ export function OfferEditorDialog({
       setPriceError("Vui lòng nhập giá hợp lệ");
       return false;
     }
-    if (initialData && newPrice <= initialData.initPrice + 1000) {
+    if (initialData && newPrice <= initialData.initPrice) {
       setPriceError(
-        `Giá đề xuất mới phải lớn hơn giá hiện tại (${(
-          initialData.initPrice + 1000
-        ).toLocaleString("vi-VN")} VNĐ)`
+        `Giá đề xuất mới phải lớn hơn giá hiện tại (${initialData.initPrice.toLocaleString(
+          "vi-VN"
+        )} đđ)`
       );
       return false;
     }
@@ -83,11 +86,27 @@ export function OfferEditorDialog({
       return false;
     }
 
-    const today = new Date();
+    const today = toVietnamTime(new Date());
     today.setHours(0, 0, 0, 0);
 
-    if (date < today) {
+    const finishDate = toVietnamTime(new Date(postFinishDate));
+    finishDate.setHours(0, 0, 0, 0);
+
+    // Bỏ qua giờ khi so sánh
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
       setDateError("Không thể chọn ngày trong quá khứ");
+      return false;
+    }
+
+    if (selectedDate > finishDate) {
+      setDateError(
+        `Không thể chọn ngày sau ngày hoàn thành dự kiến (${formatVietnamFullDate(
+          finishDate
+        )})`
+      );
       return false;
     }
 
@@ -96,8 +115,15 @@ export function OfferEditorDialog({
   };
 
   const handleDateSelect = (date: Date | undefined) => {
-    setDeadline(date);
-    validateDate(date);
+    if (date) {
+      const vietnamDate = toVietnamTime(date);
+      setDeadline(vietnamDate);
+      validateDate(vietnamDate);
+      setOpenCalendar(false);
+    } else {
+      setDeadline(undefined);
+      validateDate(undefined);
+    }
   };
 
   const handleSubmit = () => {
@@ -105,18 +131,30 @@ export function OfferEditorDialog({
     if (!validatePrice(price)) return;
     if (!validateDate(deadline)) return;
 
+    const utcDeadline = new Date(deadline!.getTime() - 7 * 60 * 60 * 1000);
+
     onSave({
       offerID: initialData.offerID,
       note,
       initPrice: Number(price),
-      deadlineEndAt: deadline!.toISOString(),
+      deadlineEndAt: utcDeadline.toISOString(),
     });
     onOpenChange(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-6 rounded-2xl shadow-lg">
+      <DialogContent
+        className="sm:max-w-lg p-6 rounded-2xl shadow-lg"
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Chỉnh sửa đề xuất
@@ -130,10 +168,10 @@ export function OfferEditorDialog({
           {/* Giá đề xuất */}
           <div className="space-y-1">
             <Label htmlFor="price">
-              Giá đề xuất (VNĐ) - Tối thiểu{" "}
+              Giá đề xuất (đ) - Tối thiểu{" "}
               {initialData &&
                 (initialData.initPrice + 1000).toLocaleString("vi-VN")}{" "}
-              VNĐ
+              đ
             </Label>
             <Input
               id="price"
@@ -157,11 +195,11 @@ export function OfferEditorDialog({
           {/* Ngày hoàn thành */}
           <div className="space-y-1">
             <Label htmlFor="deadline">Hạn hoàn thành</Label>
-            <Popover>
+            <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
               <PopoverTrigger asChild>
                 <button
                   className={cn(
-                    "flex w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                    "flex w-full justify-between items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     "disabled:cursor-not-allowed disabled:opacity-50",
@@ -169,14 +207,14 @@ export function OfferEditorDialog({
                     dateError && "border-red-500 focus-visible:ring-red-500"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-70" />
                   {deadline ? (
-                    format(deadline, "PPP", { locale: vi })
+                    formatVietnamFullDate(deadline)
                   ) : (
                     <span className="text-muted-foreground">
                       Chọn ngày hoàn thành
                     </span>
                   )}
+                  <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-70" />
                 </button>
               </PopoverTrigger>
               <PopoverContent
@@ -188,9 +226,15 @@ export function OfferEditorDialog({
                   mode="single"
                   selected={deadline}
                   onSelect={handleDateSelect}
-                  disabled={(date) =>
-                    date < new Date(new Date().setHours(0, 0, 0, 0))
-                  }
+                  disabled={(date) => {
+                    const today = toVietnamTime(new Date());
+                    today.setHours(0, 0, 0, 0);
+
+                    const finishDate = toVietnamTime(new Date(postFinishDate));
+                    finishDate.setHours(0, 0, 0, 0);
+
+                    return date < today || date > finishDate;
+                  }}
                   initialFocus
                   locale={vi}
                   className="rounded-md border-0"
@@ -209,8 +253,9 @@ export function OfferEditorDialog({
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Ghi chú thêm về đề xuất..."
-              className="min-h-[100px]"
+              className="min-h-[100px] w-full resize-none break-words whitespace-pre-wrap"
             />
           </div>
 

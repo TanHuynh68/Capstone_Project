@@ -109,6 +109,7 @@ export enum API_ROUTES {
   GET_OFFER_TOKEN = "offer/token",
   UPDATE_OFFER = `${API_ENDPOINTS.OFFER}`,
   DELETE_OFFER = `${API_ENDPOINTS.OFFER}`,
+  EDIT_OFFER_IMAGE = `${API_ENDPOINTS.OFFER}/image`,
   //General
   UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,
 }

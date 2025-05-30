@@ -343,7 +343,7 @@ export default function CreateOfferModal({
           </div>
 
           {/* Cột phải - Form nhập thông tin */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center max-h-[70vh] overflow-y-auto">
             <div className="w-full max-w-sm space-y-3 p-4 bg-white/50 rounded-lg border border-gray-100">
               <div className="text-center mb-2">
                 <h3 className="text-lg font-bold text-gray-700">
@@ -450,7 +450,18 @@ export default function CreateOfferModal({
                                   setIsCalendarOpen(false);
                                 }
                               }}
-                              disabled={(date) => date < new Date()}
+                              disabled={(date) => {
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const finishDate = post.finishDate
+                                  ? new Date(post.finishDate)
+                                  : null;
+                                if (finishDate) {
+                                  finishDate.setHours(23, 59, 59, 999);
+                                  return date < today || date > finishDate;
+                                }
+                                return date < today;
+                              }}
                               initialFocus
                               locale={vi}
                             />
