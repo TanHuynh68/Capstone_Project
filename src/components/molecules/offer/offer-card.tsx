@@ -113,6 +113,7 @@ export function OfferCard({
               <div className="text-sm font-medium ml-2">{offer.fullName}</div>
             </div>
             <ProfilePopup
+              designerID={offer.designerID}
               fullName={offer.fullName}
               avatar={offer.avatar}
               location={offer.location}

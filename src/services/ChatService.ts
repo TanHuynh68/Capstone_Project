@@ -33,8 +33,7 @@ const ChatService = () => {
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
-          API_ROUTES.CREATE_CHAT_ROOM,
-          account2ID
+          `${API_ROUTES.CREATE_CHAT_ROOM}?account2ID=${account2ID}`
         );
         return res;
       } catch (err: any) {
