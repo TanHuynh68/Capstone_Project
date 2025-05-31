@@ -1,8 +1,8 @@
 "use client";
 
-import FormHeader from "@/components/atoms/register/FormHeader";
-import FormFooter from "@/components/atoms/register/FormFooter";
-import RegisterForm from "@/components/organisms/register/RegisterForm";
+import FormHeader from "@/components/atoms/auth/register/FormHeader";
+import FormFooter from "@/components/atoms/auth/register/FormFooter";
+import RegisterForm from "@/components/organisms/auth/register/RegisterForm";
 import { Link, useNavigate } from "react-router-dom";
 import { RegisterFormValues } from "@/schemas/registerSchema";
 import { toast } from "sonner";

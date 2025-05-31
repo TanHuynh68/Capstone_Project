@@ -20,8 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import WalletService from "@/services/WalletService";
 
 import History from "@/components/molecules/wallet/history";
-import { UpdateBankCardButton } from "@/components/atoms/wallet/edit-wallet/update-bank-card-button.tsx";
-import { PdcWalletCard } from "@/components/organisms/wallet/pdc-wallet-card";
+import { UpdateBankCardButton } from "@/components/atoms/customer/wallet/edit-wallet/update-bank-card-button.tsx";
+import { PdcWalletCard } from "@/components/organisms/customer/wallet/pdc-wallet-card";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import WithdrawMoney from "../withdraw-money";

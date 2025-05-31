@@ -6,14 +6,14 @@ import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
 import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
 import Notification from "@/components/molecules/navbar/Notification";
-import Logo from "@/components/atoms/logo/Logo";
-import Cart from "@/components/atoms/navbar/Paint";
-import Post from "@/components/atoms/navbar/Post";
-import UserOption from "@/components/atoms/navbar/UserOption";
-import UserAuth from "@/components/atoms/navbar/UserAuth";
+import Logo from "@/components/atoms/custom/logo/Logo";
+import Cart from "@/components/atoms/layout/navbar/Paint";
+import Post from "@/components/atoms/layout/navbar/Post";
+import UserOption from "@/components/atoms/layout/navbar/UserOption";
+import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
-import Message from "@/components/atoms/navbar/Message";
+import Message from "@/components/atoms/layout/navbar/Message";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },

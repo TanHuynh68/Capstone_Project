@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import ChatAvatar from "@/components/atoms/chat/ChatAvatar";
-import ChatTime from "@/components/atoms/chat/ChatTime";
+import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
+import ChatTime from "@/components/atoms/customer/chat/ChatTime";
 import MessageContent from "@/components/molecules/chat/MessageContent";
-import MessageActions from "@/components/atoms/chat/MessageActions";
+import MessageActions from "@/components/atoms/customer/chat/MessageActions";
 import DeleteMessageModal from "@/components/molecules/chat/DeleteMessageModal";
 import EditMessageModal from "@/components/molecules/chat/EditMessageModal";
 import { useCurrentUser } from "@/components/utils";

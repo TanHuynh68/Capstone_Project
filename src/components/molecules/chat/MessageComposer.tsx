@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Paperclip, Smile, ThumbsUp } from "lucide-react";
-import ChatButton from "@/components/atoms/chat/ChatButton";
-import ChatInput from "@/components/atoms/chat/ChatInput";
+import { Paperclip, ThumbsUp } from "lucide-react";
+import ChatButton from "@/components/atoms/customer/chat/ChatButton";
+import ChatInput from "@/components/atoms/customer/chat/ChatInput";
 import FileUploadModal from "@/components/molecules/chat/FileUploadModal";
 import { toast } from "sonner";
 import ChatService from "@/services/ChatService";
@@ -50,7 +50,7 @@ MessageComposerProps) {
     <>
       <form
         onSubmit={handleSubmit}
-        className="flex items-center gap-2 border-t border-gray-800 p-4"
+        className="flex items-center gap-2 p-4"
       >
         <ChatButton type="button" onClick={() => setIsFileModalOpen(true)}>
           <Paperclip className="h-5 w-5" />
@@ -61,10 +61,6 @@ MessageComposerProps) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <ChatButton type="button">
-          <Smile className="h-5 w-5" />
-          <span className="sr-only">Biểu tượng cảm xúc</span>
-        </ChatButton>
         <ChatButton type="submit" disabled={!message.trim()}>
           <ThumbsUp className="h-5 w-5" />
           <span className="sr-only">Gửi</span>
