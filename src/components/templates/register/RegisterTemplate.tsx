@@ -25,7 +25,6 @@ export default function RegisterTemplate() {
     };
 
     console.log("valuesSubmit:", valuesSubmit);
-
     const response = await register(valuesSubmit);
     if (response) {
       toast.success(MESSAGE.REGISTER_SUCCESSFULLY);
@@ -37,13 +36,13 @@ export default function RegisterTemplate() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full space-y-6">
         <FormHeader title="Tạo tài khoản" />
-
-        <div className="mt-8 bg-white p-8 shadow sm:rounded-lg">
-          <RegisterForm onSubmit={handleSubmit} />
+        <div className="flex justify-center">
+          <div className="bg-white p-8 shadow sm:rounded-lg w-[800px]">
+            <RegisterForm onSubmit={handleSubmit} />
+          </div>
         </div>
-
         <FormFooter>
           Bằng cách nhấp vào tiếp tục, bạn đồng ý với chúng tôi{" "}
           <Link

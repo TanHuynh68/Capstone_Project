@@ -1,3 +1,4 @@
+import FormError from "@/components/atoms/post/customer-upload-post/FormError"
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { ControllerRenderProps, FieldPath, FieldValues } from "react-hook-form"
@@ -37,6 +38,7 @@ export default function FormField<
       </FormControl>
       {description && <FormDescription>{description}</FormDescription>}
       <FormMessage />
+      <FormError>{error?.message}</FormError>
     </FormItem>
   )
 }
