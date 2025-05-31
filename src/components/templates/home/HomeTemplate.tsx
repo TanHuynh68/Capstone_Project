@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import ProductFilters from "@/components/organisms/home/ProductFilters"
-import ProductGrid from "@/components/organisms/home/ProductGrid"
-import Pagination from "@/components/molecules/home/Pagination"
-import type { Product } from "@/components/molecules/home/ProductCard"
+import ProductFilters from "@/components/organisms/general/home/ProductFilters"
+import ProductGrid from "@/components/organisms/general/home/ProductGrid"
+import Pagination from "@/components/molecules/general/home/Pagination"
+import type { Product } from "@/components/molecules/general/home/ProductCard"
 import { mockProducts } from "./data"
 
 export default function HomeTemplate() {

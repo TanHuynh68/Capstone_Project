@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import ChatAvatar from "@/components/atoms/chat/ChatAvatar"
+import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar"
 
 interface ChatListItemProps {
   id: string
@@ -15,7 +15,7 @@ interface ChatListItemProps {
 export default function ChatListItem({ name, avatar, onClick, id, lastMessage }: ChatListItemProps) {
   return (
     <button
-      className={cn("flex w-full items-start gap-3 p-3 text-left hover:bg-gray-200")}
+      className={cn("flex w-full items-start gap-3 p-3 text-left hover:bg-gray-100")}
       onClick={()=>onClick(id)}
     >
       <ChatAvatar src={avatar} name={name} />

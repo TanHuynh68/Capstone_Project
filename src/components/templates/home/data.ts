@@ -1,4 +1,4 @@
-import type { Product } from "@/components/molecules/home/ProductCard"
+import type { Product } from "@/components/molecules/general/home/ProductCard"
 const labubuImg = 'https://i.ebayimg.com/images/g/6oEAAeSwqHdn2D6v/s-l400.jpg'
 export const mockProducts: Product[] = [
   {

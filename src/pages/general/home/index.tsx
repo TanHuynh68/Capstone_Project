@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import HomeCarousel from "@/components/molecules/home/HomeCarousel";
+import HomeCarousel from "@/components/molecules/general/home/HomeCarousel";
 import Introduce from "@/components/organisms/introduce/Introduce";
 import HomeTemplate from "@/components/templates/home/HomeTemplate";
 import SuccessLoginModal from "@/pages/auth/login-modal";
@@ -25,13 +25,10 @@ const HomePage = () => {
         userId={userId || ""}
         onClose={() => setShowModal(false)}
       />
-
       <HomeTemplate />
-
       <div className="text-center text-3xl font-semibold mt-10 text-purple-400">
         Top thiết kế tuần
       </div>
-
       <HomeCarousel />
       <Introduce />
     </div>

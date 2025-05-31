@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import DepositWithdrawalHistory from "@/components/atoms/wallet/deposit-withdrawal-history"
-import TransactionHistory from "@/components/atoms/wallet/transaction-history"
+import DepositWithdrawalHistory from "@/components/atoms/customer/wallet/deposit-withdrawal-history"
+import TransactionHistory from "@/components/atoms/customer/wallet/transaction-history"
 
 
 const History = () => {

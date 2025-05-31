@@ -1,4 +1,4 @@
-import ChatAvatar from "@/components/atoms/chat/ChatAvatar"
+import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar"
 
 interface UserHeaderProps {
   name: string
@@ -10,7 +10,7 @@ interface UserHeaderProps {
 export default function UserHeader({ name, avatar, color, status }: UserHeaderProps) {
   return (
     <div className="flex items-center gap-3">
-      <ChatAvatar src={avatar} name={name} color={color} />
+      <ChatAvatar size="sm" src={avatar} name={name} color={color} />
       <div>
         <div className="font-medium">{name}</div>
         {status && <div className="text-xs text-gray-400">{status}</div>}
