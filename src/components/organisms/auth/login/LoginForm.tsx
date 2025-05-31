@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LoginVideo from "../../atoms/auth/login/LoginVideo";
 import { PATH } from "@/routes/path";
 import useAuthService from "@/services/AuthService";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import AnimatedText from "../../utils/animateText";
+import AnimatedText from "@/components/utils/animateText";
+import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
 
 export function LoginForm({
   className,

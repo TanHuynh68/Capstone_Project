@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { logout } from "@/redux/userSlice";
 import { USER_ROUTES } from "@/routes/path";
 import { User } from "lucide-react";
