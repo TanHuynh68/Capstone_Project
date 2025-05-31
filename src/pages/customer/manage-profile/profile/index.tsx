@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import GetAddress from "../../manage-address/address";
 import CreateAddress from "../../manage-address/create-address";
@@ -40,6 +41,7 @@ import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/components/utils";
 import { toast } from "sonner";
 import ReputationHistory from "@/components/reputation/ReputationHistory";
+import { ChangePasswordPage } from "@/pages";
 
 interface Profile {
   accountID: string;
@@ -194,8 +196,6 @@ const Profile = () => {
       toast.error("Có lỗi xảy ra khi cập nhật ảnh đại diện!");
     }
   };
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -448,7 +448,7 @@ const Profile = () => {
               </CardContent>
 
               <CardFooter className="flex flex-col gap-3 pt-2">
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="outline" className="w-full ">
                   <Link
                     to="/edit-profile"
                     className="flex items-center justify-center"
@@ -456,13 +456,17 @@ const Profile = () => {
                     <Edit className="mr-2 h-4 w-4" /> Thay đổi thông tin
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link
-                    to="/change-password"
-                    className="flex items-center justify-center"
-                  >
-                    <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
-                  </Link>
+                <Button variant="outline" className="w-full p-0">
+                  <Dialog>
+                    <DialogTrigger className="w-full">
+                      <Button variant="outline" className="w-full">
+                         <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="w-[550px]">
+                      <ChangePasswordPage />
+                    </DialogContent>
+                  </Dialog>
                 </Button>
                 {addresses.length < 3 ? (
                   <CreateAddress

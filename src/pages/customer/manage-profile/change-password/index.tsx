@@ -5,12 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+
 } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthService from "@/services/AuthService";
@@ -155,9 +150,9 @@ const ChangePassword = () => {
   const strengthPercentage = (passwordStrength / passwordCriteria.length) * 100;
 
   return (
-    <div className="container max-w-md mx-auto px-4 py-12">
-      <Card>
-        <CardHeader>
+    <div className="">
+      <div>
+        <div>
           <div className="flex items-center mb-2">
             <Link
               to="/profile"
@@ -165,13 +160,10 @@ const ChangePassword = () => {
             >
               <ArrowLeft size={18} />
             </Link>
-            <CardTitle>Đổi mật khẩu</CardTitle>
+            <div>Đổi mật khẩu</div>
           </div>
-          <CardDescription>
-            Cập nhật mật khẩu của bạn để giữ an toàn cho tài khoản của bạn
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="mt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
@@ -339,14 +331,14 @@ const ChangePassword = () => {
               </Button>
             </div>
           </form>
-        </CardContent>
-        <CardFooter className="flex justify-center border-t pt-6">
+        </div>
+        <div className="flex justify-center border-t pt-6">
           <p className="text-xs text-muted-foreground">
             Vì lý do bảo mật, bạn sẽ được yêu cầu đăng nhập lại sau khi thay đổi
             mật khẩu.
           </p>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
