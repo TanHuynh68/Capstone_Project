@@ -51,6 +51,8 @@ export default function PostForm() {
       SuggestedPrice: 0,
       FinishDate: undefined,
     },
+    mode: "onBlur", // Validate khi người dùng rời khỏi trường input
+    reValidateMode: "onChange", // Validate lại khi người dùng thay đổi giá trị
   });
 
   const onSubmit = async (data: UploadPostFormValues) => {
@@ -223,7 +225,7 @@ export default function PostForm() {
                               )}
                             >
                               {field.value ? (
-                                formatDate(field.value+'')
+                                formatDate(field.value + "")
                               ) : (
                                 <span>Chọn ngày kết thúc</span>
                               )}
@@ -249,7 +251,7 @@ export default function PostForm() {
                   )}
                 />
                 <div className="grid gap-4">
-                    <FormLabel required htmlFor="attachmentFile">
+                  <FormLabel required htmlFor="attachmentFile">
                     Ảnh gốc sản phẩm
                   </FormLabel>
                   <FileUpload

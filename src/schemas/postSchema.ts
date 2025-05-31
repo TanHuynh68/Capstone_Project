@@ -8,11 +8,18 @@ export const uploadPostSchema = z.object({
     .number()
     .min(minNumber, {
       message: `Giá trị sản phẩm phải lớn hơn hoặc bằng ${minNumber}`,
+    })
+    .refine((val) => val % 1000 === 0, {
+      message: "Giá trị sản phẩm phải chia hết cho 1000",
     }),
+
   SuggestedPrice: z.coerce
     .number()
     .min(minNumber, {
       message: `Giá đề xuất phải lớn hơn hoặc bằng ${minNumber}`,
+    })
+    .refine((val) => val % 1000 === 0, {
+      message: "Giá đề xuất phải chia hết cho 1000",
     }),
   FinishDate: z
     .date({
