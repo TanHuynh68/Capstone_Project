@@ -16,7 +16,7 @@ export enum USER_ROUTES {
   TRANSACTION_HISTORY = "transaction-history",
   DEPOSIT_WITHDRAWAL_HISTORY = "deposit-withdrawal-history",
   LOGIN_QR = "login-qr",
-  CHAT = "chat",
+  CHAT = "/chat",
   PLUSHDOLL_DESIGN = "plushdoll-design",
   ABOUT_PAGE = "about",
   CONTACT_PAGE = "contact",
@@ -49,6 +49,7 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  CHAT_PAGE = `${USER_ROUTES.CHAT}`,
   POST_DETAIL = "/post/detail",
   HOME = "/",
   ABOUT_PAGE = "/about",
