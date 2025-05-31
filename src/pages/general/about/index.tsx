@@ -1,12 +1,12 @@
 
-import Hero from "@/components/organisms/about/Hero"
-import Features from "@/components/organisms/about/Features"
-import Process from "@/components/organisms/about/Process"
-import CallToAction from "@/components/organisms/about/CallToAction"
+import Hero from "@/components/organisms/general/about/Hero"
+import Features from "@/components/organisms/general/about/Features"
+import Process from "@/components/organisms/general/about/Process"
+import CallToAction from "@/components/organisms/general/about/CallToAction"
 
 export default function AboutTPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col ">
       <main className="flex-grow">
         <Hero />
         <Features />

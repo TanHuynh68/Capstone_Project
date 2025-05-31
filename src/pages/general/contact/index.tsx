@@ -1,6 +1,6 @@
-import ContactHeader from "@/components/organisms/contact/ContactHeader"
-import ContactContent from "@/components/organisms/contact/ContactContent"
-import ContactCTA from "@/components/organisms/contact/ContactCTA"
+import ContactHeader from "@/components/organisms/general/contact/ContactHeader"
+import ContactContent from "@/components/organisms/general/contact/ContactContent"
+import ContactCTA from "@/components/organisms/general/contact/ContactCTA"
 
 export default function ContactPage() {
   return (

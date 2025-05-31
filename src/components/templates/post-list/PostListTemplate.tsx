@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PostsFilters from "@/components/organisms/post/post-list/PostsFilters";
 import PostsGrid from "@/components/organisms/post/post-list/PostsGrid";
-import Pagination from "@/components/molecules/home/Pagination";
+import Pagination from "@/components/molecules/general/home/Pagination";
 import PostService from "@/services/PostService";
 
 export default function PostsTemplate() {

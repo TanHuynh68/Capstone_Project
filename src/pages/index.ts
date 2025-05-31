@@ -12,8 +12,8 @@ export { default as PaymentSuccessPage } from "./customer/manage-wallet/payment-
 export { default as PaymentFailedPage } from "./customer/manage-wallet/payment-failed";
 export { default as PaymentResultPage } from "./customer/manage-wallet/payment-result";
 export { default as PayOsPaymentResultPage } from "./customer/manage-wallet/payos-payment-result";
-export { default as TransactionHistoryPage } from "../components/atoms/wallet/transaction-history";
-export { default as DepositWithdrawalHistoryPage } from "../components/atoms/wallet/deposit-withdrawal-history";
+export { default as TransactionHistoryPage } from "../components/atoms/customer/wallet/transaction-history";
+export { default as DepositWithdrawalHistoryPage } from "../components/atoms/customer/wallet/deposit-withdrawal-history";
 export { default as Chat } from "./customer/chat";
 export { default as AboutPage } from "./general/about";
 export { default as ContactPage } from "./general/contact";
