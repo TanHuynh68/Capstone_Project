@@ -1,8 +1,9 @@
 import { useCurrentUser } from "@/components/utils";
 import { ROLE } from "@/constants";
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate} from "react-router-dom";
 import { PATH } from "./path";
+import { ErrorPage } from "@/pages";
 
 interface ProtectedRouteByRoleProps {
   children: ReactNode;
@@ -17,9 +18,8 @@ export const ProtectedRouteByRole: React.FC<ProtectedRouteByRoleProps> = ({
   if (!user?.role) {
     return <Navigate to={PATH.LOGIN_IN} replace />;
   }
-
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    return <ErrorPage />;
   }
   return children;
 };

@@ -13,10 +13,7 @@ interface ChatSidebarProps {
   onSelectChat: any;
 }
 
-export default function ChatSidebar({
-  users,
-  onSelectChat,
-}: ChatSidebarProps) {
+export default function ChatSidebar({ users, onSelectChat }: ChatSidebarProps) {
   const userMain = useCurrentUser();
   console.log("users: ", users);
   return (
@@ -53,7 +50,9 @@ export default function ChatSidebar({
                   ? user.account1Name
                   : user.account2Name
               }
-              avatar={""}
+              avatar={
+                userMain.id != user.account1ID ? user.avatar1 : user.avatar2
+              }
               onClick={onSelectChat}
             />
           );

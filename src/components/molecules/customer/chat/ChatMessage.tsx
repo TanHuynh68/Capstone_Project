@@ -10,11 +10,6 @@ import DeleteMessageModal from "@/components/molecules/customer/chat/DeleteMessa
 import EditMessageModal from "@/components/molecules/customer/chat/EditMessageModal";
 import { useCurrentUser } from "@/components/utils";
 
-interface UserChat {
-  id: string;
-  account1Name: string;
-  account2Name: string;
-}
 
 interface ChatMessageProps {
   id: string; // Message ID
@@ -49,12 +44,12 @@ export default function ChatMessage({
     if (isCurrentUser) {
       return {
         name: users[0]?.account1Name || "Bạn",
-        avatar: "",
+        avatar: users[0]?.avatar1,
       };
     } else {
       return {
         name: users[0]?.account2Name || "Người dùng",
-        avatar: "",
+        avatar: users[0]?.avatar2,
       };
     }
   };

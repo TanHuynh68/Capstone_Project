@@ -2,7 +2,8 @@ import ChatSidebar from "@/components/organisms/customer/chat/ChatSidebar";
 import ChatHeader from "@/components/organisms/customer/chat/ChatHeader";
 import MessageList from "@/components/organisms/customer/chat/MessageList";
 import MessageComposer from "@/components/molecules/customer/chat/MessageComposer";
-import InfoAboutTheConversationTab from "@/components/molecules/customer/chat/InfoAboutTheConversationTab";
+import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab";
+import { useState } from "react";
 
 interface ChatTemplateProps {
   setShouldScroll: any;
@@ -27,6 +28,10 @@ export default function ChatTemplate({
   onEditMessage,
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const handleSetIsOpen =()=>{
+    setIsOpen(!isOpen)
+  }
   return (
     <div className="bg-gray-200 py-3 px-1 h-screen">
       <div className=" flex w-full h-full overflow-hidden gap-4 p-3">
@@ -43,6 +48,7 @@ export default function ChatTemplate({
           <div className="sticky top-0 z-10">
             {currentChatUser && (
               <ChatHeader
+              setIsOpen={handleSetIsOpen}
                 user={users.filter((item) => item.chatRoomID === chatRoomID)}
               />
             )}
@@ -67,9 +73,11 @@ export default function ChatTemplate({
             </div>
           )}
         </div>
-        <div className="flex flex-2 flex-col rounded-xl bg-white">
-          <InfoAboutTheConversationTab/>
-        </div>
+        {isOpen && (
+          <div className="flex flex-2 flex-col rounded-xl bg-white">
+            <InfoAboutTheConversationTab />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,24 +1,34 @@
-import { Info } from "lucide-react"
-import ChatButton from "@/components/atoms/customer/chat/ChatButton"
-import UserHeader from "@/components/molecules/customer/chat/UserHeader"
-import { useCurrentUser } from "@/components/utils"
+import { Info } from "lucide-react";
+import ChatButton from "@/components/atoms/customer/chat/ChatButton";
+import UserHeader from "@/components/molecules/customer/chat/UserHeader";
+import { useCurrentUser } from "@/components/utils";
 
 interface ChatHeaderProps {
-  user?: UserChat[]
+  user?: UserChat[];
+  setIsOpen: any;
 }
 
-export default function ChatHeader({ user }: ChatHeaderProps) {
-  if (!user) return null
-   const userMain = useCurrentUser();
+export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
+  if (!user) return null;
+  const userMain = useCurrentUser();
   return (
     <div className="flex items-center justify-between border-b border-gray-200 p-2">
-      <UserHeader  name={userMain.id != user[0].account1ID ? user[0].account1Name : user[0].account2Name} avatar={user[0].avatar || ''} />
+      <UserHeader
+        name={
+          userMain.id != user[0].account1ID
+            ? user[0].account1Name
+            : user[0].account2Name
+        }
+        avatar={userMain.id != user[0].avatar1
+            ? user[0].avatar1
+            : user[0].avatar2}
+      />
       <div className="flex gap-1">
-        <ChatButton>
+        <ChatButton onClick={setIsOpen}>
           <Info className="h-5 w-5" />
           <span className="sr-only">Thông tin</span>
         </ChatButton>
       </div>
     </div>
-  )
+  );
 }

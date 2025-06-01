@@ -1,36 +1,42 @@
-import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate";
-import { TimelineItemData } from "../../timeline/TimelineItem";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TimelineItemData } from "../../../molecules/timeline/TimelineItem";
+import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
+import { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
 import ChatCreateOfferPhase from "@/components/atoms/customer/chat/chat-form/ChatCreateOfferPhase";
+import { useState } from "react";
+import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate";
+
 const InfoAboutTheConversationTab = () => {
+  const [value, setValue] = useState<string>("");
+  const handleSetTabsContent = (valueItem: any) => {
+    setValue(valueItem);
+  };
   return (
     <div>
       <div className="flex-1 flex flex-col justify-center gap-2 py-3 px-8">
-        <Tabs orientation="vertical" defaultValue="offerPhase">
-          <TabsList>
-            <TabsTrigger value="offer">Xem đề xuất</TabsTrigger>
-            <TabsTrigger value="offerPhase">Tạo giai đoạn đề xuất</TabsTrigger>
-            <TabsTrigger value="timeline">Xem Timeline</TabsTrigger>
-            <TabsTrigger value="order"> Tạo đơn hàng</TabsTrigger>
-          </TabsList>
-          <TabsContent value="offerPhase">
-            <ChatCreateOfferPhase/>
-          </TabsContent>
-          <TabsContent value="timeline">
-            <div className="flex-5 overflow-y-auto">
-              <TimelineTemplate
-                title="Project Timeline"
-                items={mockTimelineData}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
+        <SidebarCollapses onClick={handleSetTabsContent} items={items} />
+        {
+          value === 'offerPhase' && <ChatCreateOfferPhase />
+        }
+        {
+          value === 'timeline' && <TimelineTemplate items={mockTimelineData} />
+        }
       </div>
     </div>
   );
 };
 
 export default InfoAboutTheConversationTab;
+
+const items: SidebarCollapseProps[] = [
+  {
+    title: "Thông tin về đoạn chat",
+    subItem: [
+      { title: "Xem đề xuất", tabName: "offerPhase" },
+      { title: "Timeline", tabName: "timeline" },
+    ],
+  },
+  // { title: "File", subItem: ["File phương tiện", "File"] },
+];
 
 const mockTimelineData: TimelineItemData[] = [
   {
