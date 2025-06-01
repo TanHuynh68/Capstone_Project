@@ -3,8 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { Paperclip, ThumbsUp } from "lucide-react";
 import ChatButton from "@/components/atoms/customer/chat/ChatButton";
-import ChatInput from "@/components/atoms/customer/chat/ChatInput";
-import FileUploadModal from "@/components/molecules/chat/FileUploadModal";
+import ChatInput from "@/components/atoms/customer/chat/chat-show-data/ChatInput";
+import FileUploadModal from "@/components/molecules/customer/chat/FileUploadModal";
 import { toast } from "sonner";
 import ChatService from "@/services/ChatService";
 

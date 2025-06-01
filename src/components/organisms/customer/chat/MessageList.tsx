@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect } from "react"
-import ChatMessage from "@/components/molecules/chat/ChatMessage"
+import ChatMessage from "@/components/molecules/customer/chat/ChatMessage"
 
 
 interface MessageListProps {

@@ -1,6 +1,6 @@
 import { Info } from "lucide-react"
 import ChatButton from "@/components/atoms/customer/chat/ChatButton"
-import UserHeader from "@/components/molecules/chat/UserHeader"
+import UserHeader from "@/components/molecules/customer/chat/UserHeader"
 import { useCurrentUser } from "@/components/utils"
 
 interface ChatHeaderProps {
