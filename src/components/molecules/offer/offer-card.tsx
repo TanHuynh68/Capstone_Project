@@ -3,7 +3,7 @@ import { Ellipsis, Pencil, Trash2 } from "lucide-react";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/atoms/avatar/avatar";
 import { Badge } from "@/components/atoms/badge/badge";
-import { ProfilePopup } from "@/components/molecules/profile/profile-popup";
+import { ProfilePopup } from "@/components/molecules/customer/profile/profile-popup";
 import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
 import useOfferService from "@/services/OfferService";
 import { useOffers } from "@/hooks/use-offers";

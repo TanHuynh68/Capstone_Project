@@ -1,6 +1,6 @@
 
-import { InputProps } from "../../auth/login/Input"
-import { Input } from "./Input"
+import { InputProps } from "../../../auth/login/Input"
+import { Input } from "../Input"
 
 interface ChatInputProps extends InputProps {
   placeholder?: string

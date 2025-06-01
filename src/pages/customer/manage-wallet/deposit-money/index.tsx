@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import WalletService from "@/services/WalletService";
 
-import History from "@/components/molecules/wallet/history";
+import History from "@/components/molecules/customer/wallet/history";
 import { UpdateBankCardButton } from "@/components/atoms/customer/wallet/edit-wallet/update-bank-card-button.tsx";
 import { PdcWalletCard } from "@/components/organisms/customer/wallet/pdc-wallet-card";
 

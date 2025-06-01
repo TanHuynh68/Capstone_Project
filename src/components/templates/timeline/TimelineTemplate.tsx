@@ -13,7 +13,7 @@ export default function TimelineTemplate({
   className = "",
 }: TimelineTemplateProps) {
   return (
-    <div className={`h-full bg-white text-black p-3 px-8 ${className}`}>
+    <div className={`h-ful text-black p-3 px-8 ${className}`}>
       <div className="w-full flex flex-col justify-center">
         <h1 className="text-2xl font-bold mb-8 text-center">{title}</h1>
         <Timeline items={items} />

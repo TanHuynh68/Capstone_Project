@@ -1,5 +1,5 @@
 import GoldChipIcon from "@/components/atoms/auth/login/GoldChipIcon"
-import { WalletCard, WalletCardProps } from "@/components/molecules/wallet/wallet-card"
+import { WalletCard, WalletCardProps } from "@/components/molecules/customer/wallet/wallet-card"
 import { cn } from "@/lib/utils"
 
 

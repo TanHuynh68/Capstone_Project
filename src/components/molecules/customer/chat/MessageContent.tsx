@@ -1,9 +1,9 @@
 "use client";
 
-import ChatImage from "@/components/atoms/customer/chat/ChatImage";
-import ChatJson from "@/components/atoms/customer/chat/ChatJson";
-import ChatLink from "@/components/atoms/customer/chat/ChatLink";
-import ChatText from "@/components/atoms/customer/chat/ChatText";
+import ChatImage from "@/components/atoms/customer/chat/chat-show-data/ChatImage";
+import ChatJson from "@/components/atoms/customer/chat/chat-show-data/ChatJson";
+import ChatLink from "@/components/atoms/customer/chat/chat-show-data/ChatLink";
+import ChatText from "@/components/atoms/customer/chat/chat-show-data/ChatText";
 
 interface MessageContentProps {
   content: string;
