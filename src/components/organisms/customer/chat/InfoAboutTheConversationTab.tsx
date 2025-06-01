@@ -18,7 +18,8 @@ const InfoAboutTheConversationTab = () => {
           value === 'offerPhase' && <ChatCreateOfferPhase />
         }
         {
-          value === 'timeline' && <TimelineTemplate items={mockTimelineData} />
+          value === 'timeline' && 
+          <div><TimelineTemplate items={mockTimelineData} /></div>
         }
       </div>
     </div>
