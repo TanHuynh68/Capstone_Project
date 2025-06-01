@@ -4,7 +4,6 @@ import MessageList from "@/components/organisms/customer/chat/MessageList";
 import MessageComposer from "@/components/molecules/customer/chat/MessageComposer";
 import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab";
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
 import { useCurrentUser } from "@/components/utils";
 interface ChatTemplateProps {
