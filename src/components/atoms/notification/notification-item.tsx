@@ -3,7 +3,7 @@ import { Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { NotificationProps } from "@/types/notification";
-import { formatFullDateWithDistance } from "@/components/utils/date";
+import { formatVietnamDateHoursWithSuffix } from "@/components/utils/date";
 
 interface NotificationItemProps {
   notification: NotificationProps;
@@ -17,7 +17,6 @@ export function NotificationItem({
   onDelete,
 }: NotificationItemProps) {
   const { title, message, createdAt, isRead } = notification;
-
 
   return (
     <div
@@ -36,7 +35,7 @@ export function NotificationItem({
             {message}
           </p>
           <span className="text-xs text-muted-foreground mt-1 block">
-            {formatFullDateWithDistance(createdAt)}
+            {formatVietnamDateHoursWithSuffix(createdAt)}
           </span>
         </div>
         <div className="flex items-center space-x-1">
