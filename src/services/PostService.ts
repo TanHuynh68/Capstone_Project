@@ -158,7 +158,49 @@ const PostService = () => {
     },
     [callApi]
   );
-  return { createPost, getPosts, getMyPosts, deletePost, getPostDetail, updatePost };
+
+  const disablePost = useCallback(
+    async (projectPostID: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          `${API_ROUTES.DISABLE_POST}`,
+          projectPostID
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const enablePost = useCallback(
+    async (projectPostID: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          `${API_ROUTES.ENABLE_POST}`,
+          projectPostID
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  return {
+    enablePost,
+    createPost,
+    getPosts,
+    getMyPosts,
+    deletePost,
+    getPostDetail,
+    updatePost,
+    disablePost,
+  };
 };
 
 export default PostService;
