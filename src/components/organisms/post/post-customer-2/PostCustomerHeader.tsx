@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Flag, Eye, Trash2 } from "lucide-react";
+import { Flag, Eye, Trash2, Pencil } from "lucide-react";
 import DateDisplay from "@/components/atoms/post/post-detail/DateDisplay";
 import UserInfo from "@/components/molecules/post/post-detail/UserInfo";
 import StatusBadge from "@/components/atoms/post/post-list/StatusBadge";
@@ -10,6 +10,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useDeleteConfirmation } from "@/hooks/useDeleteConfirmation";
 import DeleteConfirmationModal from "@/components/molecules/delete/DeleteConfirmationModal";
 import { toast } from "sonner";
+import { DialogUpdatePost } from "@/components/molecules/post/customer-update-post/DialogUploadPost";
 
 // Global state to track offer visibility for each post
 const offerVisibilityMap = new Map<string, boolean>();
@@ -23,6 +24,7 @@ interface PostCustomerHeaderProps {
   onDelete?: (post: Post) => Promise<void>;
   onRefresh?: () => void;
   hasUnresolvedOffers?: boolean;
+  fetchPosts: any
 }
 
 export default function PostCustomerHeader({
@@ -33,6 +35,7 @@ export default function PostCustomerHeader({
   onDelete,
   onRefresh,
   hasUnresolvedOffers = false,
+  fetchPosts
 }: PostCustomerHeaderProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [localIsSelected, setLocalIsSelected] = useState(() => {
@@ -163,7 +166,6 @@ export default function PostCustomerHeader({
     { href: "/post", title: "Bài đăng" },
     { href: "", title: "Bài đăng chi tiết" },
   ];
-
   return (
     <div
       className={`bg-card text-card-foreground rounded-lg shadow-sm border p-6 ${className}`}
@@ -208,6 +210,22 @@ export default function PostCustomerHeader({
           <Button variant="ghost" size="icon">
             <Flag className="h-4 w-4" />
           </Button>
+          <DialogUpdatePost
+          fetchPosts={fetchPosts}
+            projectPostId={post.projectPostID}
+            children={
+              <Button variant="ghost" size="icon">
+                <Pencil />
+              </Button>
+            }
+            data={{
+              Title: post.title,
+              Description: post.description,
+              FinishDate: new Date(post.finishDate),
+              ItemValue: post.itemValue,
+              SuggestedPrice: post.suggestedPrice,
+            }}
+          />
         </div>
       </div>
 

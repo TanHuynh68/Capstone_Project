@@ -20,7 +20,7 @@ const PostService = () => {
       }
       formData.append("FinishDate", new Date(data.FinishDate).toISOString());
       try {
-        console.log('data: ', data)
+        console.log("data: ", data);
         const res = await callApi(
           HTTP_METHOD.POST,
           API_ROUTES.CREATE_POST,
@@ -34,14 +34,21 @@ const PostService = () => {
     [callApi]
   );
 
-  const getMyPosts = useCallback(async (values: any) => {
-    try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_MY_POSTS, values);
-      return res;
-    } catch (err: any) {
-      console.error(err?.response?.data);
-    }
-  }, [callApi]);
+  const getMyPosts = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_MY_POSTS,
+          values
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
 
   const getPosts = useCallback(
     async (params: any) => {
@@ -135,7 +142,23 @@ const PostService = () => {
     },
     [callApi]
   );
-  return { createPost, getPosts, getMyPosts, deletePost, getPostDetail };
+
+  const updatePost = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          `${API_ROUTES.UPDATE_POST}`,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  return { createPost, getPosts, getMyPosts, deletePost, getPostDetail, updatePost };
 };
 
 export default PostService;

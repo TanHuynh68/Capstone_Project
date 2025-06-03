@@ -55,6 +55,7 @@ export default function PostOfferPage() {
           <div className="space-y-8">
             {posts.map((post, index) => (
               <PostCustomerTemplate
+                fetchPosts={fetchPosts}
                 key={post.projectPostID}
                 post={post}
                 onViewOffers={() => handleViewOffers(post.projectPostID)}
