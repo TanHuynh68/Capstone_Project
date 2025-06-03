@@ -83,6 +83,7 @@ export const MESSAGE = {
 
     //POST
     CREATE_POST_SUCCESSFULLY:"Đăng bài thành công!",
+    UPDATE_POST_SUCCESSFULLY:"Cập nhật bài đăng thành công!",
     //CHAT
     DELETE_MESSAGE_SUCCESSFULLY:"Xóa tin nhắn thành công",
     

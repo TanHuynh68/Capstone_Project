@@ -108,7 +108,7 @@ const ChatCreateOfferPhase = () => {
             name="endDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Thời gian bắt đầu</FormLabel>
+                <FormLabel>Thời gian kết thúc</FormLabel>
                 <FormControl>
                   <div className="flex flex-col flex-wrap items-start gap-2 @md:flex-row">
                     <Calendar

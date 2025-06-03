@@ -29,6 +29,7 @@ interface PostCustomerTemplateProps {
   postNumber: number;
   onDataChange?: (post: Post | null) => void;
   isFirstPost?: boolean;
+  fetchPosts: any;
 }
 
 export default function PostCustomerTemplate({
@@ -39,6 +40,7 @@ export default function PostCustomerTemplate({
   postNumber,
   onDataChange,
   isFirstPost = false,
+  fetchPosts,
 }: PostCustomerTemplateProps) {
   const { deletePost } = PostService();
   const { offers, fetchOffers, resetOffers } = useOffers();
@@ -390,6 +392,7 @@ export default function PostCustomerTemplate({
             onDelete={handleDeletePost}
             onRefresh={() => onDataChange?.(null)}
             hasUnresolvedOffers={hasUnresolvedOffers}
+            fetchPosts={fetchPosts}
           />
           <PostCustomerContent post={post} />
         </div>
