@@ -1,4 +1,5 @@
-import { PATH} from "@/routes/path";
+import { useCurrentUser } from "@/components/utils";
+import { PATH } from "@/routes/path";
 import ChatService from "@/services/ChatService";
 import { useNavigate } from "react-router-dom";
 
@@ -23,16 +24,16 @@ export function ProfilePopup({
 }: ProfilePopupProps) {
   const { createChatRoom } = ChatService();
   const navigate = useNavigate();
-
+  const user = useCurrentUser();
   const createChatRoomByCustomer = async () => {
-    console.log('designerID: ',designerID)
+    console.log("designerID: ", designerID);
     const response = await createChatRoom(designerID);
-    console.log('createChatRoom: ', response)
+    console.log("createChatRoom: ", response);
     if (response) {
-      navigate(PATH.CHAT_PAGE)
+      navigate(PATH.CHAT_PAGE);
     }
   };
-  
+
   return (
     <div className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-1 w-[300px] bg-popover text-popover-foreground rounded-2xl shadow-xl p-4 border border-border opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top pointer-events-none group-hover:pointer-events-auto">
       {/* Top images */}
@@ -94,9 +95,14 @@ export function ProfilePopup({
         <button className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors">
           Hồ sơ
         </button>
-        <button onClick={createChatRoomByCustomer} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors">
-          Nhắn tin
-        </button>
+        {user?.id != designerID && (
+          <button
+            onClick={createChatRoomByCustomer}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors"
+          >
+            Nhắn tin
+          </button>
+        )}
       </div>
 
       {/* Dropdown triangle */}

@@ -19,7 +19,7 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
             ? user[0].account1Name
             : user[0].account2Name
         }
-        avatar={userMain.id != user[0].avatar1
+        avatar={userMain.id != user[0].account1ID
             ? user[0].avatar1
             : user[0].avatar2}
       />

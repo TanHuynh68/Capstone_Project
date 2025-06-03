@@ -86,14 +86,14 @@ export default function ChatTemplate({
                     name=""
                     size="xxl"
                     src={
-                      userMain.id != user[0].id
-                        ? user[0].avatar2
-                        : user[0].avatar1
+                      userMain.id != user[0].account1ID
+                        ? user[0].avatar1
+                        : user[0].avatar2
                     }
                   />
                   </div>
                   <div className="text-2xl flex justify-center mt-2">
-                    {userMain.id === user[0].id
+                    {userMain.id != user[0].account1ID
                       ? user[0].account1Name
                       : user[0].account2Name}
                   </div>
