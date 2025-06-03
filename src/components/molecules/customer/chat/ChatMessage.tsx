@@ -38,10 +38,10 @@ export default function ChatMessage({
   // State for modals
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  console.log('users[0: ', users[0])
   // Lấy thông tin người gửi
   const getSenderInfo = () => {
-    if (isCurrentUser) {
+    if (users[0]?.account1ID === senderID) {
       return {
         name: users[0]?.account1Name || "Bạn",
         avatar: users[0]?.avatar1,
@@ -55,7 +55,7 @@ export default function ChatMessage({
   };
 
   const senderInfo = getSenderInfo();
-
+  console.log('senderInfo: ', senderInfo.avatar)
   // Handlers for message actions
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -150,7 +150,7 @@ export default function ChatMessage({
         {/* Avatar bên phải cho tin nhắn của người dùng hiện tại */}
         {isCurrentUser && (
           <ChatAvatar
-            src={senderInfo.avatar}
+            src={senderInfo?.avatar}
             name={senderInfo.name}
             color="bg-blue-500"
             size="sm"

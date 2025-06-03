@@ -47,8 +47,8 @@ export default function PostForm() {
     defaultValues: {
       Title: "",
       Description: "",
-      ItemValue: 0,
-      SuggestedPrice: 0,
+      ItemValue: 1000,
+      SuggestedPrice: 1000,
       FinishDate: undefined,
     },
     mode: "onBlur", // Validate khi người dùng rời khỏi trường input
