@@ -40,7 +40,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/components/utils";
 import { toast } from "sonner";
-import ReputationHistory from "@/components/reputation/ReputationHistory";
+import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
 import { ChangePasswordPage } from "@/pages";
 
 interface Profile {
@@ -460,7 +460,7 @@ const Profile = () => {
                   <Dialog>
                     <DialogTrigger className="w-full">
                       <Button variant="outline" className="w-full">
-                         <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
+                        <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="w-[550px]">

@@ -20,6 +20,7 @@ export const enum API_ENDPOINTS {
   CHAT = "chat",
   OFFER = "offer",
   PROJECT_POST = "project-post",
+  PORTFOLIO = "portfolio",
 }
 
 export enum API_ROUTES {
@@ -112,4 +113,8 @@ export enum API_ROUTES {
   EDIT_OFFER_IMAGE = `${API_ENDPOINTS.OFFER}/image`,
   //General
   UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,
+  GET_PROFILE_FOR_ALL = `${API_ENDPOINTS.ACCOUNT}/profile`,
+
+  //Portfolio
+  GET_PORTFOLIO = `${API_ENDPOINTS.PORTFOLIO}/my-portfolio`,
 }
