@@ -26,18 +26,14 @@ export default function PostDetailActions({
   const role = useSelector((state: RootState) => state.user.role);
   const handleSubmitOffer = useCallback(
     async (formData: FormData) => {
-      const initPrice = Number(formData.get("InitPrice"));
-      if (initPrice <= post.itemValue) {
-        alert("Giá khởi điểm phải lớn hơn giá trị sản phẩm!");
-        return;
-      }
+      // Đã bỏ kiểm tra giá khởi điểm phải lớn hơn giá trị sản phẩm
 
       formData.append("ProjectPostID", post.projectPostID);
       const result = await createOffer(formData);
       console.log("Offer created:", result);
       onOfferCreated?.();
     },
-    [createOffer, post.projectPostID, post.itemValue, onOfferCreated]
+    [createOffer, post.projectPostID, onOfferCreated]
   );
 
   return (

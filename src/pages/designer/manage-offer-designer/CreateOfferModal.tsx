@@ -59,10 +59,12 @@ export default function CreateOfferModal({
   const role = useSelector((state: RootState) => state.user.role);
 
   const formSchema = z.object({
-    initPrice: z.string().refine((val) => {
-      const num = parseFloat(val);
-      return !isNaN(num) && num > post.itemValue;
-    }, "Giá đề xuất phải lớn hơn giá trị sản phẩm."),
+    initPrice: z
+      .string()
+      .refine(
+        (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 1000,
+        "Giá đề xuất phải là số hợp lệ và lớn hơn hoặc bằng 1000"
+      ),
     note: z.string().min(1, "Vui lòng nhập ghi chú"),
     deadline: z.string().optional(),
   });
@@ -72,7 +74,7 @@ export default function CreateOfferModal({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      initPrice: (post.itemValue + 1000).toString(),
+      initPrice: "1000",
       note: "",
       deadline: "",
     },
@@ -82,7 +84,7 @@ export default function CreateOfferModal({
 
   const resetForm = () => {
     form.reset({
-      initPrice: (post.itemValue + 1000).toString(),
+      initPrice: "1000",
       note: "",
       deadline: "",
     });
@@ -98,7 +100,7 @@ export default function CreateOfferModal({
   // Set giá trị mặc định cho input giá đề xuất khi mở modal hoặc đổi post
   useEffect(() => {
     if (open && post) {
-      form.setValue("initPrice", (post.itemValue + 1000).toString());
+      form.setValue("initPrice", "1000");
     }
   }, [open, post, form]);
 
@@ -366,15 +368,15 @@ export default function CreateOfferModal({
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel>Giá đề xuất</FormLabel>
-                        <div className="relative w-full">
+                        <div className="relative w-full flex items-center gap-2">
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="Nhập giá đề xuất"
                               {...field}
-                              min={post.itemValue + 1000}
+                              min={1000}
                               step="1000"
-                              className="w-full  h-9 text-sm"
+                              className="w-full h-9 text-sm "
                             />
                           </FormControl>
                         </div>
