@@ -31,7 +31,6 @@ import {
 import ChangeActiveUserButton from "../change-active-user";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/components/utils/date";
-
 interface User {
   accountID: string;
   fullName: string;

@@ -169,32 +169,6 @@ export function formatDateTimeVN(isoString: string) {
   return `${datePart} ${timePart}`;
 }
 
-// 👉 Sử dụng:
-// formatDateTimeVN("2025-05-20T11:00:39.0757681"); // "20/05/2025 11:00"
-
-// export function formatFullDateWithDistance(isoString: string) {
-//     const createdAt = new Date(isoString);
-//     const now = new Date();
-
-//     console.log(createdAt, "createdAt")
-//     console.log(now, "now")
-
-//     const diffMs = now.getTime() - createdAt.getTime();
-
-//     console.log(diffMs, "diffMs")
-//     const correctedDate = new Date(createdAt.getTime() + diffMs); // = now luôn
-//     console.log(correctedDate, "correctedDate")
-//     const formatted = format(correctedDate, "dd/MM/yyyy HH:mm");
-//     const relative = formatDistanceToNow(correctedDate, {
-//         addSuffix: true,
-//         locale: vi,
-//     });
-
-//     return `${formatted} (${relative})`;
-// }
-
-// formatFullDateWithDistance("2025-05-20T12:12:00");
-// 👉 "20/05/2025 12:12 (2 giờ trước)"  — nếu bây giờ là 14:12
 
 export function formatFullDateWithDistance(isoString: string) {
   const createdAt = new Date(isoString);
@@ -248,6 +222,16 @@ export const formatVietnamDateHours = (date: DateInput, formatStr: string = "dd/
   // Convert to UTC+7 by adding 7 hours
   const vietnamDate = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
   return format(vietnamDate, formatStr, { locale: vi });
+};
+
+export const formatVietnamDateHoursWithSuffix = (
+  date: DateInput,
+  formatStr: string = "dd/MM/yyyy HH:mm:ss"
+): string => {
+  const vietnamDate = new Date(new Date(date).getTime() + (7 * 60 * 60 * 1000));
+  const formatted = format(vietnamDate, formatStr, { locale: vi });
+  const relative = formatDistanceToNow(vietnamDate, { locale: vi, addSuffix: true });
+  return `${formatted} (${relative})`;
 };
 
 /**

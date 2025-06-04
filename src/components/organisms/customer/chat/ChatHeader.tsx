@@ -15,13 +15,13 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
     <div className="flex items-center justify-between border-b border-gray-200 p-2">
       <UserHeader
         name={
-          userMain.id != user[0].account1ID
-            ? user[0].account1Name
-            : user[0].account2Name
+          userMain.id != user[0].account1.accountID
+            ? user[0].account1.accountName
+            : user[0].account2.accountName
         }
-        avatar={userMain.id != user[0].account1ID
-            ? user[0].avatar1
-            : user[0].avatar2}
+        avatar={userMain.id != user[0].account1.accountID
+            ? user[0].account1.avatar
+            : user[0].account2.avatar}
       />
       <div className="flex gap-1">
         <ChatButton onClick={setIsOpen}>

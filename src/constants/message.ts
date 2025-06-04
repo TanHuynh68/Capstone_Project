@@ -52,15 +52,15 @@ export const MESSAGE = {
     //WALLET
     UPDATE_WALLET_SUCCESSFULLY: "Cập nhật ví thành công.",
 
-    //RULE
-    CREATE_RULE_SUCCESSFULLY: "Tạo luật lệ thành công.",
-    CREATE_RULE_FAILED: "Tạo luật lệ thất bại.",
+    //BENEFIT
+    CREATE_BENEFIT_SUCCESSFULLY: "Tạo quyền lợi thành công.",
+    CREATE_BENEFIT_FAILED: "Tạo quyền lợi thất bại.",
 
-    GET_RULES_SUCCESSFULLY: "Lấy thông tin luật lệ thành công.",
-    GET_RULES_FAILED: "Lấy thông tin luật lệ thất bại.",
+    GET_BENEFIT_SUCCESSFULLY: "Lấy thông tin quyền lợi thành công.",
+    GET_BENEFIT_FAILED: "Lấy thông tin quyền lợi thất bại.",
 
-    GET_RULE_BY_ID_SUCCESSFULLY: "Lấy chi tiết luật lệ thành công.",
-    GET_RULE_BY_ID_FAILED: "Lấy chi tiết luật lệ thất bại.",
+    GET_BENEFIT_BY_ID_SUCCESSFULLY: "Lấy chi tiết quyền lợi thành công.",
+    GET_BENEFIT_BY_ID_FAILED: "Lấy chi tiết quyền lợi thất bại.",
 
     // CHANGE_ACTIVE_RULE_SUCCESSFULLY: "Thay đổi trạng thái luật lệ thành công.",
     // CHANGE_ACTIVE_RULE_FAILED: "Thay đổi trạng thái luật lệ thất bại.",

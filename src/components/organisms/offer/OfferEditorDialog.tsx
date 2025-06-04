@@ -62,14 +62,6 @@ export function OfferEditorDialog({
       setPriceError("Vui lòng nhập giá hợp lệ");
       return false;
     }
-    if (initialData && newPrice <= initialData.initPrice) {
-      setPriceError(
-        `Giá đề xuất mới phải lớn hơn giá hiện tại (${initialData.initPrice.toLocaleString(
-          "vi-VN"
-        )} đđ)`
-      );
-      return false;
-    }
     setPriceError("");
     return true;
   };

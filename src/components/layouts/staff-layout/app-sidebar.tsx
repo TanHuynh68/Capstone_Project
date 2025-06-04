@@ -13,11 +13,11 @@ import {
   FolderIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
-  ListIcon,
   LogOutIcon,
   SearchIcon,
   SettingsIcon,
   UsersIcon,
+  Wallet,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -58,9 +58,9 @@ const data = {
       icon: UsersIcon,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
+      title: "Giao dịch của ví",
+      url: `${PATH.STAFF_MANAGER_WALLET_TRANSACTION}`,
+      icon: Wallet,
     },
     {
       title: "Analytics",
@@ -204,7 +204,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 className="gap-2 hover:bg-muted transition-colors"
               >
                 <LogOutIcon className="h-4 w-4" />
-                <span>Logout</span>
+                <span>Đăng xuất</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

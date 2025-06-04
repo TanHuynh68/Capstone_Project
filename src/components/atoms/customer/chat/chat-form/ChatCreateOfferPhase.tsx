@@ -15,6 +15,7 @@ import {
 } from "@/schemas/offerPhaseShecmas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
 
 const ChatCreateOfferPhase = () => {
   const form = useForm<OfferPhaseFormValues>({
@@ -34,7 +35,7 @@ const ChatCreateOfferPhase = () => {
     console.log("onSubmit: ", values);
     form.reset();
   };
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-10">
@@ -58,7 +59,7 @@ const ChatCreateOfferPhase = () => {
             <FormItem>
               <FormLabel>Giá</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Nhập giá" {...field} />
+                <Input type="number" step={1000} placeholder="Nhập giá" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -71,59 +72,57 @@ const ChatCreateOfferPhase = () => {
             <FormItem>
               <FormLabel>Mô tả</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Nhập tên mô tả" {...field} />
+                <Textarea placeholder="Nhập tên mô tả" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="flex gap-2">
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Thời gian bắt đầu</FormLabel>
-                <FormControl>
-                  <div className="flex flex-col flex-wrap items-start gap-2 @md:flex-row">
-                    <Calendar
-                      disabled={(date) => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0); // reset về 00:00:00
-                        return date < today;
-                      }}
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      className="rounded-md border shadow-sm"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="endDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Thời gian kết thúc</FormLabel>
-                <FormControl>
-                  <div className="flex flex-col flex-wrap items-start gap-2 @md:flex-row">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      className="rounded-md border shadow-sm"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="startDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Thời gian bắt đầu</FormLabel>
+              <FormControl>
+                <div className="flex flex-col items-center flex-wrap gap-2 @md:flex-row">
+                  <Calendar
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0); // reset về 00:00:00
+                      return date < today;
+                    }}
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    className="rounded-md border shadow-sm"
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="endDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Thời gian kết thúc</FormLabel>
+              <FormControl>
+                <div className="flex flex-col flex-wrap items-center gap-2 @md:flex-row">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    className="rounded-md border shadow-sm"
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="flex justify-end">
           <Button type="submit">Gửi</Button>
         </div>

@@ -7,7 +7,7 @@ export enum ROLE_ON_LINK {
 
 export const enum API_ENDPOINTS {
   ADDRESS = "address",
-  RULE = "rule",
+  BENEFIT = "benefit",
   AUTH = "auth",
   WALLET = "wallet",
   ORDER = "order",
@@ -20,6 +20,7 @@ export const enum API_ENDPOINTS {
   CHAT = "chat",
   OFFER = "offer",
   PROJECT_POST = "project-post",
+  PORTFOLIO = "portfolio",
 }
 
 export enum API_ROUTES {
@@ -75,9 +76,9 @@ export enum API_ROUTES {
   //Bank
   GET_BANKS = "https://api.vietqr.io/v2/banks",
   //Rule
-  CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
-  GET_RULE = `${API_ENDPOINTS.RULE}`,
-  GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
+  CREATE_BENEFIT = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.BENEFIT}`,
+  GET_BENEFIT = `${API_ENDPOINTS.BENEFIT}`,
+  GET_BENEFIT_BY_ID = `${API_ENDPOINTS.BENEFIT}/:id`,
   // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
   //Canvas
   CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,
@@ -87,6 +88,7 @@ export enum API_ROUTES {
   //Reputation
   GET_REPUTATION = `${API_ENDPOINTS.REPUTATION}`,
   GET_REPUTATION_HISTORY = `${API_ENDPOINTS.REPUTATION}/history`,
+  GET_REPUTATION_BY_ACCOUNT_ID = `${API_ENDPOINTS.REPUTATION}/account`,
   STAFF_CHANGE_REPUTATION = `/staff/${API_ENDPOINTS.REPUTATION}/change`,
   STAFF_GET_REPUTATION_BY_ACCOUNT = `/staff/${API_ENDPOINTS.REPUTATION}/account`,
   //Post
@@ -113,6 +115,15 @@ export enum API_ROUTES {
   UPDATE_OFFER = `${API_ENDPOINTS.OFFER}`,
   DELETE_OFFER = `${API_ENDPOINTS.OFFER}`,
   EDIT_OFFER_IMAGE = `${API_ENDPOINTS.OFFER}/image`,
+  OFFER_FIND = `${API_ENDPOINTS.OFFER}/find`,
   //General
   UPLOAD_AVATAR = `${API_ENDPOINTS.AUTH}/upload-avatar`,
+  GET_PROFILE_FOR_ALL = `${API_ENDPOINTS.ACCOUNT}/profile`,
+
+  //Portfolio
+  GET_PORTFOLIO = `${API_ENDPOINTS.PORTFOLIO}/my-portfolio`,
+  CREATE_PORTFOLIO = `${API_ENDPOINTS.PORTFOLIO}`,
+  EDIT_PORTFOLIO = `${API_ENDPOINTS.PORTFOLIO}`,
+  EDIT_IMAGE_PORTFOLIO = `${API_ENDPOINTS.PORTFOLIO}/image`,
+  GET_PORTFOLIO_DESIGNER_FOR_ALL = `${API_ENDPOINTS.PORTFOLIO}/designer-portfolio`,
 }
