@@ -172,26 +172,6 @@ const WalletService = () => {
     }
   }, [callApi]);
 
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const params: any = {
-        page,
-        size,
-        walletTransactionType,
-      };
-      if (walletID) params.walletID = walletID;
-      const response = await getStaffWalletTransaction(params);
-      if (response?.responseRequestModel?.responseList?.items) {
-        setData(response.responseRequestModel.responseList.items);
-      }
-    } catch (error) {
-      console.error("Error fetching wallet transactions:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return {
     getWallet,
     getStaffWalletTransaction,
@@ -212,7 +192,6 @@ const WalletService = () => {
     withdrawMoney,
     loading,
     setIsLoading,
-    fetchData,
   };
 };
 
