@@ -85,7 +85,7 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
 
     switch (field) {
       case "yearOfExperience":
-        return !value ? "Vui lòng nhập số năm kinh nghiệm" : "";
+        return !value ? "Vui lòng nhập  kinh nghiệm" : "";
       case "content":
         return !value ? "Vui lòng nhập mô tả dự án" : "";
       case "expertIn":
@@ -171,7 +171,7 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
     };
 
     if (!formData.yearOfExperience) {
-      errors.yearOfExperience = "Vui lòng nhập số năm kinh nghiệm";
+      errors.yearOfExperience = "Vui lòng nhập kinh nghiệm";
       hasError = true;
     }
 
@@ -334,7 +334,7 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                       htmlFor="yearOfExperience"
                       className="text-sm font-medium text-gray-700"
                     >
-                      Số năm kinh nghiệm
+                     kinh nghiệm
                     </Label>
                   </div>
                   <Input

@@ -92,13 +92,13 @@ const EditPortfolio = ({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="yearOfExperience">Số năm kinh nghiệm</Label>
+            <Label htmlFor="yearOfExperience">Kinh nghiệm</Label>
             <Input
               id="yearOfExperience"
               name="yearOfExperience"
               value={formData.yearOfExperience}
               onChange={handleChange}
-              placeholder="Nhập số năm kinh nghiệm"
+              placeholder="Nhập kinh nghiệm"
             />
           </div>
 
