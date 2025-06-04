@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
-import { detectInputType, reverseArray } from "@/components/utils";
+import {
+  detectInputType,
+  reverseArray,
+  useCurrentUser,
+} from "@/components/utils";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -11,7 +15,8 @@ import {
 } from "@microsoft/signalr";
 import axiosInstance from "@/config/axios";
 import { toast } from "sonner";
-import { MESSAGE } from "@/constants";
+import { MESSAGE, ROLE } from "@/constants";
+import OfferService from "@/services/OfferService";
 
 const Chat = () => {
   const { deleteMessage, updateMessage } = ChatService();
@@ -21,8 +26,48 @@ const Chat = () => {
   const [shouldScroll, setShouldScroll] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
   const { getRoomList, getMessage, createChat } = ChatService();
+  const { offerFind } = OfferService();
+  const [posts, setPosts] = useState<ChatPostCard[]>([]);
   const connectionRef = useRef<HubConnection | null>(null);
-
+  useEffect(() => {
+    if (usersNeedToChat.length != 0) {
+      fetchOffers();
+    }
+  }, [usersNeedToChat]);
+  const userMain = useCurrentUser();
+  const fetchOffers = async () => {
+    if (userMain?.role === ROLE.CUSTOMER) {
+      console.log("run");
+      const response = await offerFind({
+        customerID: userMain?.id,
+        // nếu khác customer thì là desginer
+        designerID:
+          userMain?.id != usersNeedToChat[0].account1.accountID
+            ? usersNeedToChat[0].account1.accountID
+            : usersNeedToChat[0].account2.accountID,
+      });
+      if (response) {
+        console.log("usersNeedToChat: ", usersNeedToChat);
+        console.log("response: ", response.responseRequestModel.responseList);
+        setPosts(response.responseRequestModel.responseList);
+      }
+      // nếu là role là designer
+    } else {
+      const response = await offerFind({
+        // nếu bằng nhau là designer, khác nhau thì là customer
+        customerID:
+          userMain?.id != usersNeedToChat[0].account1.accountID
+            ? usersNeedToChat[0].account1.accountID
+            : usersNeedToChat[0].account2.accountID,
+        // nếu khác  customer thì là desginer
+        designerID: userMain?.id,
+      });
+      if (response) {
+        setPosts(response.responseRequestModel.responseList);
+        console.log("response2: ", response.responseRequestModel.responseList);
+      }
+    }
+  };
   // Cleanup khi component unmount
   useEffect(() => {
     return () => {
@@ -184,7 +229,7 @@ const Chat = () => {
       messageID: messageId,
       content: newContent,
     });
-    console.log('response', response)
+    console.log("response", response);
     if (response) {
       await getMessageOfChat(chatRoomID);
     }
@@ -192,6 +237,7 @@ const Chat = () => {
   return (
     <div className="h-screen w-full">
       <ChatTemplate
+        posts={posts}
         onDeletMessage={handleDeleteMessage}
         onEditMessage={handleEditMessage}
         loadingMessage={loadingMessage}

@@ -41,15 +41,15 @@ export default function ChatMessage({
   console.log('users[0: ', users[0])
   // Lấy thông tin người gửi
   const getSenderInfo = () => {
-    if (users[0]?.account1ID === senderID) {
+    if (users[0]?.account1.accountID === senderID) {
       return {
-        name: users[0]?.account1Name || "Bạn",
-        avatar: users[0]?.avatar1,
+        name: users[0]?.account1.accountName || "Bạn",
+        avatar: users[0]?.account1.avatar,
       };
     } else {
       return {
-        name: users[0]?.account2Name || "Người dùng",
-        avatar: users[0]?.avatar2,
+        name: users[0]?.account2.accountName || "Người dùng",
+        avatar: users[0]?.account1.avatar,
       };
     }
   };
