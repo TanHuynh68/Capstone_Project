@@ -115,6 +115,53 @@ const OfferService = () => {
     [callApi]
   );
 
+  const createOfferPhase = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.CREATE_OFFER_PHASE,
+          values
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const getOfferPhase = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_OFFER_PHASE}?offerID=${values}`,
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const updateOfferPhase = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.UPDATE_OFFER_PHASE,
+          values
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   return {
     createOffer,
     getOfferToken,
@@ -122,7 +169,10 @@ const OfferService = () => {
     deleteOffer,
     updateOffer,
     editOfferImage,
-    offerFind
+    offerFind,
+    createOfferPhase,
+    getOfferPhase,
+    updateOfferPhase,
   };
 };
 

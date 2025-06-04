@@ -1,4 +1,4 @@
-import { ChatPostCard} from "@/components/atoms/customer/chat/chat-post-card/ChatPostCard"
+import { ChatPostCard} from "@/components/atoms/customer/chat/offer-card/ChatPostCard"
 
 interface ChatPostCardsProps{
     data: ChatPostCard[]

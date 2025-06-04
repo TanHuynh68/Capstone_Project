@@ -68,3 +68,34 @@ export enum MESSAGE_TYPE {
   Json = 2,
   Link = 3,
 }
+
+// enums.ts
+export enum OfferStatusEnum {
+  Pending = 'Pending',
+  Dealing = 'Dealing',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+}
+
+export enum OfferPhaseEnum {
+  NotStarted = 'NotStarted',
+  Dealed = 'Dealed',
+  Deposited = 'Deposited',
+  Withdrawed = 'Withdrawed',
+  Done = 'Done',
+}
+
+export const OfferStatusVi: Record<OfferStatusEnum, string> = {
+  [OfferStatusEnum.Pending]: 'Đang chờ',
+  [OfferStatusEnum.Dealing]: 'Đang thương lượng',
+  [OfferStatusEnum.Accepted]: 'Đã chấp nhận',
+  [OfferStatusEnum.Rejected]: 'Đã từ chối',
+};
+
+export const OfferPhaseVi: Record<OfferPhaseEnum, string> = {
+  [OfferPhaseEnum.NotStarted]: 'Chưa bắt đầu',
+  [OfferPhaseEnum.Dealed]: 'Đã thương lượng',
+  [OfferPhaseEnum.Deposited]: 'Đã đặt cọc',
+  [OfferPhaseEnum.Withdrawed]: 'Đã rút',
+  [OfferPhaseEnum.Done]: 'Đã hoàn thành',
+};
