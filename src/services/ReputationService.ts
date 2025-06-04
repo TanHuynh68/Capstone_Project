@@ -32,7 +32,19 @@ const ReputationService = () => {
     [callApi]
   );
 
-  return { getReputation, getReputationHistory };
+  const getReputationByAccountID = useCallback(
+    async (accountID: string) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_REPUTATION_BY_ACCOUNT_ID, { accountID });
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  return { getReputation, getReputationHistory, getReputationByAccountID };
 };
 
 export default ReputationService;

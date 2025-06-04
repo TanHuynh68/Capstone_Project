@@ -31,7 +31,7 @@ import {
 import ChangeActiveUserButton from "../change-active-user";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/components/utils/date";
-
+import GetWalletTransaction from "../../manager-wallet-order/get-wallet-transaction/get-wallet-transaction";
 interface User {
   accountID: string;
   fullName: string;

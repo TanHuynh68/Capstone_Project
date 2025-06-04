@@ -58,7 +58,7 @@ interface AllProfileDesignProps {
 }
 
 const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
-  const { getReputation } = ReputationService();
+  const { getReputationByAccountID } = ReputationService();
   const { getMyProfile } = PortfolioService();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [reputation, setReputation] = useState<Reputation | null>(null);
@@ -84,7 +84,7 @@ const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
 
   const fetchReputation = async () => {
     try {
-      const response = await getReputation();
+      const response = await getReputationByAccountID(id || "");
       if (response) setReputation(response.responseRequestModel);
     } catch (error) {
       console.error("Error fetching reputation:", error);

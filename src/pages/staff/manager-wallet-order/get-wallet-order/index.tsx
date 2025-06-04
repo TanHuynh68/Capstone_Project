@@ -284,7 +284,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
         const hasImage = row.walletOrderImage || row.imageUrl;
         const hasNote = row.walletOrderNote || row.note;
 
-        if (isWithdraw && isPending)  {
+        if (isWithdraw && isPending) {
           return (
             <Button
               variant="destructive"
@@ -488,24 +488,32 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
   return (
     <div className="space-y-6 p-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">
-          Danh sách đơn ví {walletID ? `của ví ${walletID}` : "(tất cả ví)"}
-        </h2>
-        {/* <Button
-          variant="outline"
-          onClick={() => {
-            setOrderType(undefined);
-            setTransactionStatusEnum(undefined);
-            setPage(1);
-            setSearchInput("");
-            setSearchTerm("");
-          }}
-        >
-          Làm mới bộ lọc
-        </Button> */}
+        <h2 className="text-xl font-semibold">Duyệt đơn rút tiền</h2>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center justify-end gap-4">
+        <div className="relative w-full max-w-xs">
+          <Input
+            placeholder="Tìm theo tên, mã đơn..."
+            className="pl-10"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSearchTerm(searchInput);
+                setPage(1);
+              }
+            }}
+          />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+            size={18}
+            onClick={() => {
+              setSearchTerm(searchInput);
+              setPage(1);
+            }}
+          />
+        </div>
         <Select
           value={orderType === undefined ? "all" : orderType.toString()}
           onValueChange={(val) => {
@@ -544,29 +552,6 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
             <SelectItem value="3">Đã hủy</SelectItem>
           </SelectContent>
         </Select>
-
-        <div className="relative w-full max-w-xs">
-          <Input
-            placeholder="Tìm theo tên, mã đơn..."
-            className="pl-10"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setSearchTerm(searchInput);
-                setPage(1);
-              }
-            }}
-          />
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-            size={18}
-            onClick={() => {
-              setSearchTerm(searchInput);
-              setPage(1);
-            }}
-          />
-        </div>
       </div>
 
       <DataTable

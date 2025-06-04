@@ -17,9 +17,9 @@ const WalletService = () => {
     }
   }, [callApi]);
 
-  const getStaffWalletTransaction = useCallback(async () => {
+  const getStaffWalletTransaction = useCallback(async (values: any) => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.STAFF_WALLET_TRANSACTION);
+      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.STAFF_WALLET_TRANSACTION, values);
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data);
@@ -143,7 +143,7 @@ const WalletService = () => {
   const getBanks = useCallback(async () => {
     try {
       const res: any = await axios.get(API_ROUTES.GET_BANKS)
-      return res 
+      return res
     } catch (err: any) {
       toast.error(err?.response?.data);
     }
@@ -172,6 +172,25 @@ const WalletService = () => {
     }
   }, [callApi]);
 
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const params: any = {
+        page,
+        size,
+        walletTransactionType,
+      };
+      if (walletID) params.walletID = walletID;
+      const response = await getStaffWalletTransaction(params);
+      if (response?.responseRequestModel?.responseList?.items) {
+        setData(response.responseRequestModel.responseList.items);
+      }
+    } catch (error) {
+      console.error("Error fetching wallet transactions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return {
     getWallet,
@@ -193,6 +212,7 @@ const WalletService = () => {
     withdrawMoney,
     loading,
     setIsLoading,
+    fetchData,
   };
 };
 
