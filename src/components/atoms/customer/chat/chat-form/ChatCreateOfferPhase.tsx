@@ -19,11 +19,16 @@ import { Textarea } from "@/components/ui/textarea";
 import OfferService from "@/services/OfferService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
+import { DialogClose } from "@/components/ui/dialog";
 
 interface ChatCreateOfferPhaseProps {
   offerID: string;
+  fetchOfferPhase: any;
 }
-const ChatCreateOfferPhase = ({ offerID }: ChatCreateOfferPhaseProps) => {
+const ChatCreateOfferPhase = ({
+  offerID,
+  fetchOfferPhase,
+}: ChatCreateOfferPhaseProps) => {
   const { createOfferPhase } = OfferService();
   const form = useForm<OfferPhaseFormValues>({
     resolver: zodResolver(offerPhaseSchema),
@@ -42,13 +47,14 @@ const ChatCreateOfferPhase = ({ offerID }: ChatCreateOfferPhaseProps) => {
     console.log("onSubmit: ", {
       ...values,
       offerID: offerID,
-    })
+    });
     const response = await createOfferPhase({
       ...values,
       offerID: offerID,
     });
     if (response) {
-      toast.success(MESSAGE.CREATE_OFFER_PHASE_SUCCESSFULLY)
+      await fetchOfferPhase();
+      toast.success(MESSAGE.CREATE_OFFER_PHASE_SUCCESSFULLY);
       form.reset();
     }
   };
@@ -136,10 +142,9 @@ const ChatCreateOfferPhase = ({ offerID }: ChatCreateOfferPhaseProps) => {
                 <FormLabel>Thời gian kết thúc</FormLabel>
                 <FormControl>
                   <div className="flex flex-col flex-wrap items-center gap-2 @md:flex-row">
-                     <Calendar
+                    <Calendar
                       disabled={(date) => {
                         const today = new Date();
-                        today.setHours(0, 0, 0, 0); // reset về 00:00:00
                         return date < today;
                       }}
                       mode="single"
@@ -156,7 +161,7 @@ const ChatCreateOfferPhase = ({ offerID }: ChatCreateOfferPhaseProps) => {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit">Gửi</Button>
+          <DialogClose><Button type="submit">Gửi</Button></DialogClose>
         </div>
       </form>
     </Form>
