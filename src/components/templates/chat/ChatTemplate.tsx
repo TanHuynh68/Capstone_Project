@@ -18,6 +18,7 @@ interface ChatTemplateProps {
   loadingMessage: boolean;
   onDeletMessage: any;
   onEditMessage: any;
+  posts: ChatPostCard[]
 }
 
 export default function ChatTemplate({
@@ -28,6 +29,7 @@ export default function ChatTemplate({
   onSendMessage,
   onDeletMessage,
   onEditMessage,
+  posts,
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
   const userMain = useCurrentUser();
@@ -87,25 +89,25 @@ export default function ChatTemplate({
                 <div className="">
                   <div className="flex justify-center">
                     <ChatAvatar
-                    name=""
-                    size="xxl"
-                    src={
-                      userMain.id != user[0].account1ID
-                        ? user[0].avatar1
-                        : user[0].avatar2
-                    }
-                  />
+                      name=""
+                      size="xxl"
+                      src={
+                        userMain.id != user[0].account1.accountID
+                          ? user[0].account1.accountID
+                          : user[0].account2.accountID
+                      }
+                    />
                   </div>
                   <div className="text-2xl flex justify-center mt-2">
-                    {userMain.id != user[0].account1ID
-                      ? user[0].account1Name
-                      : user[0].account2Name}
+                    {userMain.id != user[0].account1.accountID
+                      ? user[0].account1.accountName
+                      : user[0].account2.accountName}
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex-2 overflow-y-auto">
-              <InfoAboutTheConversationTab />
+              <InfoAboutTheConversationTab posts={posts}/>
             </div>
 
           </div>

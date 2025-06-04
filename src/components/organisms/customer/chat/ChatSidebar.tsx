@@ -46,12 +46,12 @@ export default function ChatSidebar({ users, onSelectChat }: ChatSidebarProps) {
               key={user.chatRoomID}
               id={user.chatRoomID}
               name={
-                userMain.id != user.account1ID
-                  ? user.account1Name
-                  : user.account2Name
+                userMain.id != user.account1.accountID
+                  ? user.account1.accountName
+                  : user.account2.accountName
               }
               avatar={
-                userMain.id != user.account1ID ? user.avatar1 : user.avatar2
+                userMain.id != user.account1.accountID ? user.account1.avatar : user.account2.avatar
               }
               onClick={onSelectChat}
             />
