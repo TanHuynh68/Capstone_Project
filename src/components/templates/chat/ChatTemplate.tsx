@@ -6,7 +6,8 @@ import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/In
 import { useState } from "react";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
 import { useCurrentUser } from "@/components/utils";
-
+import { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
+import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
 interface ChatTemplateProps {
   setShouldScroll: any;
   message: Message[];
@@ -18,7 +19,7 @@ interface ChatTemplateProps {
   loadingMessage: boolean;
   onDeletMessage: any;
   onEditMessage: any;
-  posts: ChatPostCard[]
+  posts: ChatPostCard[];
 }
 
 export default function ChatTemplate({
@@ -33,12 +34,27 @@ export default function ChatTemplate({
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
   const userMain = useCurrentUser();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
   const handleSetIsOpen = () => {
     setIsOpen(!isOpen);
   };
   const user = users.filter((item) => item.chatRoomID === chatRoomID);
-
+  const [value, setValue] = useState<string>("");
+  console.log("InfoAboutTheConversationTab: ", posts);
+  const handleSetTabsContent = (valueItem: any) => {
+    setValue(valueItem);
+  };
+  const items: SidebarCollapseProps[] = [
+    {
+      title: "Thông tin về đoạn chat",
+      subItem: [
+        { title: "Xem đề xuất", tabName: "offerPhase" },
+        { title: "Timeline", tabName: "timeline" },
+        { title: "Xem bài đăng", tabName: "viewPost" },
+      ],
+    },
+    // { title: "File", subItem: ["File phương tiện", "File"] },
+  ];
   return (
     <div className="bg-gray-200 py-3 px-1 h-screen">
       <div className=" flex w-full h-full overflow-hidden gap-4 p-3">
@@ -82,8 +98,8 @@ export default function ChatTemplate({
           )}
         </div>
         {isOpen && (
+          <div className="flex flex-col flex-2 rounded-xl bg-white max-w-[590px] min-w-[580px] px-3">
 
-          <div className="flex flex-col flex-2 rounded-xl bg-white ">
             <div className="flex-1">
               <div className="mt-10">
                 <div className="">
@@ -92,22 +108,25 @@ export default function ChatTemplate({
                       name=""
                       size="xxl"
                       src={
-                        userMain.id != user[0].account1.accountID
-                          ? user[0].account1.accountID
-                          : user[0].account2.accountID
+                        userMain.id != user[0]?.account1?.accountID
+                          ? user[0]?.account1?.accountID
+                          : user[0]?.account2?.accountID
                       }
                     />
                   </div>
                   <div className="text-2xl flex justify-center mt-2">
-                    {userMain.id != user[0].account1.accountID
-                      ? user[0].account1.accountName
-                      : user[0].account2.accountName}
+                    {userMain.id != user[0]?.account1?.accountID
+                      ? user[0]?.account1?.accountName
+                      : user[0]?.account2?.accountName}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex-2 overflow-y-auto">
-              <InfoAboutTheConversationTab posts={posts}/>
+            <div className="flex-1">
+              <SidebarCollapses onClick={handleSetTabsContent} items={items} />
+            </div>
+            <div className="flex-4 overflow-y-auto ">
+              <InfoAboutTheConversationTab value={value} posts={posts} />
             </div>
 
           </div>

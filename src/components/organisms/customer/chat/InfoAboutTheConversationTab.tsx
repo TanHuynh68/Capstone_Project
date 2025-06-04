@@ -1,56 +1,35 @@
 import { TimelineItemData } from "../../../molecules/timeline/TimelineItem";
-import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
-import { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
-import ChatCreateOfferPhase from "@/components/atoms/customer/chat/chat-form/ChatCreateOfferPhase";
-import { useState } from "react";
 import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate";
 import PostCard from "./PostCard";
 interface InfoAboutTheConversationTab {
   posts: ChatPostCard[];
+  value: string;
 }
 const InfoAboutTheConversationTab = ({
   posts,
+  value,
 }: InfoAboutTheConversationTab) => {
-  const [value, setValue] = useState<string>("");
-  console.log('InfoAboutTheConversationTab: ', posts)
-  const handleSetTabsContent = (valueItem: any) => {
-    setValue(valueItem);
-  };
-
- 
   return (
     <div>
-      <div className="flex-1 flex flex-col justify-center gap-2 py-3 px-8">
-        <SidebarCollapses onClick={handleSetTabsContent} items={items} />
-        {value === "offerPhase" && <ChatCreateOfferPhase />}
-        {value === "timeline" && (
-          <div>
-            <TimelineTemplate items={mockTimelineData} />
-          </div>
-        )}
-        {value === "viewPost" && (
-          <div>
-            <PostCard posts={posts} />
-          </div>
-        )}
+      <div className="flex flex-col justify-center gap-2 py-3 ">
+        <div className="">
+          {value === "timeline" && (
+            <div>
+              <TimelineTemplate items={mockTimelineData} />
+            </div>
+          )}
+          {value === "viewPost" && (
+            <div>
+              <PostCard posts={posts} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default InfoAboutTheConversationTab;
-
-const items: SidebarCollapseProps[] = [
-  {
-    title: "Thông tin về đoạn chat",
-    subItem: [
-      { title: "Xem đề xuất", tabName: "offerPhase" },
-      { title: "Timeline", tabName: "timeline" },
-      { title: "Xem bài đăng", tabName: "viewPost" },
-    ],
-  },
-  // { title: "File", subItem: ["File phương tiện", "File"] },
-];
 
 const mockTimelineData: TimelineItemData[] = [
   {
