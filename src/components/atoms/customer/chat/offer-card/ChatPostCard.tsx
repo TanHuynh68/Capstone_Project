@@ -72,7 +72,7 @@ export function ChatPostCard({ post }: ChatPostCardProps) {
                           </div>
                         </DialogTrigger>
                         <DialogContent className="min-w-[610px]">
-                          <ChatCreateOfferPhase offerID={post?.offerID} />
+                          <ChatCreateOfferPhase fetchOfferPhase={fetchOfferPhase} offerID={post?.offerID} />
                         </DialogContent>
                       </Dialog>
                     </DropdownMenuItem>
@@ -116,7 +116,7 @@ export function ChatPostCard({ post }: ChatPostCardProps) {
         <div>
           {offers.map((item) => (
             <div key={item.offerPhaseID} className="p-2">
-              <OfferPhaseCard offerPhase={item} />
+              <OfferPhaseCard fetchOfferPhase={fetchOfferPhase} offerPhase={item} />
             </div>
           ))}
         </div>
