@@ -10,49 +10,49 @@ const AdminService = () => {
     //   const navigate = useNavigate();
     //   const dispatch = useDispatch();
 
-    const getRules = useCallback(
+    const getBenefits = useCallback(
         async (values: any) => {
             try {
                 const res = await callApi(
                     HTTP_METHOD.GET,
-                    API_ROUTES.GET_RULE,
+                    API_ROUTES.GET_BENEFIT,
                     values
                 );
                 // toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);
                 return res;
             } catch (err: any) {
-                toast.error(err?.response?.data || MESSAGE.GET_RULES_FAILED);
+                toast.error(err?.response?.data || MESSAGE.GET_BENEFIT_FAILED);
             }
         },
         [callApi]
     );
 
-    const getRuleById = useCallback(
-        async (values: any) => {
+    const getBenefitById = useCallback(
+        async (id: string) => {
             try {
-                const url = API_ROUTES.GET_RULE_BY_ID.replace(":id", values.ruleID);
-                const res = await callApi(HTTP_METHOD.GET, url, values);
+                const url = API_ROUTES.GET_BENEFIT_BY_ID.replace(":id", id);
+                const res = await callApi(HTTP_METHOD.GET, url, {});
                 // toast.success(MESSAGE.DELETE_ADDRESS_SUCCESSFULLY);
                 return res;
             } catch (err: any) {
-                toast.error(err?.response?.data || MESSAGE.GET_RULE_BY_ID_FAILED);
+                toast.error(err?.response?.data || MESSAGE.GET_BENEFIT_BY_ID_FAILED);
             }
         },
         [callApi]
     );
 
-    const postRule = useCallback(
+    const postBenefit = useCallback(
         async (values: any) => {
             try {
                 const res = await callApi(
                     HTTP_METHOD.POST,
-                    API_ROUTES.CREATE_RULE,
+                    API_ROUTES.CREATE_BENEFIT,
                     values
                 );
-                toast.success(MESSAGE.CREATE_RULE_SUCCESSFULLY);
+                toast.success(MESSAGE.CREATE_BENEFIT_SUCCESSFULLY);
                 return res;
             } catch (err: any) {
-                toast.error(err?.response?.data || MESSAGE.CREATE_RULE_FAILED);
+                toast.error(err?.response?.data || MESSAGE.CREATE_BENEFIT_FAILED);
             }
         },
         [callApi]
@@ -89,7 +89,7 @@ const AdminService = () => {
 
 
 
-    return { getRules, getRuleById, loading, setIsLoading, postRule };
+    return { getBenefits, getBenefitById, loading, setIsLoading, postBenefit };
 };
 
 export default AdminService;

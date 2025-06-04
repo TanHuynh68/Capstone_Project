@@ -24,12 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AdminService from "@/services/AdminService";
-import RuleCreateForm from "./create-rule";
 import { Badge } from "@/components/ui/badge";
-
-interface Rule {
-  ruleID: string;
-  ruleType: string;
+import { formatVietnamDateHours } from "@/components/utils/date";
+import BenefitCreateForm from "./create-rule";
+interface Benefit {
+  benefitID: string;
+  benefitType: string;
   title: string;
   description?: string;
   version: number;
@@ -38,69 +38,71 @@ interface Rule {
   scoreChange: number;
   compensationRate: number;
   listVersion?: Array<{
-    ruleID: string;
+    benefitID: string;
     version: number;
     createdAt: string;
   }>;
 }
 
-const RuleManager: React.FC = () => {
-  const [rules, setRules] = useState<Rule[]>([]);
+const BenefitManager: React.FC = () => {
+  const [benefits, setBenefits] = useState<Benefit[]>([]);
   const [filterTitle, setFilterTitle] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const size = 10;
   const [totalItems, setTotalItems] = useState<number>(0);
-  const [ruleTypeFilter, setRuleTypeFilter] = useState<number>(-1);
+  const [benefitTypeFilter, setBenefitTypeFilter] = useState<number>(-1);
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
-  const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
+  const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [openVersionModal, setOpenVersionModal] = useState(false);
 
-  const [selectedOldRule, setSelectedOldRule] = useState<Rule | null>(null);
+  const [selectedOldBenefit, setSelectedOldBenefit] = useState<Benefit | null>(
+    null
+  );
   const [openCompareModal, setOpenCompareModal] = useState(false);
 
-  const { getRules, getRuleById } = AdminService();
+  const { getBenefits, getBenefitById } = AdminService();
 
-  const fetchRules = useCallback(async () => {
+  const fetchBenefits = useCallback(async () => {
     const params: {
       title: string;
       page: number;
       size: number;
-      ruleType?: number;
+      benefitType?: number;
     } = {
       title: filterTitle,
       page,
       size,
     };
-    if (ruleTypeFilter !== -1) {
-      params.ruleType = ruleTypeFilter;
+    if (benefitTypeFilter !== -1) {
+      params.benefitType = benefitTypeFilter;
     }
-    const res = await getRules(params);
+    const res = await getBenefits(params);
     if (res?.responseRequestModel?.responseList) {
-      setRules(res.responseRequestModel.responseList.items);
+      setBenefits(res.responseRequestModel.responseList.items);
       setTotalItems(res.responseRequestModel.responseList.totalItems);
     }
-  }, [filterTitle, ruleTypeFilter, page, size, getRules]);
+  }, [filterTitle, benefitTypeFilter, page, size, getBenefits]);
 
-  const fetchRuleDetail = async (id: string) => {
-    const res = await getRuleById({ ruleID: id });
+  const fetchBenefitDetail = async (id: string) => {
+    const res = await getBenefitById(id);
     if (res?.responseRequestModel) {
-      setSelectedRule(res.responseRequestModel);
+      setSelectedBenefit(res.responseRequestModel);
       setOpenDetailModal(true);
     }
   };
 
-  const handleCompareVersion = async (oldRuleId: string) => {
-    const res = await getRuleById({ ruleID: oldRuleId });
+  const handleCompareVersion = async (oldbenefitID: string) => {
+    const res = await getBenefitById(oldbenefitID);
     if (res?.responseRequestModel) {
-      setSelectedOldRule(res.responseRequestModel);
+      setSelectedOldBenefit(res.responseRequestModel);
       setOpenVersionModal(false);
       setOpenCompareModal(true);
     }
   };
 
-  const mapRuleType = (type: number | string) => {
+  const mapBenefitType = (type: number | string) => {
     switch (type) {
       case 0:
       case "Chung":
@@ -141,15 +143,17 @@ const RuleManager: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchRules();
-  }, [fetchRules]);
+    fetchBenefits();
+  }, [fetchBenefits]);
 
   return (
     <div className="w-full max-w-full mx-auto space-y-6 p-4">
       <Card className="border shadow-md">
         <CardHeader className="flex justify-between items-center">
-          <CardTitle>Bộ lọc luật lệ</CardTitle>
-          <Button onClick={() => setOpenCreateModal(true)}>Tạo luật lệ</Button>
+          <CardTitle>Bộ lọc quyền lợi</CardTitle>
+          <Button onClick={() => setOpenCreateModal(true)}>
+            Tạo quyền lợi
+          </Button>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-3">
           <Input
@@ -157,16 +161,16 @@ const RuleManager: React.FC = () => {
             value={filterTitle}
             onChange={(e) => setFilterTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") fetchRules();
+              if (e.key === "Enter") fetchBenefits();
             }}
             className="flex-1"
           />
           <Select
-            value={String(ruleTypeFilter)}
-            onValueChange={(v) => setRuleTypeFilter(Number(v))}
+            value={String(benefitTypeFilter)}
+            onValueChange={(v) => setBenefitTypeFilter(Number(v))}
           >
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Chọn loại luật lệ" />
+              <SelectValue placeholder="Chọn loại quyền lợi" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="-1">Tất cả loại</SelectItem>
@@ -177,7 +181,7 @@ const RuleManager: React.FC = () => {
               <SelectItem value="4">Bảo hành</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={fetchRules} className="w-full md:w-auto">
+          <Button onClick={fetchBenefits} className="w-full md:w-auto">
             Tìm kiếm
           </Button>
         </CardContent>
@@ -185,40 +189,56 @@ const RuleManager: React.FC = () => {
 
       <Card className="border shadow-md">
         <CardHeader>
-          <CardTitle>Danh sách luật lệ</CardTitle>
+          <CardTitle>Danh sách quyền lợi</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table className="min-w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>STT</TableHead>
-                <TableHead>Tiêu đề</TableHead>
-                <TableHead>Loại</TableHead>
-                <TableHead>Version</TableHead>
-                <TableHead>Ngày tạo</TableHead>
+                <TableHead className="text-center">STT</TableHead>
+                <TableHead className="text-center">Tiêu đề</TableHead>
+                <TableHead className="text-center">Loại</TableHead>
+                <TableHead className="text-center">Version</TableHead>
+                <TableHead className="text-center">Ngày tạo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rules.length > 0 ? (
-                rules.map((rule, index) => (
+              {benefits.length > 0 ? (
+                benefits.map((benefit, index) => (
                   <TableRow
-                    key={rule.ruleID}
-                    className="cursor-pointer hover:bg-muted"
-                    onClick={() => fetchRuleDetail(rule.ruleID)}
+                    key={benefit.benefitID}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => fetchBenefitDetail(benefit.benefitID)}
                   >
-                    <TableCell>{(page - 1) * size + index + 1}</TableCell>
-                    <TableCell>{rule.title}</TableCell>
-                    <TableCell>{mapRuleType(rule.ruleType)}</TableCell>
-                    <TableCell>{rule.version}</TableCell>
-                    <TableCell>
-                      {new Date(rule.createdAt).toLocaleString()}
+                    <TableCell className="text-center">
+                      {(page - 1) * size + index + 1}
+                    </TableCell>
+                    <TableCell className="text-center font-medium">
+                      {benefit.title}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {mapBenefitType(benefit.benefitType)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedBenefit(benefit);
+                          setOpenVersionModal(true);
+                        }}
+                      >
+                        {benefit.version}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatVietnamDateHours(benefit.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center">
-                    Không có luật lệ nào.
+                    Không có quyền lợi nào.
                   </TableCell>
                 </TableRow>
               )}
@@ -249,83 +269,108 @@ const RuleManager: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Modal Create Rule */}
+      {/* Modal Create Benefit */}
       <Dialog open={openCreateModal} onOpenChange={setOpenCreateModal}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Tạo luật lệ mới</DialogTitle>
+            <DialogTitle>Tạo quyền lợi mới</DialogTitle>
           </DialogHeader>
-          <RuleCreateForm
+          <BenefitCreateForm
             onCreated={() => {
-              fetchRules();
+              fetchBenefits();
               setOpenCreateModal(false);
             }}
           />
         </DialogContent>
       </Dialog>
 
-      {/* Modal Chi tiết Rule */}
-      <Dialog open={openDetailModal} onOpenChange={setOpenDetailModal}>
+      {/* Modal Chi tiết Benefit */}
+      <Dialog
+        open={openDetailModal}
+        onOpenChange={(open) => {
+          setOpenDetailModal(open);
+          if (!open) {
+            setSelectedBenefit(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-lg bg-white rounded-xl shadow-md p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">
-              Chi tiết luật lệ
+            <DialogTitle className="text-xl font-semibold text-primary">
+              Chi tiết quyền lợi
             </DialogTitle>
           </DialogHeader>
-          {selectedRule && (
-            <div className="space-y-6">
-              <div className="text-xl font-bold text-primary">
-                {selectedRule.title}
+          {selectedBenefit && (
+            <div className="space-y-6 mt-4">
+              <div className="text-2xl font-bold text-primary border-b pb-2">
+                {selectedBenefit.title}
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Loại</span>
                   <span className="font-medium">
-                    {mapRuleType(selectedRule.ruleType)}
+                    {mapBenefitType(selectedBenefit.benefitType)}
                   </span>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Version</span>
                   <span
-                    className="font-medium text-blue-600 underline cursor-pointer"
+                    className={
+                      selectedBenefit.listVersion &&
+                      selectedBenefit.listVersion.length > 0
+                        ? "font-medium text-blue-600 hover:text-blue-800 cursor-pointer underline transition-colors"
+                        : "font-medium text-gray-400 cursor-not-allowed"
+                    }
                     onClick={() => {
-                      if (selectedRule.version > 1) {
+                      if (
+                        selectedBenefit.listVersion &&
+                        selectedBenefit.listVersion.length > 0
+                      ) {
                         setOpenVersionModal(true);
                       }
                     }}
                   >
-                    {selectedRule.version}
+                    {selectedBenefit.version}
                   </span>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Ngày tạo</span>
                   <span className="font-medium">
-                    {new Date(selectedRule.createdAt).toLocaleString()}
+                    {formatVietnamDateHours(selectedBenefit.createdAt)}
                   </span>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Trạng thái</span>
-                  {mapIsActive(selectedRule.isActive)}
+                  {mapIsActive(selectedBenefit.isActive)}
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Điểm thay đổi</span>
-                  <span className="font-medium">
-                    {selectedRule.scoreChange}
+                  <span
+                    className={`font-medium ${
+                      selectedBenefit.scoreChange >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {selectedBenefit.scoreChange > 0 ? "+" : ""}
+                    {selectedBenefit.scoreChange}
                   </span>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">
                     Tỷ lệ bồi thường
                   </span>
-                  <span className="font-medium">
-                    {selectedRule.compensationRate}%
+                  <span className="font-medium text-blue-600">
+                    {selectedBenefit.compensationRate}%
                   </span>
                 </div>
               </div>
-              <div>
-                <span className="text-muted-foreground block mb-1">Mô tả</span>
-                <div className="font-medium">
-                  {selectedRule.description || "Không có mô tả."}
+              <div className="mt-4">
+                <span className="text-muted-foreground block mb-2 font-medium">
+                  Mô tả
+                </span>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-700">
+                  {selectedBenefit.description || "Không có mô tả."}
                 </div>
               </div>
             </div>
@@ -341,18 +386,20 @@ const RuleManager: React.FC = () => {
               Các phiên bản trước
             </DialogTitle>
           </DialogHeader>
-          {selectedRule &&
-          selectedRule.listVersion &&
-          selectedRule.listVersion.length > 0 ? (
+          {selectedBenefit &&
+          selectedBenefit.listVersion &&
+          selectedBenefit.listVersion.length > 0 ? (
             <div className="space-y-4">
-              {selectedRule.listVersion?.map((v) => (
+              {selectedBenefit.listVersion?.map((v) => (
                 <div
-                  key={v.ruleID}
+                  key={v.benefitID}
                   className="flex justify-between p-3 border rounded-lg hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleCompareVersion(v.ruleID)}
+                  onClick={() => handleCompareVersion(v.benefitID)}
                 >
-                  <span>Version {v.version}</span>
-                  <span>{new Date(v.createdAt).toLocaleString()}</span>
+                  <span className="text-blue-600 underline hover:text-blue-800 cursor-pointer transition-colors">
+                    Version {v.version}
+                  </span>
+                  <span>{formatVietnamDateHours(v.createdAt)}</span>
                 </div>
               ))}
             </div>
@@ -369,17 +416,17 @@ const RuleManager: React.FC = () => {
               So sánh phiên bản
             </DialogTitle>
           </DialogHeader>
-          {selectedRule && selectedOldRule && (
+          {selectedBenefit && selectedOldBenefit && (
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto border">
                 <thead>
                   <tr>
                     <th className="border p-3 text-left">Phiên bản</th>
                     <th className="border p-3 text-left">
-                      Hiện tại (V{selectedRule.version})
+                      Hiện tại (V{selectedBenefit.version})
                     </th>
                     <th className="border p-3 text-left">
-                      Phiên bản cũ (V{selectedOldRule.version})
+                      Phiên bản cũ (V{selectedOldBenefit.version})
                     </th>
                   </tr>
                 </thead>
@@ -387,32 +434,32 @@ const RuleManager: React.FC = () => {
                   {[
                     {
                       label: "Tiêu đề",
-                      current: selectedRule.title,
-                      old: selectedOldRule.title,
+                      current: selectedBenefit.title,
+                      old: selectedOldBenefit.title,
                       type: "text",
                     },
                     {
                       label: "Loại",
-                      current: mapRuleType(selectedRule.ruleType),
-                      old: mapRuleType(selectedOldRule.ruleType),
+                      current: mapBenefitType(selectedBenefit.benefitType),
+                      old: mapBenefitType(selectedOldBenefit.benefitType),
                       type: "text",
                     },
                     {
                       label: "Mô tả",
-                      current: selectedRule.description || "Không có mô tả.",
-                      old: selectedOldRule.description || "Không có mô tả.",
+                      current: selectedBenefit.description || "Không có mô tả.",
+                      old: selectedOldBenefit.description || "Không có mô tả.",
                       type: "description",
                     },
                     {
                       label: "Điểm thay đổi",
-                      current: selectedRule.scoreChange,
-                      old: selectedOldRule.scoreChange,
+                      current: selectedBenefit.scoreChange,
+                      old: selectedOldBenefit.scoreChange,
                       type: "number",
                     },
                     {
                       label: "Tỷ lệ bồi thường",
-                      current: selectedRule.compensationRate,
-                      old: selectedOldRule.compensationRate,
+                      current: selectedBenefit.compensationRate,
+                      old: selectedOldBenefit.compensationRate,
                       type: "number",
                       unit: "%",
                     },
@@ -467,4 +514,4 @@ const RuleManager: React.FC = () => {
   );
 };
 
-export default RuleManager;
+export default BenefitManager;

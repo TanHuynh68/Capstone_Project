@@ -7,7 +7,7 @@ export enum ROLE_ON_LINK {
 
 export const enum API_ENDPOINTS {
   ADDRESS = "address",
-  RULE = "rule",
+  BENEFIT = "benefit",
   AUTH = "auth",
   WALLET = "wallet",
   ORDER = "order",
@@ -76,9 +76,9 @@ export enum API_ROUTES {
   //Bank
   GET_BANKS = "https://api.vietqr.io/v2/banks",
   //Rule
-  CREATE_RULE = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.RULE}`,
-  GET_RULE = `${API_ENDPOINTS.RULE}`,
-  GET_RULE_BY_ID = `${API_ENDPOINTS.RULE}/:id`,
+  CREATE_BENEFIT = `${ROLE_ON_LINK.ADMIN}/${API_ENDPOINTS.BENEFIT}`,
+  GET_BENEFIT = `${API_ENDPOINTS.BENEFIT}`,
+  GET_BENEFIT_BY_ID = `${API_ENDPOINTS.BENEFIT}/:id`,
   // DELETE_RULE = `${API_ENDPOINTS.ADDRESS}/:id`,
   //Canvas
   CREATE_CANVAS = `${API_ENDPOINTS.CANVAS}`,

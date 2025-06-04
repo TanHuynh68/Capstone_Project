@@ -44,7 +44,7 @@ export enum DESIGNER_ROUTES {
 export enum ADMIN_ROUTES {
   ADMIN = "/admin", // Đảm bảo có dấu "/" ở đầu
   ADMIN_DASHBOARD = "dashboard",
-  ADMIN_MANAGER_RULE = "manager-rules",
+  ADMIN_MANAGER_BENEFIT = "manager-benefits",
 }
 
 export enum STAFF_ROUTES {
