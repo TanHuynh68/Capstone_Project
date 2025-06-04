@@ -55,7 +55,7 @@ const data = {
     },
     {
       title: "Quản lý luật lệ",
-      url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_RULE}`,
+      url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
       icon: GavelIcon,
     },
     {

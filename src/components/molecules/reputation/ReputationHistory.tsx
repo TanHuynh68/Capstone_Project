@@ -4,7 +4,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import ReputationService from "@/services/ReputationService";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { formatVietnamDateHours } from "../utils/date";
+import { formatVietnamDateHours } from "../../utils/date";
 
 interface ReputationHistoryItem {
   reputationHistoryID: string;
@@ -42,8 +42,8 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
   }, [getReputationHistory]);
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardContent className="pt-0">
+    <Card className="h-full flex flex-col overflow-x-hidden">
+      <CardContent className="pt-0 overflow-x-hidden">
         <CardTitle className="relative flex justify-between items-center pb-3 z-10">
           Lịch sử điểm uy tín
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
@@ -57,17 +57,19 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-200 border-t-gray-600"></div>
             </div>
           ) : history.length > 0 ? (
-            <div className="max-h-[calc(4*7rem)] overflow-y-auto pr-1">
+            <div className="max-h-[calc(4*7rem)] overflow-y-auto overflow-x-hidden pr-1">
               <div className="space-y-3">
                 {history.map((item) => (
                   <div
                     key={item.reputationHistoryID}
-                    className="p-3 bg-white border rounded-lg"
+                    className="p-3 bg-white border rounded-lg w-full max-w-md mx-auto overflow-x-hidden"
                   >
-                    <div className="grid grid-cols-[1fr,auto] gap-4">
-                      <div className="space-y-2">
+                    <div className="grid grid-cols-[1fr,auto] gap-4 min-w-0">
+                      <div className="space-y-2 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-500">Điểm:</span>
+                          <span className="text-sm text-gray-500 w-[40px] shrink-0">
+                            Điểm:
+                          </span>
                           <span
                             className={cn(
                               "font-medium flex items-center gap-1",
@@ -85,9 +87,13 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
                             {item.scoreChange}
                           </span>
                         </div>
-                        <div className="flex gap-2">
-                          <span className="text-sm text-gray-500">Lý do:</span>
-                          <p className="text-sm text-gray-700">{item.reason}</p>
+                        <div className="flex gap-2 min-w-0">
+                          <span className="text-sm text-gray-500 w-[40px] shrink-0">
+                            Lý do:
+                          </span>
+                          <p className="text-sm text-gray-700 break-all break-words whitespace-pre-wrap max-w-full overflow-hidden">
+                            {item.reason}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">

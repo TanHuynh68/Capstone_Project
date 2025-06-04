@@ -22,7 +22,19 @@ const GeneralService = () => {
         [callApi]
     );
 
-    return { uploadAvatar };
+    const getProfileForAll = useCallback(
+        async (values: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_PROFILE_FOR_ALL, values);
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin hồ sơ.");
+            }
+        },
+        [callApi]
+    );
+
+    return { uploadAvatar, getProfileForAll };
 };
 
 

@@ -1,4 +1,4 @@
-import RuleManager from "@/pages/admin/dashboard/manager-rule";
+import BenefitManager from "@/pages/admin/dashboard/manager-rule";
 import { AdminLayout } from "../components/layouts";
 import { ADMIN_ROUTES } from "./path";
 import { AdminDashboard } from "@/pages";
@@ -19,8 +19,8 @@ export const adminRoutes = [
         element: <AdminDashboard />,
       },
       {
-        path: `${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_RULE}`,
-        element: <RuleManager />,
+        path: `${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
+        element: <BenefitManager />,
       },
     ],
   },

@@ -1,6 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logout } from "@/redux/userSlice";
-import { USER_ROUTES } from "@/routes/path";
+import { DESIGNER_ROUTES, USER_ROUTES } from "@/routes/path";
 import { User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -17,7 +17,7 @@ import { ROLE } from "@/constants";
 const UserOption = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useCurrentUser()
+  const user = useCurrentUser();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -36,6 +36,13 @@ const UserOption = () => {
             Hồ sơ
           </Link>
         </DropdownMenuItem>
+        {user.role === ROLE.DESIGNER && (
+          <DropdownMenuItem>
+            <Link to={DESIGNER_ROUTES.PORTFOLIO} className="w-full">
+              Thiết kế của tôi
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem>
           <Link to="/orders" className="w-full">
             Đơn đặt hàng
@@ -46,13 +53,13 @@ const UserOption = () => {
             Ví
           </Link>
         </DropdownMenuItem>
-        {
-        user.role === ROLE.CUSTOMER &&  <DropdownMenuItem>
-          <Link to={USER_ROUTES.MY_POST_PAGE} className="w-full">
-            Bài đăng của tôi
-          </Link>
-        </DropdownMenuItem>
-        }
+        {user.role === ROLE.CUSTOMER && (
+          <DropdownMenuItem>
+            <Link to={USER_ROUTES.MY_POST_PAGE} className="w-full">
+              Bài đăng của tôi
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onClick={() => {
             dispatch(logout());

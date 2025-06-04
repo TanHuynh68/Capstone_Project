@@ -6,6 +6,7 @@ import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/In
 import { useState } from "react";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
 import { useCurrentUser } from "@/components/utils";
+
 interface ChatTemplateProps {
   setShouldScroll: any;
   message: Message[];
@@ -37,7 +38,6 @@ export default function ChatTemplate({
     setIsOpen(!isOpen);
   };
   const user = users.filter((item) => item.chatRoomID === chatRoomID);
-  
 
   return (
     <div className="bg-gray-200 py-3 px-1 h-screen">
@@ -56,6 +56,7 @@ export default function ChatTemplate({
             {currentChatUser && (
               <ChatHeader
                 setIsOpen={handleSetIsOpen}
+
                 user={users.filter((item) => item.chatRoomID === chatRoomID)}
               />
             )}
@@ -81,6 +82,7 @@ export default function ChatTemplate({
           )}
         </div>
         {isOpen && (
+
           <div className="flex flex-col flex-2 rounded-xl bg-white ">
             <div className="flex-1">
               <div className="mt-10">
@@ -107,6 +109,7 @@ export default function ChatTemplate({
             <div className="flex-2 overflow-y-auto">
               <InfoAboutTheConversationTab posts={posts}/>
             </div>
+
           </div>
         )}
       </div>

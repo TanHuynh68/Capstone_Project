@@ -11,11 +11,14 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import AdminService from "@/services/AdminService";
+import { MESSAGE } from "@/constants/message";
 
-const RuleCreateForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
-  const { postRule } = AdminService();
+const BenefitCreateForm: React.FC<{ onCreated: () => void }> = ({
+  onCreated,
+}) => {
+  const { postBenefit } = AdminService();
   const [form, setForm] = useState({
-    ruleType: 0,
+    benefitType: 0,
     title: "",
     description: "",
     scoreChange: "",
@@ -23,13 +26,13 @@ const RuleCreateForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = () => {
     if (!form.title.trim()) {
-      toast.error("Vui lòng nhập tiêu đề luật lệ.");
+      toast.error("Vui lòng nhập tiêu đề quyền lợi.");
       return false;
     }
     if (form.scoreChange === "") {
@@ -55,19 +58,20 @@ const RuleCreateForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const res = await postRule({
-        ruleType: form.ruleType,
+      const res = await postBenefit({
+        benefitType: form.benefitType,
         title: form.title,
         description: form.description,
-        scoreChange: Number(form.scoreChange),
-        compensationRate: Number(form.compensationRate),
+        scoreChange: form.scoreChange,
+        compensationRate: form.compensationRate,
       });
       if (res) {
-        toast.success("Tạo luật lệ thành công.");
+        toast.success("Tạo quyền lợi thành công.");
         onCreated();
       }
-    } catch (error) {
-      toast.error("Tạo luật lệ thất bại.");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: string } };
+      toast.error(err?.response?.data || MESSAGE.CREATE_BENEFIT_FAILED);
     } finally {
       setLoading(false);
     }
@@ -77,30 +81,32 @@ const RuleCreateForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium mb-1">
-          Tiêu đề luật lệ
+          Tiêu đề quyền lợi
         </label>
         <Input
-          placeholder="Tiêu đề luật lệ"
+          placeholder="Tiêu đề quyền lợi"
           value={form.title}
           onChange={(e) => handleChange("title", e.target.value)}
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Mô tả luật lệ</label>
+        <label className="block text-sm font-medium mb-1">
+          Mô tả quyền lợi
+        </label>
         <Textarea
-          placeholder="Mô tả luật lệ"
+          placeholder="Mô tả quyền lợi"
           value={form.description}
           onChange={(e) => handleChange("description", e.target.value)}
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Loại luật lệ</label>
+        <label className="block text-sm font-medium mb-1">Loại quyền lợi</label>
         <Select
-          value={String(form.ruleType)}
-          onValueChange={(v) => handleChange("ruleType", Number(v))}
+          value={String(form.benefitType)}
+          onValueChange={(v) => handleChange("benefitType", Number(v))}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Chọn loại luật lệ" />
+            <SelectValue placeholder="Chọn loại quyền lợi" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="0">Chung</SelectItem>
@@ -153,11 +159,11 @@ const RuleCreateForm: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
       </div>
       <div className="flex justify-end">
         <Button onClick={handleCreate} disabled={loading}>
-          {loading ? "Đang tạo..." : "Tạo luật lệ"}
+          {loading ? "Đang tạo..." : "Tạo quyền lợi"}
         </Button>
       </div>
     </div>
   );
 };
 
-export default RuleCreateForm;
+export default BenefitCreateForm;

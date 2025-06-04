@@ -34,6 +34,10 @@ export function ProfilePopup({
     }
   };
 
+  const handleViewProfile = () => {
+    navigate(PATH.DESIGNER_PORTFOLIO_PAGE.replace(":id", designerID));
+  };
+
   return (
     <div className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-1 w-[300px] bg-popover text-popover-foreground rounded-2xl shadow-xl p-4 border border-border opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top pointer-events-none group-hover:pointer-events-auto">
       {/* Top images */}
@@ -92,7 +96,10 @@ export function ProfilePopup({
 
       {/* Buttons */}
       <div className="flex gap-2">
-        <button className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors">
+        <button
+          onClick={handleViewProfile}
+          className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors"
+        >
           Hồ sơ
         </button>
         {user?.id != designerID && (
