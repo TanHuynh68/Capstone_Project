@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ProjectCard } from "@/components/molecules/portfolio/project-card";
+import { CreatePortfolio } from "@/pages/designer/manage-portfolio/create-portfolio/create-portfolio";
 import PortfolioService from "@/services/PortfolioService";
 
 interface PortfolioImage {
@@ -33,30 +34,41 @@ export function ProjectsGrid({ onPortfolioData }: ProjectsGridProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const { getMyPortfolio } = PortfolioService();
 
-  useEffect(() => {
-    getMyPortfolio().then((data) => {
-      const images: PortfolioImage[] =
-        data?.responseRequestModel?.portfolioImages || [];
-      const mappedProjects: Project[] = images.map((img) => ({
-        id: img.portfolioImageID,
-        title: img.imageDescription || "Untitled",
-        image: img.imageUrl,
-        createdAt: img.createdAt,
-        imageType: img.imageType,
-      }));
-      setProjects(mappedProjects);
+  const refreshProjects = async () => {
+    const data = await getMyPortfolio();
+    const images: PortfolioImage[] =
+      data?.responseRequestModel?.portfolioImages || [];
+    const mappedProjects: Project[] = images.map((img) => ({
+      id: img.portfolioImageID,
+      title: img.imageDescription || "Untitled",
+      image: img.imageUrl,
+      createdAt: img.createdAt,
+      imageType: img.imageType,
+    }));
+    setProjects(mappedProjects);
+    if (data?.responseRequestModel) {
+      onPortfolioData(data.responseRequestModel);
+    }
+  };
 
-      if (data?.responseRequestModel) {
-        onPortfolioData(data.responseRequestModel);
-      }
-    });
+  useEffect(() => {
+    refreshProjects();
   }, [getMyPortfolio, onPortfolioData]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12 place-items-center">
-      {projects.map((project) => (
-        <ProjectCard key={project.id} {...project} />
-      ))}
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 px-1 sm:px-2 md:px-4">
+      {projects.length === 0 ? (
+        <CreatePortfolio onSuccess={refreshProjects} />
+      ) : (
+        projects.map((project) => (
+          <div
+            key={project.id}
+            className="w-full max-w-[340px] min-w-[180px] mx-auto mb-2 flex flex-col items-center bg-white rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+          >
+            <ProjectCard {...project} onEditSuccess={refreshProjects} />
+          </div>
+        ))
+      )}
     </div>
   );
 }

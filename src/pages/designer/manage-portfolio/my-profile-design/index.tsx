@@ -9,15 +9,18 @@ import {
   Clock,
   Briefcase,
   FileText,
+  Edit,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import ReputationService from "@/services/ReputationService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/components/utils";
 import { Separator } from "@/components/ui/separator";
 import PortfolioService from "@/services/PortfolioService";
+import EditPortfolio from "../edit-portfolio/edit-portfolio";
 
 interface Profile {
   accountID: string;
@@ -54,9 +57,13 @@ interface PortfolioData {
 
 interface MyProfileDesignProps {
   portfolioData: PortfolioData | null;
+  onPortfolioUpdate?: () => void;
 }
 
-const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
+const MyProfileDesign = ({
+  portfolioData,
+  onPortfolioUpdate,
+}: MyProfileDesignProps) => {
   const { getReputation } = ReputationService();
   const { getMyProfile } = PortfolioService();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -66,6 +73,8 @@ const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
 
   console.log(accountID);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -115,6 +124,17 @@ const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
     }
   };
 
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchProfile();
+    if (onPortfolioUpdate) {
+      onPortfolioUpdate();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -157,7 +177,7 @@ const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
 
   return (
     <>
-      <div className="container max-w-6xl mx-auto px-4">
+      <div className="container max-w-6xl mx-auto">
         {/* <h1 className="text-2xl font-bold mb-6">Thông tin tài khoản</h1> */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
           {/* Profile Card */}
@@ -289,26 +309,54 @@ const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
                     <span>{getGenderLabel(profile?.genderDisplay)}</span>
                   </div>
 
-                  <Separator />
+                  {/* <Button
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      console.log("Open chat with:", profile?.accountID);
+                    }}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Nhắn tin
+                  </Button> */}
 
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>
-                      Kinh nghiệm: {profile?.yearOfExperience || "0"} năm
-                    </span>
+                  <Separator className="my-4" />
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-center">
+                      Thông tin dự án
+                    </h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditClick}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="flex items-center">
-                    <Briefcase className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>
-                      Chuyên môn: {profile?.expertIn || "Chưa cập nhật"}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <FileText className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>
-                      Giới thiệu: {profile?.content || "Chưa cập nhật"}
-                    </span>
-                  </div>
+
+                  {portfolioData && (
+                    <>
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>
+                          Kinh nghiệm:{" "}
+                          {profile?.yearOfExperience || "Chưa cập nhật"}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>
+                          Chuyên môn: {profile?.expertIn || "Chưa cập nhật"}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <FileText className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>
+                          Giới thiệu: {profile?.content || "Chưa cập nhật"}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
 
@@ -338,6 +386,13 @@ const MyProfileDesign = ({ portfolioData }: MyProfileDesignProps) => {
           </div>
         </div>
       </div>
+
+      <EditPortfolio
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        portfolioData={portfolioData}
+        onSuccess={handleEditSuccess}
+      />
     </>
   );
 };

@@ -22,34 +22,66 @@ export function MyPortfolioLayout() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(
     null
   );
+  const [activeTab, setActiveTab] = useState<"personal" | "completed">(
+    "personal"
+  );
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handlePortfolioUpdate = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <HeaderBanner />
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <ProfileSidebar portfolioData={portfolioData} />
+      <HeaderBanner />
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8 mt-3 sm:mt-4 md:mt-6 lg:mt-8">
+          <div className="md:col-span-1 sticky md:top-4 lg:top-6 h-fit">
+            <ProfileSidebar
+              portfolioData={portfolioData}
+              onPortfolioUpdate={handlePortfolioUpdate}
+            />
           </div>
 
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg p-6 shadow-sm border">
-              <div className="border-b border-gray-200 mb-6">
-                <nav className="flex space-x-8">
-                  <button className="border-b-2 border-blue-600 pb-2 text-sm font-medium text-blue-600">
-                    Work
+          <div className="md:col-span-3">
+            <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 shadow-sm border transition-all duration-200">
+              <div className="border-b border-gray-200 mb-3 sm:mb-4 md:mb-6">
+                <nav className="flex overflow-x-auto no-scrollbar flex-nowrap sm:flex-wrap sm:overflow-visible space-x-2 sm:space-x-4 md:space-x-8">
+                  <button
+                    onClick={() => setActiveTab("personal")}
+                    className={`flex-shrink-0 py-2 sm:py-2.5 px-3 sm:px-4 text-sm font-medium w-full sm:w-auto text-center transition-colors duration-200 whitespace-nowrap ${
+                      activeTab === "personal"
+                        ? "border-b-2 border-blue-600 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
+                    }`}
+                  >
+                    Thiết kế cá nhân
                   </button>
-                  <button className="pb-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-                    Services
-                  </button>
-                  <button className="pb-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-                    Appreciations
+                  <button
+                    onClick={() => setActiveTab("completed")}
+                    className={`flex-shrink-0 py-2 sm:py-2.5 px-3 sm:px-4 text-sm font-medium w-full sm:w-auto text-center transition-colors duration-200 whitespace-nowrap ${
+                      activeTab === "completed"
+                        ? "border-b-2 border-blue-600 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
+                    }`}
+                  >
+                    Các đơn đã hoàn thành
                   </button>
                 </nav>
               </div>
 
-              <ProjectsGrid onPortfolioData={setPortfolioData} />
+              {activeTab === "personal" ? (
+                <div className="mt-3 sm:mt-4 md:mt-6">
+                  <ProjectsGrid
+                    onPortfolioData={setPortfolioData}
+                    key={refreshTrigger}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-4 sm:py-6 md:py-8 text-gray-500">
+                  Danh sách các đơn đã hoàn thành sẽ được hiển thị ở đây
+                </div>
+              )}
             </div>
           </div>
         </div>

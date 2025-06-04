@@ -1,4 +1,4 @@
-import MyProfileDesign from "@/pages/designer/manage-design-profile/my-profile-design";
+import MyProfileDesign from "@/pages/designer/manage-portfolio/my-profile-design";
 
 interface PortfolioImage {
   portfolioImageID: string;
@@ -17,8 +17,17 @@ interface PortfolioData {
 
 interface ProfileSidebarProps {
   portfolioData: PortfolioData | null;
+  onPortfolioUpdate?: () => void;
 }
 
-export function ProfileSidebar({ portfolioData }: ProfileSidebarProps) {
-  return <MyProfileDesign portfolioData={portfolioData} />;
+export function ProfileSidebar({
+  portfolioData,
+  onPortfolioUpdate,
+}: ProfileSidebarProps) {
+  return (
+    <MyProfileDesign
+      portfolioData={portfolioData}
+      onPortfolioUpdate={onPortfolioUpdate}
+    />
+  );
 }
