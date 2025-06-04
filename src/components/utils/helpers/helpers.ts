@@ -3,6 +3,12 @@ import { ROLE, WALLET_TRANSACTION_TYPE } from "@/constants";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { RootState } from "@/redux/store";
+import {
+  OfferPhaseEnum,
+  OfferPhaseVi,
+  OfferStatusEnum,
+  OfferStatusVi,
+} from "@/constants/enum";
 /**
  * Kiểm tra xem một object có rỗng không (không có key nào).
  * @param obj - object bất kỳ
@@ -227,4 +233,53 @@ export const detectInputType = (input: string): number => {
 
   // 4. Mặc định là Text
   return 0;
+};
+
+export const isAcceptedVariant = (status: boolean) => {
+  switch (status) {
+    case false:
+      return "danger";
+    case true:
+      return "success";
+    default:
+      return "default";
+  }
+};
+
+export const offerStatusVariant = (status: string) => {
+  switch (status) {
+    case "Pending":
+      return "warning";
+    case "Canceled":
+      return "danger";
+    case "Completed":
+      return "success";
+    default:
+      return "default";
+  }
+};
+
+export const offerStatusVN = (status: string) => {
+  switch (status) {
+    case OfferPhaseEnum.Dealed:
+      return OfferPhaseVi.Dealed;
+    case OfferPhaseEnum.Deposited:
+      return OfferPhaseVi.Deposited;
+    case OfferPhaseEnum.Done:
+      return OfferPhaseVi.Done;
+    case OfferPhaseEnum.NotStarted:
+      return OfferPhaseVi.NotStarted;
+    case OfferPhaseEnum.Withdrawed:
+      return OfferPhaseVi.Withdrawed;
+    case OfferStatusEnum.Accepted:
+      return OfferStatusVi.Accepted;
+    case OfferStatusEnum.Dealing:
+      return OfferStatusVi.Dealing;
+    case OfferStatusEnum.Pending:
+      return OfferStatusVi.Pending;
+    case OfferStatusEnum.Rejected:
+      return OfferStatusVi.Rejected;
+    default:
+      return "default";
+  }
 };

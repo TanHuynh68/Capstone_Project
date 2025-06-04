@@ -1,4 +1,4 @@
-import ChatPostCardList from "@/components/molecules/customer/chat/ChatPostCard"
+import ChatPostCardList from "@/components/molecules/customer/chat/ChatPostCardList"
 
 interface PostCard{
     posts: ChatPostCard[]
