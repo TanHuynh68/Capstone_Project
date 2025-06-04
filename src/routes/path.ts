@@ -25,6 +25,7 @@ export enum USER_ROUTES {
   MY_POST_PAGE = "my-post",
   POST_DETAIL_PAGE = "post/detail/:id",
   POST_OFFER_PAGE = "post-offer",
+  DESIGNER_PORTFOLIO_PAGE = "portfolio/:id",
 }
 
 export enum AUTH_ROUTES {
@@ -90,4 +91,6 @@ export enum PATH {
   STAFF_ROUTES.STAFF_MANAGER_WITHDRAWAL,
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
+  DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
+
 }

@@ -1,6 +1,7 @@
 import { USER_ROUTES } from "./path";
 import { CustomerLayout } from "../components/layouts";
 import { HomePage, AboutPage, ContactPage, PostPage, PostDetailPage } from "../pages";
+import { PortfolioDesignForAll } from "@/pages/general/portfolio-design-for-all/portfolio-design-for-all";
 //
 export const guestRoutes = [
   {
@@ -23,6 +24,10 @@ export const guestRoutes = [
       {
         path: USER_ROUTES.POST_DETAIL_PAGE,
         element: <PostDetailPage />,
+      },
+      {
+        path: USER_ROUTES.DESIGNER_PORTFOLIO_PAGE,
+        element: <PortfolioDesignForAll />,
       },
     ],
   },

@@ -30,6 +30,22 @@ const PortfolioService = () => {
         [callApi]
     );
 
+
+    const getPortfolioDesignerForAll = useCallback(
+        async (values: { DesignerID: string }) => {
+            try {
+                const res = await callApi(
+                    HTTP_METHOD.GET,
+                    `${API_ROUTES.GET_PORTFOLIO_DESIGNER_FOR_ALL}?DesignerID=${values.DesignerID}`
+                );
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin hồ sơ.");
+            }
+        },
+        [callApi]
+    );
+
     const createPortfolio = useCallback(
         async (values: any) => {
             try {
@@ -66,7 +82,7 @@ const PortfolioService = () => {
         [callApi]
     );
 
-    return { getMyProfile, getMyPortfolio, createPortfolio, editPortfolio, editImagePortfolio };
+    return { getMyProfile, getMyPortfolio, createPortfolio, editPortfolio, editImagePortfolio, getPortfolioDesignerForAll };
 };
 
 

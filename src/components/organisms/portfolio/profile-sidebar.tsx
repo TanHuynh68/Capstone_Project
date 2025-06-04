@@ -25,7 +25,7 @@ export function ProfileSidebar({
   onPortfolioUpdate,
 }: ProfileSidebarProps) {
   return (
-    <MyProfileDesign
+    <MyProfileDesign    
       portfolioData={portfolioData}
       onPortfolioUpdate={onPortfolioUpdate}
     />
