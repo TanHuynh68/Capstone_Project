@@ -937,7 +937,9 @@ const PlushDollDesign: React.FC = () => {
     } catch (error: unknown) {
       console.error("Lỗi khi lưu thiết kế:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu thiết kế";
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi lưu thiết kế";
       toast.error(errorMessage);
     }
   };
@@ -985,7 +987,7 @@ const PlushDollDesign: React.FC = () => {
   const handleItemSelect = (imageUrl: string) => {
     fabric.Image.fromURL(imageUrl, (img) => {
       // Set initial size - smaller default size
-      const maxSize = 150; // Reduced from 200 to 150
+      const maxSize = 200; // Reduced from 200 to 150
       const aspectRatio = img.width! / img.height!;
 
       if (aspectRatio > 1) {
@@ -1051,7 +1053,7 @@ const PlushDollDesign: React.FC = () => {
       // Create and add image
       fabric.Image.fromURL(imageUrl, (img) => {
         // Set initial size
-        const maxSize = 150;
+        const maxSize = 200;
         const aspectRatio = img.width! / img.height!;
 
         if (aspectRatio > 1) {
@@ -1292,7 +1294,7 @@ const PlushDollDesign: React.FC = () => {
             Xuất PNG
           </Button>
           <Button variant="outline" onClick={saveCanvasAsJSON}>
-            <Download className="w-4 h-4 mr-1" />
+            <Save className="w-4 h-4 mr-1" />
             Lưu thiết kế
           </Button>
           <Button
