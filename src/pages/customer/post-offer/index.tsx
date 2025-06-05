@@ -61,6 +61,7 @@ export default function PostOfferPage() {
                 onViewOffers={() => handleViewOffers(post.projectPostID)}
                 isSelected={selectedPostId === post.projectPostID}
                 postNumber={index + 1}
+                totalPosts={posts.length}
                 isFirstPost={index === 0}
                 onDataChange={handlePostDataChange}
               />

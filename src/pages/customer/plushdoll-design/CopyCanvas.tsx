@@ -30,6 +30,11 @@ export default function CopyCanvas({
   const [copyLoading, setCopyLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [idCanvas, setIdCanvas] = useState<string | null>(null);
+  const [uniqueTitleHeader, setUniqueTitleHeader] = useState<string | null>(
+    null
+  );
+  const [uniqueTitle, setUniqueTitle] = useState<string | null>(null);
+
   const { copyCanvas } = CustomerService();
 
   useEffect(() => {
@@ -52,20 +57,19 @@ export default function CopyCanvas({
 
   const handleCopy = async () => {
     setCopyLoading(true);
-    const uniqueTitle = `${canvasTitle}_${Math.floor(
+    const generatedTitle = `${canvasTitle}_${Math.floor(
       1000 + Math.random() * 9000
     )}_copy`;
+    setUniqueTitle(generatedTitle);
 
     try {
       const res = await copyCanvas({
         canvasInfoId: canvasId,
-        canvasTitle: uniqueTitle,
+        canvasTitle: generatedTitle,
       });
 
       const newId = res?.responseRequestModel?.canvasInfoId;
       setIdCanvas(newId);
-      console.log(newId, "newly created canvas ID");
-      console.log(idCanvas, "idCanvas");
 
       if (res?.statusCode === 200) {
         toast.success("Sao chép canvas thành công!");
@@ -97,9 +101,6 @@ export default function CopyCanvas({
             }}
             state={{
               canvasId: idCanvas,
-              canvasTitle,
-              canvasDescription,
-              imageUrl,
             }}
             className="break-words text-blue-600 hover:text-blue-800 transition-colors font-semibold"
           >

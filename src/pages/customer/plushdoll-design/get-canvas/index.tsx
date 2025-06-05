@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
+import { ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 interface CanvasItem {
   canvasInfoId: string;
@@ -51,7 +53,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
         })
       );
     } catch (error) {
-      console.error("Lỗi tải canvas:", error);
+      console.error("Lỗi tải thiết kế:", error);
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
       <div className="flex gap-1">
         <input
           type="text"
-          placeholder="Tìm canvas"
+          placeholder="Tìm thiết kế"
           value={canvasTitle}
           onChange={(e) => setCanvasTitle(e.target.value)}
           onKeyDown={(e) => {
@@ -177,7 +179,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
           onClick={() => setPage((prev) => Math.max(1, prev - 1))}
           disabled={page === 1}
         >
-          ◀
+          <ChevronLeft className="w-4 h-4" />
         </Button>
         <span>Trang {page}</span>
         <Button
@@ -186,7 +188,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
           onClick={() => setPage((prev) => prev + 1)}
           disabled={canvasList.length < size}
         >
-          ▶
+          <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
     </div>

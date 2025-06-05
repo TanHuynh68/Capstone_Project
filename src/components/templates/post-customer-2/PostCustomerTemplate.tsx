@@ -29,7 +29,8 @@ interface PostCustomerTemplateProps {
   postNumber: number;
   onDataChange?: (post: Post | null) => void;
   isFirstPost?: boolean;
-  fetchPosts: any;
+  fetchPosts: () => Promise<void>;
+  totalPosts: number;
 }
 
 export default function PostCustomerTemplate({
@@ -41,6 +42,7 @@ export default function PostCustomerTemplate({
   onDataChange,
   isFirstPost = false,
   fetchPosts,
+  totalPosts,
 }: PostCustomerTemplateProps) {
   const { deletePost } = PostService();
   const { offers, fetchOffers, resetOffers } = useOffers();
@@ -340,24 +342,34 @@ export default function PostCustomerTemplate({
         `}
       </style>
       <div className="space-y-4 post-container">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Bài đăng của tôi ({postNumber})</h2>
+        {postNumber === 1 && (
+          <h2 className="text-xl font-bold mb-6">
+            Bài đăng của tôi ({totalPosts})
+          </h2>
+        )}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg font-medium">
+              Bài đăng #{postNumber}
+            </div>
+            <div className="h-[1px] flex-1 bg-gray-200"></div>
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleToggleExpand}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1.5 ml-4 hover:bg-primary/10 hover:text-primary transition-colors"
             disabled={isAnimating}
           >
             {isExpanded ? (
               <>
                 <ChevronUp className="w-4 h-4" />
-                Thu gọn
+                <span className="text-sm font-medium">Thu gọn</span>
               </>
             ) : (
               <>
                 <ChevronDown className="w-4 h-4" />
-                Mở rộng
+                <span className="text-sm font-medium">Mở rộng</span>
               </>
             )}
           </Button>

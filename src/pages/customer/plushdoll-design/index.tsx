@@ -29,6 +29,7 @@ import {
   ImagePlus,
   ImageUp,
   PawPrint,
+  Save,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -112,24 +113,48 @@ const PlushDollDesign: React.FC = () => {
 
   const location = useLocation();
 
+  const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(false);
+  const [autoSaveCountdown, setAutoSaveCountdown] = useState(5);
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Thêm useEffect để lấy số lượng canvas khi component mount
   useEffect(() => {
-    const hasLocationState =
-      location.state?.canvasId &&
-      location.state?.canvasTitle &&
-      location.state?.canvasDescription;
+    console.log(location.state, "location.state");
 
-    if (hasLocationState) {
-      console.log("✅ Gán đúng từ location.state");
-      loadCanvasFromDescription(
-        location.state.canvasDescription,
-        location.state.canvasTitle,
-        location.state.canvasId
-      );
-      return; // ❗ THOÁT không gọi fetchCanvasCount()
+    const hasCanvasId = location.state?.canvasId;
+
+    if (hasCanvasId) {
+      // Fetch canvas data from API when canvasId is present
+      const fetchCanvasData = async () => {
+        try {
+          const data = await getCanvas({ page: 1, size: 100 });
+          const canvasList =
+            data?.responseRequestModel?.responseList?.items || [];
+          const targetCanvas = canvasList.find(
+            (canvas: any) => canvas.canvasInfoId === location.state.canvasId
+          );
+
+          if (targetCanvas) {
+            loadCanvasFromDescription(
+              targetCanvas.canvasDescription,
+              targetCanvas.canvasTitle,
+              targetCanvas.canvasInfoId
+            );
+          } else {
+            toast.error("Không tìm thấy thông tin thiết kế");
+          }
+        } catch (error) {
+          console.error("Error fetching canvas data:", error);
+          toast.error("Có lỗi xảy ra khi tải thiết kế");
+        }
+      };
+
+      fetchCanvasData();
+      return; // Exit early after fetching canvas data
     }
 
-    // ❗ Nếu không có state => mới fetch canvas mới
+    // If no canvasId, fetch canvas count for new canvas
     const fetchCanvasCount = async () => {
       try {
         const data = await getCanvas({ page: 1, size: 100 });
@@ -272,7 +297,7 @@ const PlushDollDesign: React.FC = () => {
       setTotalCanvasCount(latestCount);
       setCurrentCanvasTitle(`Thiết kế ${latestCount + 1}`);
     } catch (error) {
-      console.error("Lỗi khi lấy số lượng canvas:", error);
+      console.error("Lỗi khi lấy số lượng thiết kế:", error);
       setCurrentCanvasTitle(`Thiết kế ${totalCanvasCount + 1}`);
     }
 
@@ -295,7 +320,7 @@ const PlushDollDesign: React.FC = () => {
 
     saveInitialState();
 
-    toast.success(`Đã tạo canvas mới ${width}x${height} ${unit}`);
+    toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
   };
 
   const updateScaleRatio = () => {
@@ -630,21 +655,21 @@ const PlushDollDesign: React.FC = () => {
     });
 
     if (!canvasRef.current) {
-      console.error("Canvas ref is not available");
+      console.error("Thiết kế ref không khả dụng");
       return;
     }
 
     if (!canvasId) {
       console.error("Canvas ID is missing");
-      toast.error("Không tìm thấy thông tin canvas");
+      toast.error("Không tìm thấy thông tin thiết kế");
       return;
     }
 
-    if (!canvasDescription) {
-      console.error("Canvas description is missing");
-      toast.error("Không tìm thấy dữ liệu canvas");
-      return;
-    }
+    // if (!canvasDescription) {
+    //   console.error("Canvas description is missing");
+    //   toast.error("Không tìm thấy dữ liệu canvas");
+    //   return;
+    // }
 
     isRestoringRef.current = true;
     const safeJson = sanitizeCanvasJSON(canvasDescription);
@@ -660,17 +685,17 @@ const PlushDollDesign: React.FC = () => {
         setEditingTitle(canvasTitle);
         setIsEditingTitle(false);
 
-        console.log("Canvas loaded successfully:", {
+        console.log("Thiết kế đã được tải thành công:", {
           canvasId,
           canvasTitle,
           currentCanvasId: canvasId, // Verify ID is set
         });
 
-        toast.success("Đã tải canvas thành công!");
+        toast.success("Đã tải thiết kế thành công!");
       });
     } catch (error) {
-      console.error("Error loading canvas:", error);
-      toast.error("Có lỗi xảy ra khi tải canvas");
+      console.error("Error loading thiết kế:", error);
+      toast.error("Có lỗi xảy ra khi tải thiết kế");
       isRestoringRef.current = false;
     }
   };
@@ -808,19 +833,19 @@ const PlushDollDesign: React.FC = () => {
 
     try {
       if (!currentCanvasId) {
-        console.log("Updating title for new canvas");
+        // console.log("Updating title for new canvas");
         // For new canvas, just update the title locally
         setCurrentCanvasTitle(trimmedTitle);
         setIsEditingTitle(false);
         return;
       }
 
-      console.log("Updating title for existing canvas:", currentCanvasId);
+      // console.log("Updating title for existing canvas:", currentCanvasId);
 
       // Get current canvas data
       const canvasData = canvasRef.current?.toJSON();
       if (!canvasData) {
-        toast.error("Không thể lấy dữ liệu canvas");
+        toast.error("Không thể lấy dữ liệu thiết kế");
         return;
       }
 
@@ -899,20 +924,20 @@ const PlushDollDesign: React.FC = () => {
         }
       }
 
-      const blob = new Blob([canvasDescription], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "canvas.json";
-      link.click();
+      // const blob = new Blob([canvasDescription], { type: "application/json" });
+      // const link = document.createElement("a");
+      // link.href = URL.createObjectURL(blob);
+      // link.download = "canvas.json";
+      // link.click();
 
       // Dispatch event khi lưu thành công
       window.dispatchEvent(new CustomEvent("canvasSaved"));
 
-      toast.success("Đã lưu canvas thành công!");
+      toast.success("Đã lưu thiết kế thành công!");
     } catch (error: unknown) {
-      console.error("Lỗi khi lưu canvas:", error);
+      console.error("Lỗi khi lưu thiết kế:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu canvas";
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu thiết kế";
       toast.error(errorMessage);
     }
   };
@@ -1090,6 +1115,47 @@ const PlushDollDesign: React.FC = () => {
   //   }
   // }, [location.state, currentCanvasId]);
 
+  // Add auto save effect
+  useEffect(() => {
+    if (isAutoSaveEnabled) {
+      // Start countdown
+      countdownIntervalRef.current = setInterval(() => {
+        setAutoSaveCountdown((prev) => {
+          if (prev <= 1) {
+            return 5; // Reset to 5 when reaching 0
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Start auto save
+      autoSaveIntervalRef.current = setInterval(() => {
+        if (canvasRef.current) {
+          saveCanvasAsJSON();
+        }
+      }, 5000);
+    } else {
+      // Clear intervals when disabled
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+      }
+      setAutoSaveCountdown(5); // Reset countdown
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+      }
+    };
+  }, [isAutoSaveEnabled]);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -1142,7 +1208,7 @@ const PlushDollDesign: React.FC = () => {
               </div>
             ) : (
               <div
-                className="group flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-gray-200 transition-all"
+                className="flex items-center gap-2 cursor-pointer bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 transition-all"
                 onClick={() => {
                   setIsEditingTitle(true);
                   setEditingTitle(currentCanvasTitle);
@@ -1151,7 +1217,7 @@ const PlushDollDesign: React.FC = () => {
                 <span className="text-gray-700 font-medium">
                   {currentCanvasTitle}
                 </span>
-                <span className="opacity-0 group-hover:opacity-100 text-gray-400 transition-opacity">
+                <span className="text-gray-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
@@ -1208,18 +1274,18 @@ const PlushDollDesign: React.FC = () => {
             <option value="mm">mm</option>
           </select>
           <Button variant="default" onClick={createNewCanvas}>
-            Tạo canvas mới
+            Tạo thiết kế mới
           </Button>
         </div>
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={undo}>
             <Undo2 className="w-4 h-4 mr-1" />
-            Hoàn tác
+            {/* Hoàn tác */}
           </Button>
           <Button variant="outline" onClick={redo}>
             <Redo2 className="w-4 h-4 mr-1" />
-            Làm lại
+            {/* Làm lại */}
           </Button>
           <Button variant="outline" onClick={saveCanvasAsPNG}>
             <Download className="w-4 h-4 mr-1" />
@@ -1227,7 +1293,24 @@ const PlushDollDesign: React.FC = () => {
           </Button>
           <Button variant="outline" onClick={saveCanvasAsJSON}>
             <Download className="w-4 h-4 mr-1" />
-            Lưu JSON
+            Lưu thiết kế
+          </Button>
+          <Button
+            variant={isAutoSaveEnabled ? "default" : "outline"}
+            onClick={() => setIsAutoSaveEnabled(!isAutoSaveEnabled)}
+            className="flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            {isAutoSaveEnabled ? (
+              <span className="flex items-center gap-1">
+                <span className="text-xs font-medium">Tự động lưu</span>
+                <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">
+                  {autoSaveCountdown}s
+                </span>
+              </span>
+            ) : (
+              <span className="text-xs font-medium">Tự động lưu: Tắt</span>
+            )}
           </Button>
           {/* <Input
             type="file"
