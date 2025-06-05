@@ -27,44 +27,64 @@ const Chat = () => {
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
   const { getRoomList, getMessage, createChat } = ChatService();
   const { offerFind } = OfferService();
-  const [posts, setPosts] = useState<ChatPostCard[]>([]);
+  const [posts, setPosts] = useState<OfferDetail[]>([]);
   const connectionRef = useRef<HubConnection | null>(null);
+
   useEffect(() => {
     if (usersNeedToChat.length != 0) {
       fetchOffers();
     }
   }, [usersNeedToChat]);
+
+  useEffect(() => {
+    fetchOffers();
+    console.log("fetchOffers");
+  }, [chatRoomID]);
+
   const userMain = useCurrentUser();
+
   const fetchOffers = async () => {
     if (userMain?.role === ROLE.CUSTOMER) {
+      //tìm user  đang chat
+      let user = usersNeedToChat.filter(
+        (item) => item.chatRoomID === chatRoomID
+      )[0];
       console.log("run");
       const response = await offerFind({
         customerID: userMain?.id,
         // nếu khác customer thì là desginer
         designerID:
-          userMain?.id != usersNeedToChat[0].account1.accountID
-            ? usersNeedToChat[0].account1.accountID
-            : usersNeedToChat[0].account2.accountID,
+          userMain?.id != user.account1.accountID
+            ? user.account1.accountID
+            : user.account2.accountID,
       });
-      if (response) {
+      if (response && response.responseRequestModel.responseList) {
         console.log("usersNeedToChat: ", usersNeedToChat);
         console.log("response: ", response.responseRequestModel.responseList);
         setPosts(response.responseRequestModel.responseList);
+      }else {
+        setPosts([]);
       }
       // nếu là role là designer
     } else {
+      //tìm user  đang chat
+      let user = usersNeedToChat.filter(
+        (item) => item.chatRoomID === chatRoomID
+      )[0];
       const response = await offerFind({
         // nếu bằng nhau là designer, khác nhau thì là customer
         customerID:
-          userMain?.id != usersNeedToChat[0].account1.accountID
-            ? usersNeedToChat[0].account1.accountID
-            : usersNeedToChat[0].account2.accountID,
+          userMain?.id != user.account1.accountID
+            ? user.account1.accountID
+            : user.account2.accountID,
         // nếu khác  customer thì là desginer
         designerID: userMain?.id,
       });
-      if (response) {
+      if (response && response.responseRequestModel.responseList) {
         setPosts(response.responseRequestModel.responseList);
         console.log("response2: ", response.responseRequestModel.responseList);
+      } else {
+        setPosts([]);
       }
     }
   };
@@ -151,9 +171,7 @@ const Chat = () => {
     try {
       const response = await getRoomList();
       const rooms = response?.responseRequestModel?.chatRooms ?? [];
-
       setUsersNeedToChat(rooms);
-
       if (rooms.length > 0) {
         setChatRoomId(rooms[0].chatRoomID); // auto chọn room đầu
       }
@@ -202,8 +220,10 @@ const Chat = () => {
   };
 
   // Chọn người cần chat
-  const handleSelectChat = (newChatRoomID: string) => {
+  const handleSelectChat = async (newChatRoomID: string) => {
     if (newChatRoomID === chatRoomID) return;
+    // fettch offer when select other user
+
     console.log("🧑‍💬 Chọn người chat:", newChatRoomID);
     setChatRoomId(newChatRoomID);
   };

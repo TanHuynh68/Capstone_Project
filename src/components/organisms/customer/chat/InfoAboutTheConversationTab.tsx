@@ -2,7 +2,7 @@ import { TimelineItemData } from "../../../molecules/timeline/TimelineItem";
 import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate";
 import PostCard from "./PostCard";
 interface InfoAboutTheConversationTab {
-  posts: ChatPostCard[];
+  posts: OfferDetail[];
   value: string;
 }
 const InfoAboutTheConversationTab = ({

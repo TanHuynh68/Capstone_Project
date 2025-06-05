@@ -1,7 +1,7 @@
 import ChatPostCardList from "@/components/molecules/customer/chat/ChatPostCardList"
 
 interface PostCard{
-    posts: ChatPostCard[]
+    posts: OfferDetail[]
 }
 const PostCard = ({posts}: PostCard) => {
   return (

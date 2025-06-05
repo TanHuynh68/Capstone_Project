@@ -19,7 +19,7 @@ interface ChatTemplateProps {
   loadingMessage: boolean;
   onDeletMessage: any;
   onEditMessage: any;
-  posts: ChatPostCard[];
+  posts: OfferDetail[];
 }
 
 export default function ChatTemplate({
@@ -98,7 +98,7 @@ export default function ChatTemplate({
           )}
         </div>
         {isOpen && (
-          <div className="flex flex-col flex-2 rounded-xl bg-white max-w-[590px] min-w-[580px] px-3">
+          <div className="flex-4 flex flex-col  rounded-xl bg-white max-w-[590px] min-w-[580px] px-3">
 
             <div className="flex-1">
               <div className="mt-10">
@@ -128,7 +128,6 @@ export default function ChatTemplate({
             <div className="flex-4 overflow-y-auto ">
               <InfoAboutTheConversationTab value={value} posts={posts} />
             </div>
-
           </div>
         )}
       </div>

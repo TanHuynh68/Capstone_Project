@@ -1,7 +1,7 @@
 import { ChatPostCard} from "@/components/atoms/customer/chat/offer-card/ChatPostCard"
 
 interface ChatPostCardsProps{
-    data: ChatPostCard[]
+    data: OfferDetail[]
 }
 const ChatPostCardList = ({data}: ChatPostCardsProps) => {
   return (

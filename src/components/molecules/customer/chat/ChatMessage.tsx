@@ -110,7 +110,7 @@ export default function ChatMessage({
         </div>
         <div
           className={cn(
-            "max-w-[70%] ml-2",
+            "xl:max-w-[40%] 2xl:max-w-[70%]  ml-2",
             isCurrentUser ? "items-end" : "items-start"
           )}
         >
