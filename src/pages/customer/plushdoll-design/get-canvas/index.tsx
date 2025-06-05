@@ -14,15 +14,25 @@ interface CanvasListProps {
     canvasTitle: string,
     canvasId: string
   ) => void;
+  initialCanvasState?: {
+    canvasId: string;
+    canvasTitle: string;
+    canvasDescription: string;
+  };
+  selectedCanvasId?: string;
 }
 
-const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
+const CanvasList: React.FC<CanvasListProps> = ({
+  onSelect,
+  selectedCanvasId,
+  initialCanvasState,
+}) => {
   const [canvasList, setCanvasList] = useState<CanvasItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [canvasTitle, setCanvasTitle] = useState("");
   const [page, setPage] = useState(1);
   const [searchTitle, setSearchTitle] = useState("");
-
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const size = 10;
   const { getCanvas } = CustomerService();
 
@@ -78,6 +88,31 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
     };
   }, [loadList]);
 
+  useEffect(() => {
+    if (initialCanvasState && canvasList.length > 0 && !hasAutoSelected) {
+      const match = canvasList.find(
+        (item) => item.canvasInfoId === initialCanvasState.canvasId
+      );
+
+      if (match) {
+        // console.log("🔁 Auto-selecting canvas:", match);
+        onSelect(
+          initialCanvasState.canvasDescription,
+          initialCanvasState.canvasTitle,
+          initialCanvasState.canvasId
+        );
+        setHasAutoSelected(true);
+      } else {
+        console.warn(
+          "⚠️ No match found for initialCanvasState.canvasId:",
+          initialCanvasState.canvasId,
+          "in",
+          canvasList.map((c) => c.canvasInfoId)
+        );
+      }
+    }
+  }, [canvasList, initialCanvasState, onSelect, hasAutoSelected]);
+
   // useEffect(() => {
   //   console.log("Danh sách canvas: ", canvasList);
   // }, [canvasList]);
@@ -113,8 +148,13 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
         ) : (
           canvasList.map((item) => (
             <div
-              key={item?.canvasInfoId}
-              className="cursor-pointer p-1 border rounded hover:bg-gray-100 text-sm truncate"
+              key={item.canvasInfoId}
+              className={`cursor-pointer p-1 border rounded text-sm truncate transition-colors
+    ${
+      item.canvasInfoId === selectedCanvasId
+        ? "bg-primary text-white font-semibold"
+        : "hover:bg-muted text-foreground"
+    }`}
               title={item.canvasTitle}
               onClick={() =>
                 handleSelectCanvas(
