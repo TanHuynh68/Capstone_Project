@@ -108,9 +108,10 @@ export default function PostCustomerTemplate({
 
   // Effect to handle collapsing when other posts are expanded
   useEffect(() => {
-    const handleOtherPostExpand = (expandedPostId: string) => {
-      // If another post is being expanded
-      if (expandedPostId !== post.projectPostID) {
+    const handleOtherPostExpand = (e: CustomEvent) => {
+      const { postId, isExpanding } = e.detail;
+      // If another post is being expanded and this post is actually expanded
+      if (postId !== post.projectPostID && isExpanded && isExpanding) {
         // Immediately hide offers
         window.dispatchEvent(
           new CustomEvent("offer-visibility-change", {
@@ -118,25 +119,25 @@ export default function PostCustomerTemplate({
           })
         );
 
-        if (isExpanded) {
-          setIsAnimating(true);
-          setIsExpanded(false);
-          setTimeout(() => {
-            setIsAnimating(false);
-          }, 800);
-        }
+        setIsAnimating(true);
+        setIsExpanded(false);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 800);
       }
     };
 
     // Listen for post expand events
-    window.addEventListener("post-expand", ((e: CustomEvent) => {
-      handleOtherPostExpand(e.detail.postId);
-    }) as EventListener);
+    window.addEventListener(
+      "post-expand",
+      handleOtherPostExpand as EventListener
+    );
 
     return () => {
-      window.removeEventListener("post-expand", ((e: CustomEvent) => {
-        handleOtherPostExpand(e.detail.postId);
-      }) as EventListener);
+      window.removeEventListener(
+        "post-expand",
+        handleOtherPostExpand as EventListener
+      );
     };
   }, [isExpanded, post.projectPostID]);
 
@@ -155,10 +156,14 @@ export default function PostCustomerTemplate({
         })
       );
 
-      // Then notify other posts to collapse
+      // Then notify other posts to collapse, but only if they are actually expanded
       window.dispatchEvent(
         new CustomEvent("post-expand", {
-          detail: { postId: post.projectPostID },
+          detail: {
+            postId: post.projectPostID,
+            // Add a flag to indicate this is an expand event
+            isExpanding: true,
+          },
         })
       );
 
@@ -176,7 +181,11 @@ export default function PostCustomerTemplate({
       setTimeout(() => {
         window.dispatchEvent(
           new CustomEvent("post-collapse", {
-            detail: { postId: post.projectPostID },
+            detail: {
+              postId: post.projectPostID,
+              // Add a flag to indicate this is a collapse event
+              isCollapsing: true,
+            },
           })
         );
         // Only notify that offers should be hidden if they were visible
