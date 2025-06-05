@@ -9,6 +9,7 @@ interface OfferPhaseCardProps {
   fetchOfferPhase: any
 }
 const OfferPhaseCard = ({ offerPhase, fetchOfferPhase }: OfferPhaseCardProps) => {
+  console.log('OfferPhaseCard: ', offerPhase)
   return (
     <Card className="p-2 bg-black text-white">
       <div className="grid grid-cols-12 gap-2">

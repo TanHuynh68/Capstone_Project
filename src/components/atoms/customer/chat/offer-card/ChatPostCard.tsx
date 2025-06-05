@@ -6,11 +6,12 @@ import {
   isAcceptedVariant,
   offerStatusVariant,
   offerStatusVN,
+  useCurrentUser,
 } from "@/components/utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase";
 export interface ChatPostCardProps {
-  post: ChatPostCard;
+  post: OfferDetail;
 }
 import {
   DropdownMenu,
@@ -22,11 +23,13 @@ import {
 import OfferService from "@/services/OfferService";
 import { useState } from "react";
 import OfferPhaseCard from "./OfferPhaseCard";
+import { ROLE } from "@/constants";
 export function ChatPostCard({ post }: ChatPostCardProps) {
   const { getOfferPhase } = OfferService();
   const [offers, setOffers] = useState<OfferPhase[]>([]);
+  const currentUser = useCurrentUser()
   const fetchOfferPhase = async () => {
-    const response = await getOfferPhase(post?.offerID);
+    const response = await getOfferPhase(post?.offer?.offerID);
     console.log("fetchOfferPhase: ", response);
     if (response) {
       setOffers(response.responseRequestModel.responseList);
@@ -38,14 +41,14 @@ export function ChatPostCard({ post }: ChatPostCardProps) {
         <div className=" grid grid-cols-2 gap-4">
           <img
             className="rounded-lg"
-            src={post?.sampleImage}
-            alt={post?.title}
+            src={post?.offer?.sampleImage}
+            alt={post?.post?.title}
           />
           <div className="space-y-1">
-            <div className="truncate font-semibold text-xl">{post?.title}</div>
+            <div className="truncate font-semibold text-xl">{post?.post.title}</div>
             <div>
-              <Badge variant={offerStatusVariant(post?.offerStatus)}>
-                {offerStatusVN(post?.offerStatus)}
+              <Badge variant={offerStatusVariant(post?.offer?.offerStatus)}>
+                {offerStatusVN(post?.offer?.offerStatus)}
               </Badge>
               {/* show dialog create offer phase */}
               <DropdownMenu>
@@ -60,7 +63,8 @@ export function ChatPostCard({ post }: ChatPostCardProps) {
                       </div>
                     </DropdownMenuItem>
                     {/* ✅ Cách khắc phục Dialog bị đóng ngay khi mở */}
-                    <DropdownMenuItem
+                    {
+                     currentUser?.role === ROLE.DESIGNER && <DropdownMenuItem
                       onSelect={(e) => {
                         e.preventDefault(); // ✅ Ngăn menu đóng
                       }}
@@ -72,40 +76,41 @@ export function ChatPostCard({ post }: ChatPostCardProps) {
                           </div>
                         </DialogTrigger>
                         <DialogContent className="min-w-[610px]">
-                          <ChatCreateOfferPhase fetchOfferPhase={fetchOfferPhase} offerID={post?.offerID} />
+                          <ChatCreateOfferPhase fetchOfferPhase={fetchOfferPhase} offerID={post?.offer?.offerID} />
                         </DialogContent>
                       </Dialog>
                     </DropdownMenuItem>
+                    }
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div>Giá ban đầu: {formatCurrencyVND(post?.initPrice)}</div>
+            <div>Giá ban đầu: {formatCurrencyVND(post?.offer?.initPrice)}</div>
             <div>
-              Giá ban đề nghị: {formatCurrencyVND(post?.suggestedPrice)}
+              Giá ban đề nghị: {formatCurrencyVND(post?.post?.suggestedPrice)}
             </div>
             <div>
               Giá cuối cùng:{" "}
-              {post.finalPrice === null
+              {post?.offer?.finalPrice === null
                 ? "Chưa có"
-                : formatCurrencyVND(post?.finalPrice)}
+                : formatCurrencyVND(post?.offer?.finalPrice)}
             </div>
             <div className="flex gap-2">
               <div>Khách hàng:</div>
               <Badge
                 className="ml-2"
-                variant={isAcceptedVariant(post?.isAcceptedByCus)}
+                variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}
               >
-                {post?.isAcceptedByCus === true ? "Đồng ý" : "Chưa đồng ý"}
+                {post?.offer?.isAcceptedByCus === true ? "Đồng ý" : "Chưa đồng ý"}
               </Badge>
             </div>
             <div className="flex gap-2 mt-2">
               <div>Nhà thiết kế:</div>
               <Badge
                 className="ml-1"
-                variant={isAcceptedVariant(post?.isAcceptedByDes)}
+                variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}
               >
-                {post?.isAcceptedByDes === true ? "Đồng ý" : "Chưa đồng ý"}
+                {post?.offer?.isAcceptedByDes === true ? "Đồng ý" : "Chưa đồng ý"}
               </Badge>
             </div>
             <div></div>
