@@ -108,7 +108,7 @@ export function EditImagePortfolio({
     //   return;
     // }
 
-    const validationError = validateFile(selectedFile);
+    const validationError = selectedFile ? validateFile(selectedFile) : null;
     if (validationError) {
       toast.error(getErrorMessage(validationError));
       e.target.value = "";
@@ -116,7 +116,7 @@ export function EditImagePortfolio({
     }
 
     setFile(selectedFile);
-    const url = URL.createObjectURL(selectedFile);
+    const url = selectedFile ? URL.createObjectURL(selectedFile) : null;
     setPreviewUrl(url);
   };
 
@@ -128,22 +128,22 @@ export function EditImagePortfolio({
         return;
       }
 
-      if (!file) {
-        toast.error(getErrorMessage("NO_FILE"));
-        return;
-      }
-
-      // Submit form
       setIsLoading(true);
       const formData = new FormData();
       formData.append("portfolioImageID", imageId);
       formData.append("imageDescription", title.trim());
-      formData.append("attachmentFile", file);
 
-      await editImagePortfolio(formData);
-      toast.success("Hình ảnh đã được cập nhật thành công");
-      onSuccess();
-      handleClose();
+      if (file) {
+        formData.append("attachmentFile", file);
+      }
+
+
+      const res = await editImagePortfolio(formData);
+      if (res?.statusCode === 200) {
+        toast.success("Hình ảnh đã được cập nhật thành công");
+        onSuccess();
+        handleClose();
+      }
     } catch (error) {
       console.error("Lỗi khi cập nhật hình ảnh portfolio:", error);
       toast.error("Không thể cập nhật hình ảnh. Vui lòng thử lại sau.");

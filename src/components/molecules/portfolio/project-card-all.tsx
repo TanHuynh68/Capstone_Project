@@ -10,11 +10,7 @@ interface ProjectCardProps {
   onEditSuccess?: () => void;
 }
 
-export function ProjectCardAll({
-  title,
-  image,
-  createdAt,
-}: ProjectCardProps) {
+export function ProjectCardAll({ title, image, createdAt }: ProjectCardProps) {
   return (
     <div className="group cursor-pointer flex justify-center">
       <div className="relative overflow-hidden rounded-lg bg-gray-100 aspect-[4/3] w-[250px] h-[250px] flex items-center justify-center">
@@ -27,7 +23,9 @@ export function ProjectCardAll({
 
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex items-end justify-start opacity-0 group-hover:opacity-100 pointer-events-none">
           <div className="text-white p-4 text-left">
-            <p className="text-sm mb-1">{title}</p>
+            <p className="text-sm mb-1 font-medium break-all whitespace-pre-wrap overflow-hidden text-ellipsis line-clamp-8">
+              {title}
+            </p>
             {createdAt && (
               <p className="text-xs">{formatVietnamDateHours(createdAt)}</p>
             )}

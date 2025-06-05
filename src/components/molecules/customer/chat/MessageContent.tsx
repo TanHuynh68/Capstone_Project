@@ -60,7 +60,6 @@ export default function MessageContent({
                 canvasId={data.id}
                 canvasTitle={data.title}
                 imageUrl={data.imageUrl}
-                canvasDescription={data.description}
                 isCurrentUser={isCurrentUser}
               />
             );

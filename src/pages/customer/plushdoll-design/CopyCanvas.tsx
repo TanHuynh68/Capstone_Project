@@ -12,7 +12,6 @@ interface CopyCanvasProps {
   canvasId: string;
   canvasTitle: string;
   imageUrl: string;
-  canvasDescription: string;
   isCurrentUser?: boolean;
 }
 
@@ -24,16 +23,11 @@ export default function CopyCanvas({
   canvasId,
   canvasTitle,
   imageUrl,
-  canvasDescription,
   isCurrentUser = false,
 }: CopyCanvasProps) {
   const [copyLoading, setCopyLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [idCanvas, setIdCanvas] = useState<string | null>(null);
-  const [uniqueTitleHeader, setUniqueTitleHeader] = useState<string | null>(
-    null
-  );
-  const [uniqueTitle, setUniqueTitle] = useState<string | null>(null);
 
   const { copyCanvas } = CustomerService();
 
@@ -60,7 +54,6 @@ export default function CopyCanvas({
     const generatedTitle = `${canvasTitle}_${Math.floor(
       1000 + Math.random() * 9000
     )}_copy`;
-    setUniqueTitle(generatedTitle);
 
     try {
       const res = await copyCanvas({

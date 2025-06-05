@@ -99,6 +99,7 @@ const EditPortfolio = ({
               value={formData.yearOfExperience}
               onChange={handleChange}
               placeholder="Nhập kinh nghiệm"
+              className="w-full  break-all truncate"
             />
           </div>
 
@@ -110,6 +111,7 @@ const EditPortfolio = ({
               value={formData.expertIn}
               onChange={handleChange}
               placeholder="Nhập chuyên môn của bạn"
+              className="w-full break-all truncate"
             />
           </div>
 
@@ -122,6 +124,8 @@ const EditPortfolio = ({
               onChange={handleChange}
               placeholder="Nhập giới thiệu về bản thân"
               rows={4}
+              maxLength={1000}
+              className="w-full  break-all resize-none"
             />
           </div>
 

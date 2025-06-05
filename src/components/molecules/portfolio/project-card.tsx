@@ -35,7 +35,9 @@ export function ProjectCard({
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex items-end justify-start opacity-0 group-hover:opacity-100 pointer-events-none">
           <div className="text-white p-4 text-left">
-            <p className="text-sm mb-1 font-medium">{title}</p>
+            <p className="text-sm mb-1 font-medium break-all whitespace-pre-wrap overflow-hidden text-ellipsis line-clamp-8">
+              {title}
+            </p>
             {createdAt && (
               <p className="text-xs text-white/80">
                 {formatVietnamDateHours(createdAt)}
