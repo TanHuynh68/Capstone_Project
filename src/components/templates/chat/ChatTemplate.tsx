@@ -20,6 +20,9 @@ interface ChatTemplateProps {
   onDeletMessage: any;
   onEditMessage: any;
   posts: OfferDetail[];
+  fetchOfferPhase: any;
+  setOffersPhase: any;
+  offersPhase: any
 }
 
 export default function ChatTemplate({
@@ -31,6 +34,9 @@ export default function ChatTemplate({
   onDeletMessage,
   onEditMessage,
   posts,
+  setOffersPhase,
+  fetchOfferPhase,
+  offersPhase
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
   const userMain = useCurrentUser();
@@ -56,7 +62,7 @@ export default function ChatTemplate({
     // { title: "File", subItem: ["File phương tiện", "File"] },
   ];
   return (
-    <div className="bg-gray-200 py-3 px-1 h-screen">
+    <div className="bg-gray-200 py-3 px-1 h-[95%] ">
       <div className=" flex w-full h-full overflow-hidden gap-4 p-3">
         <div className="flex-1.5 border border-solid rounded-xl bg-white">
           <ChatSidebar
@@ -126,7 +132,11 @@ export default function ChatTemplate({
               <SidebarCollapses onClick={handleSetTabsContent} items={items} />
             </div>
             <div className="flex-4 overflow-y-auto ">
-              <InfoAboutTheConversationTab value={value} posts={posts} />
+              <InfoAboutTheConversationTab 
+              offersPhase={offersPhase}
+              setOffersPhase={setOffersPhase}
+              fetchOfferPhase={fetchOfferPhase}
+              value={value} posts={posts} />
             </div>
           </div>
         )}

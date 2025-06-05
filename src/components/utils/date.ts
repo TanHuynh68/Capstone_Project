@@ -169,6 +169,32 @@ export function formatDateTimeVN(isoString: string) {
   return `${datePart} ${timePart}`;
 }
 
+export function formatDateRangeVN(start: string, end: string): string {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  const sameMonth = startDate.getMonth() === endDate.getMonth();
+  const sameYear = startDate.getFullYear() === endDate.getFullYear();
+
+  const format = (date: Date) =>
+    new Intl.DateTimeFormat("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(date);
+
+  if (sameMonth && sameYear) {
+    const dayStart = startDate.getDate().toString().padStart(2, "0");
+    const dayEnd = endDate.getDate().toString().padStart(2, "0");
+    const month = (startDate.getMonth() + 1).toString().padStart(2, "0");
+    const year = startDate.getFullYear();
+
+    return `${dayStart} - ${dayEnd}/${month}/${year}`;
+  } else {
+    return `${format(startDate)} - ${format(endDate)}`;
+  }
+}
+
 
 export function formatFullDateWithDistance(isoString: string) {
   const createdAt = new Date(isoString);

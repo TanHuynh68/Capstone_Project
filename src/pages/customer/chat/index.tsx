@@ -29,6 +29,17 @@ const Chat = () => {
   const { offerFind } = OfferService();
   const [posts, setPosts] = useState<OfferDetail[]>([]);
   const connectionRef = useRef<HubConnection | null>(null);
+  const { getOfferPhase } = OfferService();
+  const [offersPhase, setOffersPhase] = useState<OfferPhase[]>([]);
+
+
+  const fetchOfferPhase = async (offerID: string) => {
+    const response = await getOfferPhase(offerID);
+    console.log("fetchOfferPhase: ", response);
+    if (response) {
+      setOffersPhase(response.responseRequestModel.responseList);
+    }
+  };
 
   useEffect(() => {
     if (usersNeedToChat.length != 0) {
@@ -62,7 +73,7 @@ const Chat = () => {
         console.log("usersNeedToChat: ", usersNeedToChat);
         console.log("response: ", response.responseRequestModel.responseList);
         setPosts(response.responseRequestModel.responseList);
-      }else {
+      } else {
         setPosts([]);
       }
       // nếu là role là designer
@@ -257,6 +268,9 @@ const Chat = () => {
   return (
     <div className="h-screen w-full">
       <ChatTemplate
+        offersPhase={offersPhase}
+        fetchOfferPhase={fetchOfferPhase}
+        setOffersPhase={setOffersPhase}
         posts={posts}
         onDeletMessage={handleDeleteMessage}
         onEditMessage={handleEditMessage}
