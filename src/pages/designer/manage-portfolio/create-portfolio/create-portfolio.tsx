@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import PortfolioService from "@/services/PortfolioService";
-import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
+import SingleImageGallerySmall from "@/components/molecules/post/post-detail/SingleImageGallerySmall";
 
 interface CreatePortfolioProps {
   onSuccess: () => void;
@@ -73,35 +73,78 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
   };
 
   const validateField = (
-    field: string,
-    value: string | string[] | (File | undefined)[]
+    field: keyof typeof initialFormErrors,
+    value: string | string[] | (File | undefined)[],
+    index?: number
   ): string | string[] => {
     if (Array.isArray(value)) {
       if (field.includes("Images")) {
-        return value.map((v) => (!v ? "Vui lòng chọn ảnh" : ""));
+        if (typeof index === "number") {
+          const errors = Array(value.length).fill("");
+          errors[index] = !value[index] ? "Vui lòng tải ảnh lên" : "";
+          return errors;
+        }
+        return value.map((v) => (!v ? "Vui lòng tải ảnh lên" : ""));
       }
-      return value.map((v) => (!v ? "Vui lòng nhập mô tả" : ""));
+      if (typeof index === "number") {
+        const errors = Array(value.length).fill("");
+        const val = value[index];
+        errors[index] =
+          typeof val === "string" && !val.trim() ? "Vui lòng nhập mô tả" : "";
+        return errors;
+      }
+      return value.map((v) =>
+        typeof v === "string" && !v.trim() ? "Vui lòng nhập mô tả" : ""
+      );
     }
 
+    const strValue = value as string;
     switch (field) {
       case "yearOfExperience":
-        return !value ? "Vui lòng nhập  kinh nghiệm" : "";
+        return !strValue.trim() ? "Vui lòng nhập kinh nghiệm" : "";
       case "content":
-        return !value ? "Vui lòng nhập mô tả dự án" : "";
+        return !strValue.trim() ? "Vui lòng nhập mô tả dự án" : "";
       case "expertIn":
-        return !value ? "Vui lòng nhập kỹ năng chuyên môn" : "";
+        return !strValue.trim() ? "Vui lòng nhập kỹ năng chuyên môn" : "";
       default:
         return "";
     }
   };
 
-  const handleBlur = (
-    field: string,
-    value: string | string[] | (File | undefined)[]
+  const handleInputChange = (
+    field: keyof typeof initialFormData,
+    value: string,
+    index?: number
   ) => {
-    const error = validateField(field, value);
+    setFormData((prev) => {
+      if (typeof index === "number") {
+        const newArray = [...prev[field]];
+        newArray[index] = value;
+        return { ...prev, [field]: newArray };
+      }
+      return { ...prev, [field]: value };
+    });
+
+    // Validate only current field
+    handleInputBlur(field, typeof index === "number" ? [value] : value, index);
+  };
+
+  const handleBlur = (
+    field: keyof typeof initialFormErrors,
+    value: string | string[] | (File | undefined)[],
+    index?: number
+  ) => {
+    const error = validateField(field, value, index);
     setFormErrors((prev) => {
       if (Array.isArray(error)) {
+        if (typeof index === "number") {
+          const newErrors = [...prev[field]];
+          newErrors[index] = error[0];
+          return {
+            ...prev,
+            [field]: newErrors,
+          };
+        }
         return {
           ...prev,
           [field]: error as string[],
@@ -112,6 +155,24 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
         [field]: error as string,
       };
     });
+  };
+
+  const handleInputBlur = (
+    field: keyof typeof initialFormData,
+    value: string | string[] | (File | undefined)[],
+    index?: number
+  ) => {
+    // Map form data field to validation field
+    let validationField: keyof typeof initialFormErrors;
+    if (field === "sectionOneAttachmentFiles") {
+      validationField = "sectionOneImages";
+    } else if (field === "sectionTwoAttachmentFiles") {
+      validationField = "sectionTwoImages";
+    } else {
+      validationField = field as keyof typeof initialFormErrors;
+    }
+
+    handleBlur(validationField, value, index);
   };
 
   const handleFocus = (
@@ -160,62 +221,42 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
     setError("");
     let hasError = false;
 
+    // Validate all fields
     const errors = {
-      yearOfExperience: "",
-      content: "",
-      expertIn: "",
-      sectionOneDescriptions: ["", "", ""],
-      sectionTwoDescriptions: ["", "", ""],
-      sectionOneImages: ["", "", ""],
-      sectionTwoImages: ["", "", ""],
+      yearOfExperience: validateField(
+        "yearOfExperience",
+        formData.yearOfExperience
+      ) as string,
+      content: validateField("content", formData.content) as string,
+      expertIn: validateField("expertIn", formData.expertIn) as string,
+      sectionOneDescriptions: validateField(
+        "sectionOneDescriptions",
+        formData.sectionOneDescriptions
+      ) as string[],
+      sectionTwoDescriptions: validateField(
+        "sectionTwoDescriptions",
+        formData.sectionTwoDescriptions
+      ) as string[],
+      sectionOneImages: validateField(
+        "sectionOneImages",
+        formData.sectionOneAttachmentFiles
+      ) as string[],
+      sectionTwoImages: validateField(
+        "sectionTwoImages",
+        formData.sectionTwoAttachmentFiles
+      ) as string[],
     };
 
-    if (!formData.yearOfExperience) {
-      errors.yearOfExperience = "Vui lòng nhập kinh nghiệm";
-      hasError = true;
-    }
-
-    if (!formData.content) {
-      errors.content = "Vui lòng nhập mô tả dự án";
-      hasError = true;
-    }
-
-    if (!formData.expertIn) {
-      errors.expertIn = "Vui lòng nhập kỹ năng chuyên môn";
-      hasError = true;
-    }
-
-    formData.sectionOneDescriptions.forEach((desc, i) => {
-      if (!desc) {
-        errors.sectionOneDescriptions[i] = "Vui lòng nhập mô tả";
-        hasError = true;
-      }
-    });
-
-    formData.sectionTwoDescriptions.forEach((desc, i) => {
-      if (!desc) {
-        errors.sectionTwoDescriptions[i] = "Vui lòng nhập mô tả";
-        hasError = true;
-      }
-    });
-
-    // Validate each image input individually
-    formData.sectionOneAttachmentFiles.forEach((file, index) => {
-      if (!file) {
-        errors.sectionOneImages[index] = "Vui lòng chọn ảnh";
-        hasError = true;
-      }
-    });
-
-    formData.sectionTwoAttachmentFiles.forEach((file, index) => {
-      if (!file) {
-        errors.sectionTwoImages[index] = "Vui lòng chọn ảnh";
-        hasError = true;
-      }
-    });
+    // Check if any field has error
+    hasError = Object.values(errors).some((error) =>
+      Array.isArray(error) ? error.some((e) => e !== "") : error !== ""
+    );
 
     setFormErrors(errors);
-    if (hasError) return;
+    if (hasError) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -268,8 +309,29 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
     }
   };
 
+  const handleFileFocus = (
+    field: "sectionOneImages" | "sectionTwoImages",
+    idx: number
+  ) => {
+    handleFocus(field, idx);
+  };
+
+  const handleFileBlur = (
+    field: "sectionOneImages" | "sectionTwoImages",
+    idx: number
+  ) => {
+    const fileField =
+      field === "sectionOneImages"
+        ? "sectionOneAttachmentFiles"
+        : "sectionTwoAttachmentFiles";
+
+    // Always validate on blur
+    const files = [...formData[fileField]];
+    handleBlur(field, files, idx);
+  };
+
   const handleFileChange = (
-    field: "sectionOneAttachmentFiles" | "sectionTwoAttachmentFiles",
+    fileField: "sectionOneAttachmentFiles" | "sectionTwoAttachmentFiles",
     idx: number,
     file: File | null
   ) => {
@@ -282,79 +344,78 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
     }
 
     setFormData((prev) => {
-      const arr = [...prev[field]];
+      const arr = [...prev[fileField]];
       arr[idx] = file as File;
-      return { ...prev, [field]: arr };
+      return { ...prev, [fileField]: arr };
     });
 
-    // Update image validation errors
-    const newFiles = [...formData[field]];
+    // Always validate after change
+    const newFiles = [...formData[fileField]];
     newFiles[idx] = file as File;
-    handleBlur(field, newFiles);
-  };
-
-  const handleFileBlur = (
-    field: "sectionOneAttachmentFiles" | "sectionTwoAttachmentFiles"
-  ) => {
-    handleBlur(field, formData[field]);
+    const validationField =
+      fileField === "sectionOneAttachmentFiles"
+        ? "sectionOneImages"
+        : "sectionTwoImages";
+    handleBlur(validationField, newFiles, idx);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <div className="col-span-full w-full max-w-[450px] min-w-[300px] mx-auto mb-2 h-[400px] flex flex-col items-center justify-center bg-white rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer">
+        <div className="col-span-full w-full max-w-[450px] min-w-[300px] mx-auto mb-2 h-[400px] flex flex-col items-center justify-center bg-card rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer">
           <div className="flex flex-col items-center gap-3">
-            <PlusCircle className="w-12 h-12 text-gray-400" />
-            <span className="text-lg text-gray-500">Tạo dự án mới</span>
+            <PlusCircle className="w-12 h-12 text-muted-foreground" />
+            <span className="text-lg text-muted-foreground">
+              Đăng thiết kế cá nhân
+            </span>
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent className="w-full min-w-[1100px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-6">
+      <DialogContent className="w-full min-w-[1100px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-6 bg-background">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Tạo dự án mới</DialogTitle>
+          <DialogTitle className="text-2xl text-foreground">
+            Đăng thiết kế cá nhân
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cột 1: Thông tin chung */}
             <div className="space-y-4">
-              <div className="bg-gradient-to-r text-center from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                <h3 className="text-lg font-semibold text-blue-900 mb-1">
-                  Thông tin dự án
+              <div className="bg-gradient-to-r text-center from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20">
+                <h3 className="text-lg font-semibold text-primary mb-1">
+                  Thiết kế cá nhân
                 </h3>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-primary/80">
                   Vui lòng điền đầy đủ thông tin bên dưới
                 </p>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
+              <div className="bg-card p-4 rounded-lg border border-border space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <UserCircle2 className="w-4 h-4 text-blue-600" />
+                    <UserCircle2 className="w-4 h-4 text-primary" />
                     <Label
                       htmlFor="yearOfExperience"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-sm font-medium text-foreground"
                     >
-                     kinh nghiệm
+                      Kinh nghiệm
                     </Label>
                   </div>
                   <Input
                     id="yearOfExperience"
                     value={formData.yearOfExperience}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        yearOfExperience: e.target.value,
-                      })
+                      handleInputChange("yearOfExperience", e.target.value)
                     }
                     onFocus={() => handleFocus("yearOfExperience")}
                     onBlur={(e) =>
-                      handleBlur("yearOfExperience", e.target.value)
+                      handleInputBlur("yearOfExperience", e.target.value)
                     }
                     placeholder="Ví dụ: 3 năm"
-                    className="bg-gray-50"
+                    className="bg-background"
                   />
                   {formErrors.yearOfExperience && (
-                    <p className="text-red-500 text-sm">
+                    <p className="text-destructive text-sm">
                       {formErrors.yearOfExperience}
                     </p>
                   )}
@@ -362,10 +423,10 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-blue-600" />
+                    <Briefcase className="w-4 h-4 text-primary" />
                     <Label
                       htmlFor="content"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-sm font-medium text-foreground"
                     >
                       Mô tả dự án
                     </Label>
@@ -374,24 +435,26 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                     id="content"
                     value={formData.content}
                     onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
+                      handleInputChange("content", e.target.value)
                     }
                     onFocus={() => handleFocus("content")}
-                    onBlur={(e) => handleBlur("content", e.target.value)}
+                    onBlur={(e) => handleInputBlur("content", e.target.value)}
                     placeholder="Ví dụ: Từng thiết kế hơn 10 sản phẩm,..."
-                    className="bg-gray-50"
+                    className="bg-background"
                   />
                   {formErrors.content && (
-                    <p className="text-red-500 text-sm">{formErrors.content}</p>
+                    <p className="text-destructive text-sm">
+                      {formErrors.content}
+                    </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-blue-600" />
+                    <Award className="w-4 h-4 text-primary" />
                     <Label
                       htmlFor="expertIn"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-sm font-medium text-foreground"
                     >
                       Kỹ năng chuyên môn
                     </Label>
@@ -400,29 +463,29 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                     id="expertIn"
                     value={formData.expertIn}
                     onChange={(e) =>
-                      setFormData({ ...formData, expertIn: e.target.value })
+                      handleInputChange("expertIn", e.target.value)
                     }
                     onFocus={() => handleFocus("expertIn")}
-                    onBlur={(e) => handleBlur("expertIn", e.target.value)}
+                    onBlur={(e) => handleInputBlur("expertIn", e.target.value)}
                     placeholder="Ví dụ: Chuyên thiết kế nón, váy, phụ kiện,.."
-                    className="bg-gray-50"
+                    className="bg-background"
                   />
                   {formErrors.expertIn && (
-                    <p className="text-red-500 text-sm">
+                    <p className="text-destructive text-sm">
                       {formErrors.expertIn}
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <AlertCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <h4 className="text-sm font-medium text-blue-900">
+                    <h4 className="text-sm font-medium text-primary">
                       Lưu ý khi tải ảnh lên
                     </h4>
-                    <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                    <ul className="text-xs text-primary/80 space-y-1 list-disc list-inside">
                       <li>
                         Chỉ chấp nhận định dạng:{" "}
                         <span className="font-medium">.jpg, .jpeg, .png</span>
@@ -441,141 +504,190 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
               </div>
             </div>
 
-            {/* Cột 2: Phần 1 */}
-            <div className="col-span-1 space-y-2">
-              <Label className="text-base font-semibold">Phần 1</Label>
-              <div className="grid gap-4">
-                {formData.sectionOneAttachmentFiles.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col gap-2 p-3 border rounded-lg bg-gray-50"
-                  >
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleFileChange(
-                          "sectionOneAttachmentFiles",
-                          idx,
-                          e.target.files?.[0] || null
-                        )
-                      }
-                      onFocus={() => handleFocus("sectionOneImages", idx)}
-                      onBlur={() => handleFileBlur("sectionOneAttachmentFiles")}
-                      accept=".jpg,.jpeg,.png"
-                    />
-                    {file && (
-                      <SingleImageGallery
-                        imageUrl={URL.createObjectURL(file)}
-                        title={`Hình ảnh ${idx + 1} - Phần 1`}
-                        alt={`Hình ảnh ${idx + 1} của phần 1`}
-                        className="w-full"
-                      />
-                    )}
-                    <Input
-                      placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
-                      value={formData.sectionOneDescriptions[idx]}
-                      onChange={(e) => {
-                        const newDesc = [...formData.sectionOneDescriptions];
-                        newDesc[idx] = e.target.value;
-                        setFormData((prev) => ({
-                          ...prev,
-                          sectionOneDescriptions: newDesc,
-                        }));
-                      }}
-                      onFocus={() => handleFocus("sectionOneDescriptions", idx)}
-                      onBlur={(e) => {
-                        const newDesc = [...formData.sectionOneDescriptions];
-                        newDesc[idx] = e.target.value;
-                        handleBlur("sectionOneDescriptions", newDesc);
-                      }}
-                    />
-                    {formErrors.sectionOneDescriptions[idx] && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.sectionOneDescriptions[idx]}
-                      </p>
-                    )}
-                    {formErrors.sectionOneImages[idx] && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.sectionOneImages[idx]}
-                      </p>
-                    )}
+            {/* Cột 2 và 3: Phần 1, Phần 2 và nút submit */}
+            <div className="col-span-2 space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                {/* Cột 2: Phần 1 */}
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold text-foreground">
+                    Phần 1
+                  </Label>
+                  <div className="grid gap-4">
+                    {formData.sectionOneAttachmentFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col gap-2 p-3 border rounded-lg bg-card"
+                      >
+                        <div className="space-y-2">
+                          <Input
+                            type="file"
+                            onChange={(e) =>
+                              handleFileChange(
+                                "sectionOneAttachmentFiles",
+                                idx,
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            onFocus={() =>
+                              handleFileFocus("sectionOneImages", idx)
+                            }
+                            onBlur={() =>
+                              handleFileBlur("sectionOneImages", idx)
+                            }
+                            accept=".jpg,.jpeg,.png"
+                            className="bg-background"
+                          />
+                          {formErrors.sectionOneImages[idx] && (
+                            <p className="text-destructive text-sm">
+                              {formErrors.sectionOneImages[idx]}
+                            </p>
+                          )}
+                        </div>
+                        {file && (
+                          <SingleImageGallerySmall
+                            imageUrl={URL.createObjectURL(file)}
+                            title={`Hình ảnh ${idx + 1} - Phần 1`}
+                            alt={`Hình ảnh ${idx + 1} của phần 1`}
+                            className="w-full"
+                          />
+                        )}
+                        <div className="space-y-2">
+                          <Input
+                            placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
+                            value={formData.sectionOneDescriptions[idx]}
+                            onChange={(e) =>
+                              handleInputChange(
+                                "sectionOneDescriptions",
+                                e.target.value,
+                                idx
+                              )
+                            }
+                            onFocus={() =>
+                              handleFocus("sectionOneDescriptions", idx)
+                            }
+                            onBlur={(e) =>
+                              handleInputBlur(
+                                "sectionOneDescriptions",
+                                e.target.value,
+                                idx
+                              )
+                            }
+                            className="bg-background"
+                          />
+                          {formErrors.sectionOneDescriptions[idx] && (
+                            <p className="text-destructive text-sm">
+                              {formErrors.sectionOneDescriptions[idx]}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Cột 3: Phần 2 */}
-            <div className="col-span-1 space-y-2">
-              <Label className="text-base font-semibold">Phần 2</Label>
-              <div className="grid gap-4">
-                {formData.sectionTwoAttachmentFiles.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col gap-2 p-3 border rounded-lg bg-gray-50"
-                  >
-                    <Input
-                      type="file"
-                      onChange={(e) =>
-                        handleFileChange(
-                          "sectionTwoAttachmentFiles",
-                          idx,
-                          e.target.files?.[0] || null
-                        )
-                      }
-                      onFocus={() => handleFocus("sectionTwoImages", idx)}
-                      onBlur={() => handleFileBlur("sectionTwoAttachmentFiles")}
-                      accept=".jpg,.jpeg,.png"
-                    />
-                    {file && (
-                      <SingleImageGallery
-                        imageUrl={URL.createObjectURL(file)}
-                        title={`Hình ảnh ${idx + 1} - Phần 2`}
-                        alt={`Hình ảnh ${idx + 1} của phần 2`}
-                        className="w-full"
-                      />
-                    )}
-                    <Input
-                      placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
-                      value={formData.sectionTwoDescriptions[idx]}
-                      onChange={(e) => {
-                        const newDesc = [...formData.sectionTwoDescriptions];
-                        newDesc[idx] = e.target.value;
-                        setFormData((prev) => ({
-                          ...prev,
-                          sectionTwoDescriptions: newDesc,
-                        }));
-                      }}
-                      onFocus={() => handleFocus("sectionTwoDescriptions", idx)}
-                      onBlur={(e) => {
-                        const newDesc = [...formData.sectionTwoDescriptions];
-                        newDesc[idx] = e.target.value;
-                        handleBlur("sectionTwoDescriptions", newDesc);
-                      }}
-                    />
-                    {formErrors.sectionTwoDescriptions[idx] && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.sectionTwoDescriptions[idx]}
-                      </p>
-                    )}
-                    {formErrors.sectionTwoImages[idx] && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors.sectionTwoImages[idx]}
-                      </p>
-                    )}
+                {/* Cột 3: Phần 2 */}
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold text-foreground">
+                    Phần 2
+                  </Label>
+                  <div className="grid gap-4">
+                    {formData.sectionTwoAttachmentFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col gap-2 p-3 border rounded-lg bg-card"
+                      >
+                        <div className="space-y-2">
+                          <Input
+                            type="file"
+                            onChange={(e) =>
+                              handleFileChange(
+                                "sectionTwoAttachmentFiles",
+                                idx,
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            onFocus={() =>
+                              handleFileFocus("sectionTwoImages", idx)
+                            }
+                            onBlur={() =>
+                              handleFileBlur("sectionTwoImages", idx)
+                            }
+                            accept=".jpg,.jpeg,.png"
+                            className="bg-background"
+                          />
+                          {formErrors.sectionTwoImages[idx] && (
+                            <p className="text-destructive text-sm">
+                              {formErrors.sectionTwoImages[idx]}
+                            </p>
+                          )}
+                        </div>
+                        {file && (
+                          <SingleImageGallerySmall
+                            imageUrl={URL.createObjectURL(file)}
+                            title={`Hình ảnh ${idx + 1} - Phần 2`}
+                            alt={`Hình ảnh ${idx + 1} của phần 2`}
+                            className="w-full"
+                          />
+                        )}
+                        <div className="space-y-2">
+                          <Input
+                            placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
+                            value={formData.sectionTwoDescriptions[idx]}
+                            onChange={(e) =>
+                              handleInputChange(
+                                "sectionTwoDescriptions",
+                                e.target.value,
+                                idx
+                              )
+                            }
+                            onFocus={() =>
+                              handleFocus("sectionTwoDescriptions", idx)
+                            }
+                            onBlur={(e) =>
+                              handleInputBlur(
+                                "sectionTwoDescriptions",
+                                e.target.value,
+                                idx
+                              )
+                            }
+                            className="bg-background"
+                          />
+                          {formErrors.sectionTwoDescriptions[idx] && (
+                            <p className="text-destructive text-sm">
+                              {formErrors.sectionTwoDescriptions[idx]}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {error && (
+                <p className="text-destructive font-medium text-sm text-center">
+                  {error}
+                </p>
+              )}
+              <div className="flex justify-end gap-3 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                  className="w-[150px]"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-[200px]"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Đang xử lý..." : "Đăng thiết kế cá nhân"}
+                </Button>
               </div>
             </div>
           </div>
-
-          {error && (
-            <p className="text-red-500 font-medium text-sm text-center">
-              {error}
-            </p>
-          )}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Đang xử lý..." : "Tạo  dự án"}
-          </Button>
         </form>
       </DialogContent>
     </Dialog>

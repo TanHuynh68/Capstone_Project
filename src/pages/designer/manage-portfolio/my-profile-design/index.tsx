@@ -319,23 +319,22 @@ const MyProfileDesign = ({
                     Nhắn tin
                   </Button> */}
 
-                  <Separator className="my-4" />
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-center">
-                      Thông tin dự án
-                    </h2>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditClick}
-                      className="flex items-center gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-
                   {portfolioData && (
                     <>
+                      <Separator className="my-4" />
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-center">
+                          Thiết kế cá nhân
+                        </h2>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEditClick}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                       <div className="flex items-center">
                         <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
                         <span>

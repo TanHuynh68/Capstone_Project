@@ -304,7 +304,7 @@ const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
                       <Separator className="my-4" />
                       <div className="flex items-center justify-center">
                         <h2 className="text-lg font-semibold text-center">
-                          Thông tin dự án
+                          Thiết kế cá nhân
                         </h2>
                       </div>
                       <div className="flex items-center">

@@ -72,7 +72,7 @@ const EditPortfolio = ({
       });
 
       if (response) {
-        toast.success("Cập nhật thông tin dự án thành công");
+        toast.success("Cập nhật thiết kế cá nhân thành công");
         onSuccess();
         onClose();
       }
@@ -88,7 +88,7 @@ const EditPortfolio = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Chỉnh sửa thông tin dự án</DialogTitle>
+          <DialogTitle>Chỉnh sửa thiết kế cá nhân</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
