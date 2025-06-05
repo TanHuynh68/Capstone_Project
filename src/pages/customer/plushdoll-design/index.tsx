@@ -42,6 +42,7 @@ import {
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { convertToPixels } from "@/components/utils/convert";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
+import { useLocation } from "react-router-dom";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -109,24 +110,40 @@ const PlushDollDesign: React.FC = () => {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [showUnsplash, setShowUnsplash] = useState(false);
 
+  const location = useLocation();
+
   // Thêm useEffect để lấy số lượng canvas khi component mount
   useEffect(() => {
+    const hasLocationState =
+      location.state?.canvasId &&
+      location.state?.canvasTitle &&
+      location.state?.canvasDescription;
+
+    if (hasLocationState) {
+      console.log("✅ Gán đúng từ location.state");
+      loadCanvasFromDescription(
+        location.state.canvasDescription,
+        location.state.canvasTitle,
+        location.state.canvasId
+      );
+      return; // ❗ THOÁT không gọi fetchCanvasCount()
+    }
+
+    // ❗ Nếu không có state => mới fetch canvas mới
     const fetchCanvasCount = async () => {
       try {
         const data = await getCanvas({ page: 1, size: 100 });
-        console.log(data, "data");
         const totalCount =
           data?.responseRequestModel?.responseList?.totalItems || 0;
         setTotalCanvasCount(totalCount);
         setCurrentCanvasTitle(`Thiết kế ${totalCount + 1}`);
       } catch (error) {
-        console.error("Lỗi khi lấy số lượng canvas:", error);
         setCurrentCanvasTitle("Thiết kế mới");
       }
     };
 
     fetchCanvasCount();
-  }, [getCanvas]);
+  }, [getCanvas, location.state]);
 
   // Initial canvas & events setup
   useEffect(() => {
@@ -1057,6 +1074,22 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [scaleRatio]);
 
+  // useEffect(() => {
+  //   if (
+  //     location.state &&
+  //     location.state.canvasId &&
+  //     location.state.canvasDescription &&
+  //     location.state.canvasTitle &&
+  //     !currentCanvasId // 🛡️ Ngăn load lại nếu đã set ID
+  //   ) {
+  //     loadCanvasFromDescription(
+  //       location.state.canvasDescription,
+  //       location.state.canvasTitle,
+  //       location.state.canvasId
+  //     );
+  //   }
+  // }, [location.state, currentCanvasId]);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -1366,10 +1399,20 @@ const PlushDollDesign: React.FC = () => {
 
               <div className={isSidebarCollapsed ? "hidden" : ""}>
                 <CanvasList
-                  onSelect={(description, title, id) => {
-                    console.log("Canvas selected:", { id, title });
-                    loadCanvasFromDescription(description, title, id);
+                  onSelect={(desc, title, id) => {
+                    loadCanvasFromDescription(desc, title, id);
+                    setCurrentCanvasId(id); // cập nhật trạng thái selected
                   }}
+                  initialCanvasState={
+                    location.state?.canvasId
+                      ? {
+                          canvasId: location.state.canvasId,
+                          canvasTitle: location.state.canvasTitle,
+                          canvasDescription: location.state.canvasDescription,
+                        }
+                      : undefined
+                  }
+                  selectedCanvasId={currentCanvasId}
                 />
               </div>
             </>

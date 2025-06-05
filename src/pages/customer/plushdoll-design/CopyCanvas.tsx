@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ChatImage from "@/components/atoms/customer/chat/chat-show-data/ChatImage";
 import CustomerService from "@/services/CustomerService";
@@ -27,15 +27,15 @@ export default function CopyCanvas({
 }: CopyCanvasProps) {
   const [copyLoading, setCopyLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [idCanvas, setIdCanvas] = useState<string | null>(null);
+  const { copyCanvas } = CustomerService();
 
   useEffect(() => {
-    if (copied) {
-      const timeout = setTimeout(() => setCopied(false), 1200);
-      return () => clearTimeout(timeout);
+    if (idCanvas) {
+      console.log("idCanvas updated:", idCanvas);
+      // Maybe redirect or do something with the new canvas
     }
-  }, [copied]);
-
-  const { copyCanvas } = CustomerService();
+  }, [idCanvas]);
 
   const handleCopy = async () => {
     setCopyLoading(true);
@@ -48,6 +48,11 @@ export default function CopyCanvas({
         canvasInfoId: canvasId,
         canvasTitle: uniqueTitle,
       });
+
+      const newId = res?.responseRequestModel?.canvasInfoId;
+      setIdCanvas(newId);
+      console.log(newId, "newly created canvas ID");
+      console.log(idCanvas, "idCanvas");
 
       if (res?.statusCode === 200) {
         toast.success("Sao chép canvas thành công!");
@@ -72,20 +77,22 @@ export default function CopyCanvas({
         className="max-w-xs max-h-48 object-cover rounded-lg mb-2"
       />
       <div className="font-semibold flex flex-col gap-2 mt-1">
-        <Link
-          to={{
-            pathname: `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
-          }}
-          state={{
-            canvasId,
-            canvasTitle,
-            canvasDescription,
-            imageUrl,
-          }}
-          className="break-words hover:text-blue-600 transition-colors"
-        >
-          {canvasTitle}
-        </Link>
+        {copied && idCanvas && (
+          <Link
+            to={{
+              pathname: `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+            }}
+            state={{
+              canvasId: idCanvas,
+              canvasTitle,
+              canvasDescription,
+              imageUrl,
+            }}
+            className="break-words hover:text-blue-600 transition-colors"
+          >
+            {canvasTitle}
+          </Link>
+        )}
 
         <button
           type="button"
@@ -117,6 +124,19 @@ export default function CopyCanvas({
           )}
           {copied ? "Đã tạo bản sao" : "Tạo bản sao"}
         </button>
+        {/* <button
+          onClick={() =>
+            console.log(
+              canvasId,
+              // canvasTitle,
+              // canvasDescription,
+              // imageUrl,
+              "asdasd"
+            )
+          }
+        >
+          asdasd
+        </button> */}
       </div>
     </div>
   );

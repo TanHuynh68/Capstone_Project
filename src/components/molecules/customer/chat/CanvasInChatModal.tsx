@@ -38,22 +38,48 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
 
   // Khi chọn canvas, render preview PNG
   const handleSelect = async (desc: string, title: string, id: string) => {
-    // Render lại canvas và xuất PNG preview
+    console.log(desc, "desc");
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = 960;
     tempCanvas.height = 540;
     const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
       backgroundColor: "#fff",
     });
-    await new Promise((resolve) => {
-      fabricCanvas.loadFromJSON(desc, () => {
-        fabricCanvas.renderAll();
-        resolve(null);
-      });
+
+    // Sửa crossOrigin trong JSON
+    const parsedDesc = JSON.parse(desc);
+    parsedDesc.objects.forEach((obj: any) => {
+      if (obj.type === "image") {
+        obj.crossOrigin = "anonymous";
+      }
     });
-    const dataURL = fabricCanvas.toDataURL({ format: "png" });
-    setPreview(dataURL);
-    setSelected({ desc, title, id });
+
+    await new Promise((resolve) => {
+      fabricCanvas.loadFromJSON(
+        parsedDesc,
+        () => {
+          setTimeout(() => {
+            fabricCanvas.renderAll();
+            resolve(null);
+          }, 500);
+        },
+        function (_: any, obj: fabric.Object) {
+          if (obj?.type === "image") {
+            // @ts-expect-error: crossOrigin is not in fabric.Object typings
+            obj.crossOrigin = "anonymous";
+          }
+        }
+      );
+    });
+
+    try {
+      const dataURL = fabricCanvas.toDataURL({ format: "png" });
+      setPreview(dataURL);
+      setSelected({ desc, title, id });
+    } catch (error) {
+      console.error("Tainted canvas, không thể xuất PNG", error);
+      alert("Canvas chứa ảnh không hỗ trợ CORS, không thể preview.");
+    }
   };
 
   // Khi xác nhận gửi

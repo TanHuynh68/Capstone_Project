@@ -8,7 +8,6 @@ import ChatText from "@/components/atoms/customer/chat/chat-show-data/ChatText";
 import { useState, useEffect } from "react";
 import CopyCanvas from "@/pages/customer/plushdoll-design/CopyCanvas";
 
-
 interface MessageContentProps {
   content: string;
   messageType: string;
