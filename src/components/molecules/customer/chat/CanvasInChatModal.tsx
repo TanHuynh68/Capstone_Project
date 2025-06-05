@@ -90,13 +90,13 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-gray-900 text-gray-100 border-gray-800">
+      <DialogContent className="sm:max-w-[500px] bg-background text-foreground border-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <Upload className="h-5 w-5 text-blue-500" />
             Gửi canvas vào chat
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Chọn một canvas để xem trước và gửi vào cuộc trò chuyện.
           </DialogDescription>
         </DialogHeader>
@@ -104,7 +104,7 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
           {!preview ? (
             <CanvasList onSelect={handleSelect} />
           ) : (
-            <div className="border border-gray-700 rounded-lg p-4 bg-gray-800 flex flex-col items-center">
+            <div className="border border-border rounded-lg p-4 bg-card flex flex-col items-center">
               <img
                 src={preview}
                 alt="Preview"
@@ -118,7 +118,7 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
                     setPreview(null);
                     setSelected(null);
                   }}
-                  className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+                  className="border-border text-foreground hover:bg-muted hover:text-foreground"
                   disabled={isUploading}
                 >
                   Huỷ

@@ -114,7 +114,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
           canvasList.map((item) => (
             <div
               key={item?.canvasInfoId}
-              className="cursor-pointer p-1 border rounded hover:bg-gray-100 text-sm truncate"
+              className="cursor-pointer p-1 border rounded hover:bg-muted text-foreground text-sm truncate"
               title={item.canvasTitle}
               onClick={() =>
                 handleSelectCanvas(
