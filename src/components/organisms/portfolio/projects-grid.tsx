@@ -63,7 +63,7 @@ export function ProjectsGrid({ onPortfolioData }: ProjectsGridProps) {
         projects.map((project) => (
           <div
             key={project.id}
-            className="w-full max-w-[340px] min-w-[180px] mx-auto mb-2 flex flex-col items-center bg-white rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+            className="w-full max-w-[340px] min-w-[180px] mx-auto mb-2 flex flex-col items-center bg-card rounded-lg shadow-sm border border-border transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
           >
             <ProjectCard {...project} onEditSuccess={refreshProjects} />
           </div>

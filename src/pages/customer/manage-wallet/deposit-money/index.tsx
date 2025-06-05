@@ -54,6 +54,23 @@ export default function DepositMoney() {
   const { createVnpayLink, createPayosLink, getWallet } = WalletService();
   const { toast } = useToast();
   const [walletInfo, setWalletInfo] = useState<Wallet>();
+
+  // Payment methods
+  const paymentMethods = [
+    {
+      id: "vnpay",
+      name: "VNPAY",
+      icon: CreditCard,
+      description: "Thanh toán qua VNPAY",
+    },
+    {
+      id: "payos",
+      name: "payOs",
+      icon: Wallet,
+      description: "Thanh toán qua payOs",
+    },
+  ];
+
   // Initialize form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -181,7 +198,6 @@ export default function DepositMoney() {
               </TabsList>
 
               <TabsContent value="deposit">
-                {/* Giữ nguyên toàn bộ form Nạp tiền hiện tại ở đây */}
                 <div className="grid gap-2">
                   <h2 className="text-2xl font-bold">Nạp tiền</h2>
                   <p className="text-muted-foreground">
@@ -190,111 +206,85 @@ export default function DepositMoney() {
                   </p>
                 </div>
 
-                {/* Bỏ toàn bộ Form {...form} vào đây */}
-                {/* Chính là đoạn bạn đang có từ <Form> đến hết button "Thanh toán ngay" */}
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6 pt-5"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Số tiền (VND)</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Nhập số tiền"
-                              {...field}
-                              onChange={(e) => {
-                                // Store the raw numeric value but display formatted
-                                const rawValue = e.target.value.replace(
-                                  /[,.]/g,
-                                  ""
-                                );
-                                field.onChange(rawValue);
-
-                                // Format the display value
-                                e.target.value = formatAmount(rawValue);
-                              }}
-                              disabled={isSubmitting}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid gap-4">
-                      <h3 className="font-medium">
-                        Chọn phương thức thanh toán
-                      </h3>
-
-                      <div className="grid grid-cols-3 gap-4 w-[550px] mt-2">
-                        <Card
-                          className={` cursor-pointer h-[80px] transition-colors ${
-                            selectedPayment === "vnpay"
-                              ? "border-primary bg-primary/5"
-                              : "hover:bg-muted"
-                          }`}
-                          onClick={() =>
-                            !isSubmitting && setSelectedPayment("vnpay")
-                          }
+                <div className="flex gap-3 mt-4">
+                  {paymentMethods.map((method) => (
+                    <Card
+                      key={method.id}
+                      className={`cursor-pointer h-[60px] transition-colors flex-1 max-w-[200px] ${
+                        selectedPayment === method.id
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted"
+                      }`}
+                      onClick={() =>
+                        !isSubmitting &&
+                        setSelectedPayment(method.id as PaymentMethod)
+                      }
+                    >
+                      <CardContent className="flex items-center gap-3 h-full p-3">
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                            selectedPayment === method.id
+                              ? "bg-primary"
+                              : "bg-muted"
+                          } text-primary-foreground`}
                         >
-                          <CardContent className="flex items-center gap-4 p4">
-                            <div
-                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                selectedPayment === "vnpay"
-                                  ? "bg-primary"
-                                  : "bg-muted"
-                              } text-primary-foreground`}
-                            >
-                              <CreditCard className="h-4 w-4" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium">VNPAY</h3>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <Card
-                          className={`cursor-pointer h-[80px] transition-colors ${
-                            selectedPayment === "payos"
-                              ? "border-primary bg-primary/5"
-                              : "hover:bg-muted"
-                          }`}
-                          onClick={() =>
-                            !isSubmitting && setSelectedPayment("payos")
-                          }
-                        >
-                          <CardContent className="flex items-center gap-4">
-                            <div
-                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                selectedPayment === "payos"
-                                  ? "bg-primary"
-                                  : "bg-muted"
-                              } text-primary-foreground`}
-                            >
-                              <Wallet className="h-4 w-4" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium">payOs</h3>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <div className="flex justify-center items-center h-[100px]">
-                          <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Đang xử lý...
-                              </>
-                            ) : (
-                              "Thanh toán ngay"
-                            )}
-                          </Button>
+                          <method.icon className="h-4 w-4" />
                         </div>
+                        <div>
+                          <h3 className="font-medium text-sm">{method.name}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {method.description}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="pt-5">
+                    <div className="flex flex-col md:flex-row items-end gap-4">
+                      <div className="w-full max-w-[350px]">
+                        <FormField
+                          control={form.control}
+                          name="amount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Số tiền (VND)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Nhập số tiền"
+                                  {...field}
+                                  onChange={(e) => {
+                                    const rawValue = e.target.value.replace(
+                                      /[,.]/g,
+                                      ""
+                                    );
+                                    field.onChange(rawValue);
+                                    e.target.value = formatAmount(rawValue);
+                                  }}
+                                  disabled={isSubmitting}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="mt-1 md:mt-0 h-10"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Đang xử lý...
+                          </>
+                        ) : (
+                          "Thanh toán ngay"
+                        )}
+                      </Button>
                     </div>
                   </form>
                 </Form>

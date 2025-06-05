@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
+import { ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 interface CanvasItem {
   canvasInfoId: string;
@@ -14,15 +16,25 @@ interface CanvasListProps {
     canvasTitle: string,
     canvasId: string
   ) => void;
+  initialCanvasState?: {
+    canvasId: string;
+    canvasTitle: string;
+    canvasDescription: string;
+  };
+  selectedCanvasId?: string;
 }
 
-const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
+const CanvasList: React.FC<CanvasListProps> = ({
+  onSelect,
+  selectedCanvasId,
+  initialCanvasState,
+}) => {
   const [canvasList, setCanvasList] = useState<CanvasItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [canvasTitle, setCanvasTitle] = useState("");
   const [page, setPage] = useState(1);
   const [searchTitle, setSearchTitle] = useState("");
-
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const size = 10;
   const { getCanvas } = CustomerService();
 
@@ -41,7 +53,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
         })
       );
     } catch (error) {
-      console.error("Lỗi tải canvas:", error);
+      console.error("Lỗi tải thiết kế:", error);
     } finally {
       setLoading(false);
     }
@@ -78,6 +90,31 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
     };
   }, [loadList]);
 
+  useEffect(() => {
+    if (initialCanvasState && canvasList.length > 0 && !hasAutoSelected) {
+      const match = canvasList.find(
+        (item) => item.canvasInfoId === initialCanvasState.canvasId
+      );
+
+      if (match) {
+        // console.log("🔁 Auto-selecting canvas:", match);
+        onSelect(
+          initialCanvasState.canvasDescription,
+          initialCanvasState.canvasTitle,
+          initialCanvasState.canvasId
+        );
+        setHasAutoSelected(true);
+      } else {
+        console.warn(
+          "⚠️ No match found for initialCanvasState.canvasId:",
+          initialCanvasState.canvasId,
+          "in",
+          canvasList.map((c) => c.canvasInfoId)
+        );
+      }
+    }
+  }, [canvasList, initialCanvasState, onSelect, hasAutoSelected]);
+
   // useEffect(() => {
   //   console.log("Danh sách canvas: ", canvasList);
   // }, [canvasList]);
@@ -87,7 +124,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
       <div className="flex gap-1">
         <input
           type="text"
-          placeholder="Tìm canvas"
+          placeholder="Tìm thiết kế"
           value={canvasTitle}
           onChange={(e) => setCanvasTitle(e.target.value)}
           onKeyDown={(e) => {
@@ -113,8 +150,13 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
         ) : (
           canvasList.map((item) => (
             <div
-              key={item?.canvasInfoId}
-              className="cursor-pointer p-1 border rounded hover:bg-gray-100 text-sm truncate"
+              key={item.canvasInfoId}
+              className={`cursor-pointer p-1 border rounded text-sm truncate transition-colors
+    ${
+      item.canvasInfoId === selectedCanvasId
+        ? "bg-primary text-white font-semibold"
+        : "hover:bg-muted text-foreground"
+    }`}
               title={item.canvasTitle}
               onClick={() =>
                 handleSelectCanvas(
@@ -137,7 +179,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
           onClick={() => setPage((prev) => Math.max(1, prev - 1))}
           disabled={page === 1}
         >
-          ◀
+          <ChevronLeft className="w-4 h-4" />
         </Button>
         <span>Trang {page}</span>
         <Button
@@ -146,7 +188,7 @@ const CanvasList: React.FC<CanvasListProps> = ({ onSelect }) => {
           onClick={() => setPage((prev) => prev + 1)}
           disabled={canvasList.length < size}
         >
-          ▶
+          <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
     </div>

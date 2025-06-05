@@ -123,6 +123,18 @@ const CustomerService = () => {
     [callApi]
   );
 
+  const copyCanvas = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.POST, API_ROUTES.COPY_CANVAS, values);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.COPY_CANVAS_FAILED);
+        }
+    },
+    [callApi]
+  );
+
   const deleteCanvas = useCallback(
     async (values: any) => {
       try {
@@ -141,7 +153,7 @@ const CustomerService = () => {
   );
 
 
-  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, putCanvas, deleteCanvas, loading, setIsLoading };
+  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, putCanvas, deleteCanvas, copyCanvas, loading, setIsLoading };
 };
 
 export default CustomerService;

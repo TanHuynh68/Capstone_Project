@@ -21,6 +21,7 @@ import { RoleVietnamese } from "@/components/utils";
 import { Separator } from "@/components/ui/separator";
 import PortfolioService from "@/services/PortfolioService";
 import EditPortfolio from "../edit-portfolio/edit-portfolio";
+import { formatVietnamDate } from "@/components/utils/date";
 
 interface Profile {
   accountID: string;
@@ -68,7 +69,7 @@ const MyProfileDesign = ({
   const { getMyProfile } = PortfolioService();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [reputation, setReputation] = useState<Reputation | null>(null);
-  const userInfo = useSelector((state: RootState) => state.user);
+  const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const accountID = useSelector((state: RootState) => state.user.id);
 
   console.log(accountID);
@@ -87,9 +88,25 @@ const MyProfileDesign = ({
 
   useEffect(() => {
     if (portfolioData) {
-      setProfile((prev) => (prev ? { ...prev, ...portfolioData } : null));
+      setPortfolio(portfolioData);
     }
   }, [portfolioData]);
+
+  useEffect(() => {
+    if (portfolio) {
+      setProfile((prev) => {
+        if (!prev) return null;
+        // Only update portfolio-specific fields
+        return {
+          ...prev, // Keep all original profile data
+          yearOfExperience: portfolio.yearOfExperience,
+          content: portfolio.content,
+          expertIn: portfolio.expertIn,
+          portfolioImages: portfolio.portfolioImages,
+        };
+      });
+    }
+  }, [portfolio]);
 
   const fetchReputation = async () => {
     try {
@@ -280,9 +297,7 @@ const MyProfileDesign = ({
                 </h2>
                 <p className="text-sm text-gray-500 flex items-center justify-center gap-1 mt-1">
                   <span className="font-medium">Tham gia vào:</span>
-                  {profile?.createdAt
-                    ? new Date(profile.createdAt).toLocaleDateString("vi-VN")
-                    : "Chưa cập nhật"}
+                  {formatVietnamDate(profile?.createdAt ?? "")}
                 </p>
               </CardHeader>
 
@@ -299,9 +314,8 @@ const MyProfileDesign = ({
                   <div className="flex items-center">
                     <UserCircle className="h-4 w-4 mr-3 text-muted-foreground" />
                     <span>
-                      {RoleVietnamese(userInfo.role) ||
-                        profile?.roleDisplay ||
-                        "Khách hàng"}
+                      {RoleVietnamese(profile?.roleDisplay ?? "") ||
+                        "Chưa cập nhật"}
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -319,41 +333,47 @@ const MyProfileDesign = ({
                     Nhắn tin
                   </Button> */}
 
-                  <Separator className="my-4" />
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-center">
-                      Thông tin dự án
-                    </h2>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditClick}
-                      className="flex items-center gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-
                   {portfolioData && (
                     <>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>
-                          Kinh nghiệm:{" "}
+                      <Separator className="my-4" />
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-center">
+                          Thiết kế cá nhân
+                        </h2>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEditClick}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {/* Kinh nghiệm */}
+                      <div className="flex items-start gap-3">
+                        <Clock className="h-4 w-4 mt-1 text-muted-foreground flex-shrink-0" />
+                        <div className="break-all whitespace-pre-wrap">
+                          <span className="font-medium">Kinh nghiệm: </span>
                           {profile?.yearOfExperience || "Chưa cập nhật"}
-                        </span>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <Briefcase className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>
-                          Chuyên môn: {profile?.expertIn || "Chưa cập nhật"}
-                        </span>
+
+                      {/* Chuyên môn */}
+                      <div className="flex items-start gap-3">
+                        <Briefcase className="h-4 w-4 mt-1 text-muted-foreground flex-shrink-0" />
+                        <div className="break-all whitespace-pre-wrap">
+                          <span className="font-medium">Chuyên môn: </span>
+                          {profile?.expertIn || "Chưa cập nhật"}
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <FileText className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>
-                          Giới thiệu: {profile?.content || "Chưa cập nhật"}
-                        </span>
+
+                      {/* Giới thiệu */}
+                      <div className="flex items-start gap-3">
+                        <FileText className="h-4 w-4 mt-1 text-muted-foreground flex-shrink-0" />
+                        <div className="break-all whitespace-pre-wrap">
+                          <span className="font-medium">Giới thiệu: </span>
+                          {profile?.content || "Chưa cập nhật"}
+                        </div>
                       </div>
                     </>
                   )}

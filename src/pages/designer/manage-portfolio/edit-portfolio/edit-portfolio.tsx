@@ -72,7 +72,7 @@ const EditPortfolio = ({
       });
 
       if (response) {
-        toast.success("Cập nhật thông tin dự án thành công");
+        toast.success("Cập nhật thiết kế cá nhân thành công");
         onSuccess();
         onClose();
       }
@@ -88,17 +88,18 @@ const EditPortfolio = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Chỉnh sửa thông tin dự án</DialogTitle>
+          <DialogTitle>Chỉnh sửa thiết kế cá nhân</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="yearOfExperience">Số năm kinh nghiệm</Label>
+            <Label htmlFor="yearOfExperience">Kinh nghiệm</Label>
             <Input
               id="yearOfExperience"
               name="yearOfExperience"
               value={formData.yearOfExperience}
               onChange={handleChange}
-              placeholder="Nhập số năm kinh nghiệm"
+              placeholder="Nhập kinh nghiệm"
+              className="w-full  break-all truncate"
             />
           </div>
 
@@ -110,6 +111,7 @@ const EditPortfolio = ({
               value={formData.expertIn}
               onChange={handleChange}
               placeholder="Nhập chuyên môn của bạn"
+              className="w-full break-all truncate"
             />
           </div>
 
@@ -122,6 +124,8 @@ const EditPortfolio = ({
               onChange={handleChange}
               placeholder="Nhập giới thiệu về bản thân"
               rows={4}
+              maxLength={1000}
+              className="w-full  break-all resize-none"
             />
           </div>
 

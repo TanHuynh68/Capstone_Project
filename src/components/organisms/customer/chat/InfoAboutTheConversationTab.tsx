@@ -2,12 +2,18 @@ import { TimelineItemData } from "../../../molecules/timeline/TimelineItem";
 import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate";
 import PostCard from "./PostCard";
 interface InfoAboutTheConversationTab {
-  posts: ChatPostCard[];
+  posts: OfferDetail[];
   value: string;
+  fetchOfferPhase: any
+  setOffersPhase: any,
+  offersPhase: any
 }
 const InfoAboutTheConversationTab = ({
   posts,
   value,
+  fetchOfferPhase,
+  setOffersPhase,
+  offersPhase
 }: InfoAboutTheConversationTab) => {
   return (
     <div>
@@ -20,7 +26,11 @@ const InfoAboutTheConversationTab = ({
           )}
           {value === "viewPost" && (
             <div>
-              <PostCard posts={posts} />
+              <PostCard
+              offersPhase={offersPhase}
+              setOffersPhase={setOffersPhase}
+              fetchOfferPhase={fetchOfferPhase}
+              posts={posts} />
             </div>
           )}
         </div>
