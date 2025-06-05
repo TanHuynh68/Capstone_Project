@@ -13,6 +13,7 @@ interface CopyCanvasProps {
   canvasTitle: string;
   imageUrl: string;
   canvasDescription: string;
+  isCurrentUser?: boolean;
 }
 
 interface CopyCanvasError {
@@ -24,6 +25,7 @@ export default function CopyCanvas({
   canvasTitle,
   imageUrl,
   canvasDescription,
+  isCurrentUser = false,
 }: CopyCanvasProps) {
   const [copyLoading, setCopyLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -31,11 +33,22 @@ export default function CopyCanvas({
   const { copyCanvas } = CustomerService();
 
   useEffect(() => {
+    // Lấy idCanvas từ localStorage khi component mount
+    const storedId = localStorage.getItem(`copied_canvas_${canvasId}`);
+    if (storedId) {
+      setIdCanvas(storedId);
+      setCopied(true);
+    }
+  }, [canvasId]);
+
+  useEffect(() => {
     if (idCanvas) {
+      // Lưu idCanvas vào localStorage khi có id mới
+      localStorage.setItem(`copied_canvas_${canvasId}`, idCanvas);
       console.log("idCanvas updated:", idCanvas);
       // Maybe redirect or do something with the new canvas
     }
-  }, [idCanvas]);
+  }, [idCanvas, canvasId]);
 
   const handleCopy = async () => {
     setCopyLoading(true);
@@ -77,7 +90,7 @@ export default function CopyCanvas({
         className="max-w-xs max-h-48 object-cover rounded-lg mb-2"
       />
       <div className="font-semibold flex flex-col gap-2 mt-1">
-        {copied && idCanvas && (
+        {idCanvas ? (
           <Link
             to={{
               pathname: `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
@@ -88,42 +101,48 @@ export default function CopyCanvas({
               canvasDescription,
               imageUrl,
             }}
-            className="break-words hover:text-blue-600 transition-colors"
+            className="break-words text-blue-600 hover:text-blue-800 transition-colors font-semibold"
           >
             {canvasTitle}
           </Link>
+        ) : (
+          <span className="break-words text-gray-500 font-semibold">
+            {canvasTitle}
+          </span>
         )}
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="p-1 rounded hover:bg-gray-200 flex items-center text-sm self-end"
-          disabled={copyLoading || copied}
-        >
-          {copyLoading ? (
-            <Player
-              src="/lottiefiles/Animation_Copy_Loading.json"
-              style={{ height: 24, width: 24 }}
-              loop
-              autoplay
-            />
-          ) : copied ? (
-            <Player
-              src="/lottiefiles/Animation_Copy_Success.json"
-              style={{ height: 24, width: 24 }}
-              autoplay
-            />
-          ) : (
-            <>
+        {!isCurrentUser && (
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="p-1 rounded hover:bg-gray-200 flex items-center text-sm self-end"
+            disabled={copyLoading || copied}
+          >
+            {copyLoading ? (
+              <Player
+                src="/lottiefiles/Animation_Copy_Loading.json"
+                style={{ height: 24, width: 24 }}
+                loop
+                autoplay
+              />
+            ) : copied ? (
               <Player
                 src="/lottiefiles/Animation_Copy_Success.json"
                 style={{ height: 24, width: 24 }}
-                // autoplay
+                autoplay
               />
-            </>
-          )}
-          {copied ? "Đã tạo bản sao" : "Tạo bản sao"}
-        </button>
+            ) : (
+              <>
+                <Player
+                  src="/lottiefiles/Animation_Copy_Success.json"
+                  style={{ height: 24, width: 24 }}
+                  // autoplay
+                />
+              </>
+            )}
+            {copied ? "Đã tạo bản sao" : "Tạo bản sao"}
+          </button>
+        )}
         {/* <button
           onClick={() =>
             console.log(

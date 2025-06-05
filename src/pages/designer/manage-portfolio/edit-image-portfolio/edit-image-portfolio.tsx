@@ -61,8 +61,8 @@ export function EditImagePortfolio({
 
   const getErrorMessage = (error: FileValidationError): string => {
     switch (error) {
-      case "NO_FILE":
-        return "Vui lòng chọn file hình ảnh";
+      // case "NO_FILE":
+      //   return "Vui lòng chọn file hình ảnh";
       case "INVALID_TYPE":
         return "Chỉ chấp nhận file PNG, JPEG hoặc JPG";
       case "TOO_LARGE":
@@ -102,11 +102,11 @@ export function EditImagePortfolio({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
 
-    if (!selectedFile) {
-      toast.error(getErrorMessage("NO_FILE"));
-      e.target.value = "";
-      return;
-    }
+    // if (!selectedFile) {
+    //   toast.error(getErrorMessage("NO_FILE"));
+    //   e.target.value = "";
+    //   return;
+    // }
 
     const validationError = validateFile(selectedFile);
     if (validationError) {
