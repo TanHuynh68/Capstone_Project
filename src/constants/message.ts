@@ -90,6 +90,9 @@ export const MESSAGE = {
   DELETE_CANVAS_SUCCESSFULLY: "Xóa bản vẽ thành công.",
   DELETE_CANVAS_FAILED: "Xóa bản vẽ thất bại.",
 
+  COPY_CANVAS_SUCCESSFULLY: "Sao chép canvas thành công.",
+  COPY_CANVAS_FAILED: "Sao chép canvas thất bại.",
+
   //POST
   CREATE_POST_SUCCESSFULLY: "Đăng bài thành công!",
   UPDATE_POST_SUCCESSFULLY: "Cập nhật bài đăng thành công!",

@@ -115,8 +115,8 @@ MessageComposerProps) {
       <CanvasInChatModal
         isOpen={isCanvasModalOpen}
         onClose={() => setIsCanvasModalOpen(false)}
-        onSelectCanvas={(imageUrl) => {
-          onSendMessage(imageUrl, "image");
+        onSelectCanvas={(data) => {
+          onSendMessage(JSON.stringify(data), "json");
         }}
       />
     </>

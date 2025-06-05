@@ -14,11 +14,12 @@ import { Upload, Loader2 } from "lucide-react";
 interface CanvasInChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectCanvas: (
-    canvasDescription: string,
-    canvasTitle: string,
-    canvasId: string
-  ) => void;
+  onSelectCanvas: (data: {
+    imageUrl: string;
+    title: string;
+    id: string;
+    description: string;
+  }) => void;
 }
 
 const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
@@ -57,6 +58,7 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
 
   // Khi xác nhận gửi
   const handleSend = async () => {
+    console.log(selected, "selectedrrr");
     if (!selected || !preview) return;
     setIsUploading(true);
     try {
@@ -64,11 +66,12 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
       const file = new File([blob], "canvas.png", { type: "image/png" });
       const response = await uploadImageMessage(file);
       if (response && response.imageCloudinaryUrl) {
-        onSelectCanvas(
-          response.imageCloudinaryUrl,
-          selected.title,
-          selected.id
-        );
+        onSelectCanvas({
+          imageUrl: response.imageCloudinaryUrl,
+          title: selected.title,
+          id: selected.id,
+          description: selected.desc,
+        });
         setPreview(null);
         setSelected(null);
         onClose();
@@ -110,6 +113,11 @@ const CanvasInChatModal: React.FC<CanvasInChatModalProps> = ({
                 alt="Preview"
                 className="w-full max-w-[400px] h-auto object-contain rounded-lg mb-4"
               />
+              {selected && (
+                <p className="text-sm text-muted-foreground break-words w-full text-center mb-4">
+                  {selected.title}
+                </p>
+              )}
               <div className="flex gap-2 w-full justify-end">
                 <Button
                   type="button"
