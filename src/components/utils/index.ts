@@ -12,7 +12,8 @@ export {
   formatDayAndTime,
   formatFullDateWithDistance,
   formatFullDateWithDistance2,
-  formatDateToSubmit
+  formatDateToSubmit,
+  formatDateRangeVN
 } from "./date";
 export { uploadToCloudinary } from "./uploadImage";
 export {
