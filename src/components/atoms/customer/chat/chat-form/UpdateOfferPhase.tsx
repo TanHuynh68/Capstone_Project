@@ -19,7 +19,6 @@ import { Textarea } from "@/components/ui/textarea";
 import OfferService from "@/services/OfferService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
-import { DialogClose } from "@/components/ui/dialog";
 
 interface UpdateOfferPhase {
   offer: OfferPhase;
@@ -158,7 +157,7 @@ const UpdateOfferPhase = ({ offer, fetchOfferPhase }: UpdateOfferPhase) => {
         </div>
 
         <div className="flex justify-end">
-          <DialogClose><Button type="submit">Gửi</Button></DialogClose>
+          <Button type="submit">Gửi</Button>
         </div>
       </form>
     </Form>
