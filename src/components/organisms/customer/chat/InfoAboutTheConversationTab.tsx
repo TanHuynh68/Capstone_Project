@@ -4,16 +4,16 @@ import PostCard from "./PostCard";
 interface InfoAboutTheConversationTab {
   posts: OfferDetail[];
   value: string;
-  fetchOfferPhase: any
-  setOffersPhase: any,
-  offersPhase: any
+  fetchOfferPhase: any;
+  setOffersPhase: any;
+  offersPhase: any;
 }
 const InfoAboutTheConversationTab = ({
   posts,
   value,
   fetchOfferPhase,
   setOffersPhase,
-  offersPhase
+  offersPhase,
 }: InfoAboutTheConversationTab) => {
   return (
     <div>
@@ -27,10 +27,11 @@ const InfoAboutTheConversationTab = ({
           {value === "viewPost" && (
             <div>
               <PostCard
-              offersPhase={offersPhase}
-              setOffersPhase={setOffersPhase}
-              fetchOfferPhase={fetchOfferPhase}
-              posts={posts} />
+                offersPhase={offersPhase}
+                setOffersPhase={setOffersPhase}
+                fetchOfferPhase={fetchOfferPhase}
+                posts={posts}
+              />
             </div>
           )}
         </div>
