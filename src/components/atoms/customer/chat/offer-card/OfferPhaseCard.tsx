@@ -1,10 +1,16 @@
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { formatDateRangeVN, useCurrentUser } from "@/components/utils";
-import { MoreHorizontal } from "lucide-react";
+import { Dialog, DialogContent} from "@/components/ui/dialog";
+import {
+  formatDateRangeVN,
+  offerStatusVariant,
+  offerStatusVN,
+  useCurrentUser,
+} from "@/components/utils";
+
 import { useState } from "react";
 import UpdateOfferPhase from "../chat-form/UpdateOfferPhase";
 import { ROLE } from "@/constants";
+import { CustomBadge } from "./Badge";
 
 interface OfferPhaseCardProps {
   offerPhase: OfferPhase;
@@ -38,15 +44,19 @@ const OfferPhaseCard = ({
             </div>
           </div>
           <div className="col-span-3 flex justify-end">
-            <MoreHorizontal className="h-5 w-5 text-gray-300" />
+            <CustomBadge variant={offerStatusVariant(offerPhase?.offerPhaseStatus)}>
+              {offerStatusVN(offerPhase?.offerPhaseStatus)}
+            </CustomBadge>
           </div>
         </div>
         <div className="flex justify-between mt-2">
-          <div className="text-sm text-gray-300">
-            {formatDateRangeVN(
-              offerPhase?.startDate + "",
-              offerPhase?.endDate + ""
-            )}
+          <div className="flex gap-2">
+            <div className="text-sm text-gray-300">
+              {formatDateRangeVN(
+                offerPhase?.startDate + "",
+                offerPhase?.endDate + ""
+              )}
+            </div>
           </div>
           <div className="text-sm font-medium">
             {new Intl.NumberFormat("vi-VN", {
@@ -60,9 +70,6 @@ const OfferPhaseCard = ({
       {isOpen && (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="min-w-[620px] p-10 pt-0 overflow-hidden">
-            <DialogHeader className="items-center font-bold text-xl">
-              Cập nhật giai đoạn
-            </DialogHeader>
             <UpdateOfferPhase
               fetchOfferPhase={fetchOfferPhase}
               offer={offerPhase}

@@ -1,0 +1,49 @@
+/* Custom CSS for additional smooth animations */
+.chat-panel-enter {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.chat-panel-exit {
+  animation: slideOutRight 0.3s ease-in forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Staggered animation for child elements */
+.stagger-children > * {
+  animation-delay: calc(var(--stagger-delay, 0) * 100ms);
+}
+
+/* Smooth backdrop blur effect */
+.backdrop-blur-enter {
+  animation: blurIn 0.3s ease-out forwards;
+}
+
+@keyframes blurIn {
+  from {
+    backdrop-filter: blur(0px);
+  }
+  to {
+    backdrop-filter: blur(4px);
+  }
+}

@@ -32,7 +32,6 @@ const Chat = () => {
   const { getOfferPhase } = OfferService();
   const [offersPhase, setOffersPhase] = useState<OfferPhase[]>([]);
 
-
   const fetchOfferPhase = async (offerID: string) => {
     const response = await getOfferPhase(offerID);
     console.log("fetchOfferPhase: ", response);
@@ -268,7 +267,7 @@ const Chat = () => {
   return (
     <div className="h-screen w-full">
       <ChatTemplate
-      fetchOffers={fetchOffers}
+        fetchOffers={fetchOffers}
         offersPhase={offersPhase}
         fetchOfferPhase={fetchOfferPhase}
         setOffersPhase={setOffersPhase}
