@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent} from "@/components/ui/dialog";
-import { formatDateRangeVN } from "@/components/utils";
-import { MoreHorizontal } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { formatDateRangeVN, useCurrentUser } from "@/components/utils";
+import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import UpdateOfferPhase from "../chat-form/UpdateOfferPhase";
-
+import { ROLE } from "@/constants";
 
 interface OfferPhaseCardProps {
   offerPhase: OfferPhase;
@@ -16,12 +16,17 @@ const OfferPhaseCard = ({
   fetchOfferPhase,
 }: OfferPhaseCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const currentUser = useCurrentUser();
+  const handleOpenDialog = () => {
+    if (currentUser?.role === ROLE.DESIGNER) {
+      setIsOpen(true);
+    }
+  };
   return (
     <div className="relative">
-      <Card 
+      <Card
         className="p-3 bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg transition-all duration-300 cursor-pointer"
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpenDialog}
       >
         <div className="grid grid-cols-12 gap-2">
           <div className="flex gap-2 items-center col-span-9">
@@ -38,10 +43,16 @@ const OfferPhaseCard = ({
         </div>
         <div className="flex justify-between mt-2">
           <div className="text-sm text-gray-300">
-            {formatDateRangeVN(offerPhase?.startDate+'', offerPhase?.endDate+'')}
+            {formatDateRangeVN(
+              offerPhase?.startDate + "",
+              offerPhase?.endDate + ""
+            )}
           </div>
           <div className="text-sm font-medium">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(offerPhase?.offerPhasePrice)}
+            {new Intl.NumberFormat("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(offerPhase?.offerPhasePrice)}
           </div>
         </div>
       </Card>
@@ -49,10 +60,13 @@ const OfferPhaseCard = ({
       {isOpen && (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="min-w-[620px] p-10 pt-0 overflow-hidden">
+            <DialogHeader className="items-center font-bold text-xl">
+              Cập nhật giai đoạn
+            </DialogHeader>
             <UpdateOfferPhase
-                fetchOfferPhase={fetchOfferPhase}
-                offer={offerPhase}
-              />
+              fetchOfferPhase={fetchOfferPhase}
+              offer={offerPhase}
+            />
           </DialogContent>
         </Dialog>
       )}

@@ -5,17 +5,20 @@ interface ChatPostCardsProps {
   setOffersPhase: any;
   fetchOfferPhase: any;
   offersPhase: any;
+  fetchOffers: any;
 }
 const ChatPostCardList = ({
   data,
   fetchOfferPhase,
   setOffersPhase,
-  offersPhase
+  offersPhase,
+  fetchOffers,
 }: ChatPostCardsProps) => {
   return (
     <div className="space-y-2">
       {data?.map((item) => (
         <ChatPostCard
+          fetchOffers={fetchOffers}
           offersPhase={offersPhase}
           fetchOfferPhase={fetchOfferPhase}
           setOffersPhase={setOffersPhase}

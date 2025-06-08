@@ -97,5 +97,5 @@ export const MESSAGE = {
   DELETE_MESSAGE_SUCCESSFULLY: "Xóa tin nhắn thành công",
   //OFFER PHASE
   CREATE_OFFER_PHASE_SUCCESSFULLY: "Tạo giai đoạn thành công!",
-  UPDATE_OFFER_PHASE_SUCCESSFULLY: "Cập nhật đoạn thành công!",
+  UPDATE_OFFER_PHASE_SUCCESSFULLY: "Cập nhật giai đoạn thành công!",
 };

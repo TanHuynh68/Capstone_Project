@@ -268,6 +268,7 @@ const Chat = () => {
   return (
     <div className="h-screen w-full">
       <ChatTemplate
+      fetchOffers={fetchOffers}
         offersPhase={offersPhase}
         fetchOfferPhase={fetchOfferPhase}
         setOffersPhase={setOffersPhase}
