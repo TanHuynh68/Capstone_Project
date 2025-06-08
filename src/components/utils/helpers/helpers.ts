@@ -238,7 +238,7 @@ export const detectInputType = (input: string): number => {
 export const isAcceptedVariant = (status: boolean) => {
   switch (status) {
     case false:
-      return "danger";
+      return "warning";
     case true:
       return "success";
     default:
@@ -248,12 +248,24 @@ export const isAcceptedVariant = (status: boolean) => {
 
 export const offerStatusVariant = (status: string) => {
   switch (status) {
-    case "Pending":
-      return "warning";
-    case "Canceled":
-      return "danger";
-    case "Completed":
-      return "success";
+    case OfferPhaseEnum.Dealed:
+      return 'dealed';
+    case OfferPhaseEnum.Deposited:
+      return 'deposited';
+    case OfferPhaseEnum.Done:
+      return 'done';
+    case OfferPhaseEnum.NotStarted:
+      return 'notStarted';
+    case OfferPhaseEnum.Withdrawed:
+      return 'withdrawed';
+    case OfferStatusEnum.Accepted:
+      return 'accepted';
+    case OfferStatusEnum.Dealing:
+      return 'dealing';
+    case OfferStatusEnum.Pending:
+      return 'pending';
+    case OfferStatusEnum.Rejected:
+      return 'rejected';
     default:
       return "default";
   }
@@ -283,3 +295,7 @@ export const offerStatusVN = (status: string) => {
       return "default";
   }
 };
+
+
+
+

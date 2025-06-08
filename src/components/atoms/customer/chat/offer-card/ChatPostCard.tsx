@@ -1,8 +1,6 @@
 "use client";
 
 import type React from "react";
-
-import { Badge } from "@/components/atoms/badge/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -31,11 +29,8 @@ import { useState } from "react";
 import OfferPhasesDialog from "./offerPhasesDialog";
 import { ROLE } from "@/constants";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
-
-export interface OfferDetail {
-  offer: any;
-  post: any;
-}
+import { CustomBadge } from "./Badge";
+import { Badge } from "@/components/ui/badge";
 
 export interface ChatPostCardProps {
   post: OfferDetail;
@@ -85,9 +80,11 @@ export function ChatPostCard({
                   {post?.post.title}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant={offerStatusVariant(post?.offer?.offerStatus)}>
+                  <CustomBadge
+                    variant={offerStatusVariant(post?.offer?.offerStatus)}
+                  >
                     {offerStatusVN(post?.offer?.offerStatus)}
-                  </Badge>
+                  </CustomBadge>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger>
@@ -513,6 +510,7 @@ export function ChatPostCard({
             Tạo giai đoạn
           </DialogHeader>
           <ChatCreateOfferPhase
+            deadline={post?.offer?.deadlineEndAt}
             fetchOffers={fetchOffers}
             fetchOfferPhase={fetchOfferPhase}
             offerID={post?.offer?.offerID}
