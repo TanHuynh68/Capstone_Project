@@ -137,24 +137,25 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
       fabric.Image.fromURL(
         processedUrl,
         (newImg) => {
-          // Copy properties from old image
+          // Copy position and other properties
           newImg.set({
             left: img.left,
             top: img.top,
-            scaleX: img.scaleX,
-            scaleY: img.scaleY,
             angle: img.angle,
             selectable: true,
           });
 
-          // Remove old image and add new one
+          // Set same scaled size as original image
+          newImg.scaleToWidth(img.getScaledWidth());
+          newImg.scaleToHeight(img.getScaledHeight());
+
+          // Replace image on canvas
           canvas?.remove(img);
           canvas?.add(newImg);
           canvas?.setActiveObject(newImg);
           canvas?.requestRenderAll();
           onSaveState?.();
 
-          // Clean up
           URL.revokeObjectURL(processedUrl);
           toast.success("Đã xóa nền thành công!");
         },

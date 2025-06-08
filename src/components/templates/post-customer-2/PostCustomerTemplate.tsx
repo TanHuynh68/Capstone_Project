@@ -29,7 +29,8 @@ interface PostCustomerTemplateProps {
   postNumber: number;
   onDataChange?: (post: Post | null) => void;
   isFirstPost?: boolean;
-  fetchPosts: any;
+  fetchPosts: () => Promise<void>;
+  totalPosts: number;
 }
 
 export default function PostCustomerTemplate({
@@ -41,6 +42,7 @@ export default function PostCustomerTemplate({
   onDataChange,
   isFirstPost = false,
   fetchPosts,
+  totalPosts,
 }: PostCustomerTemplateProps) {
   const { deletePost } = PostService();
   const { offers, fetchOffers, resetOffers } = useOffers();
@@ -106,9 +108,10 @@ export default function PostCustomerTemplate({
 
   // Effect to handle collapsing when other posts are expanded
   useEffect(() => {
-    const handleOtherPostExpand = (expandedPostId: string) => {
-      // If another post is being expanded
-      if (expandedPostId !== post.projectPostID) {
+    const handleOtherPostExpand = (e: CustomEvent) => {
+      const { postId, isExpanding } = e.detail;
+      // If another post is being expanded and this post is actually expanded
+      if (postId !== post.projectPostID && isExpanded && isExpanding) {
         // Immediately hide offers
         window.dispatchEvent(
           new CustomEvent("offer-visibility-change", {
@@ -116,25 +119,25 @@ export default function PostCustomerTemplate({
           })
         );
 
-        if (isExpanded) {
-          setIsAnimating(true);
-          setIsExpanded(false);
-          setTimeout(() => {
-            setIsAnimating(false);
-          }, 800);
-        }
+        setIsAnimating(true);
+        setIsExpanded(false);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 800);
       }
     };
 
     // Listen for post expand events
-    window.addEventListener("post-expand", ((e: CustomEvent) => {
-      handleOtherPostExpand(e.detail.postId);
-    }) as EventListener);
+    window.addEventListener(
+      "post-expand",
+      handleOtherPostExpand as EventListener
+    );
 
     return () => {
-      window.removeEventListener("post-expand", ((e: CustomEvent) => {
-        handleOtherPostExpand(e.detail.postId);
-      }) as EventListener);
+      window.removeEventListener(
+        "post-expand",
+        handleOtherPostExpand as EventListener
+      );
     };
   }, [isExpanded, post.projectPostID]);
 
@@ -153,10 +156,14 @@ export default function PostCustomerTemplate({
         })
       );
 
-      // Then notify other posts to collapse
+      // Then notify other posts to collapse, but only if they are actually expanded
       window.dispatchEvent(
         new CustomEvent("post-expand", {
-          detail: { postId: post.projectPostID },
+          detail: {
+            postId: post.projectPostID,
+            // Add a flag to indicate this is an expand event
+            isExpanding: true,
+          },
         })
       );
 
@@ -174,7 +181,11 @@ export default function PostCustomerTemplate({
       setTimeout(() => {
         window.dispatchEvent(
           new CustomEvent("post-collapse", {
-            detail: { postId: post.projectPostID },
+            detail: {
+              postId: post.projectPostID,
+              // Add a flag to indicate this is a collapse event
+              isCollapsing: true,
+            },
           })
         );
         // Only notify that offers should be hidden if they were visible
@@ -340,24 +351,34 @@ export default function PostCustomerTemplate({
         `}
       </style>
       <div className="space-y-4 post-container">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Bài đăng của tôi ({postNumber})</h2>
+        {postNumber === 1 && (
+          <h2 className="text-xl font-bold mb-6">
+            Bài đăng của tôi ({totalPosts})
+          </h2>
+        )}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg font-medium">
+              Bài đăng #{postNumber}
+            </div>
+            <div className="h-[1px] flex-1 bg-gray-200"></div>
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleToggleExpand}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1.5 ml-4 hover:bg-primary/10 hover:text-primary transition-colors"
             disabled={isAnimating}
           >
             {isExpanded ? (
               <>
                 <ChevronUp className="w-4 h-4" />
-                Thu gọn
+                <span className="text-sm font-medium">Thu gọn</span>
               </>
             ) : (
               <>
                 <ChevronDown className="w-4 h-4" />
-                Mở rộng
+                <span className="text-sm font-medium">Mở rộng</span>
               </>
             )}
           </Button>

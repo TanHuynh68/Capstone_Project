@@ -83,7 +83,7 @@ MessageComposerProps) {
               onClick={() => setIsCanvasModalOpen(true)}
               className="flex justify-between items-center w-full px-3 py-2 rounded-md hover:bg-muted transition-all text-sm font-medium"
             >
-              <span>Gửi canvas</span>
+              <span>Gửi thiết kế</span>
               <FileText className="h-4 w-4 text-primary" />
             </button>
           </PopoverContent>
@@ -115,8 +115,8 @@ MessageComposerProps) {
       <CanvasInChatModal
         isOpen={isCanvasModalOpen}
         onClose={() => setIsCanvasModalOpen(false)}
-        onSelectCanvas={(imageUrl) => {
-          onSendMessage(imageUrl, "image");
+        onSelectCanvas={(data) => {
+          onSendMessage(JSON.stringify(data), "json");
         }}
       />
     </>

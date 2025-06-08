@@ -5,9 +5,10 @@ import MessageComposer from "@/components/molecules/customer/chat/MessageCompose
 import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab";
 import { useState } from "react";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser  } from "@/components/utils";
 import { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
 import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
+
 interface ChatTemplateProps {
   setShouldScroll: any;
   message: Message[];
@@ -40,8 +41,8 @@ export default function ChatTemplate({
   offersPhase,
   fetchOffers
 }: ChatTemplateProps) {
-  const currentChatUser = users[0];
-  const userMain = useCurrentUser();
+  const currentChatUser  = users[0];
+  const userMain = useCurrentUser ();
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const handleSetIsOpen = () => {
     setIsOpen(!isOpen);
@@ -61,12 +62,12 @@ export default function ChatTemplate({
         { title: "Xem bài đăng", tabName: "viewPost" },
       ],
     },
-    // { title: "File", subItem: ["File phương tiện", "File"] },
   ];
+
   return (
-    <div className="bg-gray-200 py-3 px-1 h-[95%] ">
-      <div className=" flex w-full h-full overflow-hidden gap-4 p-3">
-        <div className="flex-1.5 border border-solid rounded-xl bg-white">
+    <div className="bg-gray-200 py-3 px-1 h-[95%]">
+      <div className="flex w-full h-full overflow-hidden gap-4 p-3">
+        <div className={`flex-1.5 border border-solid rounded-xl bg-white ${isOpen ? 'hidden 2xl:block ' : ''}`}>
           <ChatSidebar
             users={users}
             messages={message}
@@ -77,15 +78,14 @@ export default function ChatTemplate({
 
         <div className="flex flex-5 flex-col bg-white rounded-xl">
           <div className="sticky top-0 z-10">
-            {currentChatUser && (
+            {currentChatUser  && (
               <ChatHeader
                 setIsOpen={handleSetIsOpen}
-
                 user={users.filter((item) => item.chatRoomID === chatRoomID)}
               />
             )}
           </div>
-          {currentChatUser && (
+          {currentChatUser  && (
             <div className="flex-1 overflow-y-auto">
               <MessageList
                 onDeleteMessage={onDeletMessage}
@@ -95,7 +95,7 @@ export default function ChatTemplate({
               />
             </div>
           )}
-          {currentChatUser ? (
+          {currentChatUser  ? (
             <div className="sticky bottom-0 z-10">
               <MessageComposer onSendMessage={onSendMessage} />
             </div>
@@ -106,8 +106,7 @@ export default function ChatTemplate({
           )}
         </div>
         {isOpen && (
-          <div className="flex-4 flex flex-col  rounded-xl bg-white max-w-[590px] min-w-[580px] px-3">
-
+          <div className="flex-4 flex flex-col rounded-xl bg-white max-w-[510px] min-w-[510px] px-3">
             <div className="flex-1">
               <div className="mt-10">
                 <div className="">
@@ -123,7 +122,7 @@ export default function ChatTemplate({
                     />
                   </div>
                   <div className="text-2xl flex justify-center mt-2">
-                    {userMain.id != user[0]?.account1?.accountID
+                    {userMain.id !== user[0]?.account1?.accountID
                       ? user[0]?.account1?.accountName
                       : user[0]?.account2?.accountName}
                   </div>
