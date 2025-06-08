@@ -21,6 +21,7 @@
   startDate: string;
   endDate: string;
   modifyDate: string;
+  offerID: string
 }
 interface Offer {
   offerID: string;

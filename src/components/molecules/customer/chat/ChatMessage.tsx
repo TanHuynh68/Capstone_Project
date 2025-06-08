@@ -49,7 +49,7 @@ export default function ChatMessage({
     } else {
       return {
         name: users[0]?.account2.accountName || "Người dùng",
-        avatar: users[0]?.account1.avatar,
+        avatar: users[0]?.account2.avatar,
       };
     }
   };

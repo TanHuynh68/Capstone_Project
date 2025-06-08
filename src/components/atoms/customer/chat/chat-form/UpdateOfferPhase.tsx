@@ -25,6 +25,7 @@ interface UpdateOfferPhase {
   fetchOfferPhase: any;
 }
 const UpdateOfferPhase = ({ offer, fetchOfferPhase }: UpdateOfferPhase) => {
+  console.log('offer: ', offer)
   const { updateOfferPhase } = OfferService();
   const form = useForm<OfferPhaseFormValues>({
     resolver: zodResolver(offerPhaseSchema),
@@ -44,12 +45,18 @@ const UpdateOfferPhase = ({ offer, fetchOfferPhase }: UpdateOfferPhase) => {
       ...values,
       offerPhaseID: offer.offerPhaseID,
     });
+    console.log('onSubmit: ', {
+      ...values,
+      offerPhaseID: offer.offerPhaseID,
+    })
+
     const response = await updateOfferPhase({
       ...values,
       offerPhaseID: offer.offerPhaseID,
     });
+        console.log('updateOfferPhase: ', response)
     if (response) {
-      await fetchOfferPhase();
+      await fetchOfferPhase(offer.offerID);
       toast.success(MESSAGE.UPDATE_OFFER_PHASE_SUCCESSFULLY);
       form.reset();
     }
@@ -59,7 +66,7 @@ const UpdateOfferPhase = ({ offer, fetchOfferPhase }: UpdateOfferPhase) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 mt-10 w-full"
+        className="space-y-4 w-full"
       >
         <FormField
           control={form.control}

@@ -1,5 +1,11 @@
 import { UpdatePostForm } from "@/components/atoms/post/customer-update-post/UpdatePostForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { UpdatePostFormValues } from "@/schemas/updatePostSchema";
 
 interface DialogUpdatePostProps {
@@ -19,8 +25,8 @@ export function DialogUpdatePost({
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-            <DialogTitle>Cập nhật bài đăng</DialogTitle>
-          </DialogHeader>
+          <DialogTitle>Cập nhật bài đăng</DialogTitle>
+        </DialogHeader>
         <UpdatePostForm
           fetchPosts={fetchPosts}
           projectPostId={projectPostId}

@@ -7,6 +7,7 @@ interface InfoAboutTheConversationTab {
   fetchOfferPhase: any;
   setOffersPhase: any;
   offersPhase: any;
+  fetchOffers: any;
 }
 const InfoAboutTheConversationTab = ({
   posts,
@@ -14,6 +15,7 @@ const InfoAboutTheConversationTab = ({
   fetchOfferPhase,
   setOffersPhase,
   offersPhase,
+  fetchOffers,
 }: InfoAboutTheConversationTab) => {
   return (
     <div>
@@ -27,6 +29,7 @@ const InfoAboutTheConversationTab = ({
           {value === "viewPost" && (
             <div>
               <PostCard
+                fetchOffers={fetchOffers}
                 offersPhase={offersPhase}
                 setOffersPhase={setOffersPhase}
                 fetchOfferPhase={fetchOfferPhase}
