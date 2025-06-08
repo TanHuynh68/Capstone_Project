@@ -91,7 +91,7 @@ export const OfferStatusVi: Record<OfferStatusEnum, string> = {
   [OfferStatusEnum.Accepted]: 'Đã chấp nhận',
   [OfferStatusEnum.Rejected]: 'Đã từ chối',
 };
-
+//
 export const OfferPhaseVi: Record<OfferPhaseEnum, string> = {
   [OfferPhaseEnum.NotStarted]: 'Chưa bắt đầu',
   [OfferPhaseEnum.Dealed]: 'Đã thương lượng',

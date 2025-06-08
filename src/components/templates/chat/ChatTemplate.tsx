@@ -23,7 +23,8 @@ interface ChatTemplateProps {
   posts: OfferDetail[];
   fetchOfferPhase: any;
   setOffersPhase: any;
-  offersPhase: any;
+  offersPhase: any
+  fetchOffers: any
 }
 
 export default function ChatTemplate({
@@ -38,6 +39,7 @@ export default function ChatTemplate({
   setOffersPhase,
   fetchOfferPhase,
   offersPhase,
+  fetchOffers
 }: ChatTemplateProps) {
   const currentChatUser  = users[0];
   const userMain = useCurrentUser ();
@@ -113,9 +115,9 @@ export default function ChatTemplate({
                       name=""
                       size="xxl"
                       src={
-                        userMain.id !== user[0]?.account1?.accountID
-                          ? user[0]?.account1?.accountID
-                          : user[0]?.account2?.accountID
+                        userMain.id != user[0]?.account1?.accountID
+                          ? user[0]?.account1?.avatar
+                          : user[0]?.account2?.avatar
                       }
                     />
                   </div>
@@ -130,14 +132,13 @@ export default function ChatTemplate({
             <div className="flex-1">
               <SidebarCollapses onClick={handleSetTabsContent} items={items} />
             </div>
-            <div className="flex-4 overflow-y-auto">
-              <InfoAboutTheConversationTab
-                offersPhase={offersPhase}
-                setOffersPhase={setOffersPhase}
-                fetchOfferPhase={fetchOfferPhase}
-                value={value}
-                posts={posts}
-              />
+            <div className="flex-4 overflow-y-auto ">
+              <InfoAboutTheConversationTab 
+              fetchOffers={fetchOffers}
+              offersPhase={offersPhase}
+              setOffersPhase={setOffersPhase}
+              fetchOfferPhase={fetchOfferPhase}
+              value={value} posts={posts} />
             </div>
           </div>
         )}

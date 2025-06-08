@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import {
-  OfferPhaseFormValues,
+  type OfferPhaseFormValues,
   offerPhaseSchema,
 } from "@/schemas/offerPhaseShecmas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,10 +25,13 @@ import { MESSAGE } from "@/constants";
 interface ChatCreateOfferPhaseProps {
   offerID: string;
   fetchOfferPhase: any;
+  fetchOffers: any;
 }
+
 const ChatCreateOfferPhase = ({
   offerID,
   fetchOfferPhase,
+  fetchOffers,
 }: ChatCreateOfferPhaseProps) => {
   const { createOfferPhase } = OfferService();
   const form = useForm<OfferPhaseFormValues>({
@@ -52,7 +57,8 @@ const ChatCreateOfferPhase = ({
       offerID: offerID,
     });
     if (response) {
-      await fetchOfferPhase();
+      await fetchOfferPhase(offerID);
+      await fetchOffers();
       toast.success(MESSAGE.CREATE_OFFER_PHASE_SUCCESSFULLY);
       form.reset();
     }
@@ -62,7 +68,11 @@ const ChatCreateOfferPhase = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 mt-10 w-full"
+        className="space-y-4 w-full"
+        onKeyDown={(e) => {
+          // Prevent form events from bubbling up to parent dialogs
+          e.stopPropagation();
+        }}
       >
         <FormField
           control={form.control}
@@ -71,7 +81,14 @@ const ChatCreateOfferPhase = ({
             <FormItem>
               <FormLabel>Tên giai đoạn</FormLabel>
               <FormControl>
-                <Input placeholder="Nhập tên giai đoạn" {...field} />
+                <Input
+                  placeholder="Nhập tên giai đoạn"
+                  {...field}
+                  onKeyDown={(e) => {
+                    // Prevent spacebar and other key events from bubbling up
+                    e.stopPropagation();
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,6 +106,9 @@ const ChatCreateOfferPhase = ({
                   step={1000}
                   placeholder="Nhập giá"
                   {...field}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -102,7 +122,13 @@ const ChatCreateOfferPhase = ({
             <FormItem>
               <FormLabel>Mô tả</FormLabel>
               <FormControl>
-                <Textarea placeholder="Nhập tên mô tả" {...field} />
+                <Textarea
+                  placeholder="Nhập tên mô tả"
+                  {...field}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -160,7 +186,7 @@ const ChatCreateOfferPhase = ({
         </div>
 
         <div className="flex justify-end">
-       <Button type="submit">Gửi</Button>
+          <Button type="submit">Gửi</Button>
         </div>
       </form>
     </Form>
