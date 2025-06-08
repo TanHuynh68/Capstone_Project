@@ -15,7 +15,7 @@ import type { z } from "zod"
  * @returns Form methods from react-hook-form
  */
 export function useZodForm<TSchema extends z.ZodType>(
-  schema: TSchema,
+  schema: any,
   options?: Omit<UseFormProps<z.infer<TSchema>>, "resolver">,
 ): UseFormReturn<z.infer<TSchema>> {
   return useForm<z.infer<TSchema>>({
