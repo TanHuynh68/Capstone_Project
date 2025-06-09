@@ -6,7 +6,6 @@ import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
 import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
 import Notification from "@/components/molecules/navbar/Notification";
-import Logo from "@/components/atoms/custom/logo/Logo";
 import Cart from "@/components/atoms/layout/navbar/Paint";
 import Post from "@/components/atoms/layout/navbar/Post";
 import UserOption from "@/components/atoms/layout/navbar/UserOption";
@@ -14,6 +13,7 @@ import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
+import DualLogo from "@/components/atoms/custom/logo/DualLogo";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
@@ -46,7 +46,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to={PATH.HOME} className="flex items-center space-x-2">
-          <Logo />
+          <DualLogo />
         </Link>
 
         {/* Desktop Navigation */}

@@ -18,6 +18,13 @@ const UserOption = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useCurrentUser();
+
+  const handleNavigateToProfile = (tab?: string) => {
+    navigate(`/${USER_ROUTES.PROFILE}`, {
+      state: { activeTab: tab },
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -31,10 +38,8 @@ const UserOption = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 z-50">
-        <DropdownMenuItem>
-          <Link to={USER_ROUTES.PROFILE} className="w-full">
-            Hồ sơ
-          </Link>
+        <DropdownMenuItem onClick={() => handleNavigateToProfile("profile")}>
+          <span className="w-full cursor-pointer">Hồ sơ</span>
         </DropdownMenuItem>
         {user.role === ROLE.DESIGNER && (
           <DropdownMenuItem>
@@ -43,10 +48,11 @@ const UserOption = () => {
             </Link>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem>
-          <Link to="/orders" className="w-full">
-            Đơn đặt hàng
-          </Link>
+        <DropdownMenuItem onClick={() => handleNavigateToProfile("orders")}>
+          <span className="w-full cursor-pointer">Lịch sử đơn hàng</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleNavigateToProfile("requests")}>
+          <span className="w-full cursor-pointer">Lịch sử đặt hàng</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
