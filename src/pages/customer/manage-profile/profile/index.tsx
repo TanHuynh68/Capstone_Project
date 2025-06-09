@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   User,
   Mail,
@@ -42,6 +42,7 @@ import { RoleVietnamese } from "@/components/utils";
 import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
 import { ChangePasswordPage } from "@/pages";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Profile {
   accountID: string;
@@ -105,8 +106,15 @@ const Profile = () => {
   const { getReputation } = ReputationService();
   const { getProfile } = useAuthService();
   const { uploadAvatar } = GeneralService();
+  const location = useLocation();
 
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<
+    Array<{
+      id: string;
+      address: string;
+      isDefault: boolean;
+    }>
+  >([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [reputation, setReputation] = useState<Reputation | null>(null);
   const userInfo = useSelector((state: RootState) => state.user);
@@ -119,8 +127,20 @@ const Profile = () => {
   const [isDragAndDrop, setIsDragAndDrop] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Handle location state for tab navigation
+  useEffect(() => {
+    const tabFromState = location.state?.activeTab;
+    if (
+      tabFromState &&
+      ["profile", "orders", "requests"].includes(tabFromState)
+    ) {
+      setActiveTab(tabFromState);
+    }
+  }, [location.state]);
 
   const handleAvatarClick = () => setDialogOpen(true);
 
@@ -364,257 +384,300 @@ const Profile = () => {
 
   return (
     <>
-      <div className="container max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Thông tin tài khoản</h1>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
-          {/* Profile Card */}
-          <div
-            className={`${
-              showHistoryPanel ? "md:col-span-3" : "md:col-span-4"
-            } transition-all duration-500 ease-in-out`}
-          >
-            <Card className="shadow-sm h-full">
-              <CardHeader className="text-center pb-0">
-                {/* Ảnh đại diện + nút Camera */}
-                <div className="flex justify-center mb-4 relative">
-                  <Avatar className="h-24 w-24 shadow-sm">
-                    <AvatarImage
-                      src={profile?.avatar}
-                      alt={profile?.fullName || "Avatar"}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-gray-100">
-                      {profile?.fullName?.charAt(0) || (
-                        <User className="h-12 w-12" />
-                      )}
-                    </AvatarFallback>
-                  </Avatar>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="container max-w-6xl mx-auto px-4 py-4"
+      >
+        <TabsList className="grid grid-cols-3 w-full mb-2">
+          <TabsTrigger value="profile">Thông tin tài khoản</TabsTrigger>
+          <TabsTrigger value="orders">Lịch sử đơn hàng</TabsTrigger>
+          <TabsTrigger value="requests">Lịch sử đặt hàng</TabsTrigger>
+        </TabsList>
 
-                  {/* Nút chọn ảnh */}
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={handleAvatarClick}
-                    className="absolute bottom-0 right-1/4 h-8 w-8 rounded-full bg-white border border-gray-200 shadow"
-                  >
-                    <Camera className="h-4 w-4" />
-                    <span className="sr-only">Thay đổi ảnh đại diện</span>
-                  </Button>
-                </div>
-
-                {/* Nằm ngoài thẻ Avatar để tránh conflict */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-
-                <h2 className="text-xl font-semibold">
-                  {profile?.fullName || "Chưa cập nhật"}
-                </h2>
-                <p className="text-sm text-gray-500 flex items-center justify-center gap-1 mt-1">
-                  <span className="font-medium">Tham gia vào:</span>
-                  {profile?.createdAt
-                    ? new Date(profile.createdAt).toLocaleDateString("vi-VN")
-                    : "Chưa cập nhật"}
-                </p>
-              </CardHeader>
-
-              <CardContent>
-                <div className="space-y-4 text-sm">
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>{profile?.email || "Chưa cập nhật"}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>{profile?.phoneNumber || "Chưa cập nhật"}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <UserCircle className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>
-                      {RoleVietnamese(userInfo.role) ||
-                        profile?.roleDisplay ||
-                        "Khách hàng"}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <Transgender className="h-4 w-4 mr-3 text-muted-foreground" />
-                    <span>{getGenderLabel(profile?.genderDisplay)}</span>
-                  </div>
-                </div>
-              </CardContent>
-
-              <CardFooter className="flex flex-col gap-3 pt-2">
-                <Button variant="outline" className="w-full ">
-                  <Link
-                    to="/edit-profile"
-                    className="flex items-center justify-center"
-                  >
-                    <Edit className="mr-2 h-4 w-4" /> Thay đổi thông tin
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full p-0">
-                  <Dialog>
-                    <DialogTrigger className="w-full">
-                      <Button variant="outline" className="w-full">
-                        <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-[550px]">
-                      <ChangePasswordPage />
-                    </DialogContent>
-                  </Dialog>
-                </Button>
-                {addresses.length < 3 ? (
-                  <CreateAddress
-                    className="w-full"
-                    onCreated={fetchAddresses}
-                    addresses={addresses || []}
-                  />
-                ) : (
-                  <p className="text-sm text-gray-500 mt-2 px-4 text-center">
-                    Bạn đã đạt giới hạn tối đa 3 địa chỉ.
-                  </p>
-                )}
-              </CardFooter>
-            </Card>
-          </div>
-
-          {/* Reputation and Address Card */}
-          <div
-            className={`${
-              showHistoryPanel ? "md:col-span-6" : "md:col-span-8"
-            } transition-all duration-500 ease-in-out`}
-          >
-            <Card className="shadow-sm h-full">
-              <CardContent className="pt-0">
-                <CardTitle className="relative  pb-0 z-10">
-                  Điểm uy tín
-                </CardTitle>
-                <div className="space-y-3">
-                  {/* Reputation Section */}
-                  <div className="flex flex-col items-center gap-4 -mt-2">
-                    {/* Vòng cung + thông tin bên trong */}
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 -mt-2 w-full">
-                      {/* Vòng cung uy tín - cột trái */}
-                      <div className="relative w-44 h-44 mx-auto md:mx-0">
-                        <svg viewBox="0 0 100 100" className="w-full h-full">
-                          {/* Vòng nền xám */}
-                          <path
-                            d={`M ${bgStartX} ${bgStartY} A ${radius} ${radius} 0 1 1 ${bgEndX} ${bgEndY}`}
-                            fill="none"
-                            stroke="#e5e7eb"
-                            strokeWidth="5"
-                          />
-                          {/* Vòng xanh theo score */}
-                          {displayScore > 0 && (
-                            <path
-                              d={`M ${bgStartX} ${bgStartY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`}
-                              fill="none"
-                              stroke={strokeColor} // 👈 Màu động
-                              strokeWidth="5"
-                              strokeLinecap="round"
-                            />
+        <TabsContent value="profile">
+          <div className="container max-w-6xl mx-auto px-4 py-0">
+            <h2 className="text-xl font-bold mb-4">Thông tin tài khoản</h2>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+              {/* Profile Card */}
+              <div
+                className={`${
+                  showHistoryPanel ? "md:col-span-3" : "md:col-span-4"
+                } transition-all duration-500 ease-in-out`}
+              >
+                <Card className="shadow-sm h-full">
+                  <CardHeader className="text-center pb-0">
+                    {/* Ảnh đại diện + nút Camera */}
+                    <div className="flex justify-center mb-4 relative">
+                      <Avatar className="h-24 w-24 shadow-sm">
+                        <AvatarImage
+                          src={profile?.avatar}
+                          alt={profile?.fullName || "Avatar"}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-gray-100">
+                          {profile?.fullName?.charAt(0) || (
+                            <User className="h-12 w-12" />
                           )}
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 text-center">
-                          <span
-                            className={`${textColorClass} text-3xl font-bold leading-none`}
-                          >
-                            {displayScore}
-                          </span>
+                        </AvatarFallback>
+                      </Avatar>
 
-                          <span className="text-sm font-semibold mt-1">
-                            Cấp {reputation?.level || 1}
-                          </span>
-                          <span className="text-xs text-gray-500 pt-1">
-                            Cập nhật:{" "}
-                            {reputation?.updatedAt
-                              ? new Date(
-                                  reputation.updatedAt
-                                ).toLocaleDateString("vi-VN")
-                              : ""}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-3 pl-5 flex-wrap">
-                        {/* Nút Xem quyền lợi – xanh lá nổi bật */}
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                        >
-                          <Link
-                            to="/reputation-benefits"
-                            className="flex items-center gap-2"
-                          >
-                            <User className="w-4 h-4" />
-                            Xem quyền lợi
-                          </Link>
-                        </Button>
-
-                        {/* Nút Lịch sử điểm – xanh dương nhạt */}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                          onClick={() =>
-                            showHistoryPanel
-                              ? handleCloseHistory()
-                              : setShowHistoryPanel(true)
-                          }
-                        >
-                          <Award className="w-4 h-4 mr-2" />
-                          {showHistoryPanel ? "Ẩn lịch sử" : "Lịch sử điểm"}
-                        </Button>
-                      </div>
+                      {/* Nút chọn ảnh */}
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={handleAvatarClick}
+                        className="absolute bottom-0 right-1/4 h-8 w-8 rounded-full bg-white border border-gray-200 shadow"
+                      >
+                        <Camera className="h-4 w-4" />
+                        <span className="sr-only">Thay đổi ảnh đại diện</span>
+                      </Button>
                     </div>
 
-                    {/* Mô tả */}
-                    {/* <p className="text-sm text-gray-700 text-center border-t pt-4 w-full">
+                    {/* Nằm ngoài thẻ Avatar để tránh conflict */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
+                    <h2 className="text-xl font-semibold">
+                      {profile?.fullName || "Chưa cập nhật"}
+                    </h2>
+                    <p className="text-sm text-gray-500 flex items-center justify-center gap-1 mt-1">
+                      <span className="font-medium">Tham gia vào:</span>
+                      {profile?.createdAt
+                        ? new Date(profile.createdAt).toLocaleDateString(
+                            "vi-VN"
+                          )
+                        : "Chưa cập nhật"}
+                    </p>
+                  </CardHeader>
+
+                  <CardContent>
+                    <div className="space-y-4 text-sm">
+                      <div className="flex items-center">
+                        <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{profile?.email || "Chưa cập nhật"}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{profile?.phoneNumber || "Chưa cập nhật"}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <UserCircle className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>
+                          {RoleVietnamese(userInfo.role) ||
+                            profile?.roleDisplay ||
+                            "Khách hàng"}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Transgender className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{getGenderLabel(profile?.genderDisplay)}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="flex flex-col gap-3 pt-2">
+                    <Button variant="outline" className="w-full ">
+                      <Link
+                        to="/edit-profile"
+                        className="flex items-center justify-center"
+                      >
+                        <Edit className="mr-2 h-4 w-4" /> Thay đổi thông tin
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full p-0">
+                      <Dialog>
+                        <DialogTrigger className="w-full">
+                          <Button variant="outline" className="w-full">
+                            <Lock className="mr-2 h-4 w-4" /> Đổi mật khẩu
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[550px]">
+                          <ChangePasswordPage />
+                        </DialogContent>
+                      </Dialog>
+                    </Button>
+                    {addresses.length < 3 ? (
+                      <CreateAddress
+                        className="w-full"
+                        onCreated={fetchAddresses}
+                        addresses={addresses || []}
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-500 mt-2 px-4 text-center">
+                        Bạn đã đạt giới hạn tối đa 3 địa chỉ.
+                      </p>
+                    )}
+                  </CardFooter>
+                </Card>
+              </div>
+
+              {/* Reputation and Address Card */}
+              <div
+                className={`${
+                  showHistoryPanel ? "md:col-span-6" : "md:col-span-8"
+                } transition-all duration-500 ease-in-out`}
+              >
+                <Card className="shadow-sm h-full">
+                  <CardContent className="pt-0">
+                    <CardTitle className="relative  pb-0 z-10">
+                      Điểm uy tín
+                    </CardTitle>
+                    <div className="space-y-3">
+                      {/* Reputation Section */}
+                      <div className="flex flex-col items-center gap-4 -mt-2">
+                        {/* Vòng cung + thông tin bên trong */}
+                        <div className="flex flex-col md:flex-row items-center justify-center gap-4 -mt-2 w-full">
+                          {/* Vòng cung uy tín - cột trái */}
+                          <div className="relative w-44 h-44 mx-auto md:mx-0">
+                            <svg
+                              viewBox="0 0 100 100"
+                              className="w-full h-full"
+                            >
+                              {/* Vòng nền xám */}
+                              <path
+                                d={`M ${bgStartX} ${bgStartY} A ${radius} ${radius} 0 1 1 ${bgEndX} ${bgEndY}`}
+                                fill="none"
+                                stroke="#e5e7eb"
+                                strokeWidth="5"
+                              />
+                              {/* Vòng xanh theo score */}
+                              {displayScore > 0 && (
+                                <path
+                                  d={`M ${bgStartX} ${bgStartY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`}
+                                  fill="none"
+                                  stroke={strokeColor} // 👈 Màu động
+                                  strokeWidth="5"
+                                  strokeLinecap="round"
+                                />
+                              )}
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pt-2 text-center">
+                              <span
+                                className={`${textColorClass} text-3xl font-bold leading-none`}
+                              >
+                                {displayScore}
+                              </span>
+
+                              <span className="text-sm font-semibold mt-1">
+                                Cấp {reputation?.level || 1}
+                              </span>
+                              <span className="text-xs text-gray-500 pt-1">
+                                Cập nhật:{" "}
+                                {reputation?.updatedAt
+                                  ? new Date(
+                                      reputation.updatedAt
+                                    ).toLocaleDateString("vi-VN")
+                                  : ""}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-3 pl-5 flex-wrap">
+                            {/* Nút Xem quyền lợi – xanh lá nổi bật */}
+                            <Button
+                              asChild
+                              variant="outline"
+                              className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                            >
+                              <Link
+                                to="/reputation-benefits"
+                                className="flex items-center gap-2"
+                              >
+                                <User className="w-4 h-4" />
+                                Xem quyền lợi
+                              </Link>
+                            </Button>
+
+                            {/* Nút Lịch sử điểm – xanh dương nhạt */}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                              onClick={() =>
+                                showHistoryPanel
+                                  ? handleCloseHistory()
+                                  : setShowHistoryPanel(true)
+                              }
+                            >
+                              <Award className="w-4 h-4 mr-2" />
+                              {showHistoryPanel ? "Ẩn lịch sử" : "Lịch sử điểm"}
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Mô tả */}
+                        {/* <p className="text-sm text-gray-700 text-center border-t pt-4 w-full">
                       Điểm uy tín phản ánh độ tin cậy của bạn trong cộng đồng. Tham
                       gia tích cực để nâng cao điểm số!
                     </p> */}
+                      </div>
+
+                      <Separator />
+
+                      {/* Address Section */}
+                    </div>
+                  </CardContent>
+
+                  <div>
+                    <CardTitle className="relative pl-6 pr-6">
+                      Địa chỉ
+                    </CardTitle>
+
+                    {addresses.length > 0 ? (
+                      <GetAddress
+                        addresses={addresses}
+                        onUpdated={fetchAddresses}
+                      />
+                    ) : (
+                      <p className="text-muted-foreground text-sm mb-4 text-center">
+                        Không có địa chỉ nào.
+                      </p>
+                    )}
                   </div>
-
-                  <Separator />
-
-                  {/* Address Section */}
-                </div>
-              </CardContent>
-
-              <div>
-                <CardTitle className="relative pl-6 pr-6">Địa chỉ</CardTitle>
-
-                {addresses.length > 0 ? (
-                  <GetAddress
-                    addresses={addresses}
-                    onUpdated={fetchAddresses}
-                  />
-                ) : (
-                  <p className="text-muted-foreground text-sm mb-4 text-center">
-                    Không có địa chỉ nào.
-                  </p>
-                )}
+                </Card>
               </div>
-            </Card>
-          </div>
 
-          {/* History Panel */}
-          {(showHistoryPanel || isClosing) && (
-            <div
-              className={`md:col-span-3 transition-all duration-500 ease-in-out ${
-                isClosing ? "animate-slide-out-right" : "animate-slide-in-right"
-              }`}
-            >
-              <ReputationHistory onClose={handleCloseHistory} />
+              {/* History Panel */}
+              {(showHistoryPanel || isClosing) && (
+                <div
+                  className={`md:col-span-3 transition-all duration-500 ease-in-out ${
+                    isClosing
+                      ? "animate-slide-out-right"
+                      : "animate-slide-in-right"
+                  }`}
+                >
+                  <ReputationHistory onClose={handleCloseHistory} />
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="orders">
+          <div className="container max-w-6xl mx-auto px-4 py-0">
+            <h2 className="text-xl font-bold mb-4">Lịch sử đơn hàng</h2>{" "}
+            {/* Thêm dòng này */}
+            <div className="text-center text-gray-500 text-sm py-10">
+              (Thêm component vào đây)
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="requests">
+          <div className="container max-w-6xl mx-auto px-4 py-0">
+            <h2 className="text-xl font-bold mb-4">Lịch sử đặt hàng</h2>{" "}
+            {/* Thêm dòng này */}
+            <div className="text-center text-gray-500 text-sm py-10">
+              (Thêm component vào đây)
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[425px]">
