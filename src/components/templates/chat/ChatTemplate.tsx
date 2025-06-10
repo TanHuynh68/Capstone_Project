@@ -50,7 +50,7 @@ export default function ChatTemplate({
   const handleSetIsOpen = () => {
     setIsOpen(!isOpen)
   }
-
+  //
   // Reset animation state after transition completes
   useEffect(() => {
     const timer = setTimeout(() => {
