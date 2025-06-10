@@ -1,19 +1,19 @@
 interface Post {
-  projectPostID: string
-  accountID: string
-  fullName: string | null
-  avatar: string | null
-  title: string
-  description: string
-  postStatus: number
-  itemValue: number
-  suggestedPrice: number
-  createdAt: string
-  endAt: string
-  finishDate: string
-  isActive: boolean
-  originalImages: ProjectImage[]
-  requestedImages: ProjectImage[]
+  projectPostID: string;
+  accountID: string;
+  fullName: string | null;
+  avatar: string | null;
+  title: string;
+  description: string;
+  postStatus: number;
+  itemValue: number;
+  suggestedPrice: number;
+  createdAt: string;
+  endAt: string;
+  finishDate: string;
+  isActive: boolean;
+  originalImages: ProjectImage[];
+  requestedImages: ProjectImage[];
 }
 
 // interface Post {
@@ -32,13 +32,11 @@ interface Post {
 //   requestedImages: ProjectImage[];
 // }
 
-
-
 interface ProjectImage {
-  projectImageID: string
-  imageUrl: string
-  imageType: "Original" | "Requested"
-  createdBy: string
+  projectImageID: string;
+  imageUrl: string;
+  imageType: "Original" | "Requested";
+  createdBy: string;
 }
 
 interface PostsResponse {
@@ -60,25 +58,20 @@ interface PostsParams {
 
 type SortDirection = "asc" | "desc";
 
-interface SortState {
-  column: keyof Post | null;
-  direction: SortDirection;
-}
-
 interface FilterState {
   search: string;
-  status: any;
-  dateRange: {
-    from: Date | null;
-    to: Date | null;
-  };
-  endDateRange: {
-    from: Date | null;
-    to: Date | null;
-  };
+  status: string;
+  dateRange: { from: Date | null; to: Date | null };
+  endDateRange: { from: Date | null; to: Date | null };
+  isActive?: boolean;
 }
 
 interface PaginationState {
   pageIndex: number;
   pageSize: number;
+}
+
+interface SortState {
+  column: string | null;
+  direction: "asc" | "desc";
 }

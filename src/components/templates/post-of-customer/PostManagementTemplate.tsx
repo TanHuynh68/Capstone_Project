@@ -45,10 +45,10 @@ export function PostManagementTemplate({
       );
     }
 
-    // Status filter
-    if (filters.status) {
-      result = result.filter((post) => post.postStatus === filters.status);
-    }
+    // // Status filter
+    // if (filters.status) {
+    //   result = result.filter((post) => post.postStatus === filters.status);
+    // }
 
     // Date range filter for createdAt
     if (filters.dateRange.from || filters.dateRange.to) {

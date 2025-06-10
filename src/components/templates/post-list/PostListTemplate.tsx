@@ -36,15 +36,7 @@ export default function PostsTemplate() {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const params: PostsParams = {
-          page: currentPage,
-          pageSize: 9, // 3x3 grid
-          search: debouncedSearch,
-          sortBy,
-          sortOrder,
-          status,
-        };
-        const response = await getPosts(params);
+        const response = await getPosts();
         console.log("response: ", response);
         if (response) {
           setPosts(response.data);
