@@ -50,67 +50,14 @@ const PostService = () => {
     [callApi]
   );
 
-  const getPosts = useCallback(
-    async (params: any) => {
-      try {
-        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_POSTS}`);
-        let filteredPosts = [...res.responseRequestModel.responseList.items];
-
-        // Áp dụng tìm kiếm
-        if (params.search) {
-          const searchLower = params.search.toLowerCase();
-          filteredPosts = filteredPosts.filter(
-            (post) =>
-              post.title.toLowerCase().includes(searchLower) ||
-              post.description.toLowerCase().includes(searchLower)
-          );
-        }
-
-        // Áp dụng lọc theo trạng thái
-        if (params.status !== undefined) {
-          filteredPosts = filteredPosts.filter(
-            (post) => post.postStatus === params.status
-          );
-        }
-
-        // Áp dụng sắp xếp
-        if (params.sortBy) {
-          filteredPosts.sort((a: any, b: any) => {
-            const aValue = a[params.sortBy!];
-            const bValue = b[params.sortBy!];
-
-            if (typeof aValue === "string" && typeof bValue === "string") {
-              return params.sortOrder === "asc"
-                ? aValue.localeCompare(bValue)
-                : bValue.localeCompare(aValue);
-            }
-
-            return params.sortOrder === "asc"
-              ? aValue - bValue
-              : bValue - aValue;
-          });
-        }
-
-        // Áp dụng phân trang
-        const totalCount = filteredPosts.length;
-        const totalPages = Math.ceil(totalCount / params.pageSize);
-        const startIndex = (params.page - 1) * params.pageSize;
-        const endIndex = startIndex + params.pageSize;
-        const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
-
-        return {
-          data: paginatedPosts,
-          totalCount,
-          pageSize: params.pageSize,
-          currentPage: params.page,
-          totalPages,
-        };
-      } catch (err: any) {
-        console.error(err?.response?.data);
-      }
-    },
-    [callApi]
-  );
+  const getPosts = useCallback(async () => {
+    try {
+      const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_POSTS}`);
+      return res;
+    } catch (err: any) {
+      console.error(err?.response?.data);
+    }
+  }, [callApi]);
 
   const getPostDetail = useCallback(
     async (id: string) => {

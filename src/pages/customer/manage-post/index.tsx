@@ -22,7 +22,7 @@ export default function CustomerManagePost() {
         "getCustomerPost: ",
         response.responseRequestModel.responseList.items
       );
-      setPosts(response.responseRequestModel.responseList.items);
+      setPosts(response.responseRequestModel.responseList.items || []);
     }
     setIsLoading(false);
   };
