@@ -2,6 +2,8 @@ export enum USER_ROUTES {
   HOME = "/",
   HOME_PAGE = "/", // Đảm bảo rằng đường dẫn này không gây xung đột
   AUTH = "/auth",
+  ORDER = "/order",
+  ORDER_HISTORY_PAGE = "order/history",
   CHANGE_PASSWORD = "change-password",
   PROFILE = "profile",
   EDIT_PROFILE = "edit-profile",
@@ -21,11 +23,11 @@ export enum USER_ROUTES {
   ABOUT_PAGE = "about",
   CONTACT_PAGE = "contact",
   POST_PAGE = "post",
-  CUSTOMER_UPLOAD_PAGE = "upload-post",
   MY_POST_PAGE = "my-post",
   POST_DETAIL_PAGE = "post/detail/:id",
   POST_OFFER_PAGE = "post-offer",
   DESIGNER_PORTFOLIO_PAGE = "portfolio/:id",
+  CUSTOMER_UPLOAD_PAGE = "post/upload-post",
 }
 
 export enum AUTH_ROUTES {
@@ -56,6 +58,8 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  CUSTOMER_UPLOAD_PAGE = "upload-post",
+  CUSTOMER_ORDER_HISTORY_PAGE = `${USER_ROUTES.ORDER}/history`,
   CHAT_PAGE = `${USER_ROUTES.CHAT}`,
   POST_DETAIL = "/post/detail",
   HOME = "/",
@@ -71,29 +75,32 @@ export enum PATH {
   PAYMENT_SUCCESS = USER_ROUTES.PAYMENT + "/" + "success",
   //PAYOS
   PAYMENT_PAYOS_SUCCESS = USER_ROUTES.PAYMENT +
-  "/" +
-  "success?code=00&status=PAID",
+    "/" +
+    "success?code=00&status=PAID",
   PAYMENT_FAILED = USER_ROUTES.PAYMENT + "/" + "failed",
   STAFF_MANAGER_USERS = STAFF_ROUTES.STAFF +
-  "/" +
-  "account" +
-  STAFF_ROUTES.STAFF_MANAGER_USERS,
+    "/" +
+    "account" +
+    STAFF_ROUTES.STAFF_MANAGER_USERS,
 
   STAFF_DASHBOARD = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_DASHBOARD,
   STAFF_DASHBOARD_MANAGER_USERS = STAFF_ROUTES.STAFF +
-  "/" +
-  STAFF_ROUTES.STAFF_DASHBOARD +
-  "/" +
-  STAFF_ROUTES.STAFF_MANAGER_USERS,
+    "/" +
+    STAFF_ROUTES.STAFF_DASHBOARD +
+    "/" +
+    STAFF_ROUTES.STAFF_MANAGER_USERS,
   STAFF_MANAGER_WITHDRAWAL = STAFF_ROUTES.STAFF +
-  "/" +
-  STAFF_ROUTES.STAFF_DASHBOARD +
-  "/" +
-  STAFF_ROUTES.STAFF_MANAGER_WITHDRAWAL,
+    "/" +
+    STAFF_ROUTES.STAFF_DASHBOARD +
+    "/" +
+    STAFF_ROUTES.STAFF_MANAGER_WITHDRAWAL,
 
-  STAFF_MANAGER_WALLET_TRANSACTION = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_DASHBOARD +"/" + STAFF_ROUTES.STAFF_MANAGER_WALLET_TRANSACTION,
+  STAFF_MANAGER_WALLET_TRANSACTION = STAFF_ROUTES.STAFF +
+    "/" +
+    STAFF_ROUTES.STAFF_DASHBOARD +
+    "/" +
+    STAFF_ROUTES.STAFF_MANAGER_WALLET_TRANSACTION,
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
-
 }
