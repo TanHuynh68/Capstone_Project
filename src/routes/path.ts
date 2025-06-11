@@ -2,6 +2,8 @@ export enum USER_ROUTES {
   HOME = "/",
   HOME_PAGE = "/", // Đảm bảo rằng đường dẫn này không gây xung đột
   AUTH = "/auth",
+  ORDER = "/order",
+  ORDER_HISTORY_PAGE = "order/history",
   CHANGE_PASSWORD = "change-password",
   PROFILE = "profile",
   EDIT_PROFILE = "edit-profile",
@@ -57,6 +59,7 @@ export enum STAFF_ROUTES {
 
 export enum PATH {
   CUSTOMER_UPLOAD_PAGE = "upload-post",
+  CUSTOMER_ORDER_HISTORY_PAGE = `${USER_ROUTES.ORDER}/history`,
   CHAT_PAGE = `${USER_ROUTES.CHAT}`,
   POST_DETAIL = "/post/detail",
   HOME = "/",

@@ -41,7 +41,7 @@ import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/components/utils";
 import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
-import { ChangePasswordPage } from "@/pages";
+import { ChangePasswordPage, OrderHistoryPage } from "@/pages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Profile {
@@ -397,7 +397,7 @@ const Profile = () => {
 
         <TabsContent value="profile">
           <div className="container max-w-6xl mx-auto px-4 py-0">
-            <h2 className="text-xl font-bold mb-4">Thông tin tài khoản</h2>
+        
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
               {/* Profile Card */}
               <div
@@ -660,17 +660,16 @@ const Profile = () => {
 
         <TabsContent value="orders">
           <div className="container max-w-6xl mx-auto px-4 py-0">
-            <h2 className="text-xl font-bold mb-4">Lịch sử đơn hàng</h2>{" "}
             {/* Thêm dòng này */}
-            <div className="text-center text-gray-500 text-sm py-10">
-              (Thêm component vào đây)
+            <div className="text-center text-gray-500 text-sm">
+            <OrderHistoryPage/>
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="requests">
           <div className="container max-w-6xl mx-auto px-4 py-0">
-            <h2 className="text-xl font-bold mb-4">Lịch sử đặt hàng</h2>{" "}
+            <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "}
             {/* Thêm dòng này */}
             <div className="text-center text-gray-500 text-sm py-10">
               (Thêm component vào đây)

@@ -117,12 +117,16 @@ export function ChatPostCard({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                <div>
-                  Giá ban đầu: {formatCurrencyVND(post?.offer?.initPrice)}
-                </div>
-                <div>
-                  Giá đề nghị: {formatCurrencyVND(post?.post?.suggestedPrice)}
-                </div>
+                {currentUser?.role === ROLE.CUSTOMER && post.offer?.isAcceptedByCus === false && (
+                  <div className=" gap-4">
+                    <Button>Chấp nhận</Button>
+                  </div>
+                )}
+                {currentUser?.role === ROLE.DESIGNER && post.offer?.isAcceptedByDes === false && (
+                  <div className=" gap-4">
+                    <Button>Chấp nhận</Button>
+                  </div>
+                )}
                 <div>
                   Giá cuối cùng:{" "}
                   {post?.offer?.finalPrice === null
@@ -449,8 +453,8 @@ export function ChatPostCard({
                           Tiền cuối cùng
                         </span>
                         <span className="text-sm font-semibold text-green-600">
-                          {post?.offer?.designerDepositPrice
-                            ? post?.offer?.designerDepositPrice.toLocaleString(
+                          {post?.offer?.finalPrice
+                            ? post?.offer?.finalPrice.toLocaleString(
                                 "vi-VN",
                                 {
                                   style: "currency",

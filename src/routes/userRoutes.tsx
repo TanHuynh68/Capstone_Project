@@ -11,6 +11,7 @@ import {
   Chat,
   PostFormPage,
   CustomerManagePost,
+  OrderHistoryPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
@@ -85,10 +86,10 @@ export const userRoutes = [
         path: USER_ROUTES.MY_POST_PAGE,
         element: <PostOfferPage />,
       },
-      // {
-      //   path: USER_ROUTES.MY_POST_PAGE,
-      //   element: <PostCustomerPage />,
-      // },
+      {
+        path: USER_ROUTES.ORDER_HISTORY_PAGE,
+        element: <OrderHistoryPage />,
+      },
     ],
   },
 ];
