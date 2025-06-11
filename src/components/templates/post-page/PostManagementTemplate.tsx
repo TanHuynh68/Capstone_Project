@@ -7,7 +7,7 @@ import PostFilters from "@/components/molecules/post/post-page/PostFilters";
 import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
 import { Link } from "react-router-dom";
-import { PATH, USER_ROUTES } from "@/routes/path";
+import { PATH} from "@/routes/path";
 
 interface PostManagementTemplateProps {
   initialPosts: Post[];
