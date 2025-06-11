@@ -7,7 +7,7 @@ import PostFilters from "@/components/molecules/post/post-page/PostFilters";
 import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
 import { Link } from "react-router-dom";
-import { USER_ROUTES } from "@/routes/path";
+import { PATH} from "@/routes/path";
 
 interface PostManagementTemplateProps {
   initialPosts: Post[];
@@ -191,7 +191,7 @@ export default function PostManagementTemplate({
             </div>
 
             <div className="flex items-center gap-4">
-              <Link to={USER_ROUTES.CUSTOMER_UPLOAD_PAGE}>
+              <Link to={PATH.CUSTOMER_UPLOAD_PAGE}>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Tạo bài đăng
