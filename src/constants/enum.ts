@@ -46,12 +46,12 @@ export enum WALLET_TRANSACTION_TYPE {
 }
 
 export enum WALLET_TRANSACTION_V_TYPE {
-  Deposit = 'Deposit', // Nạp tiền
-  Withdraw = 'Withdraw', // Rút tiền
-  Transfer = 'Transfer', // Chuyển tiền
-  Receive = 'Receive', // Nhận tiền
-  PlaceDeposit = 'PlaceDeposit', // Đặt cọc
-  RefundDeposit = 'RefundDeposit', // Hoàn cọc
+  Deposit = "Deposit", // Nạp tiền
+  Withdraw = "Withdraw", // Rút tiền
+  Transfer = "Transfer", // Chuyển tiền
+  Receive = "Receive", // Nhận tiền
+  PlaceDeposit = "PlaceDeposit", // Đặt cọc
+  RefundDeposit = "RefundDeposit", // Hoàn cọc
 }
 
 export enum NotificationType {
@@ -62,6 +62,11 @@ export enum NotificationType {
   SYSTEM = "system",
 }
 
+export const ORDER_STATUSES = {
+  InProgress: "Đang thực hiện",
+  Completed: "Hoàn thành",
+  Cancelled: "Đã hủy",
+};
 export enum MESSAGE_TYPE {
   Text = 0,
   Image = 1,
@@ -71,31 +76,31 @@ export enum MESSAGE_TYPE {
 
 // enums.ts
 export enum OfferStatusEnum {
-  Pending = 'Pending',
-  Dealing = 'Dealing',
-  Accepted = 'Accepted',
-  Rejected = 'Rejected',
+  Pending = "Pending",
+  Dealing = "Dealing",
+  Accepted = "Accepted",
+  Rejected = "Rejected",
 }
 
 export enum OfferPhaseEnum {
-  NotStarted = 'NotStarted',
-  Dealed = 'Dealed',
-  Deposited = 'Deposited',
-  Withdrawed = 'Withdrawed',
-  Done = 'Done',
+  NotStarted = "NotStarted",
+  Dealed = "Dealed",
+  Deposited = "Deposited",
+  Withdrawed = "Withdrawed",
+  Done = "Done",
 }
 
 export const OfferStatusVi: Record<OfferStatusEnum, string> = {
-  [OfferStatusEnum.Pending]: 'Đang chờ',
-  [OfferStatusEnum.Dealing]: 'Đang thương lượng',
-  [OfferStatusEnum.Accepted]: 'Đã chấp nhận',
-  [OfferStatusEnum.Rejected]: 'Đã từ chối',
+  [OfferStatusEnum.Pending]: "Đang chờ",
+  [OfferStatusEnum.Dealing]: "Đang thương lượng",
+  [OfferStatusEnum.Accepted]: "Đã chấp nhận",
+  [OfferStatusEnum.Rejected]: "Đã từ chối",
 };
 //
 export const OfferPhaseVi: Record<OfferPhaseEnum, string> = {
-  [OfferPhaseEnum.NotStarted]: 'Chưa bắt đầu',
-  [OfferPhaseEnum.Dealed]: 'Đã thương lượng',
-  [OfferPhaseEnum.Deposited]: 'Đã đặt cọc',
-  [OfferPhaseEnum.Withdrawed]: 'Đã rút',
-  [OfferPhaseEnum.Done]: 'Đã hoàn thành',
+  [OfferPhaseEnum.NotStarted]: "Chưa bắt đầu",
+  [OfferPhaseEnum.Dealed]: "Đã thương lượng",
+  [OfferPhaseEnum.Deposited]: "Đã đặt cọc",
+  [OfferPhaseEnum.Withdrawed]: "Đã rút",
+  [OfferPhaseEnum.Done]: "Đã hoàn thành",
 };
