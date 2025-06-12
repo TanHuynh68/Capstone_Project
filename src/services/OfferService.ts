@@ -162,6 +162,37 @@ const OfferService = () => {
     [callApi]
   );
 
+  const autoUpdateOffer = useCallback(
+    async (id: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          `${API_ROUTES.AUTO_UPDATE_OFFER}=${id}`
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const offerConfirm = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.PUT,
+          API_ROUTES.OFFER_CONFIRM,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   return {
     createOffer,
     getOfferToken,
@@ -173,6 +204,8 @@ const OfferService = () => {
     createOfferPhase,
     getOfferPhase,
     updateOfferPhase,
+    autoUpdateOffer,
+    offerConfirm
   };
 };
 
