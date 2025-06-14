@@ -870,15 +870,13 @@ const PlushDollDesign: React.FC = () => {
 
       // Dispatch event để cập nhật danh sách canvas
       window.dispatchEvent(new CustomEvent("canvasSaved"));
-    } catch (error: unknown) {
-      console.error("Error updating title:", error);
-      // Show specific error message from API if available
+    } catch (err: unknown) {
+      console.error("Error updating title:", err);
       const errorMessage =
-        error instanceof Error
-          ? error.message
+        err instanceof Error
+          ? err.message
           : "Có lỗi xảy ra khi cập nhật tiêu đề";
       toast.error(errorMessage);
-      // Reset editing state on error
       setEditingTitle(currentCanvasTitle);
       setIsEditingTitle(false);
     }
@@ -934,12 +932,10 @@ const PlushDollDesign: React.FC = () => {
       window.dispatchEvent(new CustomEvent("canvasSaved"));
 
       toast.success("Đã lưu thiết kế thành công!");
-    } catch (error: unknown) {
-      console.error("Lỗi khi lưu thiết kế:", error);
+    } catch (err: unknown) {
+      console.error("Lỗi khi lưu thiết kế:", err);
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Có lỗi xảy ra khi lưu thiết kế";
+        err instanceof Error ? err.message : "Có lỗi xảy ra khi lưu thiết kế";
       toast.error(errorMessage);
     }
   };
@@ -961,15 +957,19 @@ const PlushDollDesign: React.FC = () => {
 
   const sanitizeCanvasJSON = (jsonString: string): string => {
     try {
-      const jsonObj = JSON.parse(jsonString);
+      const jsonObj: Record<string, unknown> = JSON.parse(jsonString);
 
-      const fixTextBaseline = (obj: any) => {
+      const fixTextBaseline = (obj: Record<string, unknown>) => {
         if (obj && typeof obj === "object") {
-          if (obj.textBaseline === "alphabetical") {
-            obj.textBaseline = "alphabetic";
+          if (
+            (obj as { textBaseline?: string }).textBaseline === "alphabetical"
+          ) {
+            (obj as { textBaseline?: string }).textBaseline = "alphabetic";
           }
-          if (obj.objects) {
-            obj.objects.forEach(fixTextBaseline);
+          if ((obj as { objects?: Record<string, unknown>[] }).objects) {
+            (obj as { objects: Record<string, unknown>[] }).objects.forEach(
+              fixTextBaseline
+            );
           }
         }
       };
@@ -977,8 +977,8 @@ const PlushDollDesign: React.FC = () => {
       fixTextBaseline(jsonObj);
 
       return JSON.stringify(jsonObj);
-    } catch (error) {
-      console.error("Lỗi parse JSON:", error);
+    } catch (err: unknown) {
+      console.error("Lỗi parse JSON:", err);
       return jsonString;
     }
   };
@@ -1159,17 +1159,17 @@ const PlushDollDesign: React.FC = () => {
   }, [isAutoSaveEnabled]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b p-4 flex items-center justify-between shadow-sm">
+      <header className="sticky top-0 z-50 bg-background border-b border-border p-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-6">
           <div className="font-bold text-xl text-primary flex items-center gap-2">
             <span className="bg-primary/10 p-2 rounded-lg">🎨</span>
             <span>PlushDoll Design</span>
           </div>
-          <div className="text-sm text-gray-600 border-l pl-6">
+          <div className="text-sm text-muted-foreground border-l border-border pl-6">
             {isEditingTitle ? (
-              <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2 bg-muted p-1 rounded-lg border border-border">
                 <input
                   type="text"
                   value={editingTitle}
@@ -1182,7 +1182,7 @@ const PlushDollDesign: React.FC = () => {
                       setEditingTitle(currentCanvasTitle);
                     }
                   }}
-                  className="border rounded px-2 py-1 text-sm w-[150px] bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                  className="border rounded px-2 py-1 text-sm w-[150px] bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   autoFocus
                   placeholder="Nhập tiêu đề..."
                 />
@@ -1202,7 +1202,7 @@ const PlushDollDesign: React.FC = () => {
                       setIsEditingTitle(false);
                       setEditingTitle(currentCanvasTitle);
                     }}
-                    className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-500 transition-colors"
+                    className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -1210,16 +1210,16 @@ const PlushDollDesign: React.FC = () => {
               </div>
             ) : (
               <div
-                className="flex items-center gap-2 cursor-pointer bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 transition-all"
+                className="flex items-center gap-2 cursor-pointer bg-muted px-3 py-1.5 rounded-lg border border-border transition-all"
                 onClick={() => {
                   setIsEditingTitle(true);
                   setEditingTitle(currentCanvasTitle);
                 }}
               >
-                <span className="text-gray-700 font-medium">
+                <span className="text-foreground font-medium">
                   {currentCanvasTitle}
                 </span>
-                <span className="text-gray-400">
+                <span className="text-muted-foreground">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
@@ -1306,7 +1306,7 @@ const PlushDollDesign: React.FC = () => {
             {isAutoSaveEnabled ? (
               <span className="flex items-center gap-1">
                 <span className="text-xs font-medium">Tự động lưu</span>
-                <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">
+                <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
                   {autoSaveCountdown}s
                 </span>
               </span>
@@ -1330,12 +1330,12 @@ const PlushDollDesign: React.FC = () => {
         <aside
           className={`${
             isSidebarCollapsed ? "w-16" : "w-64"
-          } transition-all duration-300 border-r bg-white p-4 flex flex-col gap-4 relative`}
+          } transition-all duration-300 border-r border-border bg-card p-4 flex flex-col gap-4 relative`}
         >
           <Button
             size="icon"
             variant="outline"
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 shadow-md rounded-full w-6 h-6 flex items-center justify-center"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-card hover:bg-muted shadow-md rounded-full w-6 h-6 flex items-center justify-center"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
           >
             {isSidebarCollapsed ? (
@@ -1388,7 +1388,9 @@ const PlushDollDesign: React.FC = () => {
                   })
                 }
                 className={
-                  isDrawing ? "bg-blue-500 hover:bg-blue-600 text-white" : ""
+                  isDrawing
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : ""
                 }
               >
                 <Pencil className="w-4 h-4 mr-1" />
@@ -1537,11 +1539,12 @@ const PlushDollDesign: React.FC = () => {
                 size="icon"
                 variant="outline"
                 onClick={() => {
-                  const text = new fabric.IText("Nhập văn bản", {
+                  const text = new fabric.Textbox("Nhập văn bản", {
                     left: 100,
                     top: 100,
-                    fontSize: 20,
+                    width: 150,
                     textAlign: "center",
+                    fontSize: 20,
                     fill: "#000",
                   });
                   canvasRef.current?.add(text);
@@ -1570,9 +1573,9 @@ const PlushDollDesign: React.FC = () => {
         />
 
         {/* Canvas */}
-        <div className="flex-1 relative bg-gray-50">
+        <div className="flex-1 relative bg-muted">
           {activeText && (
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-white border shadow-md flex gap-2 p-2 rounded-md">
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-card border border-border shadow-md flex gap-2 p-2 rounded-md">
               <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
                 <PopoverTrigger asChild>
                   <div className="w-40 h-[30px]">
@@ -1788,10 +1791,10 @@ const PlushDollDesign: React.FC = () => {
             </div>
           )}
 
-          <div className="relative flex justify-center items-center bg-gray-100 h-full">
+          <div className="relative flex justify-center items-center bg-muted h-full">
             <div
               ref={canvasWrapperRef}
-              className="relative bg-white shadow-md origin-top"
+              className="relative bg-card shadow-md origin-top"
               style={{
                 width: `${convertToPixels(
                   parseFloat(actualCanvasWidth) || 0,
@@ -1815,7 +1818,7 @@ const PlushDollDesign: React.FC = () => {
 
                   return (
                     <div
-                      className="absolute z-50 bg-white shadow-lg rounded-md p-2 flex gap-2 select-none"
+                      className="absolute z-50 bg-card shadow-lg rounded-md p-2 flex gap-2 select-none"
                       style={{
                         top: toolbarPos.y,
                         left: toolbarPos.x,

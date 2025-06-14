@@ -660,7 +660,6 @@ const Profile = () => {
 
         <TabsContent value="orders">
           <div className="container max-w-6xl mx-auto px-4 py-0">
-            {/* Thêm dòng này */}
             <div className="text-center text-gray-500 text-sm">
             <OrderHistoryPage/>
             </div>
@@ -670,7 +669,6 @@ const Profile = () => {
         <TabsContent value="requests">
           <div className="container max-w-6xl mx-auto px-4 py-0">
             <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "}
-            {/* Thêm dòng này */}
             <div className="text-center text-gray-500 text-sm py-10">
               (Thêm component vào đây)
             </div>

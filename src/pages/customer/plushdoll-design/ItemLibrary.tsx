@@ -140,11 +140,11 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
   if (!isOpen && !showUnsplash) return null;
 
   return (
-    <div className="w-[300px] h-full border-l bg-white flex flex-col">
+    <div className="w-[300px] h-full border-l border-border bg-card flex flex-col">
       {isOpen && (
         <>
-          <div className="p-4 border-b">
-            <h3 className="font-medium mb-4">Các mẫu Labubu</h3>
+          <div className="p-4 border-b border-border">
+            <h3 className="font-medium mb-4 text-foreground">Các mẫu Labubu</h3>
             <Input
               type="text"
               placeholder="Tìm kiếm..."
@@ -153,7 +153,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
               className="mb-4"
             />
             <div className="relative">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                 <Button
                   variant={selectedCategory === null ? "default" : "outline"}
                   size="sm"
@@ -176,11 +176,11 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
                   </Button>
                 ))}
               </div>
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card pointer-events-none" />
             </div>
           </div>
 
-          <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
             <div className="grid grid-cols-2 gap-4">
               {filteredItems.map((item) => (
                 <div
@@ -190,7 +190,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
                   draggable
                   onDragStart={(e) => handleDragStart(e, item.imageUrl)}
                 >
-                  <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
+                  <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
                     <img
                       src={item.imageUrl}
                       alt={item.name}
@@ -199,7 +199,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                   </div>
-                  <p className="text-sm text-center text-gray-600 truncate">
+                  <p className="text-sm text-center text-muted-foreground truncate">
                     {item.name}
                   </p>
                 </div>
