@@ -1,23 +1,33 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Search, Filter, CalendarIcon, LayoutGrid, List } from "lucide-react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { ORDER_STATUSES } from "@/constants"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Search, Filter, CalendarIcon, LayoutGrid, List } from "lucide-react";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { ORDER_STATUSES } from "@/constants";
 
 interface OrderFiltersProps {
-  filters: OrderFilterState
-  onFiltersChange: (filters: OrderFilterState) => void
-  sort: OrderSortState
-  onSortChange: (sort: OrderSortState) => void
-  viewMode: "grid" | "list"
-  onViewModeChange: (mode: "grid" | "list") => void
-  className?: string
+  filters: OrderFilterState;
+  onFiltersChange: (filters: OrderFilterState) => void;
+  sort: OrderSortState;
+  onSortChange: (sort: OrderSortState) => void;
+  viewMode: "grid" | "list";
+  onViewModeChange: (mode: "grid" | "list") => void;
+  className?: string;
 }
 
 export default function OrderFilters({
@@ -30,32 +40,38 @@ export default function OrderFilters({
   className = "",
 }: OrderFiltersProps) {
   const handleSearchChange = (value: string) => {
-    onFiltersChange({ ...filters, search: value })
-  }
+    onFiltersChange({ ...filters, search: value });
+  };
 
   const handleStatusChange = (value: string) => {
-    onFiltersChange({ ...filters, status: value === "all" ? "" : value })
-  }
+    onFiltersChange({ ...filters, status: value === "all" ? "" : value });
+  };
 
-  const handleDateRangeChange = (type: "from" | "to", date: Date | undefined) => {
+  const handleDateRangeChange = (
+    type: "from" | "to",
+    date: Date | undefined
+  ) => {
     onFiltersChange({
       ...filters,
       dateRange: {
         ...filters.dateRange,
         [type]: date || null,
       },
-    })
-  }
+    });
+  };
 
-  const handleDeadlineRangeChange = (type: "from" | "to", date: Date | undefined) => {
+  const handleDeadlineRangeChange = (
+    type: "from" | "to",
+    date: Date | undefined
+  ) => {
     onFiltersChange({
       ...filters,
       deadlineRange: {
         ...filters.deadlineRange,
         [type]: date || null,
       },
-    })
-  }
+    });
+  };
 
   const clearFilters = () => {
     onFiltersChange({
@@ -63,15 +79,15 @@ export default function OrderFilters({
       status: "",
       dateRange: { from: null, to: null },
       deadlineRange: { from: null, to: null },
-    })
-  }
+    });
+  };
 
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Search and Quick Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Tìm kiếm theo ID đơn hàng hoặc ghi chú..."
             value={filters.search}
@@ -106,7 +122,10 @@ export default function OrderFilters({
       {/* Advanced Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Status Filter */}
-        <Select value={filters.status || "all"} onValueChange={handleStatusChange}>
+        <Select
+          value={filters.status || "all"}
+          onValueChange={handleStatusChange}
+        >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
@@ -123,17 +142,22 @@ export default function OrderFilters({
         {/* Date Range Filter */}
         <div className="flex gap-2">
           <Popover>
-            <PopoverTrigger >
-              <Button variant="outline" className="w-full sm:w-auto justify-start text-left">
+            <PopoverTrigger>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto justify-start text-left"
+              >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.dateRange.from ? (
                   filters.dateRange.to ? (
                     <>
-                      {format(filters.dateRange.from, "dd MMM", { locale: vi })} -{" "}
-                      {format(filters.dateRange.to, "dd MMM", { locale: vi })}
+                      {format(filters.dateRange.from, "dd MMM", { locale: vi })}{" "}
+                      - {format(filters.dateRange.to, "dd MMM", { locale: vi })}
                     </>
                   ) : (
-                    format(filters.dateRange.from, "dd MMM yyyy", { locale: vi })
+                    format(filters.dateRange.from, "dd MMM yyyy", {
+                      locale: vi,
+                    })
                   )
                 ) : (
                   "Ngày tạo"
@@ -150,8 +174,8 @@ export default function OrderFilters({
                   to: filters.dateRange.to || undefined,
                 }}
                 onSelect={(range) => {
-                  handleDateRangeChange("from", range?.from)
-                  handleDateRangeChange("to", range?.to)
+                  handleDateRangeChange("from", range?.from);
+                  handleDateRangeChange("to", range?.to);
                 }}
                 numberOfMonths={2}
               />
@@ -159,17 +183,27 @@ export default function OrderFilters({
           </Popover>
 
           <Popover>
-            <PopoverTrigger >
-              <Button variant="outline" className="w-full sm:w-auto justify-start text-left">
+            <PopoverTrigger>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto justify-start text-left"
+              >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {filters.deadlineRange.from ? (
                   filters.deadlineRange.to ? (
                     <>
-                      {format(filters.deadlineRange.from, "dd MMM", { locale: vi })} -{" "}
-                      {format(filters.deadlineRange.to, "dd MMM", { locale: vi })}
+                      {format(filters.deadlineRange.from, "dd MMM", {
+                        locale: vi,
+                      })}{" "}
+                      -{" "}
+                      {format(filters.deadlineRange.to, "dd MMM", {
+                        locale: vi,
+                      })}
                     </>
                   ) : (
-                    format(filters.deadlineRange.from, "dd MMM yyyy", { locale: vi })
+                    format(filters.deadlineRange.from, "dd MMM yyyy", {
+                      locale: vi,
+                    })
                   )
                 ) : (
                   "Deadline"
@@ -186,8 +220,8 @@ export default function OrderFilters({
                   to: filters.deadlineRange.to || undefined,
                 }}
                 onSelect={(range) => {
-                  handleDeadlineRangeChange("from", range?.from)
-                  handleDeadlineRangeChange("to", range?.to)
+                  handleDeadlineRangeChange("from", range?.from);
+                  handleDeadlineRangeChange("to", range?.to);
                 }}
                 numberOfMonths={2}
               />
@@ -200,8 +234,11 @@ export default function OrderFilters({
           value={sort.column ? `${sort.column}-${sort.direction}` : ""}
           onValueChange={(value) => {
             if (value) {
-              const [column, direction] = value.split("-")
-              onSortChange({ column: column as any, direction: direction as "asc" | "desc" })
+              const [column, direction] = value.split("-");
+              onSortChange({
+                column: column as any,
+                direction: direction as "asc" | "desc",
+              });
             }
           }}
         >
@@ -226,5 +263,5 @@ export default function OrderFilters({
         </Button>
       </div>
     </div>
-  )
+  );
 }

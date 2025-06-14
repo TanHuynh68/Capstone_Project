@@ -1,14 +1,18 @@
-import type { ReactNode } from "react"
-import type { JSX } from "react"
+import type { ReactNode } from "react";
+import type { JSX } from "react";
 
 interface HeadingProps {
-  level: 1 | 2 | 3 | 4 | 5 | 6
-  children: ReactNode
-  className?: string
+  level: 1 | 2 | 3 | 4 | 5 | 6;
+  children: ReactNode;
+  className?: string;
 }
 
-export default function Heading({ level, children, className = "" }: HeadingProps) {
-  const baseStyles = "font-bold text-gray-900"
+export default function Heading({
+  level,
+  children,
+  className = "",
+}: HeadingProps) {
+  const baseStyles = "font-bold text-foreground";
 
   const sizeStyles = {
     1: "text-4xl md:text-5xl mb-6",
@@ -17,9 +21,13 @@ export default function Heading({ level, children, className = "" }: HeadingProp
     4: "text-xl md:text-2xl mb-3",
     5: "text-lg md:text-xl mb-2",
     6: "text-base md:text-lg mb-2",
-  }
+  };
 
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements
+  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 
-  return <Tag className={`${baseStyles} ${sizeStyles[level]} ${className}`}>{children}</Tag>
+  return (
+    <Tag className={`${baseStyles} ${sizeStyles[level]} ${className}`}>
+      {children}
+    </Tag>
+  );
 }

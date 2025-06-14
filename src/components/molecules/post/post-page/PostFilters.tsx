@@ -1,8 +1,16 @@
-"use client"
+"use client";
 
-import { Search, Filter, SlidersHorizontal, Grid, List, ToggleLeft, ToggleRight } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import {
+  Search,
+  Filter,
+  SlidersHorizontal,
+  Grid,
+  List,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,16 +18,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 interface PostFiltersProps {
-  filters: FilterState
-  onFiltersChange: (filters: FilterState) => void
-  sort: SortState
-  onSortChange: (sort: SortState) => void
-  viewMode: "grid" | "list"
-  onViewModeChange: (mode: "grid" | "list") => void
-  className?: string
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+  sort: SortState;
+  onSortChange: (sort: SortState) => void;
+  viewMode: "grid" | "list";
+  onViewModeChange: (mode: "grid" | "list") => void;
+  className?: string;
 }
 
 export default function PostFilters({
@@ -31,32 +39,39 @@ export default function PostFilters({
   className = "",
 }: PostFiltersProps) {
   const handleSearchChange = (value: string) => {
-    onFiltersChange({ ...filters, search: value })
-  }
+    onFiltersChange({ ...filters, search: value });
+  };
 
   const handleStatusChange = (value: string) => {
-    onFiltersChange({ ...filters, status: value })
-  }
+    onFiltersChange({ ...filters, status: value });
+  };
 
   const handleActiveToggle = () => {
     onFiltersChange({
       ...filters,
-      isActive: filters.isActive === undefined ? true : filters.isActive ? false : undefined,
-    })
-  }
+      isActive:
+        filters.isActive === undefined
+          ? true
+          : filters.isActive
+          ? false
+          : undefined,
+    });
+  };
 
   const handleSortChange = (column: string, direction: "asc" | "desc") => {
-    onSortChange({ column, direction })
-  }
+    onSortChange({ column, direction });
+  };
 
   const getActiveFilterText = () => {
-    if (filters.isActive === true) return "Chỉ bài đang hoạt động"
-    if (filters.isActive === false) return "Chỉ bài không hoạt động"
-    return "Tất cả bài đăng"
-  }
+    if (filters.isActive === true) return "Chỉ bài đang hoạt động";
+    if (filters.isActive === false) return "Chỉ bài không hoạt động";
+    return "Tất cả bài đăng";
+  };
 
   return (
-    <div className={`flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between ${className}`}>
+    <div
+      className={`flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between ${className}`}
+    >
       {/* Left side - Search and Filters */}
       <div className="flex flex-1 gap-3 items-center">
         {/* Filter Button */}
@@ -64,20 +79,31 @@ export default function PostFilters({
           <DropdownMenuTrigger>
             <Button variant="outline" className="gap-2">
               <Filter className="h-4 w-4" />
-              Filter
+              Lọc
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel>Lọc theo trạng thái</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleStatusChange("")}>Tất cả</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange("1")}>Đang hoạt động</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange("2")}>Đang xử lý</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange("3")}>Đã kết thúc</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange("")}>
+              Tất cả
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange("1")}>
+              Đang hoạt động
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange("2")}>
+              Đang xử lý
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange("3")}>
+              Đã kết thúc
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Trạng thái hoạt động</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleActiveToggle} className="flex items-center justify-between">
+            <DropdownMenuItem
+              onClick={handleActiveToggle}
+              className="flex items-center justify-between"
+            >
               <span>{getActiveFilterText()}</span>
               {filters.isActive === true ? (
                 <ToggleRight className="h-4 w-4 text-green-500" />
@@ -92,12 +118,12 @@ export default function PostFilters({
 
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Tìm kiếm dự án..."
+            placeholder="Tìm kiếm bài đăng..."
             value={filters.search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+            className="pl-10"
           />
         </div>
       </div>
@@ -109,24 +135,56 @@ export default function PostFilters({
           <DropdownMenuTrigger>
             <Button variant="outline" size="sm" className="gap-2">
               <SlidersHorizontal className="h-4 w-4" />
-              Sort
+              Sắp xếp
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Sắp xếp theo</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleSortChange("createdAt", "desc")}>Mới nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("createdAt", "asc")}>Cũ nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("suggestedPrice", "desc")}>Giá cao nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("suggestedPrice", "asc")}>Giá thấp nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("itemValue", "desc")}>Giá trị cao nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("itemValue", "asc")}>Giá trị thấp nhất</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("endAt", "asc")}>Sắp hết hạn</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("finishDate", "asc")}>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("createdAt", "desc")}
+            >
+              Mới nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("createdAt", "asc")}
+            >
+              Cũ nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("suggestedPrice", "desc")}
+            >
+              Giá cao nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("suggestedPrice", "asc")}
+            >
+              Giá thấp nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("itemValue", "desc")}
+            >
+              Giá trị cao nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("itemValue", "asc")}
+            >
+              Giá trị thấp nhất
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSortChange("endAt", "asc")}>
+              Sắp hết hạn
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("finishDate", "asc")}
+            >
               Hoàn thành sớm nhất
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("title", "asc")}>Tên A-Z</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("title", "desc")}>Tên Z-A</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSortChange("title", "asc")}>
+              Tên A-Z
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSortChange("title", "desc")}>
+              Tên Z-A
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -151,5 +209,5 @@ export default function PostFilters({
         </div>
       </div>
     </div>
-  )
+  );
 }

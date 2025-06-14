@@ -1,10 +1,12 @@
-import { MapPin, Phone, Mail, Clock } from "lucide-react"
-import ContactInfoItem from "@/components/atoms/general/contact/ContactInfoItem"
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import ContactInfoItem from "@/components/atoms/general/contact/ContactInfoItem";
 
 export default function ContactInfoCard() {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Thông Tin Liên Hệ</h2>
+    <div className="bg-card p-6 rounded-xl shadow-sm border border-border space-y-6">
+      <h2 className="text-2xl font-bold text-card-foreground mb-4">
+        Thông Tin Liên Hệ
+      </h2>
 
       <ContactInfoItem icon={<MapPin size={20} />} title="Địa Chỉ">
         <address className="not-italic">
@@ -17,13 +19,19 @@ export default function ContactInfoCard() {
       </ContactInfoItem>
 
       <ContactInfoItem icon={<Phone size={20} />} title="Số Điện Thoại">
-        <a href="tel:+1234567890" className=" transition-colors">
+        <a
+          href="tel:+1234567890"
+          className="transition-colors text-muted-foreground hover:text-primary"
+        >
           (123) 456-7890
         </a>
       </ContactInfoItem>
 
       <ContactInfoItem icon={<Mail size={20} />} title="Email">
-        <a href="mailto:info@dollcraft.com" className=" transition-colors">
+        <a
+          href="mailto:info@dollcraft.com"
+          className="transition-colors text-muted-foreground hover:text-primary"
+        >
           info@dollcraft.com
         </a>
       </ContactInfoItem>
@@ -34,5 +42,5 @@ export default function ContactInfoCard() {
         <p>Chủ Nhật: Nghỉ</p>
       </ContactInfoItem>
     </div>
-  )
+  );
 }

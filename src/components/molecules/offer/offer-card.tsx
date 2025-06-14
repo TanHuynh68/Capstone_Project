@@ -125,18 +125,52 @@ export function OfferCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {offer.offerStatus === 0 && (
+          {offer.offerStatus === "Pending" && (
             <div className="relative group w-fit h-fit pl-2">
               <div
                 className="w-3 h-3 bg-yellow-400 dark:bg-yellow-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
-                title="Chờ xét"
+                title="Chờ phản hồi"
               />
               <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
                 <Badge
                   variant="warning"
                   className="text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-500/20 whitespace-nowrap"
                 >
-                  Chờ xét
+                  Chờ phản hồi
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          {offer.offerStatus === "Dealing" && (
+            <div className="relative group w-fit h-fit pl-2">
+              <div
+                className="w-3 h-3 bg-blue-400 dark:bg-blue-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
+                title="Đang thương lượng"
+              />
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
+                <Badge
+                  variant="default"
+                  className="text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-500/20 whitespace-nowrap"
+                >
+                  Đang thương lượng
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          {offer.offerStatus === "Accepted" && (
+            <div className="relative group w-fit h-fit pl-2">
+              <div
+                className="w-3 h-3 bg-green-400 dark:bg-green-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
+                title="Đã chấp nhận"
+              />
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
+                <Badge
+                  variant="success"
+                  className="text-green-800 dark:text-green-300 bg-green-100 dark:bg-green-500/20 whitespace-nowrap"
+                >
+                  Đã chấp nhận
                 </Badge>
               </div>
             </div>

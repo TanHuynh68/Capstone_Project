@@ -7,7 +7,7 @@ import PostFilters from "@/components/molecules/post/post-page/PostFilters";
 import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
 import { Link } from "react-router-dom";
-import { PATH} from "@/routes/path";
+import { PATH } from "@/routes/path";
 
 interface PostManagementTemplateProps {
   initialPosts: Post[];
@@ -180,19 +180,19 @@ export default function PostManagementTemplate({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top Navigation */}
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+              <h1 className="text-2xl font-bold text-foreground">Bài đăng</h1>
             </div>
 
             <div className="flex items-center gap-4">
               <Link to={PATH.CUSTOMER_UPLOAD_PAGE}>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Plus className="h-4 w-4 mr-2" />
                   Tạo bài đăng
                 </Button>
@@ -207,10 +207,10 @@ export default function PostManagementTemplate({
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Danh sách dự án
+            <h2 className="text-xl font-semibold text-foreground">
+              Danh sách bài đăng
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-muted-foreground mt-1">
               Hiển thị {filteredPosts?.length || 0} trên {posts?.length || 0}{" "}
               bài đăng
             </p>
@@ -247,8 +247,12 @@ export default function PostManagementTemplate({
         {/* Load More */}
         {!isLoading && filteredPosts.length > 0 && (
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-             Tải thêm
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              Tải thêm
             </Button>
           </div>
         )}
