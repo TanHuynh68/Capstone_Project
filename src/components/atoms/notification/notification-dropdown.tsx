@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from "@/hooks/use-notifications";
 import { NotificationItem } from "./notification-item";
 import { EmptyNotifications } from "./empty-notifications";
+import type { NotificationProps } from "./notification-context";
 
 interface NotificationDropdownProps {
   children: React.ReactNode;
@@ -73,12 +74,4 @@ export function NotificationDropdown({ children }: NotificationDropdownProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-export interface NotificationProps {
-  notificationID: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
 }

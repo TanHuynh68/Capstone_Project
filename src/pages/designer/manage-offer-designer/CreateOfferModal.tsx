@@ -63,7 +63,7 @@ export default function CreateOfferModal({
       .string()
       .refine(
         (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 1000,
-        "Giá đề xuất phải là số hợp lệ và lớn hơn hoặc bằng 1000"
+        "Giá đề xuất phải lớn hơn hoặc bằng 1000"
       ),
     note: z.string().min(1, "Vui lòng nhập ghi chú"),
     deadline: z.string().optional(),
@@ -74,7 +74,7 @@ export default function CreateOfferModal({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      initPrice: "1000",
+      initPrice: "",
       note: "",
       deadline: "",
     },
@@ -84,7 +84,7 @@ export default function CreateOfferModal({
 
   const resetForm = () => {
     form.reset({
-      initPrice: "1000",
+      initPrice: "",
       note: "",
       deadline: "",
     });
@@ -100,7 +100,7 @@ export default function CreateOfferModal({
   // Set giá trị mặc định cho input giá đề xuất khi mở modal hoặc đổi post
   useEffect(() => {
     if (open && post) {
-      form.setValue("initPrice", "1000");
+      form.setValue("initPrice", "");
     }
   }, [open, post, form]);
 
@@ -143,12 +143,14 @@ export default function CreateOfferModal({
   }, [imagePreview]);
 
   const handleSubmit = (values: FormValues) => {
-    if (!image) {
-      setImageError("Vui lòng chọn hình ảnh mẫu");
+    if (isCalendarOpen) {
+      // Nếu đang mở popover, không cho submit
       return;
     }
 
-    if (imageError) {
+    setImageError(null);
+    if (!image) {
+      setImageError("Vui lòng chọn hình ảnh mẫu");
       return;
     }
 
@@ -190,34 +192,36 @@ export default function CreateOfferModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-none min-w-[1000px]">
+      <DialogContent className="max-w-none min-w-[1000px] bg-card text-card-foreground border-border">
         <DialogHeader className="pb-2">
           {role === "Designer" && (
-            <DialogTitle className="text-xl">Tạo đề xuất mới</DialogTitle>
+            <DialogTitle className="text-xl text-foreground">
+              Tạo đề xuất mới
+            </DialogTitle>
           )}
         </DialogHeader>
 
         <div className="grid grid-cols-[1.5fr_1fr] gap-8 items-center">
           {/* Cột trái - Thông tin bài post */}
-          <div className="border rounded-md bg-gray-50/80 p-4 max-h-[70vh] overflow-y-auto">
+          <div className="border rounded-md bg-muted/50 border-border p-4 max-h-[70vh] overflow-y-auto">
             {/* Header với avatar và thông tin cơ bản */}
             <div className="flex items-start gap-3 mb-3">
               {post.avatar && (
                 <img
                   src={post.avatar}
                   alt="Avatar"
-                  className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                  className="w-12 h-12 rounded-full object-cover border border-border"
                 />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-gray-800 line-clamp-1 mb-1">
+                <h3 className="text-lg font-bold text-foreground line-clamp-1 mb-1">
                   {post.title}
                 </h3>
-                <div className="flex flex-wrap items-center gap-x-2 text-sm text-gray-600">
-                  <span className="font-semibold text-gray-700">
+                <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">
                     {post.fullName}
                   </span>
-                  <span className="text-gray-400">•</span>
+                  <span className="text-muted-foreground">•</span>
                   <span>
                     {new Date(post.createdAt).toLocaleDateString("vi-VN")}
                   </span>
@@ -228,12 +232,12 @@ export default function CreateOfferModal({
             {/* Mô tả và hình ảnh */}
             <div className="space-y-3">
               {post.description && (
-                <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
+                <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       Mô tả sản phẩm
                     </span>
-                    <span className="text-sm text-gray-600 font-semibold  border-gray-100">
+                    <span className="text-sm text-muted-foreground font-semibold border-border">
                       {post.description}
                     </span>
                   </div>
@@ -244,12 +248,12 @@ export default function CreateOfferModal({
                 <div className="grid grid-cols-2 gap-4">
                   {/* Cột thông tin giá */}
                   <div className="space-y-2">
-                    <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
+                    <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           Giá trị sản phẩm
                         </span>
-                        <span className="text-sm font-semibold text-blue-600">
+                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                           {post.itemValue.toLocaleString("vi-VN", {
                             style: "currency",
                             currency: "VND",
@@ -257,12 +261,12 @@ export default function CreateOfferModal({
                         </span>
                       </div>
                     </div>
-                    <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
+                    <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           Giá đề xuất
                         </span>
-                        <span className="text-sm font-semibold text-green-600">
+                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
                           {post.suggestedPrice.toLocaleString("vi-VN", {
                             style: "currency",
                             currency: "VND",
@@ -274,12 +278,12 @@ export default function CreateOfferModal({
 
                   {/* Cột thông tin thời hạn */}
                   <div className="space-y-2">
-                    <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
+                    <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           Thời hạn hoàn thành
                         </span>
-                        <span className="text-sm font-semibold text-amber-600">
+                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           {post.finishDate
                             ? new Date(post.finishDate).toLocaleDateString(
                                 "vi-VN",
@@ -293,18 +297,18 @@ export default function CreateOfferModal({
                         </span>
                       </div>
                     </div>
-                    <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
+                    <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           Trạng thái
                         </span>
                         <span
                           className={`text-sm font-semibold ${
                             post.postStatus === 1
-                              ? "text-green-600"
+                              ? "text-green-600 dark:text-green-400"
                               : post.postStatus === 2
-                              ? "text-blue-600"
-                              : "text-gray-600"
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-muted-foreground"
                           }`}
                         >
                           {post.postStatus === 1
@@ -346,12 +350,12 @@ export default function CreateOfferModal({
 
           {/* Cột phải - Form nhập thông tin */}
           <div className="flex flex-col items-center max-h-[70vh] overflow-y-auto">
-            <div className="w-full max-w-sm space-y-3 p-4 bg-white/50 rounded-lg border border-gray-100">
+            <div className="w-full max-w-sm space-y-3 p-4 bg-card/50 rounded-lg border border-border">
               <div className="text-center mb-2">
-                <h3 className="text-lg font-bold text-gray-700">
+                <h3 className="text-lg font-bold text-foreground">
                   Thông tin đề xuất
                 </h3>
-                <p className="text-base text-gray-500 mt-1">
+                <p className="text-base text-muted-foreground mt-1">
                   Vui lòng điền đầy đủ thông tin bên dưới
                 </p>
               </div>
@@ -367,7 +371,9 @@ export default function CreateOfferModal({
                     name="initPrice"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel>Giá đề xuất</FormLabel>
+                        <FormLabel className="text-foreground">
+                          Giá đề xuất
+                        </FormLabel>
                         <div className="relative w-full flex items-center gap-2">
                           <FormControl>
                             <Input
@@ -375,8 +381,7 @@ export default function CreateOfferModal({
                               placeholder="Nhập giá đề xuất"
                               {...field}
                               min={1000}
-                              step="1000"
-                              className="w-full h-9 text-sm "
+                              className="w-full h-9 text-sm bg-background border-border text-foreground placeholder:text-muted-foreground"
                             />
                           </FormControl>
                         </div>
@@ -391,13 +396,15 @@ export default function CreateOfferModal({
                     name="note"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel>Ghi chú</FormLabel>
+                        <FormLabel className="text-foreground">
+                          Ghi chú
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
                             placeholder="Ví dụ: Tôi có thể làm thiết kế này..."
                             {...field}
-                            className="w-full h-9 text-sm"
+                            className="w-full h-9 text-sm bg-background border-border text-foreground placeholder:text-muted-foreground"
                           />
                         </FormControl>
                         <FormMessage />
@@ -411,7 +418,9 @@ export default function CreateOfferModal({
                     name="deadline"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Thời hạn hoàn thành</FormLabel>
+                        <FormLabel className="text-foreground">
+                          Thời hạn hoàn thành
+                        </FormLabel>
                         <Popover
                           open={isCalendarOpen}
                           onOpenChange={setIsCalendarOpen}
@@ -421,7 +430,7 @@ export default function CreateOfferModal({
                               <Button
                                 variant="outline"
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal bg-white",
+                                  "w-full pl-3 text-left font-normal bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -430,12 +439,12 @@ export default function CreateOfferModal({
                                 ) : (
                                   <span>Chọn thời hạn</span>
                                 )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50 text-muted-foreground" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-auto p-0"
+                            className="w-auto p-0 bg-popover border-border text-popover-foreground"
                             align="center"
                             side="top"
                             sideOffset={5}
@@ -466,6 +475,7 @@ export default function CreateOfferModal({
                               }}
                               initialFocus
                               locale={vi}
+                              className="bg-popover text-popover-foreground"
                             />
                           </PopoverContent>
                         </Popover>
@@ -476,16 +486,18 @@ export default function CreateOfferModal({
 
                   {/* Hình ảnh mẫu */}
                   <div className="w-full space-y-3">
-                    <FormLabel>Hình mẫu minh hoạ</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Hình mẫu minh hoạ
+                    </FormLabel>
                     <div className="space-y-4">
                       <Input
                         type="file"
                         accept=".jpg,.jpeg,.png"
                         onChange={handleImageChange}
-                        className="w-full h-9 text-sm file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                        className="w-full h-9 text-sm file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80 bg-background border-border text-foreground"
                       />
                       {imageError && (
-                        <p className="text-xs text-red-600">{imageError}</p>
+                        <p className="text-xs text-destructive">{imageError}</p>
                       )}
                       {imagePreview && (
                         <SingleImageGallery
@@ -501,8 +513,8 @@ export default function CreateOfferModal({
                   {/* Submit button */}
                   <Button
                     type="submit"
-                    className="w-full h-9 mt-2 text-sm font-medium"
-                    disabled={isSubmitting}
+                    className="w-full h-9 mt-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={!form.watch("deadline") || isSubmitting}
                   >
                     {isSubmitting ? "Đang xử lý..." : "Gửi đề xuất"}
                   </Button>

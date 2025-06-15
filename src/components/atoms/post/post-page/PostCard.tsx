@@ -103,14 +103,14 @@ export default function PostCard({
 
           {/* Price Info */}
           <div className="pt-0">
-            <div className="flex items-center justify-between mb-2">
+            {/* <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">
                 Giá sản phẩm:
               </span>
               <p className="font-semibold text-blue-600 dark:text-blue-400 text-sm">
                 {post.itemValue.toLocaleString()}đ
               </p>
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
                 Giá đề xuất:

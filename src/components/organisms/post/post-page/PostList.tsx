@@ -178,14 +178,14 @@ export default function PostList({
 
                   {/* Price and Date Info */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
+                    {/* <div>
                       <span className="text-muted-foreground">
                         Giá sản phẩm
                       </span>
                       <p className="font-medium text-blue-600 dark:text-blue-400">
                         {post.itemValue.toLocaleString()}đ
                       </p>
-                    </div>
+                    </div> */}
                     <div>
                       <span className="text-muted-foreground">Giá đề xuất</span>
                       <p className="font-semibold text-purple-600 dark:text-purple-400">

@@ -231,7 +231,7 @@ export function OfferCard({
       </div>
 
       {/* Ghi chú */}
-      <div className="text-sm text-muted-foreground mb-3 line-clamp-2">
+      <div className="text-sm text-muted-foreground mb-3 whitespace-pre-wrap break-words">
         {offer.note}
       </div>
 

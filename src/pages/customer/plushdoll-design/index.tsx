@@ -48,8 +48,28 @@ import { useLocation } from "react-router-dom";
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
+import LogoCanvas from "@/components/atoms/custom/logo/LogoCanvas";
+
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
+
+// Add interface for canvas object
+interface CanvasObject {
+  canvasInfoId: string;
+  canvasTitle: string;
+  canvasDescription: string;
+}
+
+// Add interface for text properties
+interface TextProperties {
+  fontFamily: string;
+  fontSize: number;
+  fill: string;
+  fontWeight: string;
+  fontStyle: string;
+  textAlign: string;
+  underline: boolean;
+}
 
 const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
@@ -76,6 +96,10 @@ const PlushDollDesign: React.FC = () => {
   const [actualCanvasHeight, setActualCanvasHeight] = useState("540");
   const [scaleRatio, setScaleRatio] = useState(1);
   const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
+
+  // Add state for drawing brush properties
+  const [brushColor, setBrushColor] = useState("#000000");
+  const [brushWidth, setBrushWidth] = useState(3);
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -132,7 +156,8 @@ const PlushDollDesign: React.FC = () => {
           const canvasList =
             data?.responseRequestModel?.responseList?.items || [];
           const targetCanvas = canvasList.find(
-            (canvas: any) => canvas.canvasInfoId === location.state.canvasId
+            (canvas: CanvasObject) =>
+              canvas.canvasInfoId === location.state.canvasId
           );
 
           if (targetCanvas) {
@@ -162,7 +187,7 @@ const PlushDollDesign: React.FC = () => {
           data?.responseRequestModel?.responseList?.totalItems || 0;
         setTotalCanvasCount(totalCount);
         setCurrentCanvasTitle(`Thiết kế ${totalCount + 1}`);
-      } catch (error) {
+      } catch {
         setCurrentCanvasTitle("Thiết kế mới");
       }
     };
@@ -176,8 +201,8 @@ const PlushDollDesign: React.FC = () => {
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "#ffffff",
     });
-    canvas.freeDrawingBrush.color = "#000000";
-    canvas.freeDrawingBrush.width = 3;
+    canvas.freeDrawingBrush.color = brushColor;
+    canvas.freeDrawingBrush.width = brushWidth;
     canvas.renderAll();
     canvasRef.current = canvas;
     saveInitialState();
@@ -224,6 +249,14 @@ const PlushDollDesign: React.FC = () => {
       canvas.dispose();
     };
   }, []);
+
+  // Sync brush properties when they change
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.freeDrawingBrush.color = brushColor;
+      canvasRef.current.freeDrawingBrush.width = brushWidth;
+    }
+  }, [brushColor, brushWidth]);
 
   useEffect(() => {
     const prevUnit = unitRef.current;
@@ -313,6 +346,11 @@ const PlushDollDesign: React.FC = () => {
     canvasRef.current.setHeight(heightPx);
     canvasRef.current.clear();
     canvasRef.current.backgroundColor = "#ffffff";
+
+    // Maintain brush properties
+    canvasRef.current.freeDrawingBrush.color = brushColor;
+    canvasRef.current.freeDrawingBrush.width = brushWidth;
+
     canvasRef.current.renderAll();
 
     canvasWrapperRef.current.style.width = `${widthPx}px`;
@@ -676,6 +714,10 @@ const PlushDollDesign: React.FC = () => {
 
     try {
       canvasRef.current.loadFromJSON(safeJson, () => {
+        // Maintain brush properties after loading
+        canvasRef.current!.freeDrawingBrush.color = brushColor;
+        canvasRef.current!.freeDrawingBrush.width = brushWidth;
+
         canvasRef.current?.renderAll();
         isRestoringRef.current = false;
 
@@ -1164,8 +1206,9 @@ const PlushDollDesign: React.FC = () => {
       <header className="sticky top-0 z-50 bg-background border-b border-border p-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-6">
           <div className="font-bold text-xl text-primary flex items-center gap-2">
-            <span className="bg-primary/10 p-2 rounded-lg">🎨</span>
-            <span>PlushDoll Design</span>
+            {/* <span className="bg-primary/10 p-2 rounded-lg">🎨</span>
+            <span>PlushDoll Design</span> */}
+            <LogoCanvas />
           </div>
           <div className="text-sm text-muted-foreground border-l border-border pl-6">
             {isEditingTitle ? (
@@ -1379,7 +1422,7 @@ const PlushDollDesign: React.FC = () => {
                 Thành phần
               </Button>
 
-              <Button
+              {/* <Button
                 variant={isDrawing ? "default" : "outline"}
                 onClick={() =>
                   setIsDrawing((prev) => {
@@ -1389,13 +1432,13 @@ const PlushDollDesign: React.FC = () => {
                 }
                 className={
                   isDrawing
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : ""
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
+                    : "flex-1"
                 }
               >
                 <Pencil className="w-4 h-4 mr-1" />
                 Vẽ: {isDrawing ? "[Tắt]" : "[Bật]"}
-              </Button>
+              </Button> */}
 
               {!isSidebarCollapsed ? (
                 <Button
@@ -1460,28 +1503,98 @@ const PlushDollDesign: React.FC = () => {
                 Xóa
               </Button> */}
 
-              <div>
-                <label>Màu bút vẽ</label>
-                <Input
-                  type="color"
-                  defaultValue="#000000"
-                  onChange={(e) =>
-                    (canvasRef.current!.freeDrawingBrush.color = e.target.value)
-                  }
-                />
-              </div>
+              {/* Drawing Controls - Single Row Modern */}
+              <div className="flex w-full gap-2 justify-center items-center">
+                {/* Toggle Drawing Mode - chiếm nhiều diện tích hơn */}
+                <div className="flex-[4] flex justify-center">
+                  <Button
+                    variant={isDrawing ? "default" : "outline"}
+                    onClick={() =>
+                      setIsDrawing((prev) => {
+                        canvasRef.current!.isDrawingMode = !prev;
+                        return !prev;
+                      })
+                    }
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg w-full justify-center"
+                  >
+                    <Pencil className="w-4 h-4 mr-1" />
+                    Vẽ: {isDrawing ? "[Bật]" : "[Tắt]"}
+                  </Button>
+                </div>
 
-              <div>
-                <label>Độ dày bút vẽ</label>
-                <Slider
-                  defaultValue={[3]}
-                  min={1}
-                  max={10}
-                  step={1}
-                  onValueChange={([value]) =>
-                    (canvasRef.current!.freeDrawingBrush.width = value)
-                  }
-                />
+                {/* Color Picker */}
+                <div className="flex-1 flex justify-center">
+                  <div
+                    className="w-9 h-9 rounded-full border-2 border-slate-300 flex items-center justify-center cursor-pointer"
+                    style={{ background: brushColor }}
+                    onClick={() => {
+                      // Trigger click vào input ẩn
+                      document.getElementById("brush-color-input")?.click();
+                    }}
+                    aria-label="Chọn màu bút"
+                  >
+                    {/* Ẩn input thật sự */}
+                    <input
+                      id="brush-color-input"
+                      type="color"
+                      value={brushColor}
+                      onChange={(e) => {
+                        const newColor = e.target.value;
+                        setBrushColor(newColor);
+                        if (canvasRef.current) {
+                          canvasRef.current.freeDrawingBrush.color = newColor;
+                        }
+                      }}
+                      className="absolute opacity-0 w-0 h-0"
+                      tabIndex={-1}
+                    />
+                  </div>
+                </div>
+
+                {/* Thickness Popover */}
+                <div className="flex-1 flex justify-center">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-10 h-9 rounded border flex items-center justify-center min-w-[30px]"
+                        aria-label="Chọn độ dày bút"
+                      >
+                        {/* Three lines icon */}
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="black"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="5" y1="8" x2="19" y2="8" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <line x1="5" y1="16" x2="19" y2="16" />
+                        </svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-40 flex flex-col items-center p-4">
+                      <span className="mb-2 font-medium">Độ dày bút</span>
+                      <Slider
+                        value={[brushWidth]}
+                        min={1}
+                        max={20}
+                        step={1}
+                        onValueChange={([value]) => {
+                          setBrushWidth(value);
+                          if (canvasRef.current) {
+                            canvasRef.current.freeDrawingBrush.width = value;
+                          }
+                        }}
+                        className="w-full"
+                      />
+                      <span className="mt-2 text-sm">{brushWidth}px</span>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
 
               <div className={isSidebarCollapsed ? "hidden" : ""}>
@@ -1586,7 +1699,7 @@ const PlushDollDesign: React.FC = () => {
                       onChange={(e) => {
                         const newValue = e.target.value;
                         activeText.set("fontFamily", newValue);
-                        setTextProperties((prev) => ({
+                        setTextProperties((prev: TextProperties) => ({
                           ...prev,
                           fontFamily: newValue,
                         }));
@@ -1624,7 +1737,7 @@ const PlushDollDesign: React.FC = () => {
                           }}
                           onSelect={() => {
                             activeText.set("fontFamily", font);
-                            setTextProperties((prev) => ({
+                            setTextProperties((prev: TextProperties) => ({
                               ...prev,
                               fontFamily: font,
                             }));
@@ -1656,7 +1769,7 @@ const PlushDollDesign: React.FC = () => {
                       onChange={(e) => {
                         const newValue = parseInt(e.target.value);
                         activeText.set("fontSize", newValue);
-                        setTextProperties((prev) => ({
+                        setTextProperties((prev: TextProperties) => ({
                           ...prev,
                           fontSize: newValue,
                         }));
@@ -1688,7 +1801,7 @@ const PlushDollDesign: React.FC = () => {
                           }}
                           onSelect={() => {
                             activeText.set("fontSize", size);
-                            setTextProperties((prev) => ({
+                            setTextProperties((prev: TextProperties) => ({
                               ...prev,
                               fontSize: size,
                             }));
@@ -1714,7 +1827,10 @@ const PlushDollDesign: React.FC = () => {
                 onChange={(e) => {
                   const newValue = e.target.value;
                   activeText.set("fill", newValue);
-                  setTextProperties((prev) => ({ ...prev, fill: newValue }));
+                  setTextProperties((prev: TextProperties) => ({
+                    ...prev,
+                    fill: newValue,
+                  }));
                   canvasRef.current?.renderAll();
                   saveState();
                 }}
@@ -1771,7 +1887,7 @@ const PlushDollDesign: React.FC = () => {
                   className="h-[30px] w-[30px]"
                   onClick={() => {
                     action();
-                    setTextProperties((prev: any) => ({
+                    setTextProperties((prev: TextProperties) => ({
                       ...prev,
                       fontWeight: String(activeText.fontWeight as string),
                       fontStyle: String(activeText.fontStyle as string),

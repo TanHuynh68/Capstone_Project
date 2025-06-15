@@ -1,6 +1,6 @@
 import ContactForm from "@/components/molecules/general/contact/ContactForm";
 import ContactInfoCard from "@/components/molecules/general/contact/ContactInfoCard";
-import SocialLinks from "@/components/molecules/general/contact/SocialLinks";
+// import SocialLinks from "@/components/molecules/general/contact/SocialLinks";
 import MapSection from "@/components/molecules/general/contact/MapSection";
 import FAQSection from "@/components/molecules/general/contact/FAQSection";
 

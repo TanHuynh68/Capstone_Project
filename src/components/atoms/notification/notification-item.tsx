@@ -1,9 +1,10 @@
 "use client";
-import { Check, Trash2 } from "lucide-react";
+import { Check, Trash2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { NotificationProps } from "@/types/notification";
+import type { NotificationProps } from "./notification-context";
 import { formatVietnamDateHoursWithSuffix } from "@/components/utils/date";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationItemProps {
   notification: NotificationProps;
@@ -16,21 +17,42 @@ export function NotificationItem({
   onMarkAsRead,
   onDelete,
 }: NotificationItemProps) {
-  const { title, message, createdAt, isRead } = notification;
+  const { title, message, createdAt, redirectLink, isRead } = notification;
+  const navigate = useNavigate();
+
+  const handleNotificationClick = () => {
+    if (redirectLink) {
+      navigate(redirectLink);
+    }
+  };
 
   return (
     <div
       className={cn(
         "flex flex-col p-3 border-b last:border-b-0 transition-colors",
         "hover:bg-primary/50 dark:hover:bg-primary",
-        !isRead && "bg-muted dark:bg-muted/15"
+        !isRead && "bg-muted dark:bg-muted/15",
+        redirectLink &&
+          "cursor-pointer bg-primary/10 dark:bg-primary/20 border-l-4 border-l-primary/30",
+        redirectLink &&
+          !isRead &&
+          "bg-primary/15 dark:bg-primary/25 border-l-primary/50",
+        redirectLink && "hover:border-l-primary/60"
       )}
+      onClick={redirectLink ? handleNotificationClick : undefined}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
-          <h4 className={cn("text-sm font-medium", !isRead && "font-semibold")}>
-            {title}
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4
+              className={cn("text-sm font-medium", !isRead && "font-semibold")}
+            >
+              {title}
+            </h4>
+            {redirectLink && (
+              <ArrowRight className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+            )}
+          </div>
           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
             {message}
           </p>
@@ -38,7 +60,10 @@ export function NotificationItem({
             {formatVietnamDateHoursWithSuffix(createdAt)}
           </span>
         </div>
-        <div className="flex items-center space-x-1">
+        <div
+          className="flex items-center space-x-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           {!isRead && (
             <Button
               variant="ghost"
