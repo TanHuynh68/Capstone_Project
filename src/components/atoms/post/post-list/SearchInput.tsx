@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, X } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, X } from "lucide-react";
 
 interface SearchInputProps {
-  value: string
-  onChange: (value: string) => void
-  onSearch: () => void
-  placeholder?: string
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  onSearch: () => void;
+  placeholder?: string;
+  className?: string;
 }
 
 export default function SearchInput({
@@ -22,33 +22,33 @@ export default function SearchInput({
   placeholder = "Tìm kiếm...",
   className = "",
 }: SearchInputProps) {
-  const [inputValue, setInputValue] = useState(value)
+  const [inputValue, setInputValue] = useState(value);
 
   useEffect(() => {
-    setInputValue(value)
-  }, [value])
+    setInputValue(value);
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value)
-  }
+    setInputValue(e.target.value);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      onChange(inputValue)
-      onSearch()
+      onChange(inputValue);
+      onSearch();
     }
-  }
+  };
 
   const handleClear = () => {
-    setInputValue("")
-    onChange("")
-    onSearch()
-  }
+    setInputValue("");
+    onChange("");
+    onSearch();
+  };
 
   const handleSearchClick = () => {
-    onChange(inputValue)
-    onSearch()
-  }
+    onChange(inputValue);
+    onSearch();
+  };
 
   return (
     <div className={`relative flex w-full items-center ${className}`}>
@@ -64,16 +64,20 @@ export default function SearchInput({
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-[50px] text-gray-400 hover:text-gray-600"
+          className="absolute right-[50px] text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Xóa tìm kiếm"
         >
           <X size={16} />
         </button>
       )}
-      <Button type="button" onClick={handleSearchClick} className="rounded-l-none bg-blue-600 hover:bg-blue-700">
+      <Button
+        type="button"
+        onClick={handleSearchClick}
+        className="rounded-l-none"
+      >
         <Search size={18} />
         <span className="sr-only">Tìm kiếm</span>
       </Button>
     </div>
-  )
+  );
 }

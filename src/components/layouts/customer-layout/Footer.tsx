@@ -12,6 +12,7 @@ import {
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Separator } from "../../ui/separator";
+import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 export function Footer() {
   return (
@@ -20,7 +21,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Thông tin công ty */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-primary">Plush Doll Custom</h3>
+            <LogoWeb />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Chúng tôi cung cấp sản phẩm và dịch vụ chất lượng từ năm 1992. Sứ
               mệnh của chúng tôi là mang đến giải pháp tối ưu cho khách hàng.
@@ -50,32 +51,50 @@ export function Footer() {
             <h3 className="text-lg font-semibold">Liên kết nhanh</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Trang chủ
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/about"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Giới thiệu
                 </Link>
               </li>
               <li>
-                <Link to="/products" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/products"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Sản phẩm
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/services"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Dịch vụ
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/blog"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Tin tức
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-primary">
+                <Link
+                  to="/contact"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Liên hệ
                 </Link>
               </li>
@@ -100,7 +119,9 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-muted-foreground" />
-                <span className="text-muted-foreground">lienhe@acme.com.vn</span>
+                <span className="text-muted-foreground">
+                  lienhe@acme.com.vn
+                </span>
               </li>
             </ul>
           </div>
@@ -112,7 +133,11 @@ export function Footer() {
               Nhận thông tin mới nhất và ưu đãi đặc biệt từ chúng tôi.
             </p>
             <div className="flex flex-col space-y-2">
-              <Input type="email" placeholder="Địa chỉ email của bạn" className="h-10" />
+              <Input
+                type="email"
+                placeholder="Địa chỉ email của bạn"
+                className="h-10"
+              />
               <Button className="w-fit">Đăng ký</Button>
             </div>
           </div>

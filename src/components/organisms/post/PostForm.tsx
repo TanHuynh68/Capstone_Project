@@ -101,8 +101,8 @@ export default function PostForm() {
   return (
     <div className="grid grid-cols-1 gap-6 w-[900px]">
       <div className="">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-6">
             Đăng Bài Mới
           </h1>
 
@@ -118,7 +118,7 @@ export default function PostForm() {
                     </FormLabel>
 
                     <FormControl>
-                      <Input id="title" {...field} className="bg-white" />
+                      <Input id="title" {...field} className="bg-card" />
                     </FormControl>
                     <FormError>
                       {form.formState.errors.Title?.message}
@@ -140,7 +140,7 @@ export default function PostForm() {
                       <Textarea
                         id="description"
                         {...field}
-                        className="bg-white min-h-[100px]"
+                        className="bg-card min-h-[100px]"
                       />
                     </FormControl>
                     <FormError>
@@ -167,7 +167,7 @@ export default function PostForm() {
                             type="number"
                             step="1"
                             {...field}
-                            className="bg-white"
+                            className="bg-card"
                           />
                         </FormControl>
                         <FormError>
@@ -193,7 +193,7 @@ export default function PostForm() {
                             type="number"
                             step="1"
                             {...field}
-                            className="bg-white"
+                            className="bg-card"
                           />
                         </FormControl>
                         <FormError>
@@ -220,7 +220,7 @@ export default function PostForm() {
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full pl-3 text-left font-normal bg-white",
+                                "w-full pl-3 text-left font-normal bg-card",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -276,7 +276,7 @@ export default function PostForm() {
                   />
                   <Button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={submitting}
                   >
                     {submitting ? "Đang xử lý..." : "Đăng bài"}

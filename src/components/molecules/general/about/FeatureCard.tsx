@@ -1,23 +1,29 @@
-import type { ReactNode } from "react"
-import Heading from "@/components/atoms/general/about/Heading"
-import Paragraph from "@/components/atoms/general/about/Paragraph"
+import type { ReactNode } from "react";
+import Heading from "@/components/atoms/general/about/Heading";
+import Paragraph from "@/components/atoms/general/about/Paragraph";
 
 interface FeatureCardProps {
-  title: string
-  description: string
-  icon: ReactNode
+  title: string;
+  description: string;
+  icon: ReactNode;
 }
 
-export default function FeatureCard({ title, description, icon }: FeatureCardProps) {
+export default function FeatureCard({
+  title,
+  description,
+  icon,
+}: FeatureCardProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mb-4">
+    <div className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow">
+      <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-primary mb-4">
         {icon}
       </div>
-      <Heading level={3} className="text-xl mb-2">
+      <Heading level={3} className="text-xl mb-2 text-foreground">
         {title}
       </Heading>
-      <Paragraph size="md">{description}</Paragraph>
+      <Paragraph size="md" className="text-muted-foreground">
+        {description}
+      </Paragraph>
     </div>
-  )
+  );
 }

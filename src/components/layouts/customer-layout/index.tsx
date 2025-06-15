@@ -4,31 +4,39 @@ import { Footer } from "./Footer";
 import { USER_ROUTES } from "@/routes/path";
 
 const CustomerLayout = () => {
-    const location = useLocation();
-    const HIDE_FOOTER_ROUTES = [`${USER_ROUTES.CHAT}`, `/${USER_ROUTES.PLUSHDOLL_DESIGN}`]; // thêm route bạn muốn ẩn Footer
-    const hideFooter = HIDE_FOOTER_ROUTES.includes(location.pathname);
+  const location = useLocation();
+  const HIDE_FOOTER_ROUTES = [
+    `${USER_ROUTES.CHAT}`,
+    `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+  ]; // thêm route bạn muốn ẩn Footer
+  const HIDE_HEADER_ROUTES = [
+    // `${USER_ROUTES.CHAT}`,
+    `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+  ]; // thêm route bạn muốn ẩn Header
+  const hideFooter = HIDE_FOOTER_ROUTES.includes(location.pathname);
+  const hideHeader = HIDE_HEADER_ROUTES.includes(location.pathname);
 
-    return (
-        <div className=" ">
-          {
-              <div className="border-b ">
-                <div className="container mx-auto">
-                    <Navbar />
-                </div>
-            </div>
-          }
-            <div className="">
-                <Outlet />
-            </div>
-            {!hideFooter && (
-                <div className="border-t mt-10">
-                    <div className="container mx-auto">
-                        <Footer />
-                    </div>
-                </div>
-            )}
+  return (
+    <div className=" ">
+      {!hideHeader && (
+        <div className="border-b ">
+          <div className="container mx-auto">
+            <Navbar />
+          </div>
         </div>
-    );
+      )}
+      <div className="">
+        <Outlet />
+      </div>
+      {!hideFooter && (
+        <div className="border-t mt-10">
+          <div className="container mx-auto">
+            <Footer />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CustomerLayout;

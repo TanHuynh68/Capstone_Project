@@ -3,6 +3,18 @@
 import { useState, useCallback } from "react"
 import OfferService from "@/services/OfferService"
 
+// Helper function to convert numeric status to string literal
+const convertStatusToLiteral = (status: number): "Pending" | "Dealing" | "Accepted" => {
+    switch (status) {
+        case 1:
+            return "Accepted"
+        case 2:
+            return "Pending" // Assuming 2 maps to Pending, adjust if needed
+        default:
+            return "Pending"
+    }
+}
+
 export function useOffers() {
     const [offers, setOffers] = useState<Offer[]>([])
     const [loading, setLoading] = useState(false)
@@ -41,7 +53,7 @@ export function useOffers() {
         try {
             // Update local state first for immediate feedback
             setOffers(prev => prev.map(offer =>
-                offer.offerID === offerId ? { ...offer, offerStatus: status } : offer
+                offer.offerID === offerId ? { ...offer, offerStatus: convertStatusToLiteral(status) } : offer
             ))
             // Refresh offers to ensure consistency with server
             const currentPostId = offers[0]?.projectPostID

@@ -12,7 +12,7 @@ import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
-import DualLogo from "@/components/atoms/custom/logo/DualLogo";
+import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
 import Balance from "@/components/atoms/layout/navbar/Balance";
 import WalletService from "@/services/WalletService";
 

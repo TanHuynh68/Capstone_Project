@@ -49,17 +49,24 @@ export function OfferEditorDialog({
   useEffect(() => {
     if (initialData) {
       setNote(initialData.note || "");
-      setPrice((initialData.initPrice + 1000).toString());
+      setPrice(initialData.initPrice.toString());
       setDeadline(toVietnamTime(initialData.deadlineEndAt));
       setPriceError("");
       setDateError("");
+    } else {
+      // Reset form when no initial data
+      setNote("");
+      setPrice("");
+      setDeadline(undefined);
+      setPriceError("");
+      setDateError("");
     }
-  }, [initialData]);
+  }, [initialData, open]);
 
   const validatePrice = (value: string) => {
     const newPrice = Number(value);
-    if (isNaN(newPrice) || newPrice <= 0) {
-      setPriceError("Vui lòng nhập giá hợp lệ");
+    if (isNaN(newPrice) || newPrice < 1000) {
+      setPriceError("Giá đề xuất phải lớn hơn hoặc bằng 1,000 đ");
       return false;
     }
     setPriceError("");
@@ -144,7 +151,7 @@ export function OfferEditorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-lg p-6 rounded-2xl shadow-lg"
+        className="sm:max-w-lg p-6 rounded-2xl shadow-lg max-h-[90vh] overflow-y-auto"
         onKeyDown={handleKeyDown}
       >
         <DialogHeader>
@@ -159,12 +166,7 @@ export function OfferEditorDialog({
         <div className="space-y-4 mt-4">
           {/* Giá đề xuất */}
           <div className="space-y-1">
-            <Label htmlFor="price">
-              Giá đề xuất (đ) - Tối thiểu{" "}
-              {initialData &&
-                (initialData.initPrice + 1000).toLocaleString("vi-VN")}{" "}
-              đ
-            </Label>
+            <Label htmlFor="price">Giá đề xuất (đ)</Label>
             <Input
               id="price"
               type="number"
@@ -172,11 +174,7 @@ export function OfferEditorDialog({
               step={1000}
               onChange={handlePriceChange}
               placeholder="Nhập giá đề xuất"
-              min={
-                initialData?.initPrice
-                  ? initialData.initPrice + 1000
-                  : undefined
-              }
+              min={1000}
               className={priceError ? "border-red-500" : ""}
             />
             {priceError && (
@@ -247,7 +245,7 @@ export function OfferEditorDialog({
               onChange={(e) => setNote(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ghi chú thêm về đề xuất..."
-              className="min-h-[100px] w-full resize-none break-words whitespace-pre-wrap"
+              className="min-h-[100px] w-full resize-none break-words whitespace-pre-wrap overflow-visible"
             />
           </div>
 
