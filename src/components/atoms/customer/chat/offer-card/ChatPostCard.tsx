@@ -112,6 +112,7 @@ export function ChatPostCard({
                       onClick={(e) => {
                         e.stopPropagation();
                         handleViewDetails();
+                        fetchOffers()
                       }}
                     >
                       Xem chi tiết

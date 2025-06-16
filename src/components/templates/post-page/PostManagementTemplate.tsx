@@ -8,6 +8,8 @@ import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
+import { useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 interface PostManagementTemplateProps {
   initialPosts: Post[];
@@ -23,7 +25,7 @@ export default function PostManagementTemplate({
     initialPosts || []
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
+  const currentUser = useCurrentUser();
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     status: "",
@@ -190,7 +192,8 @@ export default function PostManagementTemplate({
               <h1 className="text-2xl font-bold text-foreground">Bài đăng</h1>
             </div>
 
-            <div className="flex items-center gap-4">
+            {
+             currentUser?.role === ROLE.CUSTOMER && <div className="flex items-center gap-4">
               <Link to={PATH.CUSTOMER_UPLOAD_PAGE}>
                 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Plus className="h-4 w-4 mr-2" />
@@ -198,6 +201,7 @@ export default function PostManagementTemplate({
                 </Button>
               </Link>
             </div>
+            }
           </div>
         </div>
       </div>
