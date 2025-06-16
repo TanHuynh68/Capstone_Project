@@ -4,6 +4,7 @@ import { SectionCards } from '@/components/layouts/admin-layout/section-cards'
 import data from "./data.json"
 
 const AdminDashboard = () => {
+    //
     return (
         <div>
             <SectionCards />

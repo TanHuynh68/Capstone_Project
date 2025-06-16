@@ -45,7 +45,6 @@ const UpdateOfferPhase = ({
 }: UpdateOfferPhaseProps) => {
   console.log("offer: ", offer);
   const { updateOfferPhase } = OfferService();
-
   // State for date selection
   const [startDate, setStartDate] = useState<Date | undefined>(
     new Date(offer.startDate)

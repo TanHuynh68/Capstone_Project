@@ -5,6 +5,11 @@ import OfferService from "@/services/OfferService";
 import CreateOfferModal from "@/pages/designer/manage-offer-designer/CreateOfferModal";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import ChatService from "@/services/ChatService";
+import { PATH } from "@/routes/path";
+import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 interface PostDetailActionsProps {
   post: Post;
@@ -22,8 +27,11 @@ export default function PostDetailActions({
   offers = [],
 }: PostDetailActionsProps) {
   const { createOffer } = OfferService();
+  const { createChatRoom } = ChatService();
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const role = useSelector((state: RootState) => state.user.role);
+  const currentUser = useCurrentUser()
   const handleSubmitOffer = useCallback(
     async (formData: FormData) => {
       // Đã bỏ kiểm tra giá khởi điểm phải lớn hơn giá trị sản phẩm
@@ -35,6 +43,14 @@ export default function PostDetailActions({
     },
     [createOffer, post.projectPostID, onOfferCreated]
   );
+
+  const createChatRoomByDesigner = async () => {
+    const response = await createChatRoom(post?.accountID);
+    console.log("createChatRoom: ", response);
+    if (response) {
+      navigate(PATH.CHAT_PAGE);
+    }
+  };
 
   return (
     <div
@@ -51,13 +67,16 @@ export default function PostDetailActions({
             : "grid-cols-1"
         } gap-3`}
       >
-        <Button
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-          size="lg"
-        >
-          <MessageCircle className="mr-2 h-5 w-5" />
-          Liên hệ ngay
-        </Button>
+        {
+         currentUser?.role === ROLE.DESIGNER && <Button
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            size="lg"
+            onClick={createChatRoomByDesigner}
+          >
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Liên hệ ngay
+          </Button>
+        }
 
         {role?.trim().toLowerCase() === "designer" &&
           !loading &&
