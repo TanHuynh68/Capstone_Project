@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/popover";
 import FormLabel from "@/components/atoms/post/customer-upload-post/FormLabel";
 import FormError from "@/components/atoms/post/customer-upload-post/FormError";
-import FileUpload from "@/components/molecules/post/customer-upload-post/FileUpload";
 import MultipleFileUpload from "@/components/molecules/post/customer-upload-post/MultipleFileUpload";
 import { toast } from "sonner";
 import PostService from "@/services/PostService";
@@ -30,8 +29,9 @@ import { cn } from "@/lib/utils";
 import { formatDate, formatDateToSubmit } from "@/components/utils";
 
 export default function PostForm() {
-  const [OriginalAttachmentFiles, setOriginalAttachmentFiles] =
-    useState<File | null>(null);
+  const [OriginalAttachmentFiles, setOriginalAttachmentFiles] = useState<
+    File[]
+  >([]);
   const [RequestedAttachmentFiles, setRequestedAttachmentFiles] = useState<
     File[]
   >([]);
@@ -92,7 +92,7 @@ export default function PostForm() {
       toast.success(MESSAGE.CREATE_POST_SUCCESSFULLY);
       // Reset form
       form.reset();
-      setOriginalAttachmentFiles(null);
+      setOriginalAttachmentFiles([]);
       setRequestedAttachmentFiles([]);
     }
     setSubmitting(false);
@@ -254,13 +254,14 @@ export default function PostForm() {
                   <FormLabel required htmlFor="attachmentFile">
                     Ảnh gốc sản phẩm
                   </FormLabel>
-                  <FileUpload
+                  <MultipleFileUpload
                     id="attachmentFile"
                     onChange={setOriginalAttachmentFiles}
                     value={OriginalAttachmentFiles}
                     error={formErrors.OriginalAttachmentFiles}
                     accept=".jpg,.jpeg,.png"
                     maxSize={1048576} // 1MB
+                    maxFiles={3}
                   />
                   <FormLabel required htmlFor="attachmentFiles">
                     Ảnh mẫu sản phẩm
