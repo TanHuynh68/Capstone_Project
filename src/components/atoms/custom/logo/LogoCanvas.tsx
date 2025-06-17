@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({
-  logoSize = { width: 280, height: 40 },
+  logoSize = { width: 280, height: 50 },
   className = "",
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -44,5 +44,5 @@ const Logo: React.FC<LogoProps> = ({
     </div>
   );
 };
-
+//
 export default Logo;

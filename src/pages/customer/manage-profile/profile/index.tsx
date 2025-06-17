@@ -136,7 +136,7 @@ const Profile = () => {
     const tabFromState = location.state?.activeTab;
     if (
       tabFromState &&
-      ["profile", "orders", "requests"].includes(tabFromState)
+      ["profile", "orders", "delivery"].includes(tabFromState)
     ) {
       setActiveTab(tabFromState);
     }
@@ -391,13 +391,12 @@ const Profile = () => {
       >
         <TabsList className="grid grid-cols-3 w-full mb-2">
           <TabsTrigger value="profile">Thông tin tài khoản</TabsTrigger>
-          <TabsTrigger value="orders">Lịch sử đơn hàng</TabsTrigger>
-          <TabsTrigger value="requests">Lịch sử đặt hàng</TabsTrigger>
+          <TabsTrigger value="orders">Đơn hàng</TabsTrigger>
+          <TabsTrigger value="delivery">Giao hàng</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
           <div className="container max-w-6xl mx-auto px-4 py-0">
-        
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
               {/* Profile Card */}
               <div
@@ -661,12 +660,12 @@ const Profile = () => {
         <TabsContent value="orders">
           <div className="container max-w-6xl mx-auto px-4 py-0">
             <div className="text-center text-gray-500 text-sm">
-            <OrderHistoryPage/>
+              <OrderHistoryPage />
             </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="requests">
+        <TabsContent value="delivery">
           <div className="container max-w-6xl mx-auto px-4 py-0">
             <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "}
             <div className="text-center text-gray-500 text-sm py-10">

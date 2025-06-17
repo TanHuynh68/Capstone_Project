@@ -1203,7 +1203,7 @@ const PlushDollDesign: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background border-b border-border p-4 flex items-center justify-between shadow-sm">
+      <header className="sticky top-0 z-50 bg-background border-b border-border px-4 py-2 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-6">
           <div className="font-bold text-xl text-primary flex items-center gap-2">
             {/* <span className="bg-primary/10 p-2 rounded-lg">🎨</span>
