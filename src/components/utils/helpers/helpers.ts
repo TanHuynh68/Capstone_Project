@@ -184,14 +184,20 @@ export function getOrderType(
 export function formatBankAccountNumber(accountNumber: string): string {
   return accountNumber.replace(/(.{4})/g, "$1 ").trim();
 }
-interface useCurrentUser{
+interface useCurrentUser {
   role: ROLE.ADMIN | ROLE.DESIGNER | ROLE.CUSTOMER | ROLE.STAFF,
   id: string,
-  name: string
+  name: string,
+  avatar?: string,
 }
 export const useCurrentUser = () => {
   const user: useCurrentUser = useSelector((store: any) => store.user);
   return user;
+};
+
+export const useImageCurrentUser = () => {
+  const user: useCurrentUser = useSelector((store: any) => store.user);
+  return user.avatar;
 };
 
 export const isLoggedIn = () => {
