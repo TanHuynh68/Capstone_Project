@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
 import { ChevronRight } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
+import DeleteCanvasButton from "./DeleteCanvasButton";
 
 interface CanvasItem {
   canvasInfoId: string;
@@ -151,7 +152,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
           canvasList.map((item) => (
             <div
               key={item.canvasInfoId}
-              className={`cursor-pointer p-1 border rounded text-sm truncate transition-colors
+              className={`flex items-center justify-between cursor-pointer p-1 border rounded text-sm truncate transition-colors
     ${
       item.canvasInfoId === selectedCanvasId
         ? "bg-primary text-white font-semibold"
@@ -166,7 +167,13 @@ const CanvasList: React.FC<CanvasListProps> = ({
                 )
               }
             >
-              {item.canvasTitle}
+              <span className="flex-1 truncate">{item.canvasTitle}</span>
+              {item.canvasInfoId === selectedCanvasId && (
+                <DeleteCanvasButton
+                  canvasInfoId={item.canvasInfoId}
+                  canvasTitle={item.canvasTitle}
+                />
+              )}
             </div>
           ))
         )}
