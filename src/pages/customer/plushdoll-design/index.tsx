@@ -3,9 +3,8 @@ import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  FilePlus,
   Pencil,
-  Trash2,
+  Type,
   Undo2,
   Redo2,
   Download,
@@ -24,11 +23,12 @@ import {
   ChevronRight,
   Check,
   X,
-  ImagePlus,
+  ImageUp,
   PawPrint,
   Save,
   FolderOpen,
   FolderClosed,
+  Fan,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -1217,7 +1217,7 @@ const PlushDollDesign: React.FC = () => {
     {
       key: "library",
       icon: PawPrint,
-      label: "Các mẫu Labubu",
+      label: "Mẫu Labubu",
       active: libraryOpen,
       onClick: () => {
         if (libraryOpen) {
@@ -1232,7 +1232,7 @@ const PlushDollDesign: React.FC = () => {
     },
     {
       key: "unsplash",
-      icon: ImagePlus,
+      icon: Fan,
       label: "Thành phần",
       active: showUnsplash,
       onClick: () => {
@@ -1248,8 +1248,8 @@ const PlushDollDesign: React.FC = () => {
     },
     {
       key: "addText",
-      icon: FilePlus,
-      label: "Thêm văn bản",
+      icon: Type,
+      label: "Văn bản",
       active: false,
       onClick: () => {
         const text = new fabric.Textbox("Nhập văn bản", {
@@ -1267,8 +1267,8 @@ const PlushDollDesign: React.FC = () => {
     },
     {
       key: "uploadImage",
-      icon: ImagePlus,
-      label: "Tải ảnh lên",
+      icon: ImageUp,
+      label: "Tải lên",
       active: false,
       onClick: () => {
         const input = document.createElement("input");
@@ -1313,14 +1313,14 @@ const PlushDollDesign: React.FC = () => {
         }
       },
     },
-    {
-      key: "remove",
-      icon: Trash2,
-      label: "Xóa",
-      active: false,
-      onClick: removeSelected,
-      variant: "destructive",
-    },
+    // {
+    //   key: "remove",
+    //   icon: Trash2,
+    //   label: "Xóa",
+    //   active: false,
+    //   onClick: removeSelected,
+    //   variant: "destructive",
+    // },
   ];
 
   return (
@@ -1495,8 +1495,8 @@ const PlushDollDesign: React.FC = () => {
         {/* Main sidebar */}
         <aside
           className={`${
-            isSidebarCollapsed ? "w-16" : "w-64"
-          } transition-all duration-300 border-r border-border bg-card p-4 flex flex-col gap-4 relative`}
+            isSidebarCollapsed ? "w-20" : "w-64"
+          } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative`}
         >
           <Button
             size="icon"
@@ -1511,39 +1511,44 @@ const PlushDollDesign: React.FC = () => {
             )}
           </Button>
 
-          <div className="flex flex-col gap-2 mb-4">
+          <div className="flex flex-col gap-4 mb-4">
             {sidebarActions.map((action) => (
               <div
                 key={action.key}
-                className="flex flex-col items-center gap-1"
+                className={`flex ${
+                  isSidebarCollapsed
+                    ? "flex-col items-center "
+                    : "flex-row items-center px-4"
+                } gap-2`}
               >
-                <Button
-                  variant={
-                    (action.variant as
-                      | (
-                          | "default"
-                          | "link"
-                          | "destructive"
-                          | "outline"
-                          | "secondary"
-                          | "ghost"
-                        )
-                      | undefined) || (action.active ? "default" : "outline")
-                  }
-                  size={isSidebarCollapsed ? "icon" : undefined}
-                  className={
-                    isSidebarCollapsed
-                      ? "w-12 h-12 flex items-center justify-center"
-                      : "w-12 h-12 flex items-center justify-center"
-                  }
-                  onClick={action.onClick}
-                >
-                  <action.icon className="w-6 h-6" />
-                </Button>
-                {!isSidebarCollapsed && (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    {action.label}
-                  </span>
+                {isSidebarCollapsed ? (
+                  <>
+                    <button
+                      type="button"
+                      className={`w-10 h-10 rounded-md flex items-center justify-center cursor-pointer transition-colors
+                        ${
+                          action.active
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted"
+                        }
+                      `}
+                      onClick={action.onClick}
+                    >
+                      <action.icon className="w-5 h-5" />
+                    </button>
+                    <span className="text-xs font-medium text-center">
+                      {action.label}
+                    </span>
+                  </>
+                ) : (
+                  <Button
+                    variant={action.active ? "default" : "outline"}
+                    className="w-full h-10 justify-start px-4"
+                    onClick={action.onClick}
+                  >
+                    <action.icon className="w-5 h-5 mr-2" />
+                    <span className="text-sm font-medium">{action.label}</span>
+                  </Button>
                 )}
               </div>
             ))}
@@ -1788,7 +1793,7 @@ const PlushDollDesign: React.FC = () => {
               ].map(({ icon: Icon, active, action }, index) => (
                 <Button
                   key={index}
-                  variant={active ? "default" : "outline"}
+                  variant={action.active ? "default" : "outline"}
                   size="icon"
                   className="h-[30px] w-[30px]"
                   onClick={() => {

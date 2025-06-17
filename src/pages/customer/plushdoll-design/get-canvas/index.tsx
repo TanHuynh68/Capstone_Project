@@ -187,7 +187,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
   }, [canvasList, initialCanvasState, onSelect, hasAutoSelected]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-2">
       <div className="relative">
         <SidebarSearchBar
           value={canvasTitle}

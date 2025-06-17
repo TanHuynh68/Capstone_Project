@@ -1,7 +1,7 @@
 import React, { useState, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
-import { PawPrint, ImagePlus } from "lucide-react";
+import { PawPrint, Fan } from "lucide-react";
 import UnsplashLibrary from "./UnsplashLibrary";
 import SidebarSearchBar from "./SidebarSearchBar";
 
@@ -152,7 +152,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
         isOpen={showUnsplash}
         onClose={onCloseUnsplash}
         title="Thành phần"
-        icon={<ImagePlus className="w-5 h-5" />}
+        icon={<Fan className="w-5 h-5" />}
       >
         <UnsplashLibrary
           onSelect={onSelect}
