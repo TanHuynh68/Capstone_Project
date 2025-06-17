@@ -102,6 +102,10 @@ const PlushDollDesign: React.FC = () => {
   const [brushColor, setBrushColor] = useState("#000000");
   const [brushWidth, setBrushWidth] = useState(3);
 
+  // Add state for eraser properties
+  const [isErasing, setIsErasing] = useState(false);
+  const [eraserWidth, setEraserWidth] = useState(10);
+
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
   const [dragging, setDragging] = useState(false);
@@ -240,7 +244,7 @@ const PlushDollDesign: React.FC = () => {
       setActiveText(null);
     });
 
-    canvas.on("mouse:up", () => isDrawing && saveState());
+    canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
     canvas.on("object:added", () => !isRestoringRef.current && saveState());
     canvas.on("object:modified", saveState);
     canvas.on("object:moving", (e) => {
@@ -269,6 +273,25 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.freeDrawingBrush.width = brushWidth;
     }
   }, [brushColor, brushWidth]);
+
+  // Sync eraser properties when they change
+  useEffect(() => {
+    if (canvasRef.current) {
+      // Set drawing mode based on whether drawing or erasing is active
+      canvasRef.current.isDrawingMode = isDrawing || isErasing;
+
+      if (isErasing) {
+        // Set eraser brush (white brush to erase)
+        canvasRef.current.freeDrawingBrush.color = "#ffffff";
+        canvasRef.current.freeDrawingBrush.width = eraserWidth;
+      } else if (isDrawing) {
+        // Set normal brush
+        canvasRef.current.freeDrawingBrush.color = brushColor;
+        canvasRef.current.freeDrawingBrush.width = brushWidth;
+      }
+      canvasRef.current.renderAll();
+    }
+  }, [isErasing, isDrawing, eraserWidth, brushColor, brushWidth]);
 
   useEffect(() => {
     const prevUnit = unitRef.current;
@@ -360,8 +383,13 @@ const PlushDollDesign: React.FC = () => {
     canvasRef.current.backgroundColor = "#ffffff";
 
     // Maintain brush properties
-    canvasRef.current.freeDrawingBrush.color = brushColor;
-    canvasRef.current.freeDrawingBrush.width = brushWidth;
+    if (isErasing) {
+      canvasRef.current.freeDrawingBrush.color = "#ffffff";
+      canvasRef.current.freeDrawingBrush.width = eraserWidth;
+    } else {
+      canvasRef.current.freeDrawingBrush.color = brushColor;
+      canvasRef.current.freeDrawingBrush.width = brushWidth;
+    }
 
     canvasRef.current.renderAll();
 
@@ -727,8 +755,13 @@ const PlushDollDesign: React.FC = () => {
     try {
       canvasRef.current.loadFromJSON(safeJson, () => {
         // Maintain brush properties after loading
-        canvasRef.current!.freeDrawingBrush.color = brushColor;
-        canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
 
         canvasRef.current?.renderAll();
         isRestoringRef.current = false;
@@ -775,6 +808,15 @@ const PlushDollDesign: React.FC = () => {
     if (index > 0 && canvasRef.current) {
       isRestoringRef.current = true;
       canvasRef.current.loadFromJSON(states[index - 1], () => {
+        // Maintain brush properties after restoration
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
+
         canvasRef.current?.renderAll();
         historyRef.current.index = index - 1;
 
@@ -799,6 +841,15 @@ const PlushDollDesign: React.FC = () => {
     if (index < states.length - 1 && canvasRef.current) {
       isRestoringRef.current = true;
       canvasRef.current.loadFromJSON(states[index + 1], () => {
+        // Maintain brush properties after restoration
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
+
         canvasRef.current?.renderAll();
         historyRef.current.index = index + 1;
 
@@ -1594,6 +1645,17 @@ const PlushDollDesign: React.FC = () => {
           setBrushWidth={setBrushWidth}
           isDrawing={isDrawing}
           setIsDrawing={setIsDrawing}
+          isErasing={isErasing}
+          setIsErasing={setIsErasing}
+          eraserWidth={eraserWidth}
+          setEraserWidth={setEraserWidth}
+          canvasRef={canvasRef}
+          setToolbarVisible={setToolbarVisible}
+          setActiveText={
+            setActiveText as React.Dispatch<
+              React.SetStateAction<fabric.Text | null>
+            >
+          }
         />
 
         {/* Canvas */}
@@ -1793,7 +1855,7 @@ const PlushDollDesign: React.FC = () => {
               ].map(({ icon: Icon, active, action }, index) => (
                 <Button
                   key={index}
-                  variant={action.active ? "default" : "outline"}
+                  variant={active ? "default" : "outline"}
                   size="icon"
                   className="h-[30px] w-[30px]"
                   onClick={() => {
