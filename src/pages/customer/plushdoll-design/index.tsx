@@ -1212,6 +1212,117 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [isAutoSaveEnabled]);
 
+  // Define sidebar actions for consistency
+  const sidebarActions = [
+    {
+      key: "library",
+      icon: PawPrint,
+      label: "Các mẫu Labubu",
+      active: libraryOpen,
+      onClick: () => {
+        if (libraryOpen) {
+          setLibraryOpen(false);
+        } else {
+          setLibraryOpen(true);
+          setShowUnsplash(false);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    {
+      key: "unsplash",
+      icon: ImagePlus,
+      label: "Thành phần",
+      active: showUnsplash,
+      onClick: () => {
+        if (showUnsplash) {
+          setShowUnsplash(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(true);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    {
+      key: "addText",
+      icon: FilePlus,
+      label: "Thêm văn bản",
+      active: false,
+      onClick: () => {
+        const text = new fabric.Textbox("Nhập văn bản", {
+          left: 100,
+          top: 100,
+          width: 150,
+          textAlign: "center",
+          fontSize: 20,
+          fill: "#000",
+        });
+        canvasRef.current?.add(text);
+        canvasRef.current?.setActiveObject(text);
+        saveState();
+      },
+    },
+    {
+      key: "uploadImage",
+      icon: ImagePlus,
+      label: "Tải ảnh lên",
+      active: false,
+      onClick: () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) uploadImage(file);
+        };
+        input.click();
+      },
+    },
+    {
+      key: "drawingTool",
+      icon: Pencil,
+      label: "Công cụ",
+      active: drawingPanelOpen,
+      onClick: () => {
+        if (drawingPanelOpen) {
+          setDrawingPanelOpen(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(false);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(true);
+        }
+      },
+    },
+    {
+      key: "canvasList",
+      icon: showCanvasList ? FolderOpen : FolderClosed,
+      label: "Dự án",
+      active: showCanvasList,
+      onClick: () => {
+        if (showCanvasList) {
+          setShowCanvasList(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(false);
+          setShowCanvasList(true);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    {
+      key: "remove",
+      icon: Trash2,
+      label: "Xóa",
+      active: false,
+      onClick: removeSelected,
+      variant: "destructive",
+    },
+  ];
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -1400,215 +1511,43 @@ const PlushDollDesign: React.FC = () => {
             )}
           </Button>
 
-          {!isSidebarCollapsed ? (
-            <>
-              <div className="flex flex-col gap-2 mb-4">
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant={libraryOpen ? "default" : "outline"}
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      if (libraryOpen) {
-                        setLibraryOpen(false);
-                      } else {
-                        setLibraryOpen(true);
-                        setShowUnsplash(false);
-                        setShowCanvasList(false);
-                        setDrawingPanelOpen(false);
-                      }
-                    }}
-                  >
-                    <PawPrint className="w-6 h-6" />
-                  </Button>
+          <div className="flex flex-col gap-2 mb-4">
+            {sidebarActions.map((action) => (
+              <div
+                key={action.key}
+                className="flex flex-col items-center gap-1"
+              >
+                <Button
+                  variant={
+                    (action.variant as
+                      | (
+                          | "default"
+                          | "link"
+                          | "destructive"
+                          | "outline"
+                          | "secondary"
+                          | "ghost"
+                        )
+                      | undefined) || (action.active ? "default" : "outline")
+                  }
+                  size={isSidebarCollapsed ? "icon" : undefined}
+                  className={
+                    isSidebarCollapsed
+                      ? "w-12 h-12 flex items-center justify-center"
+                      : "w-12 h-12 flex items-center justify-center"
+                  }
+                  onClick={action.onClick}
+                >
+                  <action.icon className="w-6 h-6" />
+                </Button>
+                {!isSidebarCollapsed && (
                   <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Các mẫu Labubu
+                    {action.label}
                   </span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant={showUnsplash ? "default" : "outline"}
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      if (showUnsplash) {
-                        setShowUnsplash(false);
-                      } else {
-                        setLibraryOpen(false);
-                        setShowUnsplash(true);
-                        setShowCanvasList(false);
-                        setDrawingPanelOpen(false);
-                      }
-                    }}
-                  >
-                    <ImagePlus className="w-6 h-6" />
-                  </Button>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Thành phần
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant="outline"
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      const text = new fabric.Textbox("Nhập văn bản", {
-                        left: 100,
-                        top: 100,
-                        width: 150,
-                        textAlign: "center",
-                        fontSize: 20,
-                        fill: "#000",
-                      });
-                      canvasRef.current?.add(text);
-                      canvasRef.current?.setActiveObject(text);
-                      saveState();
-                    }}
-                  >
-                    <FilePlus className="w-6 h-6" />
-                  </Button>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Thêm văn bản
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant="outline"
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.accept = "image/*";
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) uploadImage(file);
-                      };
-                      input.click();
-                    }}
-                  >
-                    <ImagePlus className="w-6 h-6" />
-                  </Button>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Tải ảnh lên
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant={drawingPanelOpen ? "default" : "outline"}
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      if (drawingPanelOpen) {
-                        setDrawingPanelOpen(false);
-                      } else {
-                        setLibraryOpen(false);
-                        setShowUnsplash(false);
-                        setShowCanvasList(false);
-                        setDrawingPanelOpen(true);
-                      }
-                    }}
-                  >
-                    <Pencil className="w-6 h-6" />
-                  </Button>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Công cụ
-                  </span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant={showCanvasList ? "default" : "outline"}
-                    className="w-12 h-12 flex items-center justify-center"
-                    onClick={() => {
-                      if (showCanvasList) {
-                        setShowCanvasList(false);
-                      } else {
-                        setLibraryOpen(false);
-                        setShowUnsplash(false);
-                        setShowCanvasList(true);
-                        setDrawingPanelOpen(false);
-                      }
-                    }}
-                  >
-                    {showCanvasList ? (
-                      <FolderOpen className="w-6 h-6" />
-                    ) : (
-                      <FolderClosed className="w-6 h-6" />
-                    )}
-                  </Button>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-primary/20">
-                    Dự án
-                  </span>
-                </div>
+                )}
               </div>
-              {/* <div className="flex flex-col gap-2 mt-4"> */}
-
-              {/* </div> */}
-            </>
-          ) : (
-            <>
-              <Button
-                size="icon"
-                variant={libraryOpen ? "default" : "outline"}
-                onClick={() => {
-                  if (libraryOpen) {
-                    setLibraryOpen(false);
-                  } else {
-                    setLibraryOpen(true);
-                    setShowUnsplash(false);
-                    setShowCanvasList(false);
-                    setDrawingPanelOpen(false);
-                  }
-                }}
-              >
-                <PawPrint className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant={showUnsplash ? "default" : "outline"}
-                onClick={() => {
-                  if (showUnsplash) {
-                    setShowUnsplash(false);
-                  } else {
-                    setLibraryOpen(false);
-                    setShowUnsplash(true);
-                    setShowCanvasList(false);
-                    setDrawingPanelOpen(false);
-                  }
-                }}
-              >
-                <ImagePlus className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => {
-                  const text = new fabric.Textbox("Nhập văn bản", {
-                    left: 100,
-                    top: 100,
-                    width: 150,
-                    textAlign: "center",
-                    fontSize: 20,
-                    fill: "#000",
-                  });
-                  canvasRef.current?.add(text);
-                  canvasRef.current?.setActiveObject(text);
-                  saveState();
-                }}
-              >
-                <FilePlus className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant="destructive"
-                onClick={removeSelected}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </>
-          )}
+            ))}
+          </div>
         </aside>
 
         {/* Item Library Sidebar */}
@@ -1616,6 +1555,8 @@ const PlushDollDesign: React.FC = () => {
           onSelect={handleItemSelect}
           isOpen={libraryOpen}
           showUnsplash={showUnsplash}
+          onCloseLibrary={() => setLibraryOpen(false)}
+          onCloseUnsplash={() => setShowUnsplash(false)}
         />
 
         {/* Canvas List Sidebar */}
@@ -1625,6 +1566,7 @@ const PlushDollDesign: React.FC = () => {
             setCurrentCanvasId(id);
           }}
           isOpen={showCanvasList}
+          onClose={() => setShowCanvasList(false)}
           initialCanvasState={
             location.state?.canvasId
               ? {

@@ -200,3 +200,36 @@
   line-height: 1.5rem;
   animation: blink 1s step-start infinite;
 }
+
+/* Hiệu ứng đóng/mở panel */
+.sidebar-panel-opening {
+  animation: slideIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sidebar-panel-closing {
+  animation: slideOut 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}

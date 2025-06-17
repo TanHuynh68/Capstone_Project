@@ -1,8 +1,12 @@
+import React from "react";
+import SidebarPanelWrapper from "./SidebarPanelWrapper";
+import { FolderOpen } from "lucide-react";
 import CanvasList from "./get-canvas";
 
 interface CanvasListSidebarProps {
   onSelect: (desc: string, title: string, id: string) => void;
   isOpen: boolean;
+  onClose: () => void;
   initialCanvasState?: {
     canvasId: string;
     canvasTitle: string;
@@ -11,19 +15,21 @@ interface CanvasListSidebarProps {
   selectedCanvasId?: string;
 }
 
-export default function CanvasListSidebar({
+const CanvasListSidebar = ({
   onSelect,
   isOpen,
+  onClose,
   initialCanvasState,
   selectedCanvasId,
-}: CanvasListSidebarProps) {
+}: CanvasListSidebarProps) => {
   if (!isOpen) return null;
-
   return (
-    <div className="w-[360px] h-full border-l border-border bg-card flex flex-col">
-      <div className="p-4 border-b border-border">
-        <h3 className="font-medium text-foreground">Dự án của bạn</h3>
-      </div>
+    <SidebarPanelWrapper
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Dự án"
+      icon={<FolderOpen className="w-5 h-5" />}
+    >
       <div className="flex-1 overflow-y-auto">
         <CanvasList
           onSelect={onSelect}
@@ -31,6 +37,8 @@ export default function CanvasListSidebar({
           selectedCanvasId={selectedCanvasId}
         />
       </div>
-    </div>
+    </SidebarPanelWrapper>
   );
-}
+};
+
+export default CanvasListSidebar;

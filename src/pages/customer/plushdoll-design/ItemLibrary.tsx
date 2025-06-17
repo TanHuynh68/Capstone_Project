@@ -1,7 +1,9 @@
 import React, { useState, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import SidebarPanelWrapper from "./SidebarPanelWrapper";
+import { PawPrint, ImagePlus } from "lucide-react";
 import UnsplashLibrary from "./UnsplashLibrary";
+import SidebarSearchBar from "./SidebarSearchBar";
 
 // Update LibraryItem interface
 export interface LibraryItem {
@@ -17,12 +19,16 @@ interface ItemLibraryProps {
   onSelect: (imageUrl: string) => void;
   isOpen: boolean;
   showUnsplash?: boolean;
+  onCloseLibrary: () => void;
+  onCloseUnsplash: () => void;
 }
 
 const ItemLibrary: React.FC<ItemLibraryProps> = ({
   onSelect,
   isOpen,
   showUnsplash,
+  onCloseLibrary,
+  onCloseUnsplash,
 }) => {
   const [items] = useState<LibraryItem[]>([
     {
@@ -139,84 +145,96 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
 
   if (!isOpen && !showUnsplash) return null;
 
-  return (
-    <div className="w-[300px] h-full border-l border-border bg-card flex flex-col">
-      {isOpen && (
-        <>
-          <div className="p-4 border-b border-border">
-            <h3 className="font-medium mb-4 text-foreground">Các mẫu Labubu</h3>
-            <Input
-              type="text"
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-4"
-            />
-            <div className="relative">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-                <Button
-                  variant={selectedCategory === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(null)}
-                  className="whitespace-nowrap"
-                >
-                  Tất cả
-                </Button>
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={
-                      selectedCategory === category ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="whitespace-nowrap"
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card pointer-events-none" />
-            </div>
-          </div>
-
-          <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-            <div className="grid grid-cols-2 gap-4">
-              {filteredItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="cursor-move group"
-                  onClick={() => handleItemClick(item.imageUrl)}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, item.imageUrl)}
-                >
-                  <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
-                      draggable={false}
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                  </div>
-                  <p className="text-sm text-center text-muted-foreground truncate">
-                    {item.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {showUnsplash && (
+  if (showUnsplash) {
+    // Nếu là panel Unsplash thì dùng SidebarPanelWrapper cho UnsplashLibrary
+    return (
+      <SidebarPanelWrapper
+        isOpen={showUnsplash}
+        onClose={onCloseUnsplash}
+        title="Thành phần"
+        icon={<ImagePlus className="w-5 h-5" />}
+      >
         <UnsplashLibrary
           onSelect={onSelect}
           isOpen={showUnsplash}
           onDragStart={handleDragStart}
         />
-      )}
-    </div>
+      </SidebarPanelWrapper>
+    );
+  }
+
+  return (
+    <SidebarPanelWrapper
+      isOpen={isOpen}
+      onClose={onCloseLibrary}
+      title="Các mẫu Labubu"
+      icon={<PawPrint className="w-5 h-5" />}
+    >
+      <SidebarSearchBar
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onSearch={() => {}}
+        placeholder="Tìm kiếm..."
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            // Nếu muốn có logic tìm kiếm thực sự, thêm tại đây
+          }
+        }}
+        loading={false}
+      />
+      <div className="relative">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+          <Button
+            variant={selectedCategory === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory(null)}
+            className="whitespace-nowrap"
+          >
+            Tất cả
+          </Button>
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(category)}
+              className="whitespace-nowrap"
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card pointer-events-none" />
+      </div>
+      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <div className="p-2">
+          <div className="grid grid-cols-2 gap-4">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="cursor-move group"
+                onClick={() => handleItemClick(item.imageUrl)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.imageUrl)}
+              >
+                <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+                    draggable={false}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                </div>
+                <p className="text-sm text-center text-muted-foreground truncate">
+                  {item.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SidebarPanelWrapper>
   );
 };
 

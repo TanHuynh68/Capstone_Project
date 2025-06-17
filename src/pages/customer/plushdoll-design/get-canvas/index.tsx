@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import CustomerService from "@/services/CustomerService";
-import { ChevronRight, ChevronLeft, Search } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import DeleteCanvasButton from "../delete-canvas/DeleteCanvasButton";
+import SidebarSearchBar from "../SidebarSearchBar";
 
 interface CanvasItem {
   canvasInfoId: string;
@@ -187,79 +187,70 @@ const CanvasList: React.FC<CanvasListProps> = ({
   }, [canvasList, initialCanvasState, onSelect, hasAutoSelected]);
 
   return (
-    <div className="space-y-4 p-2">
+    <div className="space-y-4">
       <div className="relative">
-        <Input
-          type="text"
-          placeholder="Tìm thiết kế..."
+        <SidebarSearchBar
           value={canvasTitle}
           onChange={(e) => setCanvasTitle(e.target.value)}
+          onSearch={handleSearch}
+          placeholder="Tìm thiết kế..."
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
+            if (e.key === "Enter") handleSearch();
           }}
-          className="pr-8"
+          loading={loading}
         />
-        <Button
-          size="sm"
-          variant="ghost"
-          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-          onClick={handleSearch}
-          disabled={loading}
-        >
-          <Search className="h-4 w-4 text-muted-foreground" />
-        </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {loading ? (
-          <div className="col-span-2 text-center py-8 text-muted-foreground">
-            Đang tải...
-          </div>
-        ) : canvasList.length === 0 ? (
-          <div className="col-span-2 text-muted-foreground text-sm text-center py-8">
-            Không có thiết kế nào
-          </div>
-        ) : (
-          canvasList.map((item) => (
-            <div
-              key={item.canvasInfoId}
-              className={`cursor-pointer group transition-all duration-200 ease-in-out transform hover:scale-[1.02]`}
-              onClick={() =>
-                handleSelectCanvas(
-                  item.canvasDescription,
-                  item.canvasTitle,
-                  item.canvasInfoId
-                )
-              }
-            >
-              <div className="aspect-video bg-white rounded-lg mb-2 overflow-hidden relative border-2 border-primary/80 shadow-sm transition-transform duration-200">
-                <img
-                  src={item.previewUrl}
-                  alt={item.canvasTitle}
-                  className="w-full h-full object-contain transition-all duration-200 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                  <DeleteCanvasButton
-                    canvasInfoId={item.canvasInfoId}
-                    canvasTitle={item.canvasTitle}
+      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <div className="grid grid-cols-2 gap-4">
+          {loading ? (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              Đang tải...
+            </div>
+          ) : canvasList.length === 0 ? (
+            <div className="col-span-2 text-muted-foreground text-sm text-center py-8">
+              Không có thiết kế nào
+            </div>
+          ) : (
+            canvasList.map((item) => (
+              <div
+                key={item.canvasInfoId}
+                className={`cursor-pointer group transition-all duration-200 ease-in-out transform hover:scale-[1.02]`}
+                onClick={() =>
+                  handleSelectCanvas(
+                    item.canvasDescription,
+                    item.canvasTitle,
+                    item.canvasInfoId
+                  )
+                }
+              >
+                <div className="aspect-video bg-white rounded-lg mb-2 overflow-hidden relative border-2 border-primary/80 shadow-sm transition-transform duration-200">
+                  <img
+                    src={item.previewUrl}
+                    alt={item.canvasTitle}
+                    className="w-full h-full object-contain transition-all duration-200 group-hover:scale-105"
                   />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <DeleteCanvasButton
+                      canvasInfoId={item.canvasInfoId}
+                      canvasTitle={item.canvasTitle}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`text-sm font-medium truncate text-center transition-all duration-200 ${
+                    item.canvasInfoId === selectedCanvasId
+                      ? "text-primary scale-105"
+                      : "text-muted-foreground scale-100"
+                  }`}
+                >
+                  {item.canvasTitle}
                 </div>
               </div>
-              <div
-                className={`text-sm font-medium truncate text-center transition-all duration-200 ${
-                  item.canvasInfoId === selectedCanvasId
-                    ? "text-primary scale-105"
-                    : "text-muted-foreground scale-100"
-                }`}
-              >
-                {item.canvasTitle}
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
       <div className="flex justify-between items-center pt-4">
