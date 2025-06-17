@@ -22,8 +22,11 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
       <SidebarMenu>
         <Collapsible className="group/collapsible">
           <SidebarMenuItem>
-            <CollapsibleTrigger onClick={() => onClick('')} className="font-semibold text-xl hover:bg-gray-100 p-1 rounded-b-lg w-full flex">
-              {title} 
+            <CollapsibleTrigger
+              onClick={() => onClick("")}
+              className="font-semibold text-xl hover:bg-gray-100 p-1 rounded-b-lg w-full flex"
+            >
+              <div>{title}</div>
             </CollapsibleTrigger>
             <CollapsibleContent>
               {subItem.map((item) => (

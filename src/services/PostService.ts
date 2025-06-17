@@ -11,11 +11,16 @@ const PostService = () => {
       formData.append("Description", data.Description);
       formData.append("ItemValue", String(data.ItemValue));
       formData.append("SuggestedPrice", String(data.SuggestedPrice));
-      formData.append("OriginalAttachmentFiles", data.OriginalAttachmentFiles);
+
+      if (data.OriginalAttachmentFiles?.length) {
+        data.OriginalAttachmentFiles.forEach((file: File) => {
+          formData.append("OriginalAttachmentFiles", file);
+        });
+      }
+
       if (data.RequestedAttachmentFiles?.length) {
         data.RequestedAttachmentFiles.forEach((file: File) => {
           formData.append("RequestedAttachmentFiles", file);
-          // Nếu BE yêu cầu dạng mảng: formData.append("RequestedAttachmentFiles[]", file);
         });
       }
       formData.append("FinishDate", new Date(data.FinishDate).toISOString());

@@ -19,7 +19,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="">
       <SuccessLoginModal
         open={showModal}
         userId={userId || ""}
