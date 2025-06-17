@@ -6,7 +6,7 @@ import ChatLink from "@/components/atoms/customer/chat/chat-show-data/ChatLink";
 import ChatText from "@/components/atoms/customer/chat/chat-show-data/ChatText";
 
 import { useState, useEffect } from "react";
-import CopyCanvas from "@/pages/customer/plushdoll-design/CopyCanvas";
+import CopyCanvas from "@/pages/customer/plushdoll-design/copy-canvas/CopyCanvas";
 
 interface MessageContentProps {
   content: string;
