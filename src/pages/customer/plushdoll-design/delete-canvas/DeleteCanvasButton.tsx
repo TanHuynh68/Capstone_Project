@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 interface DeleteCanvasButtonProps {
   canvasInfoId: string;
@@ -33,10 +34,12 @@ const DeleteCanvasButton: React.FC<DeleteCanvasButtonProps> = ({
       if (res?.statusCode === 200) {
         toast.success("Xóa thiết kế thành công!");
         window.dispatchEvent(new CustomEvent("canvasSaved"));
+        window.dispatchEvent(new CustomEvent("createNewCanvas"));
       } else {
         toast.error(res?.message || "Xóa thiết kế thất bại!");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error deleting canvas:", error);
       toast.error("Xóa thiết kế thất bại!");
     } finally {
       setLoading(false);
@@ -46,8 +49,8 @@ const DeleteCanvasButton: React.FC<DeleteCanvasButtonProps> = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" className="ml-2">
-          Xóa
+        <Button variant="destructive" size="icon" className="h-6 w-6">
+          <Trash2 className="h-3 w-3" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
