@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState, DragEvent } from "react";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
-  FilePlus,
   Pencil,
-  Trash2,
+  Type,
   Undo2,
   Redo2,
   Download,
@@ -25,16 +23,18 @@ import {
   ChevronRight,
   Check,
   X,
-  Image as ImageIcon,
-  ImagePlus,
   ImageUp,
   PawPrint,
   Save,
+  FolderOpen,
+  FolderClosed,
+  Fan,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
-import CanvasList from "./get-canvas";
+// import CanvasList from "./get-canvas";
 import ItemLibrary from "./ItemLibrary";
+import CanvasListSidebar from "./CanvasListSidebar";
 import {
   Popover,
   PopoverTrigger,
@@ -49,6 +49,7 @@ import { useLocation } from "react-router-dom";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
 import LogoCanvas from "@/components/atoms/custom/logo/LogoCanvas";
+import DrawingToolPanel from "./DrawingToolPanel";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -101,6 +102,10 @@ const PlushDollDesign: React.FC = () => {
   const [brushColor, setBrushColor] = useState("#000000");
   const [brushWidth, setBrushWidth] = useState(3);
 
+  // Add state for eraser properties
+  const [isErasing, setIsErasing] = useState(false);
+  const [eraserWidth, setEraserWidth] = useState(10);
+
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
   const [dragging, setDragging] = useState(false);
@@ -134,6 +139,7 @@ const PlushDollDesign: React.FC = () => {
 
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [showUnsplash, setShowUnsplash] = useState(false);
+  const [showCanvasList, setShowCanvasList] = useState(false);
 
   const location = useLocation();
 
@@ -141,6 +147,9 @@ const PlushDollDesign: React.FC = () => {
   const [autoSaveCountdown, setAutoSaveCountdown] = useState(5);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Thêm state điều khiển panel
+  const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
 
   // Thêm useEffect để lấy số lượng canvas khi component mount
   useEffect(() => {
@@ -235,7 +244,7 @@ const PlushDollDesign: React.FC = () => {
       setActiveText(null);
     });
 
-    canvas.on("mouse:up", () => isDrawing && saveState());
+    canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
     canvas.on("object:added", () => !isRestoringRef.current && saveState());
     canvas.on("object:modified", saveState);
     canvas.on("object:moving", (e) => {
@@ -244,8 +253,15 @@ const PlushDollDesign: React.FC = () => {
 
     document.addEventListener("keydown", handleKeyDown);
 
+    // Add event listener for createNewCanvas
+    const handleCreateNewCanvas = () => {
+      createNewCanvas();
+    };
+    window.addEventListener("createNewCanvas", handleCreateNewCanvas);
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("createNewCanvas", handleCreateNewCanvas);
       canvas.dispose();
     };
   }, []);
@@ -257,6 +273,25 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.freeDrawingBrush.width = brushWidth;
     }
   }, [brushColor, brushWidth]);
+
+  // Sync eraser properties when they change
+  useEffect(() => {
+    if (canvasRef.current) {
+      // Set drawing mode based on whether drawing or erasing is active
+      canvasRef.current.isDrawingMode = isDrawing || isErasing;
+
+      if (isErasing) {
+        // Set eraser brush (white brush to erase)
+        canvasRef.current.freeDrawingBrush.color = "#ffffff";
+        canvasRef.current.freeDrawingBrush.width = eraserWidth;
+      } else if (isDrawing) {
+        // Set normal brush
+        canvasRef.current.freeDrawingBrush.color = brushColor;
+        canvasRef.current.freeDrawingBrush.width = brushWidth;
+      }
+      canvasRef.current.renderAll();
+    }
+  }, [isErasing, isDrawing, eraserWidth, brushColor, brushWidth]);
 
   useEffect(() => {
     const prevUnit = unitRef.current;
@@ -348,8 +383,13 @@ const PlushDollDesign: React.FC = () => {
     canvasRef.current.backgroundColor = "#ffffff";
 
     // Maintain brush properties
-    canvasRef.current.freeDrawingBrush.color = brushColor;
-    canvasRef.current.freeDrawingBrush.width = brushWidth;
+    if (isErasing) {
+      canvasRef.current.freeDrawingBrush.color = "#ffffff";
+      canvasRef.current.freeDrawingBrush.width = eraserWidth;
+    } else {
+      canvasRef.current.freeDrawingBrush.color = brushColor;
+      canvasRef.current.freeDrawingBrush.width = brushWidth;
+    }
 
     canvasRef.current.renderAll();
 
@@ -358,7 +398,7 @@ const PlushDollDesign: React.FC = () => {
 
     saveInitialState();
 
-    toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
+    // toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
   };
 
   const updateScaleRatio = () => {
@@ -715,8 +755,13 @@ const PlushDollDesign: React.FC = () => {
     try {
       canvasRef.current.loadFromJSON(safeJson, () => {
         // Maintain brush properties after loading
-        canvasRef.current!.freeDrawingBrush.color = brushColor;
-        canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
 
         canvasRef.current?.renderAll();
         isRestoringRef.current = false;
@@ -733,7 +778,7 @@ const PlushDollDesign: React.FC = () => {
           currentCanvasId: canvasId, // Verify ID is set
         });
 
-        toast.success("Đã tải thiết kế thành công!");
+        // toast.success("Đã tải thiết kế thành công!");
       });
     } catch (error) {
       console.error("Error loading thiết kế:", error);
@@ -763,6 +808,15 @@ const PlushDollDesign: React.FC = () => {
     if (index > 0 && canvasRef.current) {
       isRestoringRef.current = true;
       canvasRef.current.loadFromJSON(states[index - 1], () => {
+        // Maintain brush properties after restoration
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
+
         canvasRef.current?.renderAll();
         historyRef.current.index = index - 1;
 
@@ -787,6 +841,15 @@ const PlushDollDesign: React.FC = () => {
     if (index < states.length - 1 && canvasRef.current) {
       isRestoringRef.current = true;
       canvasRef.current.loadFromJSON(states[index + 1], () => {
+        // Maintain brush properties after restoration
+        if (isErasing) {
+          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+        } else {
+          canvasRef.current!.freeDrawingBrush.color = brushColor;
+          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+        }
+
         canvasRef.current?.renderAll();
         historyRef.current.index = index + 1;
 
@@ -1200,6 +1263,117 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [isAutoSaveEnabled]);
 
+  // Define sidebar actions for consistency
+  const sidebarActions = [
+    {
+      key: "library",
+      icon: PawPrint,
+      label: "Mẫu Labubu",
+      active: libraryOpen,
+      onClick: () => {
+        if (libraryOpen) {
+          setLibraryOpen(false);
+        } else {
+          setLibraryOpen(true);
+          setShowUnsplash(false);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    {
+      key: "unsplash",
+      icon: Fan,
+      label: "Thành phần",
+      active: showUnsplash,
+      onClick: () => {
+        if (showUnsplash) {
+          setShowUnsplash(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(true);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    {
+      key: "addText",
+      icon: Type,
+      label: "Văn bản",
+      active: false,
+      onClick: () => {
+        const text = new fabric.Textbox("Nhập văn bản", {
+          left: 100,
+          top: 100,
+          width: 150,
+          textAlign: "center",
+          fontSize: 20,
+          fill: "#000",
+        });
+        canvasRef.current?.add(text);
+        canvasRef.current?.setActiveObject(text);
+        saveState();
+      },
+    },
+    {
+      key: "uploadImage",
+      icon: ImageUp,
+      label: "Tải lên",
+      active: false,
+      onClick: () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) uploadImage(file);
+        };
+        input.click();
+      },
+    },
+    {
+      key: "drawingTool",
+      icon: Pencil,
+      label: "Công cụ",
+      active: drawingPanelOpen,
+      onClick: () => {
+        if (drawingPanelOpen) {
+          setDrawingPanelOpen(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(false);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(true);
+        }
+      },
+    },
+    {
+      key: "canvasList",
+      icon: showCanvasList ? FolderOpen : FolderClosed,
+      label: "Dự án",
+      active: showCanvasList,
+      onClick: () => {
+        if (showCanvasList) {
+          setShowCanvasList(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(false);
+          setShowCanvasList(true);
+          setDrawingPanelOpen(false);
+        }
+      },
+    },
+    // {
+    //   key: "remove",
+    //   icon: Trash2,
+    //   label: "Xóa",
+    //   active: false,
+    //   onClick: removeSelected,
+    //   variant: "destructive",
+    // },
+  ];
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -1372,8 +1546,8 @@ const PlushDollDesign: React.FC = () => {
         {/* Main sidebar */}
         <aside
           className={`${
-            isSidebarCollapsed ? "w-16" : "w-64"
-          } transition-all duration-300 border-r border-border bg-card p-4 flex flex-col gap-4 relative`}
+            isSidebarCollapsed ? "w-20" : "w-64"
+          } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative`}
         >
           <Button
             size="icon"
@@ -1388,294 +1562,48 @@ const PlushDollDesign: React.FC = () => {
             )}
           </Button>
 
-          {!isSidebarCollapsed ? (
-            <>
-              <Button
-                variant={libraryOpen ? "default" : "outline"}
-                className="w-full"
-                onClick={() => {
-                  if (showUnsplash) {
-                    setShowUnsplash(false);
-                    setLibraryOpen(true);
-                  } else {
-                    setLibraryOpen(!libraryOpen);
-                  }
-                }}
+          <div className="flex flex-col gap-4 mb-4">
+            {sidebarActions.map((action) => (
+              <div
+                key={action.key}
+                className={`flex ${
+                  isSidebarCollapsed
+                    ? "flex-col items-center "
+                    : "flex-row items-center px-4"
+                } gap-2`}
               >
-                <PawPrint className="w-4 h-4 mr-1" />
-                Các mẫu Labubu
-              </Button>
-
-              <Button
-                variant={showUnsplash ? "default" : "outline"}
-                className="w-full"
-                onClick={() => {
-                  if (libraryOpen) {
-                    setLibraryOpen(false);
-                    setShowUnsplash(!showUnsplash);
-                  } else {
-                    setShowUnsplash(!showUnsplash);
-                  }
-                }}
-              >
-                <ImageIcon className="w-4 h-4 mr-1" />
-                Thành phần
-              </Button>
-
-              {/* <Button
-                variant={isDrawing ? "default" : "outline"}
-                onClick={() =>
-                  setIsDrawing((prev) => {
-                    canvasRef.current!.isDrawingMode = !prev;
-                    return !prev;
-                  })
-                }
-                className={
-                  isDrawing
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 flex-1"
-                    : "flex-1"
-                }
-              >
-                <Pencil className="w-4 h-4 mr-1" />
-                Vẽ: {isDrawing ? "[Tắt]" : "[Bật]"}
-              </Button> */}
-
-              {!isSidebarCollapsed ? (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.accept = "image/*";
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) uploadImage(file);
-                    };
-                    input.click();
-                  }}
-                  className="w-full hover:bg-primary/10 hover:text-primary transition-colors"
-                >
-                  <ImagePlus className="w-4 h-4 mr-1" />
-                  Tải ảnh lên
-                </Button>
-              ) : (
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => {
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.accept = "image/*";
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) uploadImage(file);
-                    };
-                    input.click();
-                  }}
-                  className="hover:bg-primary/10 hover:text-primary transition-colors"
-                >
-                  <ImageUp className="w-4 h-4" />
-                </Button>
-              )}
-
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const text = new fabric.Textbox("Nhập văn bản", {
-                    left: 100,
-                    top: 100,
-                    width: 150,
-                    textAlign: "center",
-                    fontSize: 20,
-                    fill: "#000",
-                  });
-                  canvasRef.current?.add(text);
-                  canvasRef.current?.setActiveObject(text);
-                  saveState();
-                }}
-              >
-                <FilePlus className="w-4 h-4 mr-1" />
-                Thêm văn bản
-              </Button>
-
-              {/* <Button variant="destructive" onClick={removeSelected}>
-                <Trash2 className="w-4 h-4 mr-1" />
-                Xóa
-              </Button> */}
-
-              {/* Drawing Controls - Single Row Modern */}
-              <div className="flex w-full gap-2 justify-center items-center">
-                {/* Toggle Drawing Mode - chiếm nhiều diện tích hơn */}
-                <div className="flex-[4] flex justify-center">
+                {isSidebarCollapsed ? (
+                  <>
+                    <button
+                      type="button"
+                      className={`w-10 h-10 rounded-md flex items-center justify-center cursor-pointer transition-colors
+                        ${
+                          action.active
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted"
+                        }
+                      `}
+                      onClick={action.onClick}
+                    >
+                      <action.icon className="w-5 h-5" />
+                    </button>
+                    <span className="text-xs font-medium text-center">
+                      {action.label}
+                    </span>
+                  </>
+                ) : (
                   <Button
-                    variant={isDrawing ? "default" : "outline"}
-                    onClick={() =>
-                      setIsDrawing((prev) => {
-                        canvasRef.current!.isDrawingMode = !prev;
-                        return !prev;
-                      })
-                    }
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg w-full justify-center"
+                    variant={action.active ? "default" : "outline"}
+                    className="w-full h-10 justify-start px-4"
+                    onClick={action.onClick}
                   >
-                    <Pencil className="w-4 h-4 mr-1" />
-                    Vẽ: {isDrawing ? "[Bật]" : "[Tắt]"}
+                    <action.icon className="w-5 h-5 mr-2" />
+                    <span className="text-sm font-medium">{action.label}</span>
                   </Button>
-                </div>
-
-                {/* Color Picker */}
-                <div className="flex-1 flex justify-center">
-                  <div
-                    className="w-9 h-9 rounded-full border-2 border-slate-300 flex items-center justify-center cursor-pointer"
-                    style={{ background: brushColor }}
-                    onClick={() => {
-                      // Trigger click vào input ẩn
-                      document.getElementById("brush-color-input")?.click();
-                    }}
-                    aria-label="Chọn màu bút"
-                  >
-                    {/* Ẩn input thật sự */}
-                    <input
-                      id="brush-color-input"
-                      type="color"
-                      value={brushColor}
-                      onChange={(e) => {
-                        const newColor = e.target.value;
-                        setBrushColor(newColor);
-                        if (canvasRef.current) {
-                          canvasRef.current.freeDrawingBrush.color = newColor;
-                        }
-                      }}
-                      className="absolute opacity-0 w-0 h-0"
-                      tabIndex={-1}
-                    />
-                  </div>
-                </div>
-
-                {/* Thickness Popover */}
-                <div className="flex-1 flex justify-center">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className="w-10 h-9 rounded border flex items-center justify-center min-w-[30px]"
-                        aria-label="Chọn độ dày bút"
-                      >
-                        {/* Three lines icon */}
-                        <svg
-                          width="22"
-                          height="22"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <line x1="5" y1="8" x2="19" y2="8" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                          <line x1="5" y1="16" x2="19" y2="16" />
-                        </svg>
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-40 flex flex-col items-center p-4">
-                      <span className="mb-2 font-medium">Độ dày bút</span>
-                      <Slider
-                        value={[brushWidth]}
-                        min={1}
-                        max={20}
-                        step={1}
-                        onValueChange={([value]) => {
-                          setBrushWidth(value);
-                          if (canvasRef.current) {
-                            canvasRef.current.freeDrawingBrush.width = value;
-                          }
-                        }}
-                        className="w-full"
-                      />
-                      <span className="mt-2 text-sm">{brushWidth}px</span>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                )}
               </div>
-
-              <div className={isSidebarCollapsed ? "hidden" : ""}>
-                <CanvasList
-                  onSelect={(desc, title, id) => {
-                    loadCanvasFromDescription(desc, title, id);
-                    setCurrentCanvasId(id); // cập nhật trạng thái selected
-                  }}
-                  initialCanvasState={
-                    location.state?.canvasId
-                      ? {
-                          canvasId: location.state.canvasId,
-                          canvasTitle: location.state.canvasTitle,
-                          canvasDescription: location.state.canvasDescription,
-                        }
-                      : undefined
-                  }
-                  selectedCanvasId={currentCanvasId}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <Button
-                size="icon"
-                variant={libraryOpen ? "default" : "outline"}
-                onClick={() => {
-                  if (showUnsplash) {
-                    setShowUnsplash(false);
-                    setLibraryOpen(true);
-                  } else {
-                    setLibraryOpen(!libraryOpen);
-                  }
-                }}
-              >
-                <ImageIcon className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant={showUnsplash ? "default" : "outline"}
-                onClick={() => {
-                  if (libraryOpen) {
-                    setLibraryOpen(false);
-                    setShowUnsplash(!showUnsplash);
-                  } else {
-                    setShowUnsplash(!showUnsplash);
-                  }
-                }}
-              >
-                <ImageIcon className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => {
-                  const text = new fabric.Textbox("Nhập văn bản", {
-                    left: 100,
-                    top: 100,
-                    width: 150,
-                    textAlign: "center",
-                    fontSize: 20,
-                    fill: "#000",
-                  });
-                  canvasRef.current?.add(text);
-                  saveState();
-                }}
-              >
-                <FilePlus className="w-4 h-4" />
-              </Button>
-
-              <Button
-                size="icon"
-                variant="destructive"
-                onClick={removeSelected}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </>
-          )}
+            ))}
+          </div>
         </aside>
 
         {/* Item Library Sidebar */}
@@ -1683,6 +1611,51 @@ const PlushDollDesign: React.FC = () => {
           onSelect={handleItemSelect}
           isOpen={libraryOpen}
           showUnsplash={showUnsplash}
+          onCloseLibrary={() => setLibraryOpen(false)}
+          onCloseUnsplash={() => setShowUnsplash(false)}
+        />
+
+        {/* Canvas List Sidebar */}
+        <CanvasListSidebar
+          onSelect={(desc: string, title: string, id: string) => {
+            loadCanvasFromDescription(desc, title, id);
+            setCurrentCanvasId(id);
+          }}
+          isOpen={showCanvasList}
+          onClose={() => setShowCanvasList(false)}
+          initialCanvasState={
+            location.state?.canvasId
+              ? {
+                  canvasId: location.state.canvasId,
+                  canvasTitle: location.state.canvasTitle,
+                  canvasDescription: location.state.canvasDescription,
+                }
+              : undefined
+          }
+          selectedCanvasId={currentCanvasId}
+        />
+
+        {/* Panel công cụ vẽ */}
+        <DrawingToolPanel
+          isOpen={drawingPanelOpen}
+          onClose={() => setDrawingPanelOpen(false)}
+          brushColor={brushColor}
+          setBrushColor={setBrushColor}
+          brushWidth={brushWidth}
+          setBrushWidth={setBrushWidth}
+          isDrawing={isDrawing}
+          setIsDrawing={setIsDrawing}
+          isErasing={isErasing}
+          setIsErasing={setIsErasing}
+          eraserWidth={eraserWidth}
+          setEraserWidth={setEraserWidth}
+          canvasRef={canvasRef}
+          setToolbarVisible={setToolbarVisible}
+          setActiveText={
+            setActiveText as React.Dispatch<
+              React.SetStateAction<fabric.Text | null>
+            >
+          }
         />
 
         {/* Canvas */}

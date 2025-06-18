@@ -8,6 +8,7 @@ interface OrderStatusBadgeProps {
 }
 
 const getStatusColor = (status: string): string => {
+  console.log('getStatusColor: ', status)
   switch (status) {
     case "Pending":
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
