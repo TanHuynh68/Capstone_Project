@@ -17,7 +17,7 @@ export default function OrderHistoryPage() {
       if (response) {
         setOrders(response?.responseRequestModel.responseList.items);
       }
-      setOrders(mockOrders);
+      // setOrders(mockOrders);
       setLoading(false);
     };
 
