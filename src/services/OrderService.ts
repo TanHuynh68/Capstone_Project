@@ -6,7 +6,7 @@ const OrderService = () => {
   const { callApi } = useApiService();
   const getOrders = useCallback(async () => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_ORDERS);
+      const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_ORDERS}?page=1&size=100`);
       return res;
     } catch (err: any) {
       console.error(err?.response?.data);

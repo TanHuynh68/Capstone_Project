@@ -21,6 +21,7 @@ export const enum API_ENDPOINTS {
   OFFER = "offer",
   PROJECT_POST = "project-post",
   PORTFOLIO = "portfolio",
+  PROGRESS = "progress",
 }
 
 export enum API_ROUTES {
@@ -136,4 +137,9 @@ export enum API_ROUTES {
   GET_ORDER_DETAIL = `${API_ENDPOINTS.ORDER}/detail?orderID`,
   CREATE_ORDER = `${API_ENDPOINTS.ORDER}`,
   GET_ORDER_ACTIVITY = `${API_ENDPOINTS.ORDER}/activity`,
+  //Progress
+  GET_PROGRESS = `${API_ENDPOINTS.PROGRESS}`,
+  GET_PROGRESS_REVIEW_DETAIL = `${API_ENDPOINTS.PROGRESS}/review-detail?progressStepID`,
+  GET_PROGRESS_REVIEW = `${API_ENDPOINTS.PROGRESS}/review`, 
+  CREATE_PROGRESS = `${API_ENDPOINTS.PROGRESS}`,
 }
