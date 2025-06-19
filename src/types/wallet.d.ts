@@ -45,3 +45,12 @@ interface BankCard {
   bankName: string
   accountHolderName: string
 }
+interface DepositOrder {
+  orderDepositID: string
+  orderID: string
+  orderTitle: string
+  title: string
+  amount: number
+  type: string
+  depositAt: Date
+}

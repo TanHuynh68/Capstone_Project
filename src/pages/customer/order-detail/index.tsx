@@ -7,6 +7,8 @@ import type {
 import OrderService from "@/services/OrderService";
 import { useEffect, useState } from "react";
 import ProgressService from "@/services/Progress";
+import { toast } from "sonner";
+import { MESSAGE } from "@/constants";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +18,8 @@ export default function OrderManagementPage() {
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
   );
+  const { createProgressReview } = ProgressService();
+
   useEffect(() => {
     fetchOrderDetail();
   }, []);
@@ -27,6 +31,14 @@ export default function OrderManagementPage() {
         setOrderDetail(response?.responseRequestModel);
         console.log("fetchOrderDetail: ", response?.responseRequestModel);
       }
+    }
+  };
+
+  // send progress review by customer
+  const handleCreateReview = async (value: any) => {
+    const response = await createProgressReview(value);
+    if (response && response.responseRequestModel) {
+      toast.success(MESSAGE.CREATE_PROGRESS_SUCCESSFULLY);
     }
   };
 
@@ -58,6 +70,7 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      handleCreateReview={handleCreateReview}
       progressStep={progressSteps}
       orderDetail={orderDetail}
       onFetchProgressSteps={fetchProgressSteps}

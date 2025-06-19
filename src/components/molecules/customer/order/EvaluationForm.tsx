@@ -37,9 +37,9 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
       criteria.isColorCorrect,
       criteria.isFunctionalityMet,
     ]
-    const booleanScore = booleanCriteria.filter(Boolean).length * 20
-    const qualityScore = criteria.qualityScore * 4 // 5 stars * 4 = 20 points
-    return Math.min(booleanScore + qualityScore, 100)
+    const booleanScore = booleanCriteria.filter(Boolean).length * 5 // Each boolean criterion is worth 5 points
+    const qualityScore = criteria.qualityScore * 2 // 5 stars * 2 = 10 points
+    return Math.min(booleanScore + qualityScore, 30) // Total score capped at 30
   }
 
   const handleSubmit = () => {
@@ -127,7 +127,7 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
         <div className="bg-blue-50 rounded-lg p-3">
           <div className="flex items-center justify-between">
             <span className="font-medium">Tổng điểm:</span>
-            <span className="text-xl font-bold text-blue-600">{calculateTotalScore()}/100</span>
+            <span className="text-xl font-bold text-blue-600">{calculateTotalScore()}/30</span>
           </div>
         </div>
 

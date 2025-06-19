@@ -15,6 +15,7 @@ import Message from "@/components/atoms/layout/navbar/Message";
 import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
 import Balance from "@/components/atoms/layout/navbar/Balance";
 import WalletService from "@/services/WalletService";
+import Deposit from "@/components/atoms/layout/navbar/Deposit";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
@@ -22,11 +23,13 @@ const navItems = [
 ];
 
 export function Navbar() {
-  const { getWallet } = WalletService();
+  const { getWallet, getDepositOrder } = WalletService();
   const [wallet, setWallet] = useState<Wallet>();
+  const [depositMoney, setDepositMoney] = useState<DepositOrder[]>([]);
 
   useEffect(() => {
     fetchWallet();
+    fetchDepositOrderList();
   }, []);
 
   /**
@@ -35,7 +38,18 @@ export function Navbar() {
   const fetchWallet = async () => {
     const response = await getWallet();
     if (response && response.responseRequestModel) {
+      console.log(
+        "response.responseRequestModel: ",
+        response.responseRequestModel
+      );
       setWallet(response.responseRequestModel);
+    }
+  };
+
+  const fetchDepositOrderList = async () => {
+    const response = await getDepositOrder();
+    if (response && response.responseRequestModel) {
+      setDepositMoney(response.responseRequestModel.responseList.items);
     }
   };
 
@@ -66,7 +80,14 @@ export function Navbar() {
           <Link to={PATH.HOME} className="flex items-center space-x-2">
             <DualLogo />
           </Link>
-          {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
+          <div className="grid grid-cols-2 gap-20">
+            <div>
+              {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
+            </div>
+            <div>
+              {isLoggedIn() && <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />}
+            </div>
+          </div>
         </div>
         {/* Desktop Navigation */}
         <nav className="hidden md:flex md:items-center md:space-x-6">
