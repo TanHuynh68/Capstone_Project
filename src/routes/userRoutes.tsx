@@ -5,7 +5,7 @@ import {
   CustomerEditProfile,
   CustomerProfilePage,
   PaymentFailedPage,
-  DepositMoneyPage,
+  WalletPage,
   PaymentResultPage,
   PaymentSuccessPage,
   Chat,
@@ -43,8 +43,8 @@ export const userRoutes = [
         element: <CustomerEditProfile />,
       },
       {
-        path: USER_ROUTES.DEPOSIT_MONEY,
-        element: <DepositMoneyPage />,
+        path: USER_ROUTES.WALLET,
+        element: <WalletPage />,
       },
       {
         path: USER_ROUTES.PAYMENT_RESULT,

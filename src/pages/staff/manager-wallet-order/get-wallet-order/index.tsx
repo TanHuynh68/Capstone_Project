@@ -26,6 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getOrderStatusBadge } from "@/components/utils/badge-utils";
 
 interface WalletOrder {
   walletOrderID: string;
@@ -163,34 +164,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
     {
       header: "Trạng thái",
       accessorKey: "orderStatusDisplay",
-      cell: (row) => {
-        const status = row.orderStatusDisplay;
-        const label =
-          status === "Pending"
-            ? "Chờ duyệt"
-            : status === "Completed"
-            ? "Hoàn tất"
-            : status === "Canceled"
-            ? "Đã hủy"
-            : status;
-
-        const colorClass =
-          status === "Pending"
-            ? "bg-yellow-100 text-yellow-800"
-            : status === "Completed"
-            ? "bg-green-100 text-green-800"
-            : status === "Canceled"
-            ? "bg-red-200 text-red-800"
-            : "bg-red-100 text-red-800";
-
-        return (
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}
-          >
-            {label}
-          </span>
-        );
-      },
+      cell: (row) => getOrderStatusBadge(row.orderStatusDisplay),
       sortable: true,
       className: "text-center",
     },
@@ -486,72 +460,72 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
   }, [walletID, page, size, orderType, transactionStatusEnum]);
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-xl font-semibold">Duyệt đơn rút tiền</h2>
-      </div>
+    <div className="space-y-4 px-4">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
+        {/* <h2 className="text-xl font-semibold">Quản lý giao dịch</h2> */}
 
-      <div className="flex flex-wrap items-center justify-end gap-4">
-        <div className="relative w-full max-w-xs">
-          <Input
-            placeholder="Tìm theo tên, mã đơn..."
-            className="pl-10"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
+        <div className="flex flex-col sm:flex-row gap-2 items-center">
+          <div className="relative w-full max-w-xs">
+            <Input
+              placeholder="Tìm theo tên, mã đơn..."
+              className="pl-10"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setSearchTerm(searchInput);
+                  setPage(1);
+                }
+              }}
+            />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+              size={18}
+              onClick={() => {
                 setSearchTerm(searchInput);
                 setPage(1);
-              }
-            }}
-          />
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-            size={18}
-            onClick={() => {
-              setSearchTerm(searchInput);
+              }}
+            />
+          </div>
+          <Select
+            value={orderType === undefined ? "all" : orderType.toString()}
+            onValueChange={(val) => {
+              setOrderType(val === "all" ? undefined : Number(val));
               setPage(1);
             }}
-          />
-        </div>
-        <Select
-          value={orderType === undefined ? "all" : orderType.toString()}
-          onValueChange={(val) => {
-            setOrderType(val === "all" ? undefined : Number(val));
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Tất cả giao dịch" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả giao dịch</SelectItem>
-            <SelectItem value="0">Nạp tiền</SelectItem>
-            <SelectItem value="1">Rút tiền</SelectItem>
-          </SelectContent>
-        </Select>
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Tất cả giao dịch" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả giao dịch</SelectItem>
+              <SelectItem value="0">Nạp tiền</SelectItem>
+              <SelectItem value="1">Rút tiền</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={
-            transactionStatusEnum === undefined
-              ? "all"
-              : transactionStatusEnum.toString()
-          }
-          onValueChange={(val) => {
-            setTransactionStatusEnum(val === "all" ? undefined : Number(val));
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Tất cả trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="0">Chờ duyệt</SelectItem>
-            <SelectItem value="1">Hoàn tất</SelectItem>
-            <SelectItem value="3">Đã hủy</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select
+            value={
+              transactionStatusEnum === undefined
+                ? "all"
+                : transactionStatusEnum.toString()
+            }
+            onValueChange={(val) => {
+              setTransactionStatusEnum(val === "all" ? undefined : Number(val));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Tất cả trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="0">Chờ duyệt</SelectItem>
+              <SelectItem value="1">Hoàn tất</SelectItem>
+              <SelectItem value="3">Đã hủy</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <DataTable

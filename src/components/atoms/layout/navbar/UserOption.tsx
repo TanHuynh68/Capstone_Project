@@ -11,7 +11,7 @@ import {
   ShoppingBag,
   Truck,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   DropdownMenu,
@@ -26,9 +26,6 @@ import { useImageCurrentUser } from "@/components/utils/helpers/helpers";
 
 const menuItemClass =
   "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition w-full text-foreground";
-
-const linkClass =
-  "flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition text-foreground";
 
 const iconClass = "h-4 w-4 text-muted-foreground flex-shrink-0";
 
@@ -67,28 +64,31 @@ const UserOption = () => {
           <span>Thông tin</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="p-0">
-          <Link to={USER_ROUTES.DEPOSIT_MONEY} className={linkClass}>
-            <Wallet className={iconClass} />
-            <span>Ví của tôi</span>
-          </Link>
+        <DropdownMenuItem
+          onClick={() => navigate(USER_ROUTES.WALLET)}
+          className={menuItemClass}
+        >
+          <Wallet className={iconClass} />
+          <span>Ví của tôi</span>
         </DropdownMenuItem>
 
         {user.role === ROLE.CUSTOMER && (
-          <DropdownMenuItem className="p-0">
-            <Link to={USER_ROUTES.MY_POST_PAGE} className={linkClass}>
-              <Newspaper className={iconClass} />
-              <span>Bài đăng</span>
-            </Link>
+          <DropdownMenuItem
+            onClick={() => navigate(USER_ROUTES.MY_POST_PAGE)}
+            className={menuItemClass}
+          >
+            <Newspaper className={iconClass} />
+            <span>Bài đăng</span>
           </DropdownMenuItem>
         )}
 
         {user.role === ROLE.DESIGNER && (
-          <DropdownMenuItem className="p-0">
-            <Link to={DESIGNER_ROUTES.PORTFOLIO} className={linkClass}>
-              <Palette className={iconClass} />
-              <span>Thiết kế</span>
-            </Link>
+          <DropdownMenuItem
+            onClick={() => navigate(DESIGNER_ROUTES.PORTFOLIO)}
+            className={menuItemClass}
+          >
+            <Palette className={iconClass} />
+            <span>Thiết kế</span>
           </DropdownMenuItem>
         )}
 

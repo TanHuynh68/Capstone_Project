@@ -9,7 +9,7 @@ export enum USER_ROUTES {
   PROFILE = "profile",
   EDIT_PROFILE = "edit-profile",
   VERIFY_ACCOUNT = "verify-account",
-  DEPOSIT_MONEY = "deposit-money",
+  WALLET = "wallet",
   PAYMENT_RESULT = "api/v1/wallet/vnpay-callback",
   PAYOS_PAYMENT_RESULT = "api/v1/wallet/payos-callback",
   PAYMENT = "payment",
