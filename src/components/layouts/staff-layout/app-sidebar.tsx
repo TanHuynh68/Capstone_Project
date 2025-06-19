@@ -2,7 +2,6 @@
 
 import type * as React from "react";
 import {
-  ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -39,6 +38,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { PATH } from "@/routes/path";
+import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 const data = {
   user: {
@@ -58,7 +58,7 @@ const data = {
       icon: UsersIcon,
     },
     {
-      title: "Giao dịch của ví",
+      title: "Lịch sử giao dịch ví",
       url: `${PATH.STAFF_MANAGER_WALLET_TRANSACTION}`,
       icon: Wallet,
     },
@@ -150,7 +150,7 @@ const data = {
       icon: DatabaseIcon,
     },
     {
-      name: "Duyệt đơn rút tiền",
+      name: "Đơn giao dịch",
       url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
       icon: ClipboardListIcon,
     },
@@ -177,7 +177,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
+            {/* <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
@@ -185,7 +185,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <ArrowUpCircleIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
-            </SidebarMenuButton>
+            </SidebarMenuButton> */}
+            <LogoWeb logoSize={{ width: 220, height: 50 }} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

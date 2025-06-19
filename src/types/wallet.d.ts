@@ -18,18 +18,21 @@ interface Transaction {
 }
 
 
- interface WalletOrder {
+interface WalletOrder {
   walletOrderID: string
   walletID: string
+  fullName?: string
   amount: number
   orderStatusDisplay: "Completed" | "Pending" | "Canceled" | string
   description: string
   orderDate: string
   paymentMethod?: string
+  imageUrl?: string
+  note?: string
 }
 
 
- interface Bank {
+interface Bank {
   id: string
   name: string,
   code: string,
@@ -44,4 +47,13 @@ interface BankCard {
   bankAccountNumber: string
   bankName: string
   accountHolderName: string
+}
+interface DepositOrder {
+  orderDepositID: string
+  orderID: string
+  orderTitle: string
+  title: string
+  amount: number
+  type: string
+  depositAt: Date
 }

@@ -6,7 +6,6 @@ import {
   Mail,
   Phone,
   Lock,
-  Edit,
   Camera,
   Award,
   UserCircle,
@@ -43,6 +42,7 @@ import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
 import { ChangePasswordPage, OrderHistoryPage } from "@/pages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShippingForm } from "@/components/organisms/delivery/shipping-form";
 
 interface Profile {
   accountID: string;
@@ -396,7 +396,7 @@ const Profile = () => {
         </TabsList>
 
         <TabsContent value="profile">
-          <div className="container max-w-6xl mx-auto px-4 py-0">
+          <div className="container max-w-6xl mx-auto py-0">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
               {/* Profile Card */}
               <div
@@ -481,14 +481,6 @@ const Profile = () => {
                   </CardContent>
 
                   <CardFooter className="flex flex-col gap-3 pt-2">
-                    <Button variant="outline" className="w-full ">
-                      <Link
-                        to="/edit-profile"
-                        className="flex items-center justify-center"
-                      >
-                        <Edit className="mr-2 h-4 w-4" /> Thay đổi thông tin
-                      </Link>
-                    </Button>
                     <Button variant="outline" className="w-full p-0">
                       <Dialog>
                         <DialogTrigger className="w-full">
@@ -658,7 +650,7 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="orders">
-          <div className="container max-w-6xl mx-auto px-4 py-0">
+          <div className="container max-w-6xl mx-auto py-0">
             <div className="text-center text-gray-500 text-sm">
               <OrderHistoryPage />
             </div>
@@ -666,10 +658,10 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="delivery">
-          <div className="container max-w-6xl mx-auto px-4 py-0">
-            <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "}
-            <div className="text-center text-gray-500 text-sm py-10">
-              (Thêm component vào đây)
+          <div className="container max-w-6xl mx-auto py-0">
+            {/* <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "} */}
+            <div className="text-center text-gray-500 text-sm py-0">
+              <ShippingForm />
             </div>
           </div>
         </TabsContent>

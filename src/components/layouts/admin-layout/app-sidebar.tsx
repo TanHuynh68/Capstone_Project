@@ -2,7 +2,6 @@
 
 import type * as React from "react";
 import {
-  ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -40,6 +39,7 @@ import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { logout } from "@/redux/userSlice";
 import { ADMIN_ROUTES } from "@/routes/path";
+import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 const data = {
   user: {
@@ -178,7 +178,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
+            {/* <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
@@ -186,7 +186,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <ArrowUpCircleIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
-            </SidebarMenuButton>
+            </SidebarMenuButton> */}
+            <LogoWeb logoSize={{ width: 220, height: 50 }} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

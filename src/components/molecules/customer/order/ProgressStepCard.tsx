@@ -1,31 +1,37 @@
-"use client"
+"use client";
 
-import type { ProgressStep } from "@/types/orderManagement"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, CheckCircle, Clock, Star } from "lucide-react"
+import type { ProgressStep } from "@/types/orderManagement";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, CheckCircle, Clock, Star } from "lucide-react";
+import { useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 interface ProgressStepCardProps {
-  step: ProgressStep
-  onEvaluate: () => void
+  step: ProgressStep;
+  onEvaluate: () => void;
 }
 
-export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardProps) {
+export default function ProgressStepCard({
+  step,
+  onEvaluate,
+}: ProgressStepCardProps) {
+  const currentUser = useCurrentUser();
   const getStepTypeColor = (type: string) => {
     switch (type) {
       case "Design":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "Review":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "Approval":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "Revision":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -34,8 +40,8 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   return (
     <Card className="h-full">
@@ -44,23 +50,38 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
           <div className="flex-1">
             <CardTitle className="text-lg mb-2">{step.stepTitle}</CardTitle>
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={getStepTypeColor(step.progressStepType+'')}>{step.progressStepType}</Badge>
-              <Badge variant={step.isApprovedByCustomer ? "default" : "secondary"}>
-                {step.isApprovedByCustomer ? (
+              <Badge className={getStepTypeColor(step.progressStepType + "")}>
+                {step.progressStepType}
+              </Badge>
+              <Badge
+                variant={step.isApprovedByCustomer ? "default" : "secondary"}
+              >
+                {step.isApprovedByCustomer === true ? (
                   <>
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Đã duyệt
                   </>
                 ) : (
                   <>
-                    <Clock className="h-3 w-3 mr-1" />
-                    Chờ duyệt
+                    {step.isApprovedByCustomer === false ? (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        Không duyệt
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        Chờ duyệt
+                      </>
+                    )}
                   </>
                 )}
               </Badge>
             </div>
           </div>
-          <div className="text-right text-sm text-gray-500">Bước {step.stepNumber}</div>
+          <div className="text-right text-sm text-gray-500">
+            Bước {step.stepNumber}
+          </div>
         </div>
       </CardHeader>
 
@@ -68,7 +89,9 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
         {/* Description */}
         <div>
           <h4 className="font-medium mb-2">Mô tả:</h4>
-          <p className="text-sm text-gray-600 leading-relaxed">{step.description}</p>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {step.description}
+          </p>
         </div>
 
         {/* Progress Images */}
@@ -77,7 +100,10 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
             <h4 className="font-medium mb-2">Hình ảnh tiến độ:</h4>
             <div className="grid grid-cols-2 gap-2">
               {step.progressImages.slice(0, 4).map((image, index) => (
-                <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <div
+                  key={index}
+                  className="aspect-square rounded-lg overflow-hidden bg-gray-100"
+                >
                   <img
                     src={image.imageUrl || "/placeholder.svg"}
                     alt={`Progress ${index + 1}`}
@@ -87,7 +113,9 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
               ))}
             </div>
             {step.progressImages.length > 4 && (
-              <p className="text-xs text-gray-500 mt-1">+{step.progressImages.length - 4} ảnh khác</p>
+              <p className="text-xs text-gray-500 mt-1">
+                +{step.progressImages.length - 4} ảnh khác
+              </p>
             )}
           </div>
         )}
@@ -121,13 +149,16 @@ export default function ProgressStepCard({ step, onEvaluate }: ProgressStepCardP
         </div>
 
         {/* Action Button */}
-        <div className="pt-4 border-t">
-          <Button onClick={onEvaluate} className="w-full" variant="outline">
-            <Star className="h-4 w-4 mr-2" />
-            Đánh giá
-          </Button>
-        </div>
+        {currentUser?.role === ROLE.CUSTOMER &&
+          step?.isApprovedByCustomer === null && (
+            <div className="pt-4 border-t">
+              <Button onClick={onEvaluate} className="w-full" variant="outline">
+                <Star className="h-4 w-4 mr-2" />
+                Đánh giá
+              </Button>
+            </div>
+          )}
       </CardContent>
     </Card>
-  )
+  );
 }

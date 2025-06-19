@@ -14,12 +14,14 @@ interface OrderManagementTemplateProps {
   orderDetail: OrderDetail;
   onFetchProgressSteps: any;
   progressStep: ProgressStepResponse[];
+  handleCreateReview: any;
 }
 
 export default function OrderManagementTemplate({
   orderDetail,
   onFetchProgressSteps,
   progressStep,
+  handleCreateReview,
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -51,13 +53,16 @@ export default function OrderManagementTemplate({
     // Implement view activity log logic
   };
 
-  const handleEvaluationSubmit = (
+  const handleEvaluationSubmit = async (
     stepId: string,
     criteria: EvaluationCriteria
   ) => {
-    console.log("Evaluation submitted:", { stepId, criteria });
-    // Implement evaluation submission logic
-    // This would typically call an API to save the evaluation
+    await handleCreateReview({
+      progressStepID: stepId,
+      ...criteria,
+      // rating star 1->5 => 2->10
+      qualityScore: criteria.qualityScore * 2,
+    });
   };
 
   const handleStartEvaluation = (stepId: string) => {

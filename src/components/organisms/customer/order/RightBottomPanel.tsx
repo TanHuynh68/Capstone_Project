@@ -27,12 +27,14 @@ export default function RightBottomPanel({
   onEvaluationSubmit,
 }: RightBottomPanelProps) {
   console.log('progressSteps: ', progressSteps)
+  
   const handleEvaluate = (stepId: string) => {
     onStartEvaluation(stepId)
   }
 
   const handleEvaluationSubmit = (criteria: EvaluationCriteria) => {
     if (evaluatingStepId) {
+      console.log('evaluatingStepId: ', evaluatingStepId)
       onEvaluationSubmit(evaluatingStepId, criteria)
       onFinishEvaluation()
     }
@@ -68,7 +70,7 @@ export default function RightBottomPanel({
                   <TabsList className="grid w-full grid-cols-3 mb-4">
                     {progressSteps.slice(0, 3).map((step, index) => (
                       <TabsTrigger key={step.progressStep.progressStepID} value={index.toString()}>
-                        ProgressImage {index + 1}
+                        Bước {index + 1}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -105,7 +107,7 @@ export default function RightBottomPanel({
         // Layout bình thường
         <>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Tiến độ thực hiện 2</h3>
+            <h3 className="text-lg font-semibold">Tiến độ thực hiện</h3>
             {progressSteps.length > 0 && <span className="text-sm text-gray-500">{progressSteps.length} bước</span>}
           </div>
 
@@ -124,7 +126,7 @@ export default function RightBottomPanel({
                 <TabsList className="grid w-full grid-cols-3 mb-4">
                   {progressSteps.slice(0, 3).map((step, index) => (
                     <TabsTrigger key={step.progressStep.progressStepID} value={index.toString()}>
-                      ProgressImage {index + 1}
+                      Bước {index + 1}
                     </TabsTrigger>
                   ))}
                 </TabsList>

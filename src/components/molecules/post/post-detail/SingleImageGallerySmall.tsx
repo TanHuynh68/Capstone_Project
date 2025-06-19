@@ -68,6 +68,7 @@ export default function SingleImageGallerySmall({
       {/* Modal hiển thị ảnh lớn */}
       <Dialog open={isOpen} onOpenChange={closeModal}>
         <DialogContent
+          hideDefaultClose
           className="max-w-4xl w-full p-0 bg-background"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
