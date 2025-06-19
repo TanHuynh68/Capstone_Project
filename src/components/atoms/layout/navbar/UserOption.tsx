@@ -68,7 +68,7 @@ const UserOption = () => {
         </DropdownMenuItem>
 
         <DropdownMenuItem className="p-0">
-          <Link to={USER_ROUTES.DEPOSIT_MONEY} className={linkClass}>
+          <Link to={USER_ROUTES.MY_WALLET} className={linkClass}>
             <Wallet className={iconClass} />
             <span>Ví của tôi</span>
           </Link>

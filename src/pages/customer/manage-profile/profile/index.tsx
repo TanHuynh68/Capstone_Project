@@ -6,7 +6,6 @@ import {
   Mail,
   Phone,
   Lock,
-  Edit,
   Camera,
   Award,
   UserCircle,
@@ -481,14 +480,6 @@ const Profile = () => {
                   </CardContent>
 
                   <CardFooter className="flex flex-col gap-3 pt-2">
-                    <Button variant="outline" className="w-full ">
-                      <Link
-                        to="/edit-profile"
-                        className="flex items-center justify-center"
-                      >
-                        <Edit className="mr-2 h-4 w-4" /> Thay đổi thông tin
-                      </Link>
-                    </Button>
                     <Button variant="outline" className="w-full p-0">
                       <Dialog>
                         <DialogTrigger className="w-full">
