@@ -70,7 +70,7 @@ export default function RightBottomPanel({
                   <TabsList className="grid w-full grid-cols-3 mb-4">
                     {progressSteps.slice(0, 3).map((step, index) => (
                       <TabsTrigger key={step.progressStep.progressStepID} value={index.toString()}>
-                        ProgressImage {index + 1}
+                        Bước {index + 1}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -126,7 +126,7 @@ export default function RightBottomPanel({
                 <TabsList className="grid w-full grid-cols-3 mb-4">
                   {progressSteps.slice(0, 3).map((step, index) => (
                     <TabsTrigger key={step.progressStep.progressStepID} value={index.toString()}>
-                      ProgressImage {index + 1}
+                      Bước {index + 1}
                     </TabsTrigger>
                   ))}
                 </TabsList>
