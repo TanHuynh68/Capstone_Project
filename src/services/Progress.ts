@@ -50,23 +50,27 @@ const ProgressService = () => {
     [callApi]
   );
 
-  const getProgressReview = useCallback(async (progressStepID: string) => {
-    try {
-      const res = await callApi(
-        HTTP_METHOD.GET,
-        `${API_ROUTES.GET_PROGRESS_REVIEW}?progressStepID=${progressStepID}`
-      );
-      return res;
-    } catch (err: any) {
-      console.error(err?.response?.data);
-    }
-  }, [callApi]);
+  const createProgressReview = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          `${API_ROUTES.CREATE_PROGRESS_REVIEW}`,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
 
   return {
     getProgress,
     getProgressReviewDetail,
     createProgress,
-    getProgressReview,
+    createProgressReview,
   };
 };
 
