@@ -43,7 +43,7 @@ export const userRoutes = [
         element: <CustomerEditProfile />,
       },
       {
-        path: USER_ROUTES.WALLET,
+        path: USER_ROUTES.MY_WALLET,
         element: <WalletPage />,
       },
       {

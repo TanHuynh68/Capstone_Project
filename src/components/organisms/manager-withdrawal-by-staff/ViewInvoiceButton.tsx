@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { XCircle } from "lucide-react";
-import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
 
 interface ViewInvoiceButtonProps {
   row: {

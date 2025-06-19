@@ -65,7 +65,7 @@ const UserOption = () => {
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          onClick={() => navigate(USER_ROUTES.WALLET)}
+          onClick={() => navigate(USER_ROUTES.MY_WALLET)}
           className={menuItemClass}
         >
           <Wallet className={iconClass} />
