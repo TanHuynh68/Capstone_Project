@@ -49,7 +49,7 @@ const SidebarPanelWrapper: React.FC<SidebarPanelWrapperProps> = ({
               isClosing ? "opacity-0" : "opacity-100"
             }`}
           >
-            <div className="p-2 flex flex-col gap-6">{children}</div>
+            <div className="p-2 flex flex-col">{children}</div>
           </div>
         </div>
         <Button
