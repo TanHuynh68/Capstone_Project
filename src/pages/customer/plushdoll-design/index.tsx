@@ -154,7 +154,7 @@ const PlushDollDesign: React.FC = () => {
   const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
 
   // Thêm state for background color
-  const [backgroundColor, setBackgroundColor] = useState("#22C55E");
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
 
   // ✅ Thêm state để track canvas initialization
