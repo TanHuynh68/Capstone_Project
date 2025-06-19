@@ -15,6 +15,11 @@ import {
   Column,
 } from "@/components/organisms/manager-withdrawal-by-staff";
 import { getTransactionTypeBadge } from "@/components/utils/badge-utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface WalletTransaction {
   walletTransactionID: string;
@@ -124,9 +129,16 @@ const GetWalletTransaction = () => {
       sortable: true,
       className: "text-center max-w-[200px]",
       cell: (row) => (
-        <div className="line-clamp-1 text-ellipsis overflow-hidden whitespace-nowrap">
-          {highlightMatch(row.description, searchTerm)}
-        </div>
+          <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="line-clamp-1 text-ellipsis overflow-hidden whitespace-nowrap">
+              {highlightMatch(row.description, searchTerm)}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs text-sm text-left">
+            {highlightMatch(row.description, searchTerm)}
+          </TooltipContent>
+        </Tooltip>
       ),
     },
     {

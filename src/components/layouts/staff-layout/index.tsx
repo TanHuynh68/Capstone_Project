@@ -39,7 +39,7 @@ const data = {
       icon: UsersIcon,
     },
     {
-      title: "Giao dịch của ví",
+      title: "Lịch sử giao dịch ví",
       url: `${PATH.STAFF_MANAGER_WALLET_TRANSACTION}`,
       icon: Wallet,
     },
@@ -131,7 +131,7 @@ const data = {
       icon: DatabaseIcon,
     },
     {
-      name: "Quản lý giao dịch",
+      name: "Đơn giao dịch",
       url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
       icon: ClipboardListIcon,
     },
