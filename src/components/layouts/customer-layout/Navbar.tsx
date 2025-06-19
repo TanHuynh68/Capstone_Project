@@ -10,7 +10,7 @@ import Post from "@/components/atoms/layout/navbar/Post";
 import UserOption from "@/components/atoms/layout/navbar/UserOption";
 import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
-import { PATH } from "@/routes/path";
+import { PATH} from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
 import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
 import Balance from "@/components/atoms/layout/navbar/Balance";
@@ -81,8 +81,10 @@ export function Navbar() {
             <DualLogo />
           </Link>
           <div className="grid grid-cols-2 gap-20">
-            <div>
+            <div >
+             <Link to={PATH.MY_WALLET}>
               {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
+             </Link>
             </div>
             <div>
               {isLoggedIn() && <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />}

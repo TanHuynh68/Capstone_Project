@@ -59,6 +59,7 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  MY_WALLET = "my-wallet",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
   CUSTOMER_ORDER_HISTORY_PAGE = `${USER_ROUTES.ORDER}/history`,
   CHAT_PAGE = `${USER_ROUTES.CHAT}`,

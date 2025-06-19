@@ -32,7 +32,7 @@ const formatDate = (dateString: string) => {
 
 const Deposit = ({ amount, deposits }: DepositProps) => {
   const totalDeposits = deposits.length;
-
+    console.log('deposits: ', deposits)
   return (
     <Popover>
       <PopoverTrigger>
@@ -59,7 +59,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[480px] p-0">
+      <PopoverContent className="w-[505px] p-0">
         <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b">
           <div className="flex items-center justify-between">
             <div>
@@ -79,7 +79,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           </div>
         </div>
 
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="max-h-[480px]">
           <div className="p-4">
             {deposits.length === 0 ? (
               <div className="text-center py-8">
@@ -108,7 +108,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
 
                           <div className="flex-1 min-w-0">
                             <h5 className="font-semibold text-gray-900 truncate">
-                              {deposit.title.slice(-12)}
+                              {deposit.title}
                             </h5>
                             <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                               {deposit.orderTitle}
@@ -130,7 +130,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                           <div className="flex items-center gap-2 text-gray-600">
                             <Hash className="w-3 h-3" />
                             <span className="truncate">
-                              ID: {deposit.orderDepositID.slice(-8)}
+                              ID: {deposit.orderID.slice(0,8)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">

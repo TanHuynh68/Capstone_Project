@@ -56,15 +56,24 @@ export default function ProgressStepCard({
               <Badge
                 variant={step.isApprovedByCustomer ? "default" : "secondary"}
               >
-                {step.isApprovedByCustomer ? (
+                {step.isApprovedByCustomer === true ? (
                   <>
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Đã duyệt
                   </>
                 ) : (
                   <>
-                    <Clock className="h-3 w-3 mr-1" />
-                    Chờ duyệt
+                    {step.isApprovedByCustomer === false ? (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        Không duyệt
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-3 w-3 mr-1" />
+                        Chờ duyệt
+                      </>
+                    )}
                   </>
                 )}
               </Badge>
@@ -140,14 +149,15 @@ export default function ProgressStepCard({
         </div>
 
         {/* Action Button */}
-        {currentUser?.role === ROLE.CUSTOMER && (
-          <div className="pt-4 border-t">
-            <Button onClick={onEvaluate} className="w-full" variant="outline">
-              <Star className="h-4 w-4 mr-2" />
-              Đánh giá
-            </Button>
-          </div>
-        )}
+        {currentUser?.role === ROLE.CUSTOMER &&
+          step?.isApprovedByCustomer === null && (
+            <div className="pt-4 border-t">
+              <Button onClick={onEvaluate} className="w-full" variant="outline">
+                <Star className="h-4 w-4 mr-2" />
+                Đánh giá
+              </Button>
+            </div>
+          )}
       </CardContent>
     </Card>
   );

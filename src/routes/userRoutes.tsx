@@ -44,7 +44,9 @@ export const userRoutes = [
       },
       {
         path: USER_ROUTES.MY_WALLET,
+
         element: <WalletPage />,
+
       },
       {
         path: USER_ROUTES.PAYMENT_RESULT,
