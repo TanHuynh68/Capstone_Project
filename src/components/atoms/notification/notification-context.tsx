@@ -8,6 +8,7 @@ export type NotificationProps = {
   title: string;
   message: string;
   isRead: boolean;
+  redirectLink?: string | null;
   createdAt: string;
 };
 

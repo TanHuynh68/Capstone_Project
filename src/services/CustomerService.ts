@@ -130,19 +130,33 @@ const CustomerService = () => {
         return res;
       } catch (err: any) {
         toast.error(err?.response?.data || MESSAGE.COPY_CANVAS_FAILED);
-        }
+      }
     },
     [callApi]
   );
 
+  // const deleteAddresses = useCallback(
+  //   async (values: any) => {
+  //     try {
+  //       const url = API_ROUTES.DELETE_ADDRESS.replace(":id", values.addressID);
+  //       const res = await callApi(HTTP_METHOD.DELETE, url, values);
+  //       // toast.success(MESSAGE.DELETE_ADDRESS_SUCCESSFULLY);
+  //       return res;
+  //     } catch (err: any) {
+  //       toast.error(err?.response?.data || MESSAGE.DELETE_ADDRESS_FAILED);
+  //     }
+  //   },
+  //   [callApi]
+  // );
+
   const deleteCanvas = useCallback(
     async (values: any) => {
       try {
-        const res = await callApi(
-          HTTP_METHOD.DELETE,
-          API_ROUTES.DELETE_CANVAS,
-          values
-        );
+        console.log(values, "sadsa");
+        // Use the base URL and pass canvasInfoId as a query parameter
+        const url = API_ROUTES.DELETE_CANVAS.replace(":id", values.canvasInfoId);
+        const res = await callApi(HTTP_METHOD.DELETE, url, values);
+
         // toast.success(MESSAGE.DELETE_CANVAS_SUCCESSFULLY);
         return res;
       } catch (err: any) {

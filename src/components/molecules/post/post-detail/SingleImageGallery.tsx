@@ -66,7 +66,8 @@ export default function SingleImageGallery({
       {/* Modal hiển thị ảnh lớn */}
       <Dialog open={isOpen} onOpenChange={closeModal}>
         <DialogContent
-          className="max-w-4xl w-full p-0"
+          hideDefaultClose
+          className="max-w-4xl w-full p-0 z-[12000]"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <div className="relative">

@@ -10,12 +10,7 @@ import {
   offerStatusVN,
   useCurrentUser,
 } from "@/components/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase";
 import {
   DropdownMenu,
@@ -31,6 +26,7 @@ import { ROLE } from "@/constants";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
 import { CustomBadge } from "./Badge";
 import { Badge } from "@/components/ui/badge";
+import OfferService from "@/services/OfferService";
 
 export interface ChatPostCardProps {
   post: OfferDetail;
@@ -51,110 +47,140 @@ export function ChatPostCard({
   const [showPhasesDialog, setShowPhasesDialog] = useState(false);
   const [isMainDialogOpen, setIsMainDialogOpen] = useState(false);
   const [isCreatePhaseDialogOpen, setIsCreatePhaseDialogOpen] = useState(false);
+  const { offerConfirm } = OfferService();
+
+  const handleConfirm = async () => {
+    const reponse = await offerConfirm({offerID: post?.offer?.offerID});
+    console.log('offerConfirm: ', reponse)
+    if (reponse) {
+      await fetchOffers();
+    }
+    console.log("post?.offer?.offerID: ", post?.offer?.offerID);
+    console.log("reponse: ", reponse);
+  };
 
   const handleViewPhases = () => {
     fetchOfferPhase(post?.offer?.offerID);
     setShowPhasesDialog(true);
   };
 
+  const handleViewDetails = () => {
+    setIsMainDialogOpen(true);
+  };
+
   const handleCreatePhaseClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsMainDialogOpen(false);
     setIsCreatePhaseDialogOpen(true);
   };
 
   return (
     <div>
-      <Dialog open={isMainDialogOpen} onOpenChange={setIsMainDialogOpen}>
-        <DialogTrigger className="text-left w-full">
-          <Card className="w-full p-2 hover:shadow-md transition-shadow duration-300">
-            <div className="grid grid-cols-2 gap-4">
-              <img
-                className="rounded-lg w-[300px] h-[215px] object-cover object-left-top"
-                src={post?.offer?.sampleImage || "/placeholder.svg"}
-                alt={post?.post?.title}
-              />
-              <div className="space-y-1">
-                <div className="truncate font-semibold text-xl">
-                  {post?.post.title}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <CustomBadge
-                    variant={offerStatusVariant(post?.offer?.offerStatus)}
-                  >
-                    {offerStatusVN(post?.offer?.offerStatus)}
-                  </CustomBadge>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-40" align="end">
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewPhases();
-                          }}
-                        >
-                          Xem giai đoạn
-                        </DropdownMenuItem>
-
-                        {currentUser?.role === ROLE.DESIGNER && (
-                          <DropdownMenuItem onClick={handleCreatePhaseClick}>
-                            Tạo giai đoạn
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <div>
-                  Giá ban đầu: {formatCurrencyVND(post?.offer?.initPrice)}
-                </div>
-                <div>
-                  Giá đề nghị: {formatCurrencyVND(post?.post?.suggestedPrice)}
-                </div>
-                <div>
-                  Giá cuối cùng:{" "}
-                  {post?.offer?.finalPrice === null
-                    ? "Chưa có"
-                    : formatCurrencyVND(post?.offer?.finalPrice)}
-                </div>
-                <div className="flex gap-2">
-                  <div>Khách hàng:</div>
-                  <Badge
-                    className="ml-2"
-                    variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}
-                  >
-                    {post?.offer?.isAcceptedByCus === true
-                      ? "Đồng ý"
-                      : "Chưa đồng ý"}
-                  </Badge>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <div>Nhà thiết kế:</div>
-                  <Badge
-                    className="ml-1"
-                    variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}
-                  >
-                    {post?.offer?.isAcceptedByDes === true
-                      ? "Đồng ý"
-                      : "Chưa đồng ý"}
-                  </Badge>
-                </div>
-              </div>
+      {/* Main Card - No longer clickable */}
+      <Card className="w-full p-2 hover:shadow-md transition-shadow duration-300">
+        <div className="grid grid-cols-2 gap-4">
+          <img
+            className="rounded-lg w-[300px] h-[215px] object-cover object-left-top"
+            src={post?.offer?.sampleImage || "/placeholder.svg"}
+            alt={post?.post?.title}
+          />
+          <div className="space-y-1">
+            <div className="truncate font-semibold text-xl">
+              {post?.post.title}
             </div>
-          </Card>
-        </DialogTrigger>
+            <div className="flex items-center gap-2 mt-2">
+              <CustomBadge
+                variant={offerStatusVariant(post?.offer?.offerStatus)}
+              >
+                {offerStatusVN(post?.offer?.offerStatus)}
+              </CustomBadge>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewDetails();
+                        fetchOffers()
+                      }}
+                    >
+                      Xem chi tiết
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewPhases();
+                      }}
+                    >
+                      Xem giai đoạn
+                    </DropdownMenuItem>
+
+                    {currentUser?.role === ROLE.DESIGNER && (
+                      <DropdownMenuItem onClick={handleCreatePhaseClick}>
+                        Tạo giai đoạn
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            {currentUser?.role === ROLE.CUSTOMER &&
+              post.offer?.isAcceptedByCus === false && (
+                <div className=" gap-4">
+                  <Button onClick={handleConfirm}>Chấp nhận</Button>
+                </div>
+              )}
+            {currentUser?.role === ROLE.DESIGNER &&
+              post.offer?.isAcceptedByDes === false && (
+                <div className=" gap-4">
+                  <Button onClick={handleConfirm}>Chấp nhận</Button>
+                </div>
+              )}
+            <div>
+              Giá cuối cùng:{" "}
+              {post?.offer?.finalPrice === null
+                ? "Chưa có"
+                : formatCurrencyVND(post?.offer?.finalPrice)}
+            </div>
+            <div className="flex gap-2">
+              <div>Khách hàng:</div>
+              <Badge
+                className="ml-2"
+                variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}
+              >
+                {post?.offer?.isAcceptedByCus === true
+                  ? "Đồng ý"
+                  : "Chưa đồng ý"}
+              </Badge>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <div>Nhà thiết kế:</div>
+              <Badge
+                className="ml-1"
+                variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}
+              >
+                {post?.offer?.isAcceptedByDes === true
+                  ? "Đồng ý"
+                  : "Chưa đồng ý"}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Main Details Dialog */}
+      <Dialog open={isMainDialogOpen} onOpenChange={setIsMainDialogOpen}>
         <DialogContent className="min-w-[1200px] h-[750px]">
           <div className="grid grid-cols-2 gap-4 justify-center items-center">
             <div className="">
@@ -192,13 +218,11 @@ export function ChatPostCard({
                     <div>
                       {post.post.description && (
                         <div className="bg-white/50 rounded-md px-3 py-2 border border-gray-100">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              Mô tả:
-                            </span>
-                            <span className="text-sm text-gray-600 font-semibold border-gray-100 truncate">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-sm text-gray-600">Mô tả:</div>
+                            <div className="text-sm text-gray-600 font-semibold border-gray-100 truncate">
                               {post.post.description}
-                            </span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -449,14 +473,11 @@ export function ChatPostCard({
                           Tiền cuối cùng
                         </span>
                         <span className="text-sm font-semibold text-green-600">
-                          {post?.offer?.designerDepositPrice
-                            ? post?.offer?.designerDepositPrice.toLocaleString(
-                                "vi-VN",
-                                {
-                                  style: "currency",
-                                  currency: "VND",
-                                }
-                              )
+                          {post?.offer?.finalPrice
+                            ? post?.offer?.finalPrice.toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })
                             : "Chưa có"}
                         </span>
                       </div>

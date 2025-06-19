@@ -145,6 +145,7 @@ const Chat = () => {
       console.log("📩 Nhận sự kiện ReceiveMessage");
       if (roomId) {
         await getMessageOfChat(roomId);
+
       }
     });
 
@@ -222,7 +223,14 @@ const Chat = () => {
       };
       const response = await createChat(messageData);
       if (response) {
-        await getMessageOfChat(chatRoomID);
+        await Promise.all([
+          getMessageOfChat(chatRoomID),
+          // show current chat in chat sidebar
+          getUsersNeedToChat(),
+        ]);
+        // await getMessageOfChat(chatRoomID);
+        // // show current chat in chat sidebar
+        // await getUsersNeedToChat();
       }
     } catch (error) {
       console.error("❌ Lỗi gửi tin nhắn:", error);

@@ -7,7 +7,7 @@ export { default as ChangePasswordPage } from "./customer/manage-profile/change-
 export { default as CustomerProfilePage } from "./customer/manage-profile/profile";
 export { default as CustomerEditProfile } from "./customer/manage-profile/edit-profile";
 export { default as VerifyAccountPage } from "./auth/verify-account";
-export { default as DepositMoneyPage } from "./customer/manage-wallet/deposit-money";
+export { default as WalletPage } from "./customer/manage-wallet/wallet-page";
 export { default as PaymentSuccessPage } from "./customer/manage-wallet/payment-success";
 export { default as PaymentFailedPage } from "./customer/manage-wallet/payment-failed";
 export { default as PaymentResultPage } from "./customer/manage-wallet/payment-result";
@@ -22,3 +22,5 @@ export { default as ErrorPage } from "./error";
 export { default as PostPage } from "./general/post/post-list";
 export { default as CustomerManagePost } from "./customer/manage-post";
 export { default as PostDetailPage } from "./general/post/post-detail";
+export { default as OrderHistoryPage } from "./customer/order";
+export { default as OrderDetailPage } from "./customer/order-detail";

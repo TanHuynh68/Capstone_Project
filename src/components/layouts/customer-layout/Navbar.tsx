@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
-import { Input } from "../../ui/input";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
 import Notification from "@/components/molecules/navbar/Notification";
 import Cart from "@/components/atoms/layout/navbar/Paint";
@@ -13,7 +12,10 @@ import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/components/utils";
 import { PATH } from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
-import DualLogo from "@/components/atoms/custom/logo/DualLogo";
+import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
+import Balance from "@/components/atoms/layout/navbar/Balance";
+import WalletService from "@/services/WalletService";
+import Deposit from "@/components/atoms/layout/navbar/Deposit";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
@@ -21,7 +23,36 @@ const navItems = [
 ];
 
 export function Navbar() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { getWallet, getDepositOrder } = WalletService();
+  const [wallet, setWallet] = useState<Wallet>();
+  const [depositMoney, setDepositMoney] = useState<DepositOrder[]>([]);
+
+  useEffect(() => {
+    fetchWallet();
+    fetchDepositOrderList();
+  }, []);
+
+  /**
+   * fetch wallet to show balance on navbar
+   */
+  const fetchWallet = async () => {
+    const response = await getWallet();
+    if (response && response.responseRequestModel) {
+      console.log(
+        "response.responseRequestModel: ",
+        response.responseRequestModel
+      );
+      setWallet(response.responseRequestModel);
+    }
+  };
+
+  const fetchDepositOrderList = async () => {
+    const response = await getDepositOrder();
+    if (response && response.responseRequestModel) {
+      setDepositMoney(response.responseRequestModel.responseList.items);
+    }
+  };
+
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
       {navItems.map((item) => (
@@ -45,10 +76,19 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full bg-background border-b">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to={PATH.HOME} className="flex items-center space-x-2">
-          <DualLogo />
-        </Link>
-
+        <div className="flex gap-2 items-center">
+          <Link to={PATH.HOME} className="flex items-center space-x-2">
+            <DualLogo />
+          </Link>
+          <div className="grid grid-cols-2 gap-20">
+            <div>
+              {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
+            </div>
+            <div>
+              {isLoggedIn() && <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />}
+            </div>
+          </div>
+        </div>
         {/* Desktop Navigation */}
         <nav className="hidden md:flex md:items-center md:space-x-6">
           {navItems.map((item, index) => (
@@ -63,34 +103,6 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center space-x-2">
-          {isSearchOpen ? (
-            <div className="flex items-center">
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-[200px] md:w-[300px]"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(false)}
-                className="ml-2"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(true)}
-              className="hidden md:flex"
-            >
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
-          )}
-
           <ThemeToggle />
           {isLoggedIn() && <Notification />}
           {isLoggedIn() && <Cart />}

@@ -5,12 +5,14 @@ import {
   CustomerEditProfile,
   CustomerProfilePage,
   PaymentFailedPage,
-  DepositMoneyPage,
+  WalletPage,
   PaymentResultPage,
   PaymentSuccessPage,
   Chat,
   PostFormPage,
   CustomerManagePost,
+  OrderHistoryPage,
+  OrderDetailPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
@@ -41,8 +43,8 @@ export const userRoutes = [
         element: <CustomerEditProfile />,
       },
       {
-        path: USER_ROUTES.DEPOSIT_MONEY,
-        element: <DepositMoneyPage />,
+        path: USER_ROUTES.MY_WALLET,
+        element: <WalletPage />,
       },
       {
         path: USER_ROUTES.PAYMENT_RESULT,
@@ -85,10 +87,14 @@ export const userRoutes = [
         path: USER_ROUTES.MY_POST_PAGE,
         element: <PostOfferPage />,
       },
-      // {
-      //   path: USER_ROUTES.MY_POST_PAGE,
-      //   element: <PostCustomerPage />,
-      // },
+      {
+        path: USER_ROUTES.ORDER_HISTORY_PAGE,
+        element: <OrderHistoryPage />,
+      },
+      {
+        path: USER_ROUTES.ORDER_DETAIL_PAGE,
+        element: <OrderDetailPage />,
+      },
     ],
   },
 ];

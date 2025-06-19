@@ -2,11 +2,14 @@ export enum USER_ROUTES {
   HOME = "/",
   HOME_PAGE = "/", // Đảm bảo rằng đường dẫn này không gây xung đột
   AUTH = "/auth",
+  ORDER = "/order",
+  ORDER_HISTORY_PAGE = "order/history",
+  ORDER_DETAIL_PAGE = "order/:id",
   CHANGE_PASSWORD = "change-password",
   PROFILE = "profile",
   EDIT_PROFILE = "edit-profile",
   VERIFY_ACCOUNT = "verify-account",
-  DEPOSIT_MONEY = "deposit-money",
+  MY_WALLET = "my-wallet",
   PAYMENT_RESULT = "api/v1/wallet/vnpay-callback",
   PAYOS_PAYMENT_RESULT = "api/v1/wallet/payos-callback",
   PAYMENT = "payment",
@@ -21,11 +24,11 @@ export enum USER_ROUTES {
   ABOUT_PAGE = "about",
   CONTACT_PAGE = "contact",
   POST_PAGE = "post",
-  CUSTOMER_UPLOAD_PAGE = "upload-post",
   MY_POST_PAGE = "my-post",
   POST_DETAIL_PAGE = "post/detail/:id",
   POST_OFFER_PAGE = "post-offer",
   DESIGNER_PORTFOLIO_PAGE = "portfolio/:id",
+  CUSTOMER_UPLOAD_PAGE = "post/upload-post",
 }
 
 export enum AUTH_ROUTES {
@@ -56,8 +59,11 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  CUSTOMER_UPLOAD_PAGE = "upload-post",
+  CUSTOMER_ORDER_HISTORY_PAGE = `${USER_ROUTES.ORDER}/history`,
   CHAT_PAGE = `${USER_ROUTES.CHAT}`,
   POST_DETAIL = "/post/detail",
+  ORDER_DETAIL = "/order",
   HOME = "/",
   ABOUT_PAGE = "/about",
   CONTACT_PAGE = "/contact",
@@ -91,9 +97,12 @@ export enum PATH {
   "/" +
   STAFF_ROUTES.STAFF_MANAGER_WITHDRAWAL,
 
-  STAFF_MANAGER_WALLET_TRANSACTION = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_DASHBOARD +"/" + STAFF_ROUTES.STAFF_MANAGER_WALLET_TRANSACTION,
+  STAFF_MANAGER_WALLET_TRANSACTION = STAFF_ROUTES.STAFF +
+  "/" +
+  STAFF_ROUTES.STAFF_DASHBOARD +
+  "/" +
+  STAFF_ROUTES.STAFF_MANAGER_WALLET_TRANSACTION,
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
-
 }

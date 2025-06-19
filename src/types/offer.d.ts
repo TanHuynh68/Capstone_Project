@@ -11,7 +11,7 @@
 //     sampleImage?: string
 // }
 
- interface OfferPhase {
+interface OfferPhase {
   offerPhaseID: string;
   phase: number;
   phaseName: string;
@@ -37,7 +37,7 @@ interface Offer {
   sampleImage: string;
   isAcceptedByCus: boolean;
   isAcceptedByDes: boolean;
-  offerStatus: number;
+  offerStatus: "Pending" | "Dealing" | "Accepted";
   createdAt: string;
   deadlineEndAt: string;
   // Additional properties for profile card

@@ -59,7 +59,9 @@ const InfoAboutTheConversationTab = ({
               isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
             }`}
           >
-            <TimelineTemplate items={mockTimelineData} />
+            <div className="space-y-4">
+              <TimelineTemplate items={mockTimelineData} />
+            </div>
           </div>
         )
 
@@ -71,13 +73,15 @@ const InfoAboutTheConversationTab = ({
               isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
             }`}
           >
-            <PostCard
-              fetchOffers={fetchOffers}
-              offersPhase={offersPhase}
-              setOffersPhase={setOffersPhase}
-              fetchOfferPhase={fetchOfferPhase}
-              posts={posts}
-            />
+            <div className="space-y-4">
+              <PostCard
+                fetchOffers={fetchOffers}
+                offersPhase={offersPhase}
+                setOffersPhase={setOffersPhase}
+                fetchOfferPhase={fetchOfferPhase}
+                posts={posts}
+              />
+            </div>
           </div>
         )
 
@@ -89,9 +93,23 @@ const InfoAboutTheConversationTab = ({
               isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
             }`}
           >
-            <div className="p-4 text-center text-gray-500">
-              <div className="text-lg font-medium mb-2">Xem đề xuất</div>
-              <div className="text-sm">Nội dung đề xuất sẽ hiển thị ở đây</div>
+            <div className="space-y-4">
+              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg">
+                <div className="text-lg font-medium mb-2">Xem đề xuất</div>
+                <div className="text-sm">Nội dung đề xuất sẽ hiển thị ở đây</div>
+                {/* Mock content để test scroll */}
+                <div className="mt-4 space-y-2 text-left">
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <div key={i} className="p-3 bg-white rounded border">
+                      <div className="font-medium">Đề xuất #{i + 1}</div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        Đây là nội dung mô tả chi tiết cho đề xuất số {i + 1}. Nội dung này có thể rất dài và cần scroll
+                        để xem hết.
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )
@@ -104,7 +122,7 @@ const InfoAboutTheConversationTab = ({
               isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
             }`}
           >
-            <div className="p-4 text-center text-gray-400">
+            <div className="p-6 text-center text-gray-400 bg-gray-50 rounded-lg">
               <div className="text-lg font-medium mb-2">Chọn một mục</div>
               <div className="text-sm">Vui lòng chọn một mục từ menu bên trái</div>
             </div>
@@ -117,10 +135,10 @@ const InfoAboutTheConversationTab = ({
     <div className="relative">
       <div className="flex flex-col justify-center gap-2 py-3">
         {/* Content Container with Animation */}
-        <div className="relative min-h-[200px]">
+        <div className="relative">
           {/* Background Animation */}
           <div
-            className={`absolute inset-0 transition-all duration-300 ease-in-out ${
+            className={`absolute inset-0 transition-all duration-300 ease-in-out rounded-lg ${
               isTransitioning ? "bg-gray-50" : "bg-transparent"
             }`}
           />
@@ -130,7 +148,7 @@ const InfoAboutTheConversationTab = ({
 
           {/* Loading Overlay */}
           {isTransitioning && (
-            <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/80 rounded-lg">
               <div className="flex space-x-1">
                 <div
                   className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
@@ -198,4 +216,12 @@ const mockTimelineData: TimelineItemData[] = [
     description: "This task was cancelled due to changing requirements.",
     type: "cancelled",
   },
+  // Thêm nhiều items để test scroll
+  ...Array.from({ length: 10 }, (_, i) => ({
+    id: `extra-${i + 7}`,
+    date: `2024-01-${11 - i}`,
+    title: `Additional Task ${i + 1}`,
+    description: `This is additional timeline item ${i + 1} to test scrolling functionality.`,
+    type: "completed" as const,
+  })),
 ]

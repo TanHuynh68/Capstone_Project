@@ -1,8 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logout } from "@/redux/userSlice";
 import { DESIGNER_ROUTES, USER_ROUTES } from "@/routes/path";
-import { User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  User,
+  User as UserIcon,
+  Palette,
+  Wallet,
+  LogOut,
+  Newspaper,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   DropdownMenu,
@@ -13,6 +22,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/components/utils";
 import { ROLE } from "@/constants";
+import { useImageCurrentUser } from "@/components/utils/helpers/helpers";
+
+const menuItemClass =
+  "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition w-full text-foreground";
+
+const iconClass = "h-4 w-4 text-muted-foreground flex-shrink-0";
 
 const UserOption = () => {
   const dispatch = useDispatch();
@@ -25,54 +40,85 @@ const UserOption = () => {
     });
   };
 
+  const avatar = useImageCurrentUser();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={avatar} alt="User" />
             <AvatarFallback>
               <User className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 z-50">
-        <DropdownMenuItem onClick={() => handleNavigateToProfile("profile")}>
-          <span className="w-full cursor-pointer">Hồ sơ</span>
+
+      <DropdownMenuContent className="w-36 z-50 px-2 py-2 rounded-xl shadow-lg bg-popover text-popover-foreground border border-border">
+        <DropdownMenuItem
+          onClick={() => handleNavigateToProfile("profile")}
+          className={menuItemClass}
+        >
+          <UserIcon className={iconClass} />
+          <span>Thông tin</span>
         </DropdownMenuItem>
-        {user.role === ROLE.DESIGNER && (
-          <DropdownMenuItem>
-            <Link to={DESIGNER_ROUTES.PORTFOLIO} className="w-full">
-              Thiết kế của tôi
-            </Link>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={() => handleNavigateToProfile("orders")}>
-          <span className="w-full cursor-pointer">Lịch sử đơn hàng</span>
+
+        <DropdownMenuItem
+          onClick={() => navigate(USER_ROUTES.MY_WALLET)}
+          className={menuItemClass}
+        >
+          <Wallet className={iconClass} />
+          <span>Ví của tôi</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleNavigateToProfile("requests")}>
-          <span className="w-full cursor-pointer">Lịch sử đặt hàng</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link to={USER_ROUTES.DEPOSIT_MONEY} className="w-full">
-            Ví
-          </Link>
-        </DropdownMenuItem>
+
         {user.role === ROLE.CUSTOMER && (
-          <DropdownMenuItem>
-            <Link to={USER_ROUTES.MY_POST_PAGE} className="w-full">
-              Bài đăng của tôi
-            </Link>
+          <DropdownMenuItem
+            onClick={() => navigate(USER_ROUTES.MY_POST_PAGE)}
+            className={menuItemClass}
+          >
+            <Newspaper className={iconClass} />
+            <span>Bài đăng</span>
           </DropdownMenuItem>
         )}
+
+        {user.role === ROLE.DESIGNER && (
+          <DropdownMenuItem
+            onClick={() => navigate(DESIGNER_ROUTES.PORTFOLIO)}
+            className={menuItemClass}
+          >
+            <Palette className={iconClass} />
+            <span>Thiết kế</span>
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem
+          onClick={() => handleNavigateToProfile("orders")}
+          className={menuItemClass}
+        >
+          <ShoppingBag className={iconClass} />
+          <span>Đơn hàng</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={() => handleNavigateToProfile("delivery")}
+          className={menuItemClass}
+        >
+          <Truck className={iconClass} />
+          <span>Giao hàng</span>
+        </DropdownMenuItem>
+
+        <div className="my-1 border-t border-border" />
+
         <DropdownMenuItem
           onClick={() => {
             dispatch(logout());
             navigate("/auth/login");
           }}
+          className={menuItemClass}
         >
-          Đăng xuất
+          <LogOut className={iconClass} />
+          <span>Đăng xuất</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

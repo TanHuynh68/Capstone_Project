@@ -45,7 +45,7 @@ export default function PostCustomerTemplate({
   totalPosts,
 }: PostCustomerTemplateProps) {
   const { deletePost } = PostService();
-  const { offers, fetchOffers, resetOffers } = useOffers();
+  const { fetchOffers, resetOffers } = useOffers();
   const [showOfferWarningModal, setShowOfferWarningModal] = useState(false);
   const [isExpanded, setIsExpanded] = useState(isFirstPost);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -207,9 +207,9 @@ export default function PostCustomerTemplate({
     }, 800);
   };
 
-  const hasUnresolvedOffers = offers.some(
-    (offer) => offer.offerStatus !== 1 && offer.offerStatus !== 3 // 2: ACCEPTED, 3: REJECTED
-  );
+  // const hasUnresolvedOffers = offers.some(
+  //   (offer) => offer.offerStatus !== 1 && offer.offerStatus !== 3 // 2: ACCEPTED, 3: REJECTED
+  // );
 
   // const handleDeleteClick = () => {
   //   if (hasUnresolvedOffers) {
@@ -412,7 +412,7 @@ export default function PostCustomerTemplate({
             isSelected={isSelected}
             onDelete={handleDeletePost}
             onRefresh={() => onDataChange?.(null)}
-            hasUnresolvedOffers={hasUnresolvedOffers}
+            hasUnresolvedOffers={false}
             fetchPosts={fetchPosts}
           />
           <PostCustomerContent post={post} />

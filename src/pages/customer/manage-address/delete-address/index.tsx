@@ -25,7 +25,6 @@ type DeleteAddressProps = {
   onDeleted: () => void;
 };
 
-
 const DeleteAddress = ({
   addressID,
   addressDetail,
@@ -56,7 +55,7 @@ const DeleteAddress = ({
         <Button
           variant="ghost"
           size="icon"
-          className="text-red-600 hover:bg-red-100"
+          className="text-destructive hover:bg-destructive/10"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -65,7 +64,7 @@ const DeleteAddress = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Bạn có chắc muốn xoá địa chỉ này?</AlertDialogTitle>
           <AlertDialogDescription>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-foreground">
               Địa chỉ:
               <br />
               <strong>

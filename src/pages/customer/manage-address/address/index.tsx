@@ -79,13 +79,13 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const renderAddressItem = (addr: any) => (
     <li
       key={addr.addressID}
-      className="relative pt-6 pr-6 pb-4 pl-4 border rounded-lg shadow-md bg-white hover:bg-gray-50 transition"
+      className="relative pt-6 pr-6 pb-4 pl-4 border border-border rounded-lg shadow-md bg-card hover:bg-muted transition"
       onClick={() => setSelectedAddress(addr)}
     >
       <div className="flex justify-between items-start gap-2">
         <div className="flex-1 space-y-1">
-          <p className="text-base font-medium text-gray-900 flex flex-wrap items-start gap-2 break-words">
-            <Home className="w-4 h-4 mt-1 text-gray-500 shrink-0" />
+          <p className="text-base font-medium text-foreground flex flex-wrap items-start gap-2 break-words">
+            <Home className="w-4 h-4 mt-1 text-muted-foreground shrink-0" />
             <span className="flex-1">
               {addr.addressDetail}, {getLocationName("ward", addr.ward)},{" "}
               {getLocationName("district", addr.district)}, TP. Hồ Chí Minh
@@ -93,7 +93,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
           </p>
 
           {addr.isMainAddress && (
-            <span className="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">
+            <span className="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 font-medium">
               Địa chỉ chính
             </span>
           )}
@@ -126,7 +126,10 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const renderSkeleton = (count: number) => (
     <ul className="space-y-4">
       {Array.from({ length: count }).map((_, i) => (
-        <li key={i} className="p-4 border rounded shadow-sm bg-white space-y-2">
+        <li
+          key={i}
+          className="p-4 border border-border rounded shadow-sm bg-card space-y-2"
+        >
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="h-4 w-1/3" />
           <Skeleton className="h-4 w-1/4" />
@@ -145,7 +148,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       {isLoading ? (
         <ul>{renderSkeleton(skeletonCount)}</ul>
       ) : addresses.length === 0 ? (
-        <div className="flex items-center justify-center text-gray-500">
+        <div className="flex items-center justify-center text-muted-foreground">
           Không có địa chỉ nào.
         </div>
       ) : (
@@ -157,7 +160,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
           {otherAddresses.length > 0 && (
             <div className="flex justify-center mt-2">
               <button
-                className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                className="text-sm text-primary hover:underline flex items-center gap-1"
                 onClick={() => setShowAll(!showAll)}
               >
                 {showAll ? "Ẩn bớt" : "Hiển thị thêm"}

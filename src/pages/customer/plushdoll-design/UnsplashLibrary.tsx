@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { LibraryItem } from "./ItemLibrary";
 import ENV from "@/config/env";
+import SidebarSearchBar from "./SidebarSearchBar";
+// import SidebarPanelWrapper from "./SidebarPanelWrapper";
+// import { ImagePlus } from "lucide-react";
 
 interface UnsplashPhoto {
   id: string;
@@ -359,60 +362,53 @@ const UnsplashLibrary: React.FC<UnsplashLibraryProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="w-[300px] h-full border-l bg-white flex flex-col">
-      <div className="p-4 border-b">
-        <h3 className="font-medium mb-4">Thành phần</h3>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-            className="w-full px-3 py-2 border rounded-md"
-          />
-          <button
-            onClick={handleSearch}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Tìm
-          </button>
-        </div>
-      </div>
-
-      <div className="h-[calc(100vh-200px)] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="grid grid-cols-2 gap-4">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="cursor-move group"
-              onClick={() => onSelect(item.imageUrl)}
-              draggable
-              onDragStart={(e) => onDragStart(e, item.imageUrl)}
-            >
-              <div className="aspect-square bg-gray-50 rounded-lg mb-2 overflow-hidden relative">
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  crossOrigin="anonymous"
-                  onLoad={handleImageLoad}
-                  className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
-                  draggable={false}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+    <>
+      <SidebarSearchBar
+        value={searchQuery}
+        onChange={handleSearchChange}
+        onSearch={handleSearch}
+        placeholder="Tìm kiếm..."
+        onKeyDown={handleKeyDown}
+        loading={isLoading}
+      />
+      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <div className="p-2">
+          <div className="grid grid-cols-2 gap-4">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="cursor-move group"
+                onClick={() => onSelect(item.imageUrl)}
+                draggable
+                onDragStart={(e) => onDragStart(e, item.imageUrl)}
+              >
+                <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    crossOrigin="anonymous"
+                    onLoad={handleImageLoad}
+                    className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+                    draggable={false}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors" />
+                </div>
+                <p className="text-sm text-center text-muted-foreground truncate">
+                  {item.name}
+                </p>
               </div>
-              <p className="text-sm text-center text-gray-600 truncate">
-                {item.name}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div ref={loadingRef} className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          {getRateLimitMessage()}
+            ))}
+          </div>
+          <div
+            ref={loadingRef}
+            className="flex justify-center items-center h-32"
+          >
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
+            {getRateLimitMessage()}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/popover";
 import FormLabel from "@/components/atoms/post/customer-upload-post/FormLabel";
 import FormError from "@/components/atoms/post/customer-upload-post/FormError";
-import FileUpload from "@/components/molecules/post/customer-upload-post/FileUpload";
 import MultipleFileUpload from "@/components/molecules/post/customer-upload-post/MultipleFileUpload";
 import { toast } from "sonner";
 import PostService from "@/services/PostService";
@@ -30,8 +29,9 @@ import { cn } from "@/lib/utils";
 import { formatDate, formatDateToSubmit } from "@/components/utils";
 
 export default function PostForm() {
-  const [OriginalAttachmentFiles, setOriginalAttachmentFiles] =
-    useState<File | null>(null);
+  const [OriginalAttachmentFiles, setOriginalAttachmentFiles] = useState<
+    File[]
+  >([]);
   const [RequestedAttachmentFiles, setRequestedAttachmentFiles] = useState<
     File[]
   >([]);
@@ -92,7 +92,7 @@ export default function PostForm() {
       toast.success(MESSAGE.CREATE_POST_SUCCESSFULLY);
       // Reset form
       form.reset();
-      setOriginalAttachmentFiles(null);
+      setOriginalAttachmentFiles([]);
       setRequestedAttachmentFiles([]);
     }
     setSubmitting(false);
@@ -101,8 +101,8 @@ export default function PostForm() {
   return (
     <div className="grid grid-cols-1 gap-6 w-[900px]">
       <div className="">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-6">
             Đăng Bài Mới
           </h1>
 
@@ -118,7 +118,7 @@ export default function PostForm() {
                     </FormLabel>
 
                     <FormControl>
-                      <Input id="title" {...field} className="bg-white" />
+                      <Input id="title" {...field} className="bg-card" />
                     </FormControl>
                     <FormError>
                       {form.formState.errors.Title?.message}
@@ -140,7 +140,7 @@ export default function PostForm() {
                       <Textarea
                         id="description"
                         {...field}
-                        className="bg-white min-h-[100px]"
+                        className="bg-card min-h-[100px]"
                       />
                     </FormControl>
                     <FormError>
@@ -167,7 +167,7 @@ export default function PostForm() {
                             type="number"
                             step="1"
                             {...field}
-                            className="bg-white"
+                            className="bg-card"
                           />
                         </FormControl>
                         <FormError>
@@ -193,7 +193,7 @@ export default function PostForm() {
                             type="number"
                             step="1"
                             {...field}
-                            className="bg-white"
+                            className="bg-card"
                           />
                         </FormControl>
                         <FormError>
@@ -220,7 +220,7 @@ export default function PostForm() {
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full pl-3 text-left font-normal bg-white",
+                                "w-full pl-3 text-left font-normal bg-card",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -254,13 +254,14 @@ export default function PostForm() {
                   <FormLabel required htmlFor="attachmentFile">
                     Ảnh gốc sản phẩm
                   </FormLabel>
-                  <FileUpload
+                  <MultipleFileUpload
                     id="attachmentFile"
                     onChange={setOriginalAttachmentFiles}
                     value={OriginalAttachmentFiles}
                     error={formErrors.OriginalAttachmentFiles}
                     accept=".jpg,.jpeg,.png"
                     maxSize={1048576} // 1MB
+                    maxFiles={3}
                   />
                   <FormLabel required htmlFor="attachmentFiles">
                     Ảnh mẫu sản phẩm
@@ -276,7 +277,7 @@ export default function PostForm() {
                   />
                   <Button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={submitting}
                   >
                     {submitting ? "Đang xử lý..." : "Đăng bài"}

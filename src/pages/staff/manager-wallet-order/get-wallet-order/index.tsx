@@ -19,13 +19,15 @@ import {
   DataTable,
   Column,
 } from "@/components/organisms/manager-withdrawal-by-staff";
-import { RefreshCw, Download, Search, ImageIcon, XCircle } from "lucide-react";
+import { RefreshCw, Download, Search } from "lucide-react";
 import PutWalletWithdraw from "../put-wallet-withdraw";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getOrderStatusBadge } from "@/components/utils/badge-utils";
+import ViewInvoiceButton from "@/components/organisms/manager-withdrawal-by-staff/ViewInvoiceButton";
 
 interface WalletOrder {
   walletOrderID: string;
@@ -163,34 +165,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
     {
       header: "Trạng thái",
       accessorKey: "orderStatusDisplay",
-      cell: (row) => {
-        const status = row.orderStatusDisplay;
-        const label =
-          status === "Pending"
-            ? "Chờ duyệt"
-            : status === "Completed"
-            ? "Hoàn tất"
-            : status === "Canceled"
-            ? "Đã hủy"
-            : status;
-
-        const colorClass =
-          status === "Pending"
-            ? "bg-yellow-100 text-yellow-800"
-            : status === "Completed"
-            ? "bg-green-100 text-green-800"
-            : status === "Canceled"
-            ? "bg-red-200 text-red-800"
-            : "bg-red-100 text-red-800";
-
-        return (
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}
-          >
-            {label}
-          </span>
-        );
-      },
+      cell: (row) => getOrderStatusBadge(row.orderStatusDisplay),
       sortable: true,
       className: "text-center",
     },
@@ -298,130 +273,18 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
 
         if (hasImage || hasNote || isCompletedOrCanceled) {
           return (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                toast.custom(
-                  (t) => {
-                    const statusMap: Record<string, string> = {
-                      Pending: "Chờ duyệt",
-                      Completed: "Hoàn tất",
-                      Canceled: "Đã hủy",
-                    };
-
-                    const statusDisplay =
-                      statusMap[row.orderStatusDisplay] ||
-                      row.orderStatusDisplay;
-
-                    return (
-                      <div className="bg-white rounded-xl shadow-xl border border-gray-300 max-w-md w-full p-6 relative font-mono">
-                        {/* Close button */}
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => toast.dismiss(t)}
-                          className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
-                        >
-                          <XCircle className="w-5 h-5" />
-                        </Button>
-
-                        {/* Header */}
-                        <div className="text-center mb-4 border-b pb-2">
-                          <h2 className="text-xl font-bold text-gray-900">
-                            HÓA ĐƠN GIAO DỊCH
-                          </h2>
-                          <p className="text-xs text-gray-500">
-                            Ngày:{" "}
-                            {new Date(row.orderDate).toLocaleString("vi-VN")}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Mã giao dịch: {row.walletOrderID}
-                          </p>
-                        </div>
-
-                        {/* Body */}
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Họ tên:</span>
-                            <span className="font-semibold text-gray-800">
-                              {row.fullName}
-                            </span>
-                          </div>
-
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Số tiền:</span>
-                            <span className="font-semibold text-gray-800">
-                              {row.amount.toLocaleString("vi-VN")} ₫
-                            </span>
-                          </div>
-
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Trạng thái:</span>
-                            <span
-                              className={
-                                row.orderStatusDisplay === "Completed"
-                                  ? "text-green-600 font-semibold"
-                                  : row.orderStatusDisplay === "Pending"
-                                  ? "text-yellow-600 font-semibold"
-                                  : "text-red-600 font-semibold"
-                              }
-                            >
-                              {statusDisplay}
-                            </span>
-                          </div>
-
-                          {row.description && (
-                            <div>
-                              <p className="text-gray-600 font-medium">
-                                Mô tả:
-                              </p>
-                              <p className="text-gray-700">{row.description}</p>
-                            </div>
-                          )}
-
-                          {row.note && (
-                            <div>
-                              <p className="text-gray-600 font-medium">
-                                Ghi chú:
-                              </p>
-                              <div className="bg-gray-50 border rounded px-3 py-2 text-gray-700 whitespace-pre-wrap">
-                                {row.note}
-                              </div>
-                            </div>
-                          )}
-
-                          {row.imageUrl && (
-                            <div className="pt-2">
-                              <p className="text-gray-600 font-medium mb-1 flex items-center gap-1">
-                                <ImageIcon className="w-4 h-4" />
-                                Ảnh minh chứng
-                              </p>
-                              <div className="overflow-hidden border rounded-lg">
-                                <img
-                                  src={row.imageUrl}
-                                  alt="Ảnh minh chứng"
-                                  className="w-full object-contain max-h-60 hover:scale-105 transition-transform duration-300 cursor-zoom-in"
-                                />
-                              </div>
-                              {/* <p className="text-xs text-gray-400 text-center mt-1">
-                                * Di chuột để phóng to ảnh
-                              </p> */}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  },
-                  {
-                    duration: 20000,
-                    position: "top-center",
-                  }
-                );
+            <ViewInvoiceButton
+              row={{
+                walletOrderID: row.walletOrderID,
+                fullName: row.fullName,
+                amount: row.amount,
+                orderStatusDisplay: row.orderStatusDisplay,
+                orderDate: row.orderDate,
+                description: row.description,
+                note: row.note ?? row.walletOrderNote ?? undefined,
+                imageUrl: row.imageUrl ?? row.walletOrderImage ?? undefined,
               }}
-            >
-              Xem hóa đơn
-            </Button>
+            />
           );
         }
 
@@ -486,72 +349,72 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
   }, [walletID, page, size, orderType, transactionStatusEnum]);
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-xl font-semibold">Duyệt đơn rút tiền</h2>
-      </div>
+    <div className="space-y-4 px-4">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
+        {/* <h2 className="text-xl font-semibold">Quản lý giao dịch</h2> */}
 
-      <div className="flex flex-wrap items-center justify-end gap-4">
-        <div className="relative w-full max-w-xs">
-          <Input
-            placeholder="Tìm theo tên, mã đơn..."
-            className="pl-10"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
+        <div className="flex flex-col sm:flex-row gap-2 items-center">
+          <div className="relative w-full max-w-xs">
+            <Input
+              placeholder="Tìm theo tên, mã đơn..."
+              className="pl-10"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setSearchTerm(searchInput);
+                  setPage(1);
+                }
+              }}
+            />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+              size={18}
+              onClick={() => {
                 setSearchTerm(searchInput);
                 setPage(1);
-              }
-            }}
-          />
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-            size={18}
-            onClick={() => {
-              setSearchTerm(searchInput);
+              }}
+            />
+          </div>
+          <Select
+            value={orderType === undefined ? "all" : orderType.toString()}
+            onValueChange={(val) => {
+              setOrderType(val === "all" ? undefined : Number(val));
               setPage(1);
             }}
-          />
-        </div>
-        <Select
-          value={orderType === undefined ? "all" : orderType.toString()}
-          onValueChange={(val) => {
-            setOrderType(val === "all" ? undefined : Number(val));
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Tất cả giao dịch" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả giao dịch</SelectItem>
-            <SelectItem value="0">Nạp tiền</SelectItem>
-            <SelectItem value="1">Rút tiền</SelectItem>
-          </SelectContent>
-        </Select>
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Tất cả giao dịch" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả giao dịch</SelectItem>
+              <SelectItem value="0">Nạp tiền</SelectItem>
+              <SelectItem value="1">Rút tiền</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={
-            transactionStatusEnum === undefined
-              ? "all"
-              : transactionStatusEnum.toString()
-          }
-          onValueChange={(val) => {
-            setTransactionStatusEnum(val === "all" ? undefined : Number(val));
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Tất cả trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="0">Chờ duyệt</SelectItem>
-            <SelectItem value="1">Hoàn tất</SelectItem>
-            <SelectItem value="3">Đã hủy</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select
+            value={
+              transactionStatusEnum === undefined
+                ? "all"
+                : transactionStatusEnum.toString()
+            }
+            onValueChange={(val) => {
+              setTransactionStatusEnum(val === "all" ? undefined : Number(val));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Tất cả trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="0">Chờ duyệt</SelectItem>
+              <SelectItem value="1">Hoàn tất</SelectItem>
+              <SelectItem value="3">Đã hủy</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <DataTable

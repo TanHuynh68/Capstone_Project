@@ -41,7 +41,7 @@ const ChatCreateOfferPhase = ({
   // State for date selection
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-
+  
   const form = useForm<OfferPhaseFormValues>({
     resolver: zodResolver(offerPhaseSchema),
     defaultValues: {
@@ -56,14 +56,19 @@ const ChatCreateOfferPhase = ({
   });
 
   const onSubmit = async (values: OfferPhaseFormValues) => {
+    console.log('date" ', {startDate: formatDateToISOString(startDate),
+      endDate: formatDateToISOString(endDate)})
     console.log("onSubmit: ", {
       ...values,
       offerID: offerID,
+      startDate: formatDateToISOString(startDate),
+      endDate: formatDateToISOString(endDate)
     });
     const response = await createOfferPhase({
       ...values,
       offerID: offerID,
     });
+    console.log('createOfferPhase: ', response)
     if (response) {
       await fetchOfferPhase(offerID);
       await fetchOffers();
@@ -315,5 +320,16 @@ const ChatCreateOfferPhase = ({
     </Form>
   );
 };
+export function formatDateToISOString(date: any) {
+  if (!date) return null; // Kiểm tra nếu date là null hoặc undefined
+  // Tạo một bản sao của đối tượng Date để không làm thay đổi đối tượng gốc
+  const utcDate = new Date(date);
+  
+  // Đặt giờ, phút, giây và mili giây về 0 để đảm bảo không có sự thay đổi do múi giờ
+  utcDate.setHours(0, 0, 0, 0);
+  
+  // Trả về chuỗi định dạng ISO
+  return utcDate.toISOString();
+}
 
 export default ChatCreateOfferPhase;
