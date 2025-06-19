@@ -73,7 +73,7 @@ export default function ImageGallery({
 
       {/* Modal hiển thị ảnh lớn */}
       <Dialog open={selectedImage !== null} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl w-full p-0">
+        <DialogContent hideDefaultClose className="max-w-4xl w-full p-0">
           {selectedImage !== null && (
             <div className="relative">
               <Button

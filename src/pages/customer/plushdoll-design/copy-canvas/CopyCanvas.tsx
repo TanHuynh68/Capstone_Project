@@ -68,7 +68,7 @@ export default function CopyCanvas({
         toast.success("Sao chép canvas thành công!");
         setCopied(true);
       } else {
-        toast.error("Sao chép canvas thất bại!");
+        // toast.error("Sao chép canvas thất bại!");
       }
     } catch (err: unknown) {
       const msg =

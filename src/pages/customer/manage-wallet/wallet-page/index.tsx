@@ -47,7 +47,7 @@ type FormValues = z.infer<typeof formSchema>;
 // Payment method types
 type PaymentMethod = "vnpay" | "payos" | null;
 
-export default function DepositMoney() {
+export default function WalletPage() {
   const [selectedPayment, setSelectedPayment] =
     useState<PaymentMethod>("vnpay");
   const [isSubmitting, setIsSubmitting] = useState(false);
