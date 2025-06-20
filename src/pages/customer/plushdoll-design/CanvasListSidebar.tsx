@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import { FolderOpen } from "lucide-react";
 import CanvasList from "./get-canvas";

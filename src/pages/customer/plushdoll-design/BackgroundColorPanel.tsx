@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, forwardRef } from "react";
+import { useState, useMemo, useEffect, forwardRef } from "react";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import { Palette } from "lucide-react";
 import SidebarSearchBar from "./SidebarSearchBar";

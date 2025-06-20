@@ -1,4 +1,4 @@
-import React, { useState, DragEvent, forwardRef } from "react";
+import { useState, DragEvent, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import { PawPrint, Fan } from "lucide-react";

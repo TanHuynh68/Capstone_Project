@@ -34,7 +34,7 @@ export function NotificationDropdown({ children }: NotificationDropdownProps) {
     <DropdownMenu>
       <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 max-h-[400px] overflow-hidden bg-background text-foreground"
+        className="w-85 max-h-[400px] overflow-hidden bg-background text-foreground"
         align="end"
       >
         <DropdownMenuLabel className="flex items-center justify-between">
@@ -54,7 +54,7 @@ export function NotificationDropdown({ children }: NotificationDropdownProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {hasNotifications ? (
-            <ScrollArea className="h-[300px] pr-2 scrollbar-thin scrollbar-thumb-primary scrollbar-track-muted dark:scrollbar-thumb-primary/80 dark:scrollbar-track-muted/20">
+            <ScrollArea className="h-[300px] scrollbar-thin scrollbar-thumb-primary scrollbar-track-muted dark:scrollbar-thumb-primary/80 dark:scrollbar-track-muted/20">
               {notifications.map((notification: NotificationProps) => (
                 <NotificationItem
                   key={notification.notificationID}
