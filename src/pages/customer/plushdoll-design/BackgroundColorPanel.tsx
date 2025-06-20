@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, forwardRef } from "react";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import { Palette } from "lucide-react";
 import SidebarSearchBar from "./SidebarSearchBar";
@@ -123,12 +123,10 @@ const gradientColors = [
   },
 ];
 
-const BackgroundColorPanel: React.FC<BackgroundColorPanelProps> = ({
-  isOpen,
-  onClose,
-  backgroundColor,
-  setBackgroundColor,
-}) => {
+const BackgroundColorPanel = forwardRef<
+  HTMLDivElement,
+  BackgroundColorPanelProps
+>(({ isOpen, onClose, backgroundColor, setBackgroundColor }, ref) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -153,6 +151,7 @@ const BackgroundColorPanel: React.FC<BackgroundColorPanelProps> = ({
 
   return (
     <SidebarPanelWrapper
+      ref={ref}
       isOpen={isOpen}
       onClose={onClose}
       title="Chọn màu nền"
@@ -172,12 +171,14 @@ const BackgroundColorPanel: React.FC<BackgroundColorPanelProps> = ({
             <button
               key={color}
               className={`w-8 h-8 rounded-full border shadow-sm hover:scale-110 transition-transform
-                ${color === "#ffffff" ? "border-border" : "border-transparent"}
-                ${
-                  color.toLowerCase() === backgroundColor.toLowerCase()
-                    ? "ring-2 ring-primary ring-offset-2"
-                    : ""
-                }`}
+                  ${
+                    color === "#ffffff" ? "border-border" : "border-transparent"
+                  }
+                  ${
+                    color.toLowerCase() === backgroundColor.toLowerCase()
+                      ? "ring-2 ring-primary ring-offset-2"
+                      : ""
+                  }`}
               style={{ background: color }}
               onClick={() => setBackgroundColor(color)}
               aria-label={`Chọn màu ${color}`}
@@ -193,11 +194,11 @@ const BackgroundColorPanel: React.FC<BackgroundColorPanelProps> = ({
             <button
               key={gradient.name}
               className={`w-full h-12 rounded-lg border shadow-sm hover:scale-105 transition-transform relative
-                ${
-                  gradient.value === backgroundColor
-                    ? "ring-2 ring-primary ring-offset-2"
-                    : "border-border"
-                }`}
+                  ${
+                    gradient.value === backgroundColor
+                      ? "ring-2 ring-primary ring-offset-2"
+                      : "border-border"
+                  }`}
               style={{ background: gradient.gradient }}
               onClick={() => setBackgroundColor(gradient.value)}
               aria-label={`Chọn gradient ${gradient.name}`}
@@ -240,6 +241,6 @@ const BackgroundColorPanel: React.FC<BackgroundColorPanelProps> = ({
       </div>
     </SidebarPanelWrapper>
   );
-};
+});
 
 export default BackgroundColorPanel;

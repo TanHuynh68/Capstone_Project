@@ -536,8 +536,16 @@ const PlushDollDesign: React.FC = () => {
 
         const newWidth = parent.clientWidth * 0.94;
         const newHeight = parent.clientHeight * 0.94;
+        console.log("newWidth", newWidth);
+        console.log("newHeight", newHeight);
+        const width = canvasWrapperRef.current.style.width;
+        const height = canvasWrapperRef.current.style.height;
+        console.log("width", width);
+        console.log("height", height);
         canvasWrapperRef.current.style.width = `${newWidth}px`;
         canvasWrapperRef.current.style.height = `${newHeight}px`;
+        console.log("width22", width);
+        console.log("height22", height);
         // Sửa: Không cần requestAnimationFrame, set trực tiếp
         canvasRef.current.setWidth(newWidth);
         canvasRef.current.setHeight(newHeight);
@@ -1829,6 +1837,64 @@ const PlushDollDesign: React.FC = () => {
     canvas.requestRenderAll();
   };
 
+  // Footer/sidebar nhỏ width
+  const getTargetSidebarPanelWidth = () => {
+    let width = 0;
+    if (libraryOpen || showUnsplash) width += 300;
+    if (showCanvasList) width += 300;
+    if (drawingPanelOpen) width += 80;
+    if (backgroundPanelOpen) width += 300;
+    return width;
+  };
+
+  const [visibleSidebarPanelWidth, setVisibleSidebarPanelWidth] = useState(
+    getTargetSidebarPanelWidth()
+  );
+  useEffect(() => {
+    const target = getTargetSidebarPanelWidth();
+    if (target < visibleSidebarPanelWidth) {
+      // Đang đóng panel, delay 100ms
+      const timeout = setTimeout(() => setVisibleSidebarPanelWidth(target), 0);
+      return () => clearTimeout(timeout);
+    } else {
+      // Mở panel, cập nhật ngay
+      setVisibleSidebarPanelWidth(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    libraryOpen,
+    showUnsplash,
+    showCanvasList,
+    drawingPanelOpen,
+    backgroundPanelOpen,
+  ]);
+
+  // Thêm các ref cho sidebar
+  const itemLibraryRef = useRef<HTMLDivElement>(null);
+  const canvasListSidebarRef = useRef<HTMLDivElement>(null);
+  const drawingToolPanelRef = useRef<HTMLDivElement>(null);
+  const backgroundColorPanelRef = useRef<HTMLDivElement>(null);
+
+  const [sidebarsWidth, setSidebarsWidth] = useState(0);
+
+  // Tính tổng width các sidebar đang mở
+  useEffect(() => {
+    let total = 0;
+    if (libraryOpen && itemLibraryRef.current) {
+      total += itemLibraryRef.current.offsetWidth;
+    }
+    if (showCanvasList && canvasListSidebarRef.current) {
+      total += canvasListSidebarRef.current.offsetWidth;
+    }
+    if (drawingPanelOpen && drawingToolPanelRef.current) {
+      total += drawingToolPanelRef.current.offsetWidth;
+    }
+    if (backgroundPanelOpen && backgroundColorPanelRef.current) {
+      total += backgroundColorPanelRef.current.offsetWidth;
+    }
+    setSidebarsWidth(total);
+  }, [libraryOpen, showCanvasList, drawingPanelOpen, backgroundPanelOpen]);
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -1963,59 +2029,7 @@ const PlushDollDesign: React.FC = () => {
           </Button>
 
           {/* ZOOM CONTROLS */}
-          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded border border-border">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleZoomOut}
-              disabled={zoom <= 0.1}
-            >
-              -
-            </Button>
-            <input
-              type="number"
-              min={10}
-              max={500}
-              value={Math.round(zoom * 100)}
-              onChange={(e) => {
-                let value = Number(e.target.value);
-                if (isNaN(value)) value = 100;
-                value = Math.max(10, Math.min(500, value));
-                setZoom(value / 100);
-                if (canvasRef.current) {
-                  canvasRef.current.setZoom(value / 100);
-                  canvasRef.current.requestRenderAll();
-                }
-              }}
-              className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
-              style={{ width: 50 }}
-            />
-            <span className="text-xs">%</span>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleZoomIn}
-              disabled={zoom >= 5}
-            >
-              +
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleFixWindow}
-              className="ml-2 text-xs px-2 h-7"
-            >
-              Fix Window
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleFullWindow}
-              className="text-xs px-2 h-7"
-            >
-              Full Window
-            </Button>
-          </div>
+          {/* Đã di chuyển xuống dưới */}
           <Button variant="outline" onClick={saveCanvasAsPNG}>
             <Download className="w-4 h-4 mr-1" />
             Xuất PNG
@@ -2119,6 +2133,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Item Library Sidebar */}
         <ItemLibrary
+          ref={itemLibraryRef}
           onSelect={handleItemSelect}
           isOpen={libraryOpen}
           showUnsplash={showUnsplash}
@@ -2128,6 +2143,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Canvas List Sidebar */}
         <CanvasListSidebar
+          ref={canvasListSidebarRef}
           onSelect={(desc: string, title: string, id: string) => {
             loadCanvasFromDescription(desc, title, id);
             setCurrentCanvasId(id);
@@ -2148,6 +2164,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Panel công cụ vẽ */}
         <DrawingToolPanel
+          ref={drawingToolPanelRef}
           isOpen={drawingPanelOpen}
           onClose={() => setDrawingPanelOpen(false)}
           brushColor={brushColor}
@@ -2171,6 +2188,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Panel chọn màu nền */}
         <BackgroundColorPanel
+          ref={backgroundColorPanelRef}
           isOpen={backgroundPanelOpen}
           onClose={() => setBackgroundPanelOpen(false)}
           backgroundColor={backgroundColor}
@@ -2405,13 +2423,13 @@ const PlushDollDesign: React.FC = () => {
               className="relative bg-card shadow-md origin-top"
               style={{
                 width: isFullWindow
-                  ? "100%"
+                  ? `${canvasWrapperRef.current?.style.width || "100%"}`
                   : `${convertToPixels(
                       parseFloat(actualCanvasWidth) || 0,
                       unit
                     )}px`,
                 height: isFullWindow
-                  ? "100%"
+                  ? `${canvasWrapperRef.current?.style.height || "100%"}`
                   : `${convertToPixels(
                       parseFloat(actualCanvasHeight) || 0,
                       unit
@@ -2572,6 +2590,69 @@ const PlushDollDesign: React.FC = () => {
       </div>
 
       <CanvasDebugInfo />
+
+      <div
+        className={
+          "absolute bottom-0 z-30 bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300"
+        }
+        style={{
+          pointerEvents: "auto",
+          left: (isSidebarCollapsed ? 80 : 256) + sidebarsWidth, // Đã thay visibleSidebarPanelWidth bằng sidebarsWidth
+          right: 0,
+        }}
+      >
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomOut}
+          disabled={zoom <= 0.1}
+        >
+          -
+        </Button>
+        <input
+          type="number"
+          min={10}
+          max={500}
+          value={Math.round(zoom * 100)}
+          onChange={(e) => {
+            let value = Number(e.target.value);
+            if (isNaN(value)) value = 100;
+            value = Math.max(10, Math.min(500, value));
+            setZoom(value / 100);
+            if (canvasRef.current) {
+              canvasRef.current.setZoom(value / 100);
+              canvasRef.current.requestRenderAll();
+            }
+          }}
+          className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
+          style={{ width: 50 }}
+        />
+        <span className="text-xs">%</span>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomIn}
+          disabled={zoom >= 5}
+        >
+          +
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleFixWindow}
+          className="ml-2 text-xs px-2 h-7"
+        >
+          Fix Window
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleFullWindow}
+          className="text-xs px-2 h-7"
+        >
+          Full Window
+        </Button>
+      </div>
     </div>
   );
 };
