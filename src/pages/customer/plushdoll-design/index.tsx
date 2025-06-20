@@ -95,10 +95,31 @@ const PlushDollDesign: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
-  const [canvasWidthInput, setCanvasWidthInput] = useState("960");
-  const [canvasHeightInput, setCanvasHeightInput] = useState("540");
-  const [actualCanvasWidth, setActualCanvasWidth] = useState("960");
-  const [actualCanvasHeight, setActualCanvasHeight] = useState("540");
+  // Responsive initial size
+  const getInitialCanvasSize = () => {
+    if (typeof window !== "undefined") {
+      const w = Math.max(window.innerWidth * 0.7, 320);
+      const h = Math.max(window.innerHeight * 0.7, 240);
+      return {
+        width: Math.round(w),
+        height: Math.round(h),
+      };
+    }
+    return { width: 960, height: 540 };
+  };
+  const initialSize = getInitialCanvasSize();
+  const [canvasWidthInput, setCanvasWidthInput] = useState(
+    initialSize.width.toString()
+  );
+  const [canvasHeightInput, setCanvasHeightInput] = useState(
+    initialSize.height.toString()
+  );
+  const [actualCanvasWidth, setActualCanvasWidth] = useState(
+    initialSize.width.toString()
+  );
+  const [actualCanvasHeight, setActualCanvasHeight] = useState(
+    initialSize.height.toString()
+  );
   const [scaleRatio, setScaleRatio] = useState(1);
   const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
 
@@ -208,8 +229,20 @@ const PlushDollDesign: React.FC = () => {
       return;
     }
 
+    // Set initial size to fit window
+    const parent = htmlCanvasRef.current.parentElement;
+    let width = initialSize.width;
+    let height = initialSize.height;
+    if (parent) {
+      width = parent.clientWidth;
+      height = parent.clientHeight;
+    }
+    htmlCanvasRef.current.width = width;
+    htmlCanvasRef.current.height = height;
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: backgroundColor,
+      width,
+      height,
     });
     canvas.freeDrawingBrush.color = brushColor;
     canvas.freeDrawingBrush.width = brushWidth;
@@ -466,6 +499,66 @@ const PlushDollDesign: React.FC = () => {
     // toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
   };
 
+  // Zoom state: default is fit-to-parent (Fix Window)
+  const [zoom, setZoom] = useState(1);
+  const [isFullWindow, setIsFullWindow] = useState(false);
+
+  // Zoom in/out handlers
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.1, 5));
+  };
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.1, 0.1));
+  };
+  const handleFixWindow = () => {
+    setIsFullWindow(false);
+    updateScaleRatio();
+    if (canvasWrapperRef.current && canvasRef.current) {
+      const width = convertToPixels(parseFloat(actualCanvasWidth) || 0, unit);
+      const height = convertToPixels(parseFloat(actualCanvasHeight) || 0, unit);
+      canvasWrapperRef.current.style.width = `${width}px`;
+      canvasWrapperRef.current.style.height = `${height}px`;
+      canvasRef.current.setWidth(width);
+      canvasRef.current.setHeight(height);
+      canvasRef.current.requestRenderAll();
+    }
+  };
+  const handleFullWindow = () => {
+    setIsFullWindow(true);
+    setZoom(0.94); // Set zoom to 94%
+    console.log("handleFullWindow");
+    if (canvasWrapperRef.current && canvasRef.current) {
+      console.log("handleFullWindow 2");
+
+      const parent = canvasWrapperRef.current.parentElement;
+      if (parent) {
+        console.log("handleFullWindow 3");
+
+        const newWidth = parent.clientWidth * 0.94;
+        const newHeight = parent.clientHeight * 0.94;
+        canvasWrapperRef.current.style.width = `${newWidth}px`;
+        canvasWrapperRef.current.style.height = `${newHeight}px`;
+        // Sửa: Không cần requestAnimationFrame, set trực tiếp
+        canvasRef.current.setWidth(newWidth);
+        canvasRef.current.setHeight(newHeight);
+        canvasRef.current.requestRenderAll();
+      }
+    }
+  };
+
+  // Sync zoom to canvas
+  useEffect(() => {
+    zoomCanvasFromCenter(zoom);
+  }, [zoom]);
+
+  // On isFullWindow change, if false, recalc fit
+  useEffect(() => {
+    if (!isFullWindow) {
+      updateScaleRatio();
+    }
+  }, [isFullWindow]);
+
+  // updateScaleRatio: fit canvas to parent (Fix Window)
   const updateScaleRatio = () => {
     if (!canvasRef.current || !canvasWrapperRef.current) return;
 
@@ -489,14 +582,20 @@ const PlushDollDesign: React.FC = () => {
 
     const ratio = Math.min(widthRatio, heightRatio, 1);
 
-    canvasRef.current.setZoom(ratio);
-    canvasRef.current.requestRenderAll();
+    setZoom(ratio);
+    setIsFullWindow(false);
 
     canvasWrapperRef.current.style.width = `${canvasWidth}px`;
     canvasWrapperRef.current.style.height = `${canvasHeight}px`;
 
     setScaleRatio(ratio);
   };
+
+  // On mount, default to fit window
+  useEffect(() => {
+    handleFixWindow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
@@ -1719,6 +1818,17 @@ const PlushDollDesign: React.FC = () => {
     // },
   ];
 
+  const zoomCanvasFromCenter = (zoomValue: number) => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const center = new fabric.Point(
+      canvas.getWidth() / 2,
+      canvas.getHeight() / 2
+    );
+    canvas.zoomToPoint(center, zoomValue);
+    canvas.requestRenderAll();
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -1851,6 +1961,61 @@ const PlushDollDesign: React.FC = () => {
             <Redo2 className="w-4 h-4 mr-1" />
             {/* Làm lại */}
           </Button>
+
+          {/* ZOOM CONTROLS */}
+          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded border border-border">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleZoomOut}
+              disabled={zoom <= 0.1}
+            >
+              -
+            </Button>
+            <input
+              type="number"
+              min={10}
+              max={500}
+              value={Math.round(zoom * 100)}
+              onChange={(e) => {
+                let value = Number(e.target.value);
+                if (isNaN(value)) value = 100;
+                value = Math.max(10, Math.min(500, value));
+                setZoom(value / 100);
+                if (canvasRef.current) {
+                  canvasRef.current.setZoom(value / 100);
+                  canvasRef.current.requestRenderAll();
+                }
+              }}
+              className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
+              style={{ width: 50 }}
+            />
+            <span className="text-xs">%</span>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleZoomIn}
+              disabled={zoom >= 5}
+            >
+              +
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleFixWindow}
+              className="ml-2 text-xs px-2 h-7"
+            >
+              Fix Window
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleFullWindow}
+              className="text-xs px-2 h-7"
+            >
+              Full Window
+            </Button>
+          </div>
           <Button variant="outline" onClick={saveCanvasAsPNG}>
             <Download className="w-4 h-4 mr-1" />
             Xuất PNG
@@ -2239,15 +2404,19 @@ const PlushDollDesign: React.FC = () => {
               ref={canvasWrapperRef}
               className="relative bg-card shadow-md origin-top"
               style={{
-                width: `${convertToPixels(
-                  parseFloat(actualCanvasWidth) || 0,
-                  unit
-                )}px`,
-                height: `${convertToPixels(
-                  parseFloat(actualCanvasHeight) || 0,
-                  unit
-                )}px`,
-                transform: `scale(${scaleRatio})`,
+                width: isFullWindow
+                  ? "100%"
+                  : `${convertToPixels(
+                      parseFloat(actualCanvasWidth) || 0,
+                      unit
+                    )}px`,
+                height: isFullWindow
+                  ? "100%"
+                  : `${convertToPixels(
+                      parseFloat(actualCanvasHeight) || 0,
+                      unit
+                    )}px`,
+                transform: `scale(${zoom})`,
               }}
             >
               <canvas ref={htmlCanvasRef} className="w-full h-full" />
@@ -2255,8 +2424,6 @@ const PlushDollDesign: React.FC = () => {
               {toolbarVisible &&
                 (() => {
                   const obj = canvasRef.current?.getActiveObject();
-                  const atTop = obj ? isAtTop(obj) : false;
-                  const atBottom = obj ? isAtBottom(obj) : false;
                   const isImage = obj?.type === "image";
 
                   return (
@@ -2319,7 +2486,7 @@ const PlushDollDesign: React.FC = () => {
                         <Layers className="w-4 h-4" />
                       </Button>
 
-                      {!atTop && (
+                      {obj && !isAtTop(obj) && (
                         <Button
                           size="icon"
                           variant="outline"
@@ -2341,7 +2508,7 @@ const PlushDollDesign: React.FC = () => {
                         </Button>
                       )}
 
-                      {!atBottom && (
+                      {obj && !isAtBottom(obj) && (
                         <Button
                           size="icon"
                           variant="outline"
