@@ -4,32 +4,49 @@ import type { ProgressStep } from "@/types/orderManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle, Clock, Star } from "lucide-react";
-import { useCurrentUser } from "@/components/utils";
-import { ROLE } from "@/constants";
+import { Calendar, CheckCircle, Clock, Star, X, Eye } from "lucide-react";
 
 interface ProgressStepCardProps {
   step: ProgressStep;
   onEvaluate: () => void;
+  onViewEvaluationDetail?: (stepId: string) => void;
 }
 
 export default function ProgressStepCard({
   step,
   onEvaluate,
+  onViewEvaluationDetail,
 }: ProgressStepCardProps) {
-  const currentUser = useCurrentUser();
-  const getStepTypeColor = (type: string) => {
+  const getStepTypeConfig = (type: string) => {
     switch (type) {
-      case "Design":
-        return "bg-blue-100 text-blue-800";
+      case "NewDesign":
+        return { label: "Thiết kế mới", color: "bg-blue-100 text-blue-800" };
       case "Review":
-        return "bg-yellow-100 text-yellow-800";
+        return { label: "Đánh giá", color: "bg-yellow-100 text-yellow-800" };
       case "Approval":
-        return "bg-green-100 text-green-800";
+        return { label: "Phê duyệt", color: "bg-green-100 text-green-800" };
       case "Revision":
-        return "bg-red-100 text-red-800";
+        return { label: "Chỉnh sửa", color: "bg-red-100 text-red-800" };
       default:
-        return "bg-gray-100 text-gray-800";
+        return { label: type, color: "bg-gray-100 text-gray-800" };
+    }
+  };
+
+  const getApprovalStatus = () => {
+    if (step.isApprovedByCustomer === null) {
+      return {
+        icon: Clock,
+        label: "Chờ xem xét",
+        color: "bg-gray-100 text-gray-800",
+      };
+    } else if (step.isApprovedByCustomer === true) {
+      return {
+        icon: CheckCircle,
+        label: "Đã duyệt",
+        color: "bg-green-100 text-green-800",
+      };
+    } else {
+      return { icon: X, label: "Từ chối", color: "bg-red-100 text-red-800" };
     }
   };
 
@@ -43,6 +60,13 @@ export default function ProgressStepCard({
     });
   };
 
+  const stepTypeConfig = getStepTypeConfig(step.progressStepType);
+  const approvalStatus = getApprovalStatus();
+  const ApprovalIcon = approvalStatus.icon;
+
+  // Check if step has been evaluated (has approval data)
+  const hasEvaluation = step.approval || step.isApprovedByCustomer !== null;
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
@@ -50,32 +74,12 @@ export default function ProgressStepCard({
           <div className="flex-1">
             <CardTitle className="text-lg mb-2">{step.stepTitle}</CardTitle>
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={getStepTypeColor(step.progressStepType + "")}>
-                {step.progressStepType}
+              <Badge className={stepTypeConfig.color}>
+                {stepTypeConfig.label}
               </Badge>
-              <Badge
-                variant={step.isApprovedByCustomer ? "default" : "secondary"}
-              >
-                {step.isApprovedByCustomer === true ? (
-                  <>
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Đã duyệt
-                  </>
-                ) : (
-                  <>
-                    {step.isApprovedByCustomer === false ? (
-                      <>
-                        <Clock className="h-3 w-3 mr-1" />
-                        Không duyệt
-                      </>
-                    ) : (
-                      <>
-                        <Clock className="h-3 w-3 mr-1" />
-                        Chờ duyệt
-                      </>
-                    )}
-                  </>
-                )}
+              <Badge className={approvalStatus.color}>
+                <ApprovalIcon className="h-3 w-3 mr-1" />
+                {approvalStatus.label}
               </Badge>
             </div>
           </div>
@@ -97,18 +101,26 @@ export default function ProgressStepCard({
         {/* Progress Images */}
         {step.progressImages && step.progressImages.length > 0 && (
           <div>
-            <h4 className="font-medium mb-2">Hình ảnh tiến độ:</h4>
+            <h4 className="font-medium mb-2">
+              Hình ảnh tiến độ ({step.progressImages.length}):
+            </h4>
             <div className="grid grid-cols-2 gap-2">
-              {step.progressImages.slice(0, 4).map((image, index) => (
+              {step.progressImages.slice(0, 4).map((image) => (
                 <div
-                  key={index}
-                  className="aspect-square rounded-lg overflow-hidden bg-gray-100"
+                  key={image.progressImageID}
+                  className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group"
                 >
                   <img
                     src={image.imageUrl || "/placeholder.svg"}
-                    alt={`Progress ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    alt={image.imageName}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                  {image.description && image.description !== "string" && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {image.description}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -148,16 +160,35 @@ export default function ProgressStepCard({
           </div>
         </div>
 
-        {/* Action Button */}
-        {currentUser?.role === ROLE.CUSTOMER &&
-          step?.isApprovedByCustomer === null && (
-            <div className="pt-4 border-t">
-              <Button onClick={onEvaluate} className="w-full" variant="outline">
-                <Star className="h-4 w-4 mr-2" />
-                Đánh giá
-              </Button>
-            </div>
+        {/* Action Buttons */}
+        <div className="pt-4 border-t space-y-2">
+          {/* Evaluation Button */}
+          <Button
+            onClick={onEvaluate}
+            className="w-full"
+            variant="outline"
+            disabled={step.isApprovedByCustomer !== null}
+          >
+            <Star className="h-4 w-4 mr-2" />
+            {step.isApprovedByCustomer === null ? "Đánh giá" : "Đã đánh giá"}
+          </Button>
+
+          {/* View Evaluation Detail Button */}
+          {hasEvaluation && onViewEvaluationDetail && (
+            <Button
+              onClick={() => {
+                onViewEvaluationDetail(step.progressStepID),
+                  console.log("step.progressStepID: ", step.progressStepID);
+              }}
+              className="w-full"
+              variant="ghost"
+              size="sm"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Xem chi tiết đánh giá
+            </Button>
           )}
+        </div>
       </CardContent>
     </Card>
   );

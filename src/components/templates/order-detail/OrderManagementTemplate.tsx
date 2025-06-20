@@ -9,6 +9,7 @@ import type {
 import LeftPanel from "@/components/organisms/customer/order/LeftPanel";
 import RightTopPanel from "@/components/organisms/customer/order/RightTopPanel";
 import RightBottomPanel from "@/components/organisms/customer/order/RightBottomPanel";
+import ProgressService from "@/services/Progress";
 
 interface OrderManagementTemplateProps {
   orderDetail: OrderDetail;
@@ -29,7 +30,14 @@ export default function OrderManagementTemplate({
   const [evaluatingStepId, setEvaluatingStepId] = useState<string | null>(null);
   // const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
   const [loadingSteps, setLoadingSteps] = useState(false);
+  const { getProgressReviewDetail } = ProgressService();
 
+  const fetchProgressReviewDetail = async (progressStepID: string) => {
+    const response = await getProgressReviewDetail(progressStepID);
+    if (response && response.responseRequestModel) {
+      return response.responseRequestModel;
+    }
+  };
   const handlePhaseSelect = async (phaseId: string) => {
     setSelectedPhaseId(phaseId);
     setLoadingSteps(true);
@@ -129,6 +137,7 @@ export default function OrderManagementTemplate({
                 onStartEvaluation={handleStartEvaluation}
                 onFinishEvaluation={handleFinishEvaluation}
                 onEvaluationSubmit={handleEvaluationSubmit}
+                onFetchEvaluationDetail={fetchProgressReviewDetail}
               />
             </div>
           </div>
