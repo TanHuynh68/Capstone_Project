@@ -162,10 +162,6 @@ const PlushDollDesign: React.FC = () => {
   // ✅ Thêm state để track canvas initialization
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
 
-  // Add state for group/ungroup button states
-  const [canGroupState, setCanGroupState] = useState(false);
-  const [canUngroupState, setCanUngroupState] = useState(false);
-
   // Danh sách màu gợi ý
   // (Đã chuyển vào BackgroundColorPanel)
 
@@ -232,8 +228,14 @@ const PlushDollDesign: React.FC = () => {
     canvas.on("selection:created", (e) => {
       if (e.selected && e.selected.length > 0) {
         if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          setToolbarVisible(false);
+          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+          setToolbarVisible(true);
           setActiveText(null);
+          // Update toolbar position for the selection
+          const activeObj = canvas.getActiveObject();
+          if (activeObj) {
+            updateToolbarPos(activeObj);
+          }
         } else {
           handleSelection(e.selected[0]);
         }
@@ -243,8 +245,14 @@ const PlushDollDesign: React.FC = () => {
     canvas.on("selection:updated", (e) => {
       if (e.selected && e.selected.length > 0) {
         if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          setToolbarVisible(false);
+          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+          setToolbarVisible(true);
           setActiveText(null);
+          // Update toolbar position for the selection
+          const activeObj = canvas.getActiveObject();
+          if (activeObj) {
+            updateToolbarPos(activeObj);
+          }
         } else {
           handleSelection(e.selected[0]);
         }
@@ -260,6 +268,15 @@ const PlushDollDesign: React.FC = () => {
     canvas.on("object:added", () => !isRestoringRef.current && saveState());
     canvas.on("object:modified", saveState);
     canvas.on("object:moving", (e) => {
+      if (e.target) updateToolbarPos(e.target);
+    });
+
+    // ✅ Thêm events cho scaling và rotating để update toolbar position
+    canvas.on("object:scaling", (e) => {
+      if (e.target) updateToolbarPos(e.target);
+    });
+
+    canvas.on("object:rotating", (e) => {
       if (e.target) updateToolbarPos(e.target);
     });
 
@@ -1459,27 +1476,27 @@ const PlushDollDesign: React.FC = () => {
   }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
 
   // Add useEffect to update group/ungroup button states
-  useEffect(() => {
-    const updateGroupStates = () => {
-      setCanGroupState(canGroup());
-      setCanUngroupState(canUngroup());
-    };
+  // useEffect(() => {
+  //   const updateGroupStates = () => {
+  //     setCanGroupState(canGroup());
+  //     setCanUngroupState(canUngroup());
+  //   };
 
-    // Update states when canvas selection changes
-    if (canvasRef.current) {
-      canvasRef.current.on("selection:created", updateGroupStates);
-      canvasRef.current.on("selection:updated", updateGroupStates);
-      canvasRef.current.on("selection:cleared", updateGroupStates);
-    }
+  //   // Update states when canvas selection changes
+  //   if (canvasRef.current) {
+  //     canvasRef.current.on("selection:created", updateGroupStates);
+  //     canvasRef.current.on("selection:updated", updateGroupStates);
+  //     canvasRef.current.on("selection:cleared", updateGroupStates);
+  //   }
 
-    return () => {
-      if (canvasRef.current) {
-        canvasRef.current.off("selection:created", updateGroupStates);
-        canvasRef.current.off("selection:updated", updateGroupStates);
-        canvasRef.current.off("selection:cleared", updateGroupStates);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (canvasRef.current) {
+  //       canvasRef.current.off("selection:created", updateGroupStates);
+  //       canvasRef.current.off("selection:updated", updateGroupStates);
+  //       canvasRef.current.off("selection:cleared", updateGroupStates);
+  //     }
+  //   };
+  // }, []);
 
   // ✅ Component debug để hiển thị thông tin canvas
   const CanvasDebugInfo = () => {
@@ -1691,22 +1708,6 @@ const PlushDollDesign: React.FC = () => {
           setDrawingPanelOpen(false);
         }
       },
-    },
-    {
-      key: "group",
-      icon: Group,
-      label: "Nhóm",
-      active: false,
-      onClick: groupObjects,
-      disabled: !canGroupState,
-    },
-    {
-      key: "ungroup",
-      icon: Ungroup,
-      label: "Tách nhóm",
-      active: false,
-      onClick: ungroupObjects,
-      disabled: !canUngroupState,
     },
     // {
     //   key: "remove",
@@ -1925,13 +1926,10 @@ const PlushDollDesign: React.FC = () => {
                         ${
                           action.active
                             ? "bg-primary text-primary-foreground"
-                            : action.disabled
-                            ? "opacity-50 cursor-not-allowed"
                             : "hover:bg-muted"
                         }
                       `}
-                      onClick={action.disabled ? undefined : action.onClick}
-                      disabled={action.disabled}
+                      onClick={action.onClick}
                     >
                       <action.icon className="w-5 h-5" />
                     </button>
@@ -1944,7 +1942,6 @@ const PlushDollDesign: React.FC = () => {
                     variant={action.active ? "default" : "outline"}
                     className="w-full h-10 justify-start px-4"
                     onClick={action.onClick}
-                    disabled={action.disabled}
                   >
                     <action.icon className="w-5 h-5 mr-2" />
                     <span className="text-sm font-medium">{action.label}</span>
