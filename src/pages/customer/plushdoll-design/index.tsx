@@ -30,6 +30,8 @@ import {
   FolderClosed,
   Fan,
   Palette,
+  Group,
+  Ungroup,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -159,6 +161,10 @@ const PlushDollDesign: React.FC = () => {
 
   // ✅ Thêm state để track canvas initialization
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
+
+  // Add state for group/ungroup button states
+  const [canGroupState, setCanGroupState] = useState(false);
+  const [canUngroupState, setCanUngroupState] = useState(false);
 
   // Danh sách màu gợi ý
   // (Đã chuyển vào BackgroundColorPanel)
@@ -640,6 +646,16 @@ const PlushDollDesign: React.FC = () => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
       e.preventDefault();
       pasteClipboard();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "g") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        // Ctrl+Shift+G for ungroup
+        ungroupObjects();
+      } else {
+        // Ctrl+G for group
+        groupObjects();
+      }
     }
   };
 
@@ -1336,14 +1352,59 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.getObjects().length
     );
 
-    canvasRef.current.setBackgroundColor(backgroundColor, () => {
-      canvasRef.current!.renderAll();
-      // ✅ Debug sau khi render
-      console.log(
-        "Sau khi set background color - Số object:",
-        canvasRef.current?.getObjects().length
-      );
-    });
+    // Kiểm tra nếu backgroundColor là gradient
+    if (backgroundColor.startsWith("linear-gradient")) {
+      // Tạo gradient object cho Fabric.js
+      const gradient = new fabric.Gradient({
+        type: "linear",
+        coords: {
+          x1: 0,
+          y1: 0,
+          x2: canvasRef.current.width || 800,
+          y2: canvasRef.current.height || 600,
+        },
+        colorStops: [
+          { offset: 0, color: "#667eea" },
+          { offset: 1, color: "#764ba2" },
+        ],
+      });
+
+      // Parse gradient string để lấy colors và offsets
+      const gradientStr = backgroundColor;
+
+      // Extract colors and percentages from gradient string
+      const colorStopMatches = gradientStr.match(/#[a-fA-F0-9]{6}\s*\d*%?/g);
+      if (colorStopMatches && colorStopMatches.length >= 2) {
+        const colorStops = colorStopMatches.map((match, index) => {
+          const colorMatch = match.match(/#[a-fA-F0-9]{6}/);
+          const percentMatch = match.match(/(\d+)%/);
+
+          const color = colorMatch ? colorMatch[0] : "#667eea";
+          const offset = percentMatch
+            ? parseInt(percentMatch[1]) / 100
+            : index / (colorStopMatches.length - 1);
+
+          return { offset, color };
+        });
+
+        gradient.colorStops = colorStops;
+      }
+
+      canvasRef.current.setBackgroundColor(gradient, () => {
+        canvasRef.current!.renderAll();
+      });
+    } else {
+      // Màu solid bình thường
+      canvasRef.current.setBackgroundColor(backgroundColor, () => {
+        canvasRef.current!.renderAll();
+      });
+    }
+
+    // ✅ Debug sau khi render
+    console.log(
+      "Sau khi set background color - Số object:",
+      canvasRef.current?.getObjects().length
+    );
   }, [backgroundColor]);
 
   // ✅ Thêm useEffect để debug canvas state
@@ -1397,6 +1458,29 @@ const PlushDollDesign: React.FC = () => {
     }
   }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
 
+  // Add useEffect to update group/ungroup button states
+  useEffect(() => {
+    const updateGroupStates = () => {
+      setCanGroupState(canGroup());
+      setCanUngroupState(canUngroup());
+    };
+
+    // Update states when canvas selection changes
+    if (canvasRef.current) {
+      canvasRef.current.on("selection:created", updateGroupStates);
+      canvasRef.current.on("selection:updated", updateGroupStates);
+      canvasRef.current.on("selection:cleared", updateGroupStates);
+    }
+
+    return () => {
+      if (canvasRef.current) {
+        canvasRef.current.off("selection:created", updateGroupStates);
+        canvasRef.current.off("selection:updated", updateGroupStates);
+        canvasRef.current.off("selection:cleared", updateGroupStates);
+      }
+    };
+  }, []);
+
   // ✅ Component debug để hiển thị thông tin canvas
   const CanvasDebugInfo = () => {
     if (!canvasRef.current) return null;
@@ -1414,6 +1498,79 @@ const PlushDollDesign: React.FC = () => {
         <div>Initialized: {isCanvasInitialized ? "Yes" : "No"}</div>
       </div>
     );
+  };
+
+  // Add group/ungroup functions
+  const groupObjects = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || !canvasRef.current) return;
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      const objects = selection.getObjects();
+
+      if (objects.length < 2) {
+        toast.error("Cần chọn ít nhất 2 đối tượng để nhóm");
+        return;
+      }
+
+      // Create group
+      const group = selection.toGroup();
+
+      // Set group properties
+      group.set({
+        left: group.left,
+        top: group.top,
+        selectable: true,
+        evented: true,
+      });
+
+      canvasRef.current.setActiveObject(group);
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success(`Đã nhóm ${objects.length} đối tượng`);
+    } else {
+      toast.error("Cần chọn nhiều đối tượng để nhóm");
+    }
+  };
+
+  const ungroupObjects = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || !canvasRef.current) return;
+
+    if (activeObject.type === "group") {
+      const group = activeObject as fabric.Group;
+      const objects = group.getObjects();
+
+      // Ungroup
+      group.toActiveSelection();
+
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success(`Đã tách nhóm ${objects.length} đối tượng`);
+    } else {
+      toast.error("Cần chọn một nhóm để tách");
+    }
+  };
+
+  const canGroup = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return false;
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      return selection.getObjects().length >= 2;
+    }
+    return false;
+  };
+
+  const canUngroup = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return false;
+
+    return activeObject.type === "group";
   };
 
   // Define sidebar actions for consistency
@@ -1534,6 +1691,22 @@ const PlushDollDesign: React.FC = () => {
           setDrawingPanelOpen(false);
         }
       },
+    },
+    {
+      key: "group",
+      icon: Group,
+      label: "Nhóm",
+      active: false,
+      onClick: groupObjects,
+      disabled: !canGroupState,
+    },
+    {
+      key: "ungroup",
+      icon: Ungroup,
+      label: "Tách nhóm",
+      active: false,
+      onClick: ungroupObjects,
+      disabled: !canUngroupState,
     },
     // {
     //   key: "remove",
@@ -1752,10 +1925,13 @@ const PlushDollDesign: React.FC = () => {
                         ${
                           action.active
                             ? "bg-primary text-primary-foreground"
+                            : action.disabled
+                            ? "opacity-50 cursor-not-allowed"
                             : "hover:bg-muted"
                         }
                       `}
-                      onClick={action.onClick}
+                      onClick={action.disabled ? undefined : action.onClick}
+                      disabled={action.disabled}
                     >
                       <action.icon className="w-5 h-5" />
                     </button>
@@ -1768,6 +1944,7 @@ const PlushDollDesign: React.FC = () => {
                     variant={action.active ? "default" : "outline"}
                     className="w-full h-10 justify-start px-4"
                     onClick={action.onClick}
+                    disabled={action.disabled}
                   >
                     <action.icon className="w-5 h-5 mr-2" />
                     <span className="text-sm font-medium">{action.label}</span>
@@ -2186,6 +2363,30 @@ const PlushDollDesign: React.FC = () => {
                           }}
                         >
                           <ArrowDownFromLine className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {/* Group Button */}
+                      {canGroup() && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={groupObjects}
+                          title="Nhóm các đối tượng"
+                        >
+                          <Group className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {/* Ungroup Button */}
+                      {canUngroup() && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={ungroupObjects}
+                          title="Tách nhóm"
+                        >
+                          <Ungroup className="w-4 h-4" />
                         </Button>
                       )}
 
