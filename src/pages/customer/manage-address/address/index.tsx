@@ -3,7 +3,7 @@ import { getDistricts, getWards } from "@/services/ghnApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import PutAddress from "../edit-addresss";
 import DeleteAddress from "../delete-address";
-import { ChevronDown, ChevronUp, Home } from "lucide-react";
+import { Home } from "lucide-react";
 
 const HCM_PROVINCE_ID = 202;
 const VALID_HCM_DISTRICTS = new Set([
@@ -21,7 +21,6 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const [wardMap, setWardMap] = useState<Record<number, string>>({});
   const [isMapping, setIsMapping] = useState(true);
   const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchMapping = async () => {
@@ -84,7 +83,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
     >
       <div className="flex justify-between items-start gap-2">
         <div className="flex-1 space-y-1">
-          <p className="text-base font-medium text-foreground flex flex-wrap items-start gap-2 break-words">
+          <p className="text-sm font-medium text-foreground flex flex-wrap items-start gap-2 break-words">
             <Home className="w-4 h-4 mt-1 text-muted-foreground shrink-0" />
             <span className="flex-1">
               {addr.addressDetail}, {getLocationName("ward", addr.ward)},{" "}
@@ -93,7 +92,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
           </p>
 
           {addr.isMainAddress && (
-            <span className="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 font-medium">
+            <span className="absolute top-2 right-2 inline-block px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 font-medium z-20">
               Địa chỉ chính
             </span>
           )}
@@ -128,12 +127,10 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       {Array.from({ length: count }).map((_, i) => (
         <li
           key={i}
-          className="p-4 border border-border rounded shadow-sm bg-card space-y-2"
+          className="relative pt-6 pr-6 pb-4 pl-4 border border-border rounded-lg shadow-md bg-card h-[72px] flex items-center"
         >
-          <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="h-4 w-1/3" />
-          <Skeleton className="h-4 w-1/4" />
-          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="w-4 h-4 mt-1 mr-2" />
+          <Skeleton className="h-5 w-11/12" />
         </li>
       ))}
     </ul>
@@ -155,23 +152,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
         <ul className="space-y-4">
           {mainAddress && renderAddressItem(mainAddress)}
 
-          {showAll && otherAddresses.map((addr) => renderAddressItem(addr))}
-
-          {otherAddresses.length > 0 && (
-            <div className="flex justify-center mt-2">
-              <button
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-                onClick={() => setShowAll(!showAll)}
-              >
-                {showAll ? "Ẩn bớt" : "Hiển thị thêm"}
-                {showAll ? (
-                  <ChevronUp className="w-4 h-4" />
-                ) : (
-                  <ChevronDown className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          )}
+          {otherAddresses.map((addr) => renderAddressItem(addr))}
         </ul>
       )}
 

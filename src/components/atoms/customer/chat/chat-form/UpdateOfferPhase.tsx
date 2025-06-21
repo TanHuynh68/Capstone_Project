@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { useState } from "react";
 import { DialogHeader } from "@/components/ui/dialog";
+import { formatDayAndTime } from "@/components/utils";
 
 interface OfferPhase {
   offerPhaseID: string;
@@ -253,7 +254,7 @@ const UpdateOfferPhase = ({
                 <div className=" text-gray-600">Ngày bắt đầu</div>
                 <div className="font-medium">
                   {startDate
-                    ? startDate.toLocaleDateString("vi-VN")
+                    ? formatDayAndTime(startDate)
                     : "Chưa chọn"}
                 </div>
               </div>
@@ -262,7 +263,7 @@ const UpdateOfferPhase = ({
               <div className="flex gap-2 justify-center py-2">
                 <div className=" text-gray-600">Ngày kết thúc</div>
                 <div className="font-medium">
-                  {endDate ? endDate.toLocaleDateString("vi-VN") : "Chưa chọn"}
+                  {endDate ? formatDayAndTime(endDate) : "Chưa chọn"}
                 </div>
               </div>
             </div>

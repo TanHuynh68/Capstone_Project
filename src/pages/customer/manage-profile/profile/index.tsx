@@ -455,7 +455,7 @@ const Profile = () => {
                     </p>
                   </CardHeader>
 
-                  <CardContent>
+                  <CardContent className="pt-4">
                     <div className="space-y-4 text-sm">
                       <div className="flex items-center">
                         <Mail className="h-4 w-4 mr-3 text-muted-foreground" />

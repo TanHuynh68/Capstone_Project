@@ -1,9 +1,6 @@
 import { SenderInfo } from "../../molecules/delivery/sender-info";
 import { ReceiverInfo } from "../../molecules/delivery/receiver-info";
 import { ProductInfo } from "../../molecules/delivery/product-info";
-import { OrderInfo } from "../../molecules/delivery/order-info";
-import { ServiceOptions } from "../../molecules/delivery/service-options";
-import { NotesSection } from "../../molecules/delivery/notes-section";
 import { PricingSidebar } from "../../molecules/delivery/pricing-sidebar";
 
 export function ShippingForm() {
@@ -20,9 +17,6 @@ export function ShippingForm() {
           </div>
 
           <ProductInfo />
-          <OrderInfo />
-          <ServiceOptions />
-          <NotesSection />
         </div>
 
         {/* Pricing Sidebar */}

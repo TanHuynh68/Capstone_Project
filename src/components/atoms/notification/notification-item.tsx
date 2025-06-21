@@ -53,7 +53,7 @@ export function NotificationItem({
               <ArrowRight className="h-3.5 w-3.5 text-primary flex-shrink-0" />
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-4">
             {message}
           </p>
           <span className="text-xs text-muted-foreground mt-1 block">

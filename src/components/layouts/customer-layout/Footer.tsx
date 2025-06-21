@@ -120,7 +120,7 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  lienhe@acme.com.vn
+                  lienhe@plushdollcustom.com.vn
                 </span>
               </li>
             </ul>
@@ -147,7 +147,7 @@ export function Footer() {
 
         {/* Footer dưới */}
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-          <p>&copy; {new Date().getFullYear()} ACME. Đã đăng ký bản quyền.</p>
+          <p>&copy; {new Date().getFullYear()} PlushDollCustom</p>
           <div className="flex gap-4">
             <Link to="/privacy" className="hover:text-primary">
               Chính sách bảo mật

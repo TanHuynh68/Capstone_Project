@@ -1,5 +1,5 @@
 import { ChevronLeft } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface SidebarPanelWrapperProps {
@@ -10,13 +10,10 @@ interface SidebarPanelWrapperProps {
   children: React.ReactNode;
 }
 
-const SidebarPanelWrapper: React.FC<SidebarPanelWrapperProps> = ({
-  isOpen,
-  onClose,
-  title,
-  icon,
-  children,
-}) => {
+const SidebarPanelWrapper = forwardRef<
+  HTMLDivElement,
+  SidebarPanelWrapperProps
+>(({ isOpen, onClose, title, icon, children }, ref) => {
   const [isClosing, setIsClosing] = useState(false);
   const ANIMATION_DURATION = 100; // ms, khớp với CSS
 
@@ -34,9 +31,10 @@ const SidebarPanelWrapper: React.FC<SidebarPanelWrapperProps> = ({
 
   return (
     <div
+      ref={ref}
       className={`w-[300px] h-full flex flex-col overflow-visible
-        ${isClosing ? "sidebar-panel-closing" : "sidebar-panel-opening"}
-      `}
+          ${isClosing ? "sidebar-panel-closing" : "sidebar-panel-opening"}
+        `}
     >
       <div className="relative h-full">
         <div className="h-full border-l border-border bg-card flex flex-col">
@@ -49,7 +47,7 @@ const SidebarPanelWrapper: React.FC<SidebarPanelWrapperProps> = ({
               isClosing ? "opacity-0" : "opacity-100"
             }`}
           >
-            <div className="p-2 flex flex-col gap-6">{children}</div>
+            <div className="p-2 flex flex-col">{children}</div>
           </div>
         </div>
         <Button
@@ -64,6 +62,6 @@ const SidebarPanelWrapper: React.FC<SidebarPanelWrapperProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default SidebarPanelWrapper;

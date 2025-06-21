@@ -12,7 +12,7 @@ export default function ChatInput({
 }: ChatInputProps) {
   return (
     <Textarea
-      className="flex-1 rounded-sm border border-gray-800 bg-gray-100 min-h-[40px] max-h-[150px] w-full overflow-hidden resize-none" // Thay đổi overflow-y thành hidden
+      className="  rounded-sm border border-gray-800 bg-gray-100 min-h-[100px] max-h-[200px] w-full overflow-y-auto resize-none"
       placeholder={placeholder}
       {...props}
     />

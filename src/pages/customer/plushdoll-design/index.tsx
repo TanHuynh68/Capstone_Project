@@ -29,6 +29,9 @@ import {
   FolderOpen,
   FolderClosed,
   Fan,
+  Palette,
+  Group,
+  Ungroup,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -44,6 +47,7 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { convertToPixels } from "@/components/utils/convert";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
 import { useLocation } from "react-router-dom";
+import BackgroundColorPanel from "./BackgroundColorPanel";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -91,10 +95,31 @@ const PlushDollDesign: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
-  const [canvasWidthInput, setCanvasWidthInput] = useState("960");
-  const [canvasHeightInput, setCanvasHeightInput] = useState("540");
-  const [actualCanvasWidth, setActualCanvasWidth] = useState("960");
-  const [actualCanvasHeight, setActualCanvasHeight] = useState("540");
+  // Responsive initial size
+  const getInitialCanvasSize = () => {
+    if (typeof window !== "undefined") {
+      const w = Math.max(window.innerWidth * 0.7, 320);
+      const h = Math.max(window.innerHeight * 0.7, 240);
+      return {
+        width: Math.round(w),
+        height: Math.round(h),
+      };
+    }
+    return { width: 960, height: 540 };
+  };
+  const initialSize = getInitialCanvasSize();
+  const [canvasWidthInput, setCanvasWidthInput] = useState(
+    initialSize.width.toString()
+  );
+  const [canvasHeightInput, setCanvasHeightInput] = useState(
+    initialSize.height.toString()
+  );
+  const [actualCanvasWidth, setActualCanvasWidth] = useState(
+    initialSize.width.toString()
+  );
+  const [actualCanvasHeight, setActualCanvasHeight] = useState(
+    initialSize.height.toString()
+  );
   const [scaleRatio, setScaleRatio] = useState(1);
   const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
 
@@ -151,6 +176,16 @@ const PlushDollDesign: React.FC = () => {
   // Thêm state điều khiển panel
   const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
 
+  // Thêm state for background color
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
+
+  // ✅ Thêm state để track canvas initialization
+  const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
+
+  // Danh sách màu gợi ý
+  // (Đã chuyển vào BackgroundColorPanel)
+
   // Thêm useEffect để lấy số lượng canvas khi component mount
   useEffect(() => {
     console.log(location.state, "location.state");
@@ -158,34 +193,11 @@ const PlushDollDesign: React.FC = () => {
     const hasCanvasId = location.state?.canvasId;
 
     if (hasCanvasId) {
-      // Fetch canvas data from API when canvasId is present
-      const fetchCanvasData = async () => {
-        try {
-          const data = await getCanvas({ page: 1, size: 100 });
-          const canvasList =
-            data?.responseRequestModel?.responseList?.items || [];
-          const targetCanvas = canvasList.find(
-            (canvas: CanvasObject) =>
-              canvas.canvasInfoId === location.state.canvasId
-          );
-
-          if (targetCanvas) {
-            loadCanvasFromDescription(
-              targetCanvas.canvasDescription,
-              targetCanvas.canvasTitle,
-              targetCanvas.canvasInfoId
-            );
-          } else {
-            toast.error("Không tìm thấy thông tin thiết kế");
-          }
-        } catch (error) {
-          console.error("Error fetching canvas data:", error);
-          toast.error("Có lỗi xảy ra khi tải thiết kế");
-        }
-      };
-
-      fetchCanvasData();
-      return; // Exit early after fetching canvas data
+      // ✅ Không load canvas data ở đây nữa, sẽ load sau khi canvas khởi tạo
+      console.log(
+        "Có canvasId trong location.state, sẽ load sau khi canvas khởi tạo"
+      );
+      return;
     }
 
     // If no canvasId, fetch canvas count for new canvas
@@ -207,21 +219,56 @@ const PlushDollDesign: React.FC = () => {
   // Initial canvas & events setup
   useEffect(() => {
     if (!htmlCanvasRef.current) return;
+
+    // ✅ Chỉ khởi tạo canvas nếu chưa có
+    if (canvasRef.current) {
+      console.log("Canvas đã tồn tại, chỉ cập nhật background color");
+      canvasRef.current.setBackgroundColor(backgroundColor, () => {
+        canvasRef.current?.renderAll();
+      });
+      return;
+    }
+
+    // Set initial size to fit window
+    const parent = htmlCanvasRef.current.parentElement;
+    let width = initialSize.width;
+    let height = initialSize.height;
+    if (parent) {
+      width = parent.clientWidth;
+      height = parent.clientHeight;
+    }
+    htmlCanvasRef.current.width = width;
+    htmlCanvasRef.current.height = height;
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
-      backgroundColor: "#ffffff",
+      backgroundColor: backgroundColor,
+      width,
+      height,
     });
     canvas.freeDrawingBrush.color = brushColor;
     canvas.freeDrawingBrush.width = brushWidth;
     canvas.renderAll();
     canvasRef.current = canvas;
+
+    // ✅ Debug khi khởi tạo canvas
+    console.log("Khởi tạo canvas - Số object:", canvas.getObjects().length);
+
+    // ✅ Đánh dấu canvas đã được khởi tạo
+    setIsCanvasInitialized(true);
+
     saveInitialState();
 
     // Selection events for smart toolbar
     canvas.on("selection:created", (e) => {
       if (e.selected && e.selected.length > 0) {
         if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          setToolbarVisible(false);
+          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+          setToolbarVisible(true);
           setActiveText(null);
+          // Update toolbar position for the selection
+          const activeObj = canvas.getActiveObject();
+          if (activeObj) {
+            updateToolbarPos(activeObj);
+          }
         } else {
           handleSelection(e.selected[0]);
         }
@@ -231,8 +278,14 @@ const PlushDollDesign: React.FC = () => {
     canvas.on("selection:updated", (e) => {
       if (e.selected && e.selected.length > 0) {
         if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          setToolbarVisible(false);
+          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+          setToolbarVisible(true);
           setActiveText(null);
+          // Update toolbar position for the selection
+          const activeObj = canvas.getActiveObject();
+          if (activeObj) {
+            updateToolbarPos(activeObj);
+          }
         } else {
           handleSelection(e.selected[0]);
         }
@@ -251,6 +304,15 @@ const PlushDollDesign: React.FC = () => {
       if (e.target) updateToolbarPos(e.target);
     });
 
+    // ✅ Thêm events cho scaling và rotating để update toolbar position
+    canvas.on("object:scaling", (e) => {
+      if (e.target) updateToolbarPos(e.target);
+    });
+
+    canvas.on("object:rotating", (e) => {
+      if (e.target) updateToolbarPos(e.target);
+    });
+
     document.addEventListener("keydown", handleKeyDown);
 
     // Add event listener for createNewCanvas
@@ -264,7 +326,7 @@ const PlushDollDesign: React.FC = () => {
       window.removeEventListener("createNewCanvas", handleCreateNewCanvas);
       canvas.dispose();
     };
-  }, []);
+  }, []); // ✅ Bỏ backgroundColor khỏi dependency
 
   // Sync brush properties when they change
   useEffect(() => {
@@ -330,9 +392,23 @@ const PlushDollDesign: React.FC = () => {
     const resizeCanvas = () => {
       if (canvasWrapperRef.current && canvasRef.current) {
         const { clientWidth, clientHeight } = canvasWrapperRef.current;
+
+        // ✅ Debug resize canvas
+        console.log("Resize canvas called:", {
+          clientWidth,
+          clientHeight,
+          currentObjects: canvasRef.current.getObjects().length,
+        });
+
         canvasRef.current.setWidth(clientWidth);
         canvasRef.current.setHeight(clientHeight);
         canvasRef.current.renderAll();
+
+        // ✅ Debug sau khi resize
+        console.log(
+          "Sau khi resize - Số object:",
+          canvasRef.current.getObjects().length
+        );
       }
     };
     window.addEventListener("resize", resizeCanvas);
@@ -377,10 +453,32 @@ const PlushDollDesign: React.FC = () => {
 
     if (!canvasRef.current || !canvasWrapperRef.current) return;
 
+    // ✅ Debug trước khi xóa objects
+    console.log(
+      "Trước khi xóa - Số object:",
+      canvasRef.current.getObjects().length
+    );
+
     canvasRef.current.setWidth(widthPx);
     canvasRef.current.setHeight(heightPx);
-    canvasRef.current.clear();
-    canvasRef.current.backgroundColor = "#ffffff";
+
+    canvasRef.current.getObjects().forEach((obj) => {
+      canvasRef.current?.remove(obj);
+    });
+
+    // ✅ Debug sau khi xóa objects
+    console.log(
+      "Sau khi xóa - Số object:",
+      canvasRef.current.getObjects().length
+    );
+
+    // ✅ Set lại màu nền đúng cách (giữ nội dung)
+    canvasRef.current.setBackgroundColor(backgroundColor, () => {
+      canvasRef.current?.renderAll();
+    });
+
+    // canvasRef.current.clear();
+    // canvasRef.current.backgroundColor = backgroundColor;
 
     // Maintain brush properties
     if (isErasing) {
@@ -401,6 +499,74 @@ const PlushDollDesign: React.FC = () => {
     // toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
   };
 
+  // Zoom state: default is fit-to-parent (Fix Window)
+  const [zoom, setZoom] = useState(1);
+  const [isFullWindow, setIsFullWindow] = useState(false);
+
+  // Zoom in/out handlers
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.1, 5));
+  };
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.1, 0.1));
+  };
+  const handleFixWindow = () => {
+    setIsFullWindow(false);
+    updateScaleRatio();
+    if (canvasWrapperRef.current && canvasRef.current) {
+      const width = convertToPixels(parseFloat(actualCanvasWidth) || 0, unit);
+      const height = convertToPixels(parseFloat(actualCanvasHeight) || 0, unit);
+      canvasWrapperRef.current.style.width = `${width}px`;
+      canvasWrapperRef.current.style.height = `${height}px`;
+      canvasRef.current.setWidth(width);
+      canvasRef.current.setHeight(height);
+      canvasRef.current.requestRenderAll();
+    }
+  };
+  const handleFullWindow = () => {
+    setIsFullWindow(true);
+    setZoom(0.94); // Set zoom to 94%
+    console.log("handleFullWindow");
+    if (canvasWrapperRef.current && canvasRef.current) {
+      console.log("handleFullWindow 2");
+
+      const parent = canvasWrapperRef.current.parentElement;
+      if (parent) {
+        console.log("handleFullWindow 3");
+
+        const newWidth = parent.clientWidth * 0.94;
+        const newHeight = parent.clientHeight * 0.94;
+        console.log("newWidth", newWidth);
+        console.log("newHeight", newHeight);
+        const width = canvasWrapperRef.current.style.width;
+        const height = canvasWrapperRef.current.style.height;
+        console.log("width", width);
+        console.log("height", height);
+        canvasWrapperRef.current.style.width = `${newWidth}px`;
+        canvasWrapperRef.current.style.height = `${newHeight}px`;
+        console.log("width22", width);
+        console.log("height22", height);
+        // Sửa: Không cần requestAnimationFrame, set trực tiếp
+        canvasRef.current.setWidth(newWidth);
+        canvasRef.current.setHeight(newHeight);
+        canvasRef.current.requestRenderAll();
+      }
+    }
+  };
+
+  // Sync zoom to canvas
+  useEffect(() => {
+    zoomCanvasFromCenter(zoom);
+  }, [zoom]);
+
+  // On isFullWindow change, if false, recalc fit
+  useEffect(() => {
+    if (!isFullWindow) {
+      updateScaleRatio();
+    }
+  }, [isFullWindow]);
+
+  // updateScaleRatio: fit canvas to parent (Fix Window)
   const updateScaleRatio = () => {
     if (!canvasRef.current || !canvasWrapperRef.current) return;
 
@@ -424,14 +590,20 @@ const PlushDollDesign: React.FC = () => {
 
     const ratio = Math.min(widthRatio, heightRatio, 1);
 
-    canvasRef.current.setZoom(ratio);
-    canvasRef.current.requestRenderAll();
+    setZoom(ratio);
+    setIsFullWindow(false);
 
     canvasWrapperRef.current.style.width = `${canvasWidth}px`;
     canvasWrapperRef.current.style.height = `${canvasHeight}px`;
 
     setScaleRatio(ratio);
   };
+
+  // On mount, default to fit window
+  useEffect(() => {
+    handleFixWindow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
@@ -599,6 +771,16 @@ const PlushDollDesign: React.FC = () => {
       e.preventDefault();
       pasteClipboard();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "g") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        // Ctrl+Shift+G for ungroup
+        ungroupObjects();
+      } else {
+        // Ctrl+G for group
+        groupObjects();
+      }
+    }
   };
 
   const cloneObject = (obj: fabric.Object): Promise<fabric.Object> => {
@@ -743,30 +925,34 @@ const PlushDollDesign: React.FC = () => {
       return;
     }
 
-    // if (!canvasDescription) {
-    //   console.error("Canvas description is missing");
-    //   toast.error("Không tìm thấy dữ liệu canvas");
-    //   return;
-    // }
-
     isRestoringRef.current = true;
     const safeJson = sanitizeCanvasJSON(canvasDescription);
 
     try {
       canvasRef.current.loadFromJSON(safeJson, () => {
-        // Maintain brush properties after loading
+        const canvas = canvasRef.current!;
+
+        // ✅ Sau khi load JSON → set lại màu nền (nếu có)
+        // if (backgroundColor) {
+        //   canvas.setBackgroundColor(backgroundColor, () => {
+        //     canvas.renderAll();
+        //   });
+        // } else {
+        //   canvas.renderAll();
+        // }
+
+        // ✅ Restore brush config
         if (isErasing) {
-          canvasRef.current!.freeDrawingBrush.color = "#ffffff";
-          canvasRef.current!.freeDrawingBrush.width = eraserWidth;
+          canvas.freeDrawingBrush.color = "#ffffff";
+          canvas.freeDrawingBrush.width = eraserWidth;
         } else {
-          canvasRef.current!.freeDrawingBrush.color = brushColor;
-          canvasRef.current!.freeDrawingBrush.width = brushWidth;
+          canvas.freeDrawingBrush.color = brushColor;
+          canvas.freeDrawingBrush.width = brushWidth;
         }
 
-        canvasRef.current?.renderAll();
         isRestoringRef.current = false;
 
-        // Set all required state
+        // ✅ Update state
         setCurrentCanvasTitle(canvasTitle);
         setCurrentCanvasId(canvasId);
         setEditingTitle(canvasTitle);
@@ -775,7 +961,7 @@ const PlushDollDesign: React.FC = () => {
         console.log("Thiết kế đã được tải thành công:", {
           canvasId,
           canvasTitle,
-          currentCanvasId: canvasId, // Verify ID is set
+          currentCanvasId: canvasId,
         });
 
         // toast.success("Đã tải thiết kế thành công!");
@@ -791,6 +977,11 @@ const PlushDollDesign: React.FC = () => {
     if (!canvasRef.current) return;
     const current = JSON.stringify(canvasRef.current);
     historyRef.current = { states: [current], index: 0 };
+    // ✅ Debug khi save initial state
+    console.log(
+      "Save initial state - Số object:",
+      canvasRef.current.getObjects().length
+    );
   };
 
   const saveState = () => {
@@ -878,6 +1069,7 @@ const PlushDollDesign: React.FC = () => {
         img.set({ left: 100, top: 100, selectable: true });
         canvasRef.current?.add(img);
         canvasRef.current?.setActiveObject(img);
+        canvasRef.current?.bringToFront(img);
         saveState();
       });
     };
@@ -1115,6 +1307,7 @@ const PlushDollDesign: React.FC = () => {
 
       canvasRef.current?.add(img);
       canvasRef.current?.setActiveObject(img);
+      canvasRef.current?.bringToFront(img);
       saveState();
     });
   };
@@ -1263,6 +1456,247 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [isAutoSaveEnabled]);
 
+  console.log(
+    "Tổng số object trong canvas:",
+    canvasRef.current?.getObjects().length
+  );
+
+  useEffect(() => {
+    if (!canvasRef.current || !backgroundColor) return;
+
+    // ✅ Debug trước khi thay đổi background
+    console.log(
+      "Thay đổi background color từ:",
+      canvasRef.current.backgroundColor,
+      "sang:",
+      backgroundColor
+    );
+    console.log(
+      "Số object trước khi thay đổi:",
+      canvasRef.current.getObjects().length
+    );
+
+    // Kiểm tra nếu backgroundColor là gradient
+    if (backgroundColor.startsWith("linear-gradient")) {
+      // Tạo gradient object cho Fabric.js
+      const gradient = new fabric.Gradient({
+        type: "linear",
+        coords: {
+          x1: 0,
+          y1: 0,
+          x2: canvasRef.current.width || 800,
+          y2: canvasRef.current.height || 600,
+        },
+        colorStops: [
+          { offset: 0, color: "#667eea" },
+          { offset: 1, color: "#764ba2" },
+        ],
+      });
+
+      // Parse gradient string để lấy colors và offsets
+      const gradientStr = backgroundColor;
+
+      // Extract colors and percentages from gradient string
+      const colorStopMatches = gradientStr.match(/#[a-fA-F0-9]{6}\s*\d*%?/g);
+      if (colorStopMatches && colorStopMatches.length >= 2) {
+        const colorStops = colorStopMatches.map((match, index) => {
+          const colorMatch = match.match(/#[a-fA-F0-9]{6}/);
+          const percentMatch = match.match(/(\d+)%/);
+
+          const color = colorMatch ? colorMatch[0] : "#667eea";
+          const offset = percentMatch
+            ? parseInt(percentMatch[1]) / 100
+            : index / (colorStopMatches.length - 1);
+
+          return { offset, color };
+        });
+
+        gradient.colorStops = colorStops;
+      }
+
+      canvasRef.current.setBackgroundColor(gradient, () => {
+        canvasRef.current!.renderAll();
+      });
+    } else {
+      // Màu solid bình thường
+      canvasRef.current.setBackgroundColor(backgroundColor, () => {
+        canvasRef.current!.renderAll();
+      });
+    }
+
+    // ✅ Debug sau khi render
+    console.log(
+      "Sau khi set background color - Số object:",
+      canvasRef.current?.getObjects().length
+    );
+  }, [backgroundColor]);
+
+  // ✅ Thêm useEffect để debug canvas state
+  useEffect(() => {
+    if (canvasRef.current) {
+      console.log("Canvas Info:", {
+        isInitialized: !!canvasRef.current,
+        objectCount: canvasRef.current.getObjects().length,
+        backgroundColor: backgroundColor,
+        canvasSize: {
+          width: canvasRef.current.width,
+          height: canvasRef.current.height,
+        },
+      });
+    }
+  }, [canvasRef.current, backgroundColor]);
+
+  // ✅ Thêm useEffect để load canvas data sau khi canvas đã được khởi tạo
+  useEffect(() => {
+    if (!isCanvasInitialized || !canvasRef.current) return;
+
+    // Nếu có location.state với canvasId, load canvas data
+    if (location.state?.canvasId) {
+      console.log("Canvas đã khởi tạo, bắt đầu load data từ location.state");
+      const fetchCanvasData = async () => {
+        try {
+          const data = await getCanvas({ page: 1, size: 100 });
+          const canvasList =
+            data?.responseRequestModel?.responseList?.items || [];
+          const targetCanvas = canvasList.find(
+            (canvas: CanvasObject) =>
+              canvas.canvasInfoId === location.state.canvasId
+          );
+
+          if (targetCanvas) {
+            loadCanvasFromDescription(
+              targetCanvas.canvasDescription,
+              targetCanvas.canvasTitle,
+              targetCanvas.canvasInfoId
+            );
+          } else {
+            toast.error("Không tìm thấy thông tin thiết kế");
+          }
+        } catch (error) {
+          console.error("Error fetching canvas data:", error);
+          toast.error("Có lỗi xảy ra khi tải thiết kế");
+        }
+      };
+
+      fetchCanvasData();
+    }
+  }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
+
+  // Add useEffect to update group/ungroup button states
+  // useEffect(() => {
+  //   const updateGroupStates = () => {
+  //     setCanGroupState(canGroup());
+  //     setCanUngroupState(canUngroup());
+  //   };
+
+  //   // Update states when canvas selection changes
+  //   if (canvasRef.current) {
+  //     canvasRef.current.on("selection:created", updateGroupStates);
+  //     canvasRef.current.on("selection:updated", updateGroupStates);
+  //     canvasRef.current.on("selection:cleared", updateGroupStates);
+  //   }
+
+  //   return () => {
+  //     if (canvasRef.current) {
+  //       canvasRef.current.off("selection:created", updateGroupStates);
+  //       canvasRef.current.off("selection:updated", updateGroupStates);
+  //       canvasRef.current.off("selection:cleared", updateGroupStates);
+  //     }
+  //   };
+  // }, []);
+
+  // ✅ Component debug để hiển thị thông tin canvas
+  const CanvasDebugInfo = () => {
+    if (!canvasRef.current) return null;
+
+    return (
+      <div className="fixed top-20 right-4 bg-black/80 text-white p-3 rounded-lg text-xs z-50">
+        <div className="font-bold mb-2">Canvas Debug Info:</div>
+        <div>Objects: {canvasRef.current.getObjects().length}</div>
+        <div>
+          Size: {canvasRef.current.width} x {canvasRef.current.height}
+        </div>
+        <div>Background: {backgroundColor}</div>
+        <div>Canvas ID: {currentCanvasId || "New"}</div>
+        <div>Title: {currentCanvasTitle}</div>
+        <div>Initialized: {isCanvasInitialized ? "Yes" : "No"}</div>
+      </div>
+    );
+  };
+
+  // Add group/ungroup functions
+  const groupObjects = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || !canvasRef.current) return;
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      const objects = selection.getObjects();
+
+      if (objects.length < 2) {
+        toast.error("Cần chọn ít nhất 2 đối tượng để nhóm");
+        return;
+      }
+
+      // Create group
+      const group = selection.toGroup();
+
+      // Set group properties
+      group.set({
+        left: group.left,
+        top: group.top,
+        selectable: true,
+        evented: true,
+      });
+
+      canvasRef.current.setActiveObject(group);
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success(`Đã nhóm ${objects.length} đối tượng`);
+    } else {
+      toast.error("Cần chọn nhiều đối tượng để nhóm");
+    }
+  };
+
+  const ungroupObjects = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || !canvasRef.current) return;
+
+    if (activeObject.type === "group") {
+      const group = activeObject as fabric.Group;
+      const objects = group.getObjects();
+
+      // Ungroup
+      group.toActiveSelection();
+
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success(`Đã tách nhóm ${objects.length} đối tượng`);
+    } else {
+      toast.error("Cần chọn một nhóm để tách");
+    }
+  };
+
+  const canGroup = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return false;
+
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      return selection.getObjects().length >= 2;
+    }
+    return false;
+  };
+
+  const canUngroup = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return false;
+
+    return activeObject.type === "group";
+  };
+
   // Define sidebar actions for consistency
   const sidebarActions = [
     {
@@ -1271,6 +1705,7 @@ const PlushDollDesign: React.FC = () => {
       label: "Mẫu Labubu",
       active: libraryOpen,
       onClick: () => {
+        setBackgroundPanelOpen(false);
         if (libraryOpen) {
           setLibraryOpen(false);
         } else {
@@ -1282,11 +1717,25 @@ const PlushDollDesign: React.FC = () => {
       },
     },
     {
+      key: "background",
+      icon: Palette,
+      label: "Màu nền",
+      active: backgroundPanelOpen,
+      onClick: () => {
+        setBackgroundPanelOpen((open) => !open);
+        setLibraryOpen(false);
+        setShowUnsplash(false);
+        setShowCanvasList(false);
+        setDrawingPanelOpen(false);
+      },
+    },
+    {
       key: "unsplash",
       icon: Fan,
       label: "Thành phần",
       active: showUnsplash,
       onClick: () => {
+        setBackgroundPanelOpen(false);
         if (showUnsplash) {
           setShowUnsplash(false);
         } else {
@@ -1313,6 +1762,7 @@ const PlushDollDesign: React.FC = () => {
         });
         canvasRef.current?.add(text);
         canvasRef.current?.setActiveObject(text);
+        canvasRef.current?.bringToFront(text);
         saveState();
       },
     },
@@ -1338,6 +1788,7 @@ const PlushDollDesign: React.FC = () => {
       label: "Công cụ",
       active: drawingPanelOpen,
       onClick: () => {
+        setBackgroundPanelOpen(false);
         if (drawingPanelOpen) {
           setDrawingPanelOpen(false);
         } else {
@@ -1354,6 +1805,7 @@ const PlushDollDesign: React.FC = () => {
       label: "Dự án",
       active: showCanvasList,
       onClick: () => {
+        setBackgroundPanelOpen(false);
         if (showCanvasList) {
           setShowCanvasList(false);
         } else {
@@ -1373,6 +1825,75 @@ const PlushDollDesign: React.FC = () => {
     //   variant: "destructive",
     // },
   ];
+
+  const zoomCanvasFromCenter = (zoomValue: number) => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const center = new fabric.Point(
+      canvas.getWidth() / 2,
+      canvas.getHeight() / 2
+    );
+    canvas.zoomToPoint(center, zoomValue);
+    canvas.requestRenderAll();
+  };
+
+  // Footer/sidebar nhỏ width
+  const getTargetSidebarPanelWidth = () => {
+    let width = 0;
+    if (libraryOpen || showUnsplash) width += 300;
+    if (showCanvasList) width += 300;
+    if (drawingPanelOpen) width += 80;
+    if (backgroundPanelOpen) width += 300;
+    return width;
+  };
+
+  const [visibleSidebarPanelWidth, setVisibleSidebarPanelWidth] = useState(
+    getTargetSidebarPanelWidth()
+  );
+  useEffect(() => {
+    const target = getTargetSidebarPanelWidth();
+    if (target < visibleSidebarPanelWidth) {
+      // Đang đóng panel, delay 100ms
+      const timeout = setTimeout(() => setVisibleSidebarPanelWidth(target), 0);
+      return () => clearTimeout(timeout);
+    } else {
+      // Mở panel, cập nhật ngay
+      setVisibleSidebarPanelWidth(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    libraryOpen,
+    showUnsplash,
+    showCanvasList,
+    drawingPanelOpen,
+    backgroundPanelOpen,
+  ]);
+
+  // Thêm các ref cho sidebar
+  const itemLibraryRef = useRef<HTMLDivElement>(null);
+  const canvasListSidebarRef = useRef<HTMLDivElement>(null);
+  const drawingToolPanelRef = useRef<HTMLDivElement>(null);
+  const backgroundColorPanelRef = useRef<HTMLDivElement>(null);
+
+  const [sidebarsWidth, setSidebarsWidth] = useState(0);
+
+  // Tính tổng width các sidebar đang mở
+  useEffect(() => {
+    let total = 0;
+    if (libraryOpen && itemLibraryRef.current) {
+      total += itemLibraryRef.current.offsetWidth;
+    }
+    if (showCanvasList && canvasListSidebarRef.current) {
+      total += canvasListSidebarRef.current.offsetWidth;
+    }
+    if (drawingPanelOpen && drawingToolPanelRef.current) {
+      total += drawingToolPanelRef.current.offsetWidth;
+    }
+    if (backgroundPanelOpen && backgroundColorPanelRef.current) {
+      total += backgroundColorPanelRef.current.offsetWidth;
+    }
+    setSidebarsWidth(total);
+  }, [libraryOpen, showCanvasList, drawingPanelOpen, backgroundPanelOpen]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -1506,6 +2027,9 @@ const PlushDollDesign: React.FC = () => {
             <Redo2 className="w-4 h-4 mr-1" />
             {/* Làm lại */}
           </Button>
+
+          {/* ZOOM CONTROLS */}
+          {/* Đã di chuyển xuống dưới */}
           <Button variant="outline" onClick={saveCanvasAsPNG}>
             <Download className="w-4 h-4 mr-1" />
             Xuất PNG
@@ -1514,6 +2038,7 @@ const PlushDollDesign: React.FC = () => {
             <Save className="w-4 h-4 mr-1" />
             Lưu thiết kế
           </Button>
+
           <Button
             variant={isAutoSaveEnabled ? "default" : "outline"}
             onClick={() => setIsAutoSaveEnabled(!isAutoSaveEnabled)}
@@ -1608,6 +2133,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Item Library Sidebar */}
         <ItemLibrary
+          ref={itemLibraryRef}
           onSelect={handleItemSelect}
           isOpen={libraryOpen}
           showUnsplash={showUnsplash}
@@ -1617,6 +2143,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Canvas List Sidebar */}
         <CanvasListSidebar
+          ref={canvasListSidebarRef}
           onSelect={(desc: string, title: string, id: string) => {
             loadCanvasFromDescription(desc, title, id);
             setCurrentCanvasId(id);
@@ -1637,6 +2164,7 @@ const PlushDollDesign: React.FC = () => {
 
         {/* Panel công cụ vẽ */}
         <DrawingToolPanel
+          ref={drawingToolPanelRef}
           isOpen={drawingPanelOpen}
           onClose={() => setDrawingPanelOpen(false)}
           brushColor={brushColor}
@@ -1656,6 +2184,15 @@ const PlushDollDesign: React.FC = () => {
               React.SetStateAction<fabric.Text | null>
             >
           }
+        />
+
+        {/* Panel chọn màu nền */}
+        <BackgroundColorPanel
+          ref={backgroundColorPanelRef}
+          isOpen={backgroundPanelOpen}
+          onClose={() => setBackgroundPanelOpen(false)}
+          backgroundColor={backgroundColor}
+          setBackgroundColor={setBackgroundColor}
         />
 
         {/* Canvas */}
@@ -1885,15 +2422,19 @@ const PlushDollDesign: React.FC = () => {
               ref={canvasWrapperRef}
               className="relative bg-card shadow-md origin-top"
               style={{
-                width: `${convertToPixels(
-                  parseFloat(actualCanvasWidth) || 0,
-                  unit
-                )}px`,
-                height: `${convertToPixels(
-                  parseFloat(actualCanvasHeight) || 0,
-                  unit
-                )}px`,
-                transform: `scale(${scaleRatio})`,
+                width: isFullWindow
+                  ? `${canvasWrapperRef.current?.style.width || "100%"}`
+                  : `${convertToPixels(
+                      parseFloat(actualCanvasWidth) || 0,
+                      unit
+                    )}px`,
+                height: isFullWindow
+                  ? `${canvasWrapperRef.current?.style.height || "100%"}`
+                  : `${convertToPixels(
+                      parseFloat(actualCanvasHeight) || 0,
+                      unit
+                    )}px`,
+                transform: `scale(${zoom})`,
               }}
             >
               <canvas ref={htmlCanvasRef} className="w-full h-full" />
@@ -1901,8 +2442,6 @@ const PlushDollDesign: React.FC = () => {
               {toolbarVisible &&
                 (() => {
                   const obj = canvasRef.current?.getActiveObject();
-                  const atTop = obj ? isAtTop(obj) : false;
-                  const atBottom = obj ? isAtBottom(obj) : false;
                   const isImage = obj?.type === "image";
 
                   return (
@@ -1965,7 +2504,7 @@ const PlushDollDesign: React.FC = () => {
                         <Layers className="w-4 h-4" />
                       </Button>
 
-                      {!atTop && (
+                      {obj && !isAtTop(obj) && (
                         <Button
                           size="icon"
                           variant="outline"
@@ -1987,7 +2526,7 @@ const PlushDollDesign: React.FC = () => {
                         </Button>
                       )}
 
-                      {!atBottom && (
+                      {obj && !isAtBottom(obj) && (
                         <Button
                           size="icon"
                           variant="outline"
@@ -2009,6 +2548,30 @@ const PlushDollDesign: React.FC = () => {
                         </Button>
                       )}
 
+                      {/* Group Button */}
+                      {canGroup() && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={groupObjects}
+                          title="Nhóm các đối tượng"
+                        >
+                          <Group className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {/* Ungroup Button */}
+                      {canUngroup() && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={ungroupObjects}
+                          title="Tách nhóm"
+                        >
+                          <Ungroup className="w-4 h-4" />
+                        </Button>
+                      )}
+
                       {isImage && (
                         <RemoveBackgroundButton
                           canvas={canvasRef.current}
@@ -2024,6 +2587,71 @@ const PlushDollDesign: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <CanvasDebugInfo />
+
+      <div
+        className={
+          "absolute bottom-0 z-30 bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300"
+        }
+        style={{
+          pointerEvents: "auto",
+          left: (isSidebarCollapsed ? 80 : 256) + sidebarsWidth, // Đã thay visibleSidebarPanelWidth bằng sidebarsWidth
+          right: 0,
+        }}
+      >
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomOut}
+          disabled={zoom <= 0.1}
+        >
+          -
+        </Button>
+        <input
+          type="number"
+          min={10}
+          max={500}
+          value={Math.round(zoom * 100)}
+          onChange={(e) => {
+            let value = Number(e.target.value);
+            if (isNaN(value)) value = 100;
+            value = Math.max(10, Math.min(500, value));
+            setZoom(value / 100);
+            if (canvasRef.current) {
+              canvasRef.current.setZoom(value / 100);
+              canvasRef.current.requestRenderAll();
+            }
+          }}
+          className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
+          style={{ width: 50 }}
+        />
+        <span className="text-xs">%</span>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomIn}
+          disabled={zoom >= 5}
+        >
+          +
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleFixWindow}
+          className="ml-2 text-xs px-2 h-7"
+        >
+          Fix Window
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleFullWindow}
+          className="text-xs px-2 h-7"
+        >
+          Full Window
+        </Button>
       </div>
     </div>
   );

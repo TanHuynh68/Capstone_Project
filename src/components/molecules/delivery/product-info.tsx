@@ -3,9 +3,9 @@
 import type React from "react";
 
 import { Input } from "../../atoms/delivery/input";
-import { Button } from "@/components/ui/button";
-import { Plus, MoreHorizontal, Camera, Upload, X } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ProductInfo() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -25,62 +25,51 @@ export function ProductInfo() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border">
+    <div className="">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Thông tin sản phẩm</h3>
-        <Button variant="ghost" size="sm" className="text-orange-500">
-          <Plus className="w-4 h-4 mr-1" />
-          SP có sẵn
-        </Button>
       </div>
 
       <div className="border rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <span className="font-medium">SP 1</span>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm">
-              KL (gram): <span className="font-medium">200</span>
-            </span>
-            <span className="text-sm">
-              Số lượng: <span className="font-medium">1</span>
-            </span>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
+          <Input label="Sản phẩm" placeholder="Nhập tên sản phẩm" required />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <Input label="Sản phẩm" placeholder="Nhập tên sản phẩm" required />
-          <Input label="Mã sản phẩm" placeholder="Nhập mã sản phẩm" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <Input label="KL (gram)" defaultValue="500" required />
+          <Input label="Dài (cm)" defaultValue="10" required />
+          <Input label="Rộng (cm)" defaultValue="10" required />
+          <Input label="Cao (cm)" defaultValue="10" required />
         </div>
 
         {/* Image Upload Section */}
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-sm font-medium mb-2 justify-start flex">
             Hình ảnh sản phẩm
           </label>
 
           {/* Uploaded Images Display */}
-          {uploadedImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {uploadedImages.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={`Product ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg border"
-                  />
-                  <button
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            {uploadedImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {uploadedImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`Product ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg border"
+                    />
+                    <button
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Upload Area */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-300 transition-colors">
@@ -107,15 +96,15 @@ export function ProductInfo() {
               </div>
             </label>
           </div>
-        </div>
-
-        <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
-          <div className="text-center">
-            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <Button variant="ghost" className="text-orange-500">
-              <Plus className="w-4 h-4 mr-1" />
-              Thêm 1 sản phẩm
-            </Button>
+          <div className="pt-5">
+            <label className="block text-sm font-medium mb-2 justify-start flex">
+              Ghi chú
+            </label>
+            <Textarea
+              id="notes"
+              placeholder="Nhập ghi chú"
+              className="min-h-[120px] border-gray-300 focus:border-orange-500"
+            />
           </div>
         </div>
       </div>

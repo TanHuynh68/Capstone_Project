@@ -94,12 +94,14 @@ export interface ProgressImage {
 
 export interface ProgressStepApproval {
   progressStepApprovalID: string
+  totalScore: number
+  isPass: boolean
   qualityScore: number
   isDesignAccurate: boolean
   isMaterialCorrect: boolean
   isColorCorrect: boolean
   isFunctionalityMet: boolean
-  customerComment?: string
+  customerComment: string
   createdAt: string
 
   // Navigation properties

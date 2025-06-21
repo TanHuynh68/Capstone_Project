@@ -36,7 +36,7 @@ export default function PostCustomerContent({
         </div>
       </div>
 
-      {/* Hình ảnh gốc */}
+      {/* Hình ảnh gốc */} 
       {post.originalImages && post.originalImages.length > 0 && (
         <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6">
           <ImageGallery images={post.originalImages} title="Hình ảnh gốc" />
