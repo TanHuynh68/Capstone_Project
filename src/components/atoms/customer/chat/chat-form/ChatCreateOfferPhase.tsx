@@ -22,6 +22,7 @@ import OfferService from "@/services/OfferService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { useState } from "react";
+import { formatDateToSubmit } from "@/components/utils";
 
 interface ChatCreateOfferPhaseProps {
   offerID: string;
@@ -61,12 +62,14 @@ const ChatCreateOfferPhase = ({
     console.log("onSubmit: ", {
       ...values,
       offerID: offerID,
-      startDate: formatDateToISOString(startDate),
-      endDate: formatDateToISOString(endDate)
+      startDate: formatDateToSubmit(startDate+''),
+      endDate: formatDateToSubmit(endDate+'')
     });
     const response = await createOfferPhase({
       ...values,
       offerID: offerID,
+       startDate: formatDateToSubmit(startDate+''),
+      endDate: formatDateToSubmit(endDate+'')
     });
     console.log('createOfferPhase: ', response)
     if (response) {

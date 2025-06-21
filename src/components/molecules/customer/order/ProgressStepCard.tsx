@@ -4,7 +4,7 @@ import type { ProgressStep } from "@/types/orderManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle, Clock, Star, X, Eye } from "lucide-react";
+import { Calendar, CheckCircle, Clock, X, Eye } from "lucide-react";
 
 interface ProgressStepCardProps {
   step: ProgressStep;
@@ -14,7 +14,6 @@ interface ProgressStepCardProps {
 
 export default function ProgressStepCard({
   step,
-  onEvaluate,
   onViewEvaluationDetail,
 }: ProgressStepCardProps) {
   const getStepTypeConfig = (type: string) => {
@@ -161,18 +160,7 @@ export default function ProgressStepCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-4 border-t space-y-2">
-          {/* Evaluation Button */}
-          <Button
-            onClick={onEvaluate}
-            className="w-full"
-            variant="outline"
-            disabled={step.isApprovedByCustomer !== null}
-          >
-            <Star className="h-4 w-4 mr-2" />
-            {step.isApprovedByCustomer === null ? "Đánh giá" : "Đã đánh giá"}
-          </Button>
-
+        <div className="pt-4 border-t space-y-2 mb-4">
           {/* View Evaluation Detail Button */}
           {hasEvaluation && onViewEvaluationDetail && (
             <Button

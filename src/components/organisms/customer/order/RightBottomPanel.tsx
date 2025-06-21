@@ -152,7 +152,7 @@ export default function RightBottomPanel({
           </div>
         ) : (
           // Layout bình thường
-          <>
+          <div className="h-[415px]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Tiến độ thực hiện</h3>
               {progressSteps.length > 0 && <span className="text-sm text-gray-500">{progressSteps.length} bước</span>}
@@ -205,7 +205,7 @@ export default function RightBottomPanel({
                 </div>
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
 

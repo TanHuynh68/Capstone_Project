@@ -4,14 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Offer } from "@/types/orderManagement";
 import { formatCurrencyVND } from "@/components/utils";
-import { DollarSign, Calendar, FileText } from "lucide-react";
+import { DollarSign, Calendar, Image } from "lucide-react";
+import SingleImageGallery from "@/components/atoms/custom/image/SingleImageGallery";
 
 interface OfferInfoCardProps {
   offer: Offer;
 }
 
 export default function OfferInfoCard({ offer }: OfferInfoCardProps) {
-  console.log('Offer: ', offer)
+  console.log("Offer: ", offer);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       day: "2-digit",
@@ -52,47 +53,34 @@ export default function OfferInfoCard({ offer }: OfferInfoCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-         <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Giá cuối cùng:</span>
-            <span className="text-sm font-semibold text-green-600">
-              {formatCurrencyVND(offer.finalPrice)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Tiền cọc:</span>
-            <span className="text-sm font-medium text-blue-600">
-              {formatCurrencyVND(offer.designerDepositPrice)}
-            </span>
-          </div>
-       <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Ngày tạo:</span>
-            <span className="text-sm">{formatDate(offer.createdAt)}</span>
-          </div>
-
-        {offer.note && (
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ghi chú:</span>
-            </div>
-            <p className="text-sm bg-gray-50 p-2 rounded">{offer.note}</p>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-gray-500" />
+          <span className="text-sm text-gray-600">Giá cuối cùng:</span>
+          <span className="text-sm font-semibold text-green-600">
+            {formatCurrencyVND(offer.finalPrice)}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-gray-500" />
+          <span className="text-sm text-gray-600">Tiền cọc:</span>
+          <span className="text-sm font-medium text-blue-600">
+            {formatCurrencyVND(offer.designerDepositPrice)}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-gray-500" />
+          <span className="text-sm text-gray-600">Ngày tạo:</span>
+          <span className="text-sm">{formatDate(offer.createdAt)}</span>
+        </div>
 
         {offer.sampleImage && (
-          <div className="space-y-2">
-            <span className="text-sm text-gray-600">Hình ảnh mẫu:</span>
-            <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-              <img
-                src={offer.sampleImage || "/placeholder.svg"}
-                alt="Sample"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+          <SingleImageGallery
+            imageUrl={offer.sampleImage}
+            title={<div className="flex items-center gap-2">
+               <Image className="h-4 w-4 text-gray-500" />
+              <div className="text-sm text-gray-600">Hình ảnh mẫu:</div>
+            </div>}
+          />
         )}
       </CardContent>
     </Card>
