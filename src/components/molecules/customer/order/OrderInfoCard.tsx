@@ -15,7 +15,6 @@ import {
   User,
   Calendar,
   DollarSign,
-  FileText,
   LockKeyhole,
 } from "lucide-react";
 import { formatCurrencyVND } from "@/components/utils";
@@ -120,15 +119,6 @@ export default function OrderInfoCard({
           </span>
         </div>
 
-        {order.note && (
-          <div className="space-y-">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ghi chú:</span>
-            </div>
-            <p className="text-sm bg-gray-50 p-2 rounded">{order.note}</p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
