@@ -59,8 +59,8 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[505px] p-0">
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b">
+      <PopoverContent className="w-[530px] p-0">
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b ">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-lg text-gray-900">
@@ -92,12 +92,12 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 ">
                 {deposits.map((deposit) => {
                   return (
                     <div
                       key={deposit.orderDepositID}
-                      className="group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 hover:border-gray-300"
+                      className="group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
                     >
                       {/* Main content */}
                       <div className="pr-20">
@@ -107,9 +107,9 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h5 className="font-semibold text-gray-900 truncate">
-                              {deposit.title}
-                            </h5>
+                            <div className="font-semibold text-gray-900 truncate">
+                              Đặt cọc {formatCurrencyVND(deposit.amount)} cho đơn hàng #{deposit.orderID.slice(0,8)}
+                            </div>
                             <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                               {deposit.orderTitle}
                             </p>
