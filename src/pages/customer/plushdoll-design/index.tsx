@@ -307,96 +307,84 @@ const PlushDollDesign: React.FC = () => {
     setIsCropping(true);
     setOriginalImage(imageObj);
 
-    imageObj.clone((cloned: fabric.Image) => {
-      if (!canvasRef.current) return;
-      cloned.set({
-        selectable: false,
-        evented: false,
-        absolutePositioned: true,
-      });
+    const s = imageObj.cropX || 0;
+    const o = imageObj.cropY || 0;
+    const c = imageObj.width || imageObj.getScaledWidth();
+    const l = imageObj.height || imageObj.getScaledHeight();
 
-      imageObj.set({ opacity: 0.5, selectable: false });
+    imageObj.set({
+      cropX: null,
+      cropY: null,
+      left: (imageObj.left || 0) - s * (imageObj.scaleX || 1),
+      top: (imageObj.top || 0) - o * (imageObj.scaleY || 1),
+      width:
+        (imageObj as fabric.Image & { _originalElement?: HTMLImageElement })
+          ._originalElement?.naturalWidth || c,
+      height:
+        (imageObj as fabric.Image & { _originalElement?: HTMLImageElement })
+          ._originalElement?.naturalHeight || l,
+      dirty: false,
+      selectable: false,
+      opacity: 1,
+    });
 
-      const cropRectObj = new fabric.Rect({
-        top: imageObj.top,
-        left: imageObj.left,
-        angle: imageObj.angle,
-        width: imageObj.getScaledWidth(),
-        height: imageObj.getScaledHeight(),
-        stroke: "rgb(42, 67, 101)",
-        strokeWidth: 2,
-        strokeDashArray: [5, 5],
-        fill: "transparent",
-        lockRotation: true,
-        selectable: true,
-      });
+    const overlay = new fabric.Rect({
+      id: "overlay-rect",
+      top: imageObj.top,
+      left: imageObj.left,
+      angle: imageObj.angle,
+      width: (imageObj.width ?? 0) * (imageObj.scaleX || 1),
+      height: (imageObj.height ?? 0) * (imageObj.scaleY || 1),
+      selectable: false,
+      fill: "rgba(0, 0, 0, 0.5)",
+      lockRotation: true,
+    });
 
-      cloned.clipPath = cropRectObj;
+    const cropRect = new fabric.Rect({
+      id: "crop-rect",
+      top: imageObj.top! + s * (imageObj.scaleY || 1),
+      left: imageObj.left! + o * (imageObj.scaleX || 1),
+      angle: imageObj.angle,
+      width: c * (imageObj.scaleX || 1),
+      height: l * (imageObj.scaleY || 1),
+      stroke: "rgb(42, 67, 101)",
+      strokeWidth: 2,
+      strokeDashArray: [5, 5],
+      fill: "rgba(255, 255, 255, 1)",
+      globalCompositeOperation: "overlay",
+      lockRotation: true,
+      selectable: true,
+    });
 
-      canvasRef.current.add(cloned);
-      canvasRef.current.add(cropRectObj);
-      canvasRef.current.setActiveObject(cropRectObj);
-      setClonedImage(cloned);
+    canvasRef.current.add(overlay);
+    canvasRef.current.add(cropRect);
+    canvasRef.current.setActiveObject(cropRect);
 
-      cloned.setCoords(); // Recalculate coordinates after setting clip path
-      canvasRef.current.renderAll();
+    cropRect.on("moving", () => {
+      const bounds = imageObj.getBoundingRect();
+      const rectBounds = cropRect.getBoundingRect();
 
-      const updateClip = () => {
-        const image = originalImage;
-        if (!image) return;
+      if (rectBounds.left < bounds.left) cropRect.left = bounds.left;
+      if (rectBounds.top < bounds.top) cropRect.top = bounds.top;
+      if (rectBounds.left + rectBounds.width > bounds.left + bounds.width)
+        cropRect.left = bounds.left + bounds.width - rectBounds.width;
+      if (rectBounds.top + rectBounds.height > bounds.top + bounds.height)
+        cropRect.top = bounds.top + bounds.height - rectBounds.height;
 
-        // Boundary checks
-        if (
-          (cropRectObj.top || 0) < (image.top || 0) ||
-          (cropRectObj.left || 0) < (image.left || 0)
-        ) {
-          cropRectObj.left =
-            (cropRectObj.left || 0) < (image.left || 0)
-              ? image.left
-              : cropRectObj.left;
-          cropRectObj.top =
-            (cropRectObj.top || 0) < (image.top || 0)
-              ? image.top
-              : cropRectObj.top;
-        }
+      canvasRef.current?.renderAll();
+    });
 
-        const maxRight = (image.left || 0) + image.getScaledWidth();
-        const maxBottom = (image.top || 0) + image.getScaledHeight();
-        const currentRight =
-          (cropRectObj.left || 0) + cropRectObj.getScaledWidth();
-        const currentBottom =
-          (cropRectObj.top || 0) + cropRectObj.getScaledHeight();
-
-        if (currentRight > maxRight) {
-          cropRectObj.left = maxRight - cropRectObj.getScaledWidth();
-        }
-        if (currentBottom > maxBottom) {
-          cropRectObj.top = maxBottom - cropRectObj.getScaledHeight();
-        }
-
-        cloned.setCoords();
-        canvasRef.current?.renderAll();
-      };
-
-      cropRectObj.on("moving", updateClip);
-      cropRectObj.on("scaling", updateClip);
-
-      cropRectObj.on("deselected", () => {
-        cropImage(cropRectObj, imageObj);
-      });
+    cropRect.on("deselected", () => {
+      cropImage(cropRect, imageObj);
+      canvasRef.current?.remove(overlay);
     });
   };
 
   const cropImage = (cropRectObj: fabric.Rect, imageObj: fabric.Image) => {
     if (!canvasRef.current) return;
 
-    // Restore original image opacity and selectability
-    imageObj.set({ opacity: 1, selectable: true });
-
-    // Remove crop rectangle
     canvasRef.current.remove(cropRectObj);
 
-    // Calculate crop values
     const cropX =
       ((cropRectObj.left || 0) - (imageObj.left || 0)) / (imageObj.scaleX || 1);
     const cropY =
@@ -408,10 +396,9 @@ const PlushDollDesign: React.FC = () => {
       ((cropRectObj.height || 0) * (cropRectObj.scaleY || 1)) /
       (imageObj.scaleY || 1);
 
-    // Apply crop to image
     imageObj.set({
-      cropX: cropX,
-      cropY: cropY,
+      cropX,
+      cropY,
       width: cropWidth,
       height: cropHeight,
       top: (imageObj.top || 0) + cropY * (imageObj.scaleY || 1),
@@ -419,12 +406,6 @@ const PlushDollDesign: React.FC = () => {
       selectable: true,
     });
 
-    // Remove the cloned image
-    if (clonedImage) {
-      canvasRef.current.remove(clonedImage);
-    }
-
-    // Reset state
     setIsCropping(false);
     setClonedImage(null);
     setOriginalImage(null);
