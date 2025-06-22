@@ -59,6 +59,7 @@ import BackgroundColorPanel from "./BackgroundColorPanel";
 
 import LogoCanvas from "@/components/atoms/custom/logo/LogoCanvas";
 import DrawingToolPanel from "./DrawingToolPanel";
+import ImageFilterPanel from "./ImageFilterPanel";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -231,6 +232,51 @@ const PlushDollDesign: React.FC = () => {
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [replacementColor, setReplacementColor] = useState("#00ff00");
   const [colorTolerance, setColorTolerance] = useState(30);
+
+  // Add image filter state
+  const [isFilterEnabled, setIsFilterEnabled] = useState(false);
+  const [filterValues, setFilterValues] = useState({
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    vibrance: 0,
+    noise: 0,
+    pixelate: 4,
+    blur: 0,
+    gamma: [1, 1, 1],
+    hue: 0,
+    removeColorDistance: 0.1,
+    removeColorColor: "#ffffff",
+    blendColor: "#ffffff",
+    blendMode: "multiply",
+    blendAlpha: 0.5,
+    grayscaleMode: "average",
+  });
+
+  const [activeFilters, setActiveFilters] = useState({
+    grayscale: false,
+    invert: false,
+    removeColor: false,
+    sepia: false,
+    brownie: false,
+    brightness: false,
+    contrast: false,
+    saturation: false,
+    vibrance: false,
+    noise: false,
+    vintage: false,
+    pixelate: false,
+    blur: false,
+    sharpen: false,
+    emboss: false,
+    technicolor: false,
+    polaroid: false,
+    blendColor: false,
+    gamma: false,
+    kodachrome: false,
+    blackwhite: false,
+    hue: false,
+  });
 
   // Tabs for right sidebar
   const [rightSidebarTab, setRightSidebarTab] = useState<"adjust" | "layers">(
@@ -534,6 +580,86 @@ const PlushDollDesign: React.FC = () => {
     const deltaB = Math.abs(b - target.b);
 
     return deltaR <= tolerance && deltaG <= tolerance && deltaB <= tolerance;
+  };
+
+  // Image filter functions
+  const applyFilter = (
+    filterIndex: number,
+    filter: fabric.IBaseFilter | null
+  ) => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    if (!imageObj.filters) {
+      imageObj.filters = [];
+    }
+
+    if (filter) {
+      imageObj.filters[filterIndex] = filter;
+    } else {
+      // Remove the filter at this index
+      imageObj.filters.splice(filterIndex, 1);
+    }
+    imageObj.applyFilters();
+    canvasRef.current?.renderAll();
+    saveState();
+  };
+
+  const applyFilterValue = (
+    filterIndex: number,
+    prop: string,
+    value: string | number | number[]
+  ) => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    if (imageObj.filters?.[filterIndex]) {
+      (imageObj.filters[filterIndex] as unknown as Record<string, unknown>)[
+        prop
+      ] = value;
+      imageObj.applyFilters();
+      canvasRef.current?.renderAll();
+      saveState();
+    }
+  };
+
+  const clearAllFilters = () => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    imageObj.filters = [];
+    imageObj.applyFilters();
+    canvasRef.current?.renderAll();
+    saveState();
+
+    // Reset all filter states
+    setActiveFilters({
+      grayscale: false,
+      invert: false,
+      removeColor: false,
+      sepia: false,
+      brownie: false,
+      brightness: false,
+      contrast: false,
+      saturation: false,
+      vibrance: false,
+      noise: false,
+      vintage: false,
+      pixelate: false,
+      blur: false,
+      sharpen: false,
+      emboss: false,
+      technicolor: false,
+      polaroid: false,
+      blendColor: false,
+      gamma: false,
+      kodachrome: false,
+      blackwhite: false,
+      hue: false,
+    });
   };
 
   const handleDoubleClick = (e: fabric.IEvent) => {
@@ -1492,15 +1618,19 @@ const PlushDollDesign: React.FC = () => {
   const uploadImage = (file: File) => {
     const reader = new FileReader();
     reader.onload = (f) => {
-      fabric.Image.fromURL(f.target?.result as string, (img) => {
-        img.scaleToWidth(200);
-        img.scaleToHeight(200);
-        img.set({ left: 100, top: 100, selectable: true });
-        canvasRef.current?.add(img);
-        canvasRef.current?.setActiveObject(img);
-        canvasRef.current?.bringToFront(img);
-        saveState();
-      });
+      fabric.Image.fromURL(
+        f.target?.result as string,
+        (img) => {
+          img.scaleToWidth(200);
+          img.scaleToHeight(200);
+          img.set({ left: 100, top: 100, selectable: true });
+          canvasRef.current?.add(img);
+          canvasRef.current?.setActiveObject(img);
+          canvasRef.current?.bringToFront(img);
+          saveState();
+        },
+        { crossOrigin: "anonymous" }
+      );
     };
     reader.readAsDataURL(file);
   };
@@ -1764,34 +1894,38 @@ const PlushDollDesign: React.FC = () => {
 
     // Handle image URL
     const imageUrl = data as string;
-    fabric.Image.fromURL(imageUrl, (img: fabric.Image) => {
-      // Set initial size - smaller default size
-      const maxSize = 200; // Reduced from 200 to 150
-      const aspectRatio = img.width! / img.height!;
+    fabric.Image.fromURL(
+      imageUrl,
+      (img: fabric.Image) => {
+        // Set initial size - smaller default size
+        const maxSize = 200; // Reduced from 200 to 150
+        const aspectRatio = img.width! / img.height!;
 
-      if (aspectRatio > 1) {
-        img.scaleToWidth(maxSize);
-      } else {
-        img.scaleToHeight(maxSize);
-      }
+        if (aspectRatio > 1) {
+          img.scaleToWidth(maxSize);
+        } else {
+          img.scaleToHeight(maxSize);
+        }
 
-      // Place at center of canvas
-      const centerX = canvasRef.current!.width! / 2;
-      const centerY = canvasRef.current!.height! / 2;
+        // Place at center of canvas
+        const centerX = canvasRef.current!.width! / 2;
+        const centerY = canvasRef.current!.height! / 2;
 
-      img.set({
-        left: centerX,
-        top: centerY,
-        selectable: true,
-        originX: "center",
-        originY: "center",
-      });
+        img.set({
+          left: centerX,
+          top: centerY,
+          selectable: true,
+          originX: "center",
+          originY: "center",
+        });
 
-      canvasRef.current?.add(img);
-      canvasRef.current?.setActiveObject(img);
-      canvasRef.current?.bringToFront(img);
-      saveState();
-    });
+        canvasRef.current?.add(img);
+        canvasRef.current?.setActiveObject(img);
+        canvasRef.current?.bringToFront(img);
+        saveState();
+      },
+      { crossOrigin: "anonymous" }
+    );
   };
 
   // Update drag and drop handlers for canvas
@@ -1862,35 +1996,39 @@ const PlushDollDesign: React.FC = () => {
       }
 
       // Handle as image URL
-      fabric.Image.fromURL(data, (img: fabric.Image) => {
-        // Set initial size
-        const maxSize = 200;
-        const aspectRatio = img.width! / img.height!;
+      fabric.Image.fromURL(
+        data,
+        (img: fabric.Image) => {
+          // Set initial size
+          const maxSize = 200;
+          const aspectRatio = img.width! / img.height!;
 
-        if (aspectRatio > 1) {
-          img.scaleToWidth(maxSize);
-        } else {
-          img.scaleToHeight(maxSize);
-        }
+          if (aspectRatio > 1) {
+            img.scaleToWidth(maxSize);
+          } else {
+            img.scaleToHeight(maxSize);
+          }
 
-        // Calculate image dimensions after scaling
-        const scaledWidth = img.width! * img.scaleX!;
-        const scaledHeight = img.height! * img.scaleY!;
+          // Calculate image dimensions after scaling
+          const scaledWidth = img.width! * img.scaleX!;
+          const scaledHeight = img.height! * img.scaleY!;
 
-        // Place image center at cursor position
-        img.set({
-          left: canvasX - scaledWidth / 2,
-          top: canvasY - scaledHeight / 2,
-          selectable: true,
-          originX: "left",
-          originY: "top",
-        });
+          // Place image center at cursor position
+          img.set({
+            left: canvasX - scaledWidth / 2,
+            top: canvasY - scaledHeight / 2,
+            selectable: true,
+            originX: "left",
+            originY: "top",
+          });
 
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.requestRenderAll();
-        saveState();
-      });
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.requestRenderAll();
+          saveState();
+        },
+        { crossOrigin: "anonymous" }
+      );
     };
 
     // Add event listeners to canvas wrapper instead of canvas element
@@ -3472,7 +3610,7 @@ const PlushDollDesign: React.FC = () => {
                               "rect",
                               "circle",
                               "ellipse",
-                            ].includes(obj.type));
+                            ].includes(obj.type || ""));
                         if (!isShape) return null;
                         return (
                           <div className="space-y-2">
@@ -3769,6 +3907,21 @@ const PlushDollDesign: React.FC = () => {
                         </Button>
                       </div>
                     </div>
+                  )}
+
+                  {/* Image Filters */}
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <ImageFilterPanel
+                      isFilterEnabled={isFilterEnabled}
+                      setIsFilterEnabled={setIsFilterEnabled}
+                      filterValues={filterValues}
+                      setFilterValues={setFilterValues}
+                      activeFilters={activeFilters}
+                      setActiveFilters={setActiveFilters}
+                      applyFilter={applyFilter}
+                      applyFilterValue={applyFilterValue}
+                      clearAllFilters={clearAllFilters}
+                    />
                   )}
                 </div>
               ) : (
