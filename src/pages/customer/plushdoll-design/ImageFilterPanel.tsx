@@ -274,7 +274,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
           </div>
           <div>
             <Label className="text-xs font-medium text-muted-foreground">
-              Ma trận:
+              Bộ lọc:
             </Label>
             <div className="grid grid-cols-2 gap-1 mt-1">
               <Button
@@ -283,7 +283,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                 className="text-xs"
                 onClick={() => handleSimpleFilterToggle("sepia", 3, F.Sepia)}
               >
-                Sepia
+                Nâu đỏ
               </Button>
               <Button
                 variant={activeFilters.blackwhite ? "default" : "outline"}
@@ -303,7 +303,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                   handleSimpleFilterToggle("brownie", 4, F.Brownie)
                 }
               >
-                Brownie
+                Nâu ấm
               </Button>
               <Button
                 variant={activeFilters.vintage ? "default" : "outline"}
@@ -323,7 +323,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                   handleSimpleFilterToggle("technicolor", 14, F.Technicolor)
                 }
               >
-                Technicolor
+                Phim màu
               </Button>
               <Button
                 variant={activeFilters.kodachrome ? "default" : "outline"}
@@ -333,7 +333,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                   handleSimpleFilterToggle("kodachrome", 18, F.Kodachrome)
                 }
               >
-                Kodachrome
+                Máy ảnh
               </Button>
               <Button
                 variant={activeFilters.polaroid ? "default" : "outline"}
@@ -343,7 +343,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                   handleSimpleFilterToggle("polaroid", 15, F.Polaroid)
                 }
               >
-                Polaroid
+                Phân cực
               </Button>
               <Button
                 variant={activeFilters.emboss ? "default" : "outline"}
@@ -355,7 +355,7 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                   })
                 }
               >
-                Nổi bật
+                Chạm nổi
               </Button>
             </div>
           </div>
@@ -453,6 +453,267 @@ const ImageFilterPanel: React.FC<ImageFilterPanelProps> = ({
                 0.01,
                 2
               )}
+
+              {/* Gamma sliders for RGB */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-muted-foreground">
+                    Gamma Đỏ:
+                  </label>
+                  <span className="text-xs font-medium">
+                    {Number(filterValues.gamma[0]).toFixed(2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="3"
+                  step="0.01"
+                  value={filterValues.gamma[0]}
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value);
+                    const newGamma = [...filterValues.gamma];
+                    newGamma[0] = numValue;
+                    setFilterValues({ ...filterValues, gamma: newGamma });
+                    if (activeFilters.gamma) {
+                      applyFilterValue(16, "gamma", newGamma);
+                    }
+                  }}
+                  onPointerDown={() => {
+                    if (!activeFilters.gamma) {
+                      setActiveFilters({ ...activeFilters, gamma: true });
+                      const newGamma = [...filterValues.gamma];
+                      newGamma[0] = filterValues.gamma[0];
+                      applyFilter(16, new F.Gamma({ gamma: newGamma }));
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  disabled={!isFilterEnabled}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-muted-foreground">
+                    Gamma Xanh lá:
+                  </label>
+                  <span className="text-xs font-medium">
+                    {Number(filterValues.gamma[1]).toFixed(2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="3"
+                  step="0.01"
+                  value={filterValues.gamma[1]}
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value);
+                    const newGamma = [...filterValues.gamma];
+                    newGamma[1] = numValue;
+                    setFilterValues({ ...filterValues, gamma: newGamma });
+                    if (activeFilters.gamma) {
+                      applyFilterValue(16, "gamma", newGamma);
+                    }
+                  }}
+                  onPointerDown={() => {
+                    if (!activeFilters.gamma) {
+                      setActiveFilters({ ...activeFilters, gamma: true });
+                      const newGamma = [...filterValues.gamma];
+                      newGamma[1] = filterValues.gamma[1];
+                      applyFilter(16, new F.Gamma({ gamma: newGamma }));
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  disabled={!isFilterEnabled}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-muted-foreground">
+                    Gamma Xanh dương:
+                  </label>
+                  <span className="text-xs font-medium">
+                    {Number(filterValues.gamma[2]).toFixed(2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="3"
+                  step="0.01"
+                  value={filterValues.gamma[2]}
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value);
+                    const newGamma = [...filterValues.gamma];
+                    newGamma[2] = numValue;
+                    setFilterValues({ ...filterValues, gamma: newGamma });
+                    if (activeFilters.gamma) {
+                      applyFilterValue(16, "gamma", newGamma);
+                    }
+                  }}
+                  onPointerDown={() => {
+                    if (!activeFilters.gamma) {
+                      setActiveFilters({ ...activeFilters, gamma: true });
+                      const newGamma = [...filterValues.gamma];
+                      newGamma[2] = filterValues.gamma[2];
+                      applyFilter(16, new F.Gamma({ gamma: newGamma }));
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  disabled={!isFilterEnabled}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Blend Color Controls */}
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">
+              Pha trộn màu:
+            </Label>
+            <div className="space-y-2 mt-1">
+              {/* Color Picker */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-muted-foreground">
+                    Màu pha trộn:
+                  </label>
+                  <span className="text-xs font-medium">
+                    {filterValues.blendColor}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={filterValues.blendColor}
+                    onChange={(e) => {
+                      const newColor = e.target.value;
+                      setFilterValues({
+                        ...filterValues,
+                        blendColor: newColor,
+                      });
+                      if (activeFilters.blendColor) {
+                        applyFilterValue(17, "color", newColor);
+                      }
+                    }}
+                    className="w-12 h-8 p-0 border rounded"
+                  />
+                  <input
+                    type="text"
+                    value={filterValues.blendColor}
+                    onChange={(e) => {
+                      const newColor = e.target.value;
+                      setFilterValues({
+                        ...filterValues,
+                        blendColor: newColor,
+                      });
+                      if (activeFilters.blendColor) {
+                        applyFilterValue(17, "color", newColor);
+                      }
+                    }}
+                    className="flex-1 h-8 px-2 text-xs border rounded"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
+
+              {/* Blend Mode Selector */}
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  Chế độ pha trộn:
+                </label>
+                <select
+                  value={filterValues.blendMode}
+                  onChange={(e) => {
+                    const newMode = e.target.value;
+                    setFilterValues({ ...filterValues, blendMode: newMode });
+                    if (activeFilters.blendColor) {
+                      applyFilterValue(17, "mode", newMode);
+                    }
+                  }}
+                  className="w-full h-8 px-2 text-xs border rounded bg-background"
+                  disabled={!isFilterEnabled}
+                >
+                  <option value="add">Cộng</option>
+                  <option value="diff">Khác biệt</option>
+                  <option value="subtract">Trừ</option>
+                  <option value="multiply">Nhân</option>
+                  <option value="screen">Sàng lọc</option>
+                  <option value="lighten">Sáng hơn</option>
+                  <option value="darken">Tối hơn</option>
+                  <option value="exclusion">Loại trừ</option>
+                </select>
+              </div>
+
+              {/* Alpha Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs text-muted-foreground">
+                    Độ trong suốt:
+                  </label>
+                  <span className="text-xs font-medium">
+                    {Number(filterValues.blendAlpha).toFixed(2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={filterValues.blendAlpha}
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value);
+                    setFilterValues({ ...filterValues, blendAlpha: numValue });
+                    if (activeFilters.blendColor) {
+                      applyFilterValue(17, "alpha", numValue);
+                    }
+                  }}
+                  onPointerDown={() => {
+                    if (!activeFilters.blendColor) {
+                      setActiveFilters({ ...activeFilters, blendColor: true });
+                      applyFilter(
+                        17,
+                        new F.BlendColor({
+                          color: filterValues.blendColor,
+                          mode: filterValues.blendMode,
+                          alpha: filterValues.blendAlpha,
+                        })
+                      );
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  disabled={!isFilterEnabled}
+                />
+              </div>
+
+              {/* Blend Color Toggle Button */}
+              <Button
+                variant={activeFilters.blendColor ? "default" : "outline"}
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => {
+                  const newValue = !activeFilters.blendColor;
+                  setActiveFilters({ ...activeFilters, blendColor: newValue });
+                  if (newValue) {
+                    applyFilter(
+                      17,
+                      new F.BlendColor({
+                        color: filterValues.blendColor,
+                        mode: filterValues.blendMode,
+                        alpha: filterValues.blendAlpha,
+                      })
+                    );
+                  } else {
+                    applyFilter(17, null);
+                  }
+                }}
+              >
+                {activeFilters.blendColor
+                  ? "Tắt Pha trộn màu"
+                  : "Bật Pha trộn màu"}
+              </Button>
             </div>
           </div>
         </div>

@@ -53,6 +53,7 @@ import { convertToPixels } from "@/components/utils/convert";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
 import { useLocation } from "react-router-dom";
 import BackgroundColorPanel from "./BackgroundColorPanel";
+import { Switch } from "@/components/ui/switch";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -232,6 +233,8 @@ const PlushDollDesign: React.FC = () => {
   const [targetColor, setTargetColor] = useState("#ff0000");
   const [replacementColor, setReplacementColor] = useState("#00ff00");
   const [colorTolerance, setColorTolerance] = useState(30);
+  const [isColorReplacementEnabled, setIsColorReplacementEnabled] =
+    useState(false);
 
   // Add image filter state
   const [isFilterEnabled, setIsFilterEnabled] = useState(false);
@@ -466,13 +469,16 @@ const PlushDollDesign: React.FC = () => {
       return;
     }
 
-    const imageObj = activeObject as fabric.Image;
+    const imageObj = activeObject as fabric.Image & { originalSrc?: string };
     const imgElement = imageObj.getElement() as HTMLImageElement;
 
     if (!imgElement) {
       toast.error("Không thể truy cập dữ liệu hình ảnh");
       return;
     }
+
+    // IMPORTANT: Preserve the very first source URL.
+    const originalSrcToPreserve = imageObj.originalSrc || imageObj.getSrc();
 
     // Create a temporary canvas to process the image
     const tempCanvas = document.createElement("canvas");
@@ -530,6 +536,10 @@ const PlushDollDesign: React.FC = () => {
     // Create new fabric image from modified canvas
     fabric.Image.fromURL(tempCanvas.toDataURL(), (newImg) => {
       if (!canvasRef.current) return;
+
+      // Set the originalSrc on the new image object
+      (newImg as fabric.Image & { originalSrc?: string }).originalSrc =
+        originalSrcToPreserve;
 
       // Copy properties from original image
       newImg.set({
@@ -768,6 +778,31 @@ const PlushDollDesign: React.FC = () => {
 
       saveInitialState();
 
+      const resetImageAdjustments = () => {
+        setIsFilterEnabled(false);
+        setFilterValues({
+          brightness: 0,
+          contrast: 0,
+          saturation: 0,
+          vibrance: 0,
+          noise: 0,
+          pixelate: 4,
+          blur: 0,
+          gamma: [1, 1, 1],
+          hue: 0,
+          removeColorDistance: 0.1,
+          removeColorColor: "#ffffff",
+          blendColor: "#ffffff",
+          blendMode: "multiply",
+          blendAlpha: 0.5,
+          grayscaleMode: "average",
+        });
+        setIsColorReplacementEnabled(false);
+        setTargetColor("#ff0000");
+        setReplacementColor("#00ff00");
+        setColorTolerance(30);
+      };
+
       // Selection events for smart toolbar
       canvas.on("selection:created", (e) => {
         if (e.selected && e.selected.length > 0) {
@@ -788,6 +823,7 @@ const PlushDollDesign: React.FC = () => {
 
       canvas.on("selection:updated", (e) => {
         if (e.selected && e.selected.length > 0) {
+          resetImageAdjustments(); // Reset on new selection
           if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
             // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
             setToolbarVisible(true);
@@ -806,6 +842,7 @@ const PlushDollDesign: React.FC = () => {
       canvas.on("selection:cleared", () => {
         setToolbarVisible(false);
         setActiveText(null);
+        resetImageAdjustments(); // Reset when nothing is selected
       });
 
       canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
@@ -2695,6 +2732,56 @@ const PlushDollDesign: React.FC = () => {
     }
   }, [selectedObjectProperties, propertyUnit]);
 
+  // Reset image adjustment panels when selection changes
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const resetImageAdjustments = () => {
+      // Reset Image Filters UI and state
+      setIsFilterEnabled(false);
+      setFilterValues({
+        brightness: 0,
+        contrast: 0,
+        saturation: 0,
+        vibrance: 0,
+        noise: 0,
+        pixelate: 4,
+        blur: 0,
+        gamma: [1, 1, 1],
+        hue: 0,
+        removeColorDistance: 0.1,
+        removeColorColor: "#ffffff",
+        blendColor: "#ffffff",
+        blendMode: "multiply",
+        blendAlpha: 0.5,
+        grayscaleMode: "average",
+      });
+
+      // Reset Color Replacement UI and state
+      setIsColorReplacementEnabled(false);
+      setTargetColor("#ff0000");
+      setReplacementColor("#00ff00");
+      setColorTolerance(30);
+    };
+
+    const handleSelectionChange = () => {
+      // We reset if the selection is cleared, or if the selection is anything other than a single image.
+      // We also reset if it IS an image, to provide a clean slate for the new selection.
+      resetImageAdjustments();
+    };
+
+    const canvas = canvasRef.current;
+    canvas.on("selection:created", handleSelectionChange);
+    canvas.on("selection:updated", handleSelectionChange);
+    canvas.on("selection:cleared", resetImageAdjustments); // Use a simpler handler for cleared
+
+    return () => {
+      canvas.off("selection:created", handleSelectionChange);
+      canvas.off("selection:updated", handleSelectionChange);
+      canvas.off("selection:cleared", resetImageAdjustments);
+    };
+  }, [canvasRef.current]);
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -3830,82 +3917,91 @@ const PlushDollDesign: React.FC = () => {
                   {/* Color Replacement for Images */}
                   {canvasRef.current?.getActiveObject()?.type === "image" && (
                     <div className="space-y-3">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Color Replacement
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Thay thế màu
+                        </div>
+                        <Switch
+                          id="color-replacement-toggle"
+                          checked={isColorReplacementEnabled}
+                          onCheckedChange={setIsColorReplacementEnabled}
+                        />
                       </div>
-                      <div className="space-y-3">
-                        <div className="space-y-2">
-                          <label className="text-xs font-medium text-muted-foreground">
-                            Màu cần thay đổi:
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="color"
-                              value={targetColor}
-                              onChange={(e) => setTargetColor(e.target.value)}
-                              className="w-12 h-8 p-0 border rounded"
-                            />
-                            <Input
-                              type="text"
-                              value={targetColor}
-                              onChange={(e) => setTargetColor(e.target.value)}
-                              className="flex-1"
-                              placeholder="#ff0000"
+                      {isColorReplacementEnabled && (
+                        <div className="space-y-3 pt-3">
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu cần thay đổi:
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={targetColor}
+                                onChange={(e) => setTargetColor(e.target.value)}
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={targetColor}
+                                onChange={(e) => setTargetColor(e.target.value)}
+                                className="flex-1"
+                                placeholder="#ff0000"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu mới:
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={replacementColor}
+                                onChange={(e) =>
+                                  setReplacementColor(e.target.value)
+                                }
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={replacementColor}
+                                onChange={(e) =>
+                                  setReplacementColor(e.target.value)
+                                }
+                                className="flex-1"
+                                placeholder="#00ff00"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Độ chính xác: {colorTolerance}
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={colorTolerance}
+                              onChange={(e) =>
+                                setColorTolerance(Number(e.target.value))
+                              }
+                              className="w-full"
                             />
                           </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          <label className="text-xs font-medium text-muted-foreground">
-                            Màu mới:
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="color"
-                              value={replacementColor}
-                              onChange={(e) =>
-                                setReplacementColor(e.target.value)
-                              }
-                              className="w-12 h-8 p-0 border rounded"
-                            />
-                            <Input
-                              type="text"
-                              value={replacementColor}
-                              onChange={(e) =>
-                                setReplacementColor(e.target.value)
-                              }
-                              className="flex-1"
-                              placeholder="#00ff00"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-xs font-medium text-muted-foreground">
-                            Độ chính xác: {colorTolerance}
-                          </label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={colorTolerance}
-                            onChange={(e) =>
-                              setColorTolerance(Number(e.target.value))
-                            }
+                          <Button
+                            size="sm"
+                            onClick={replaceImageColor}
                             className="w-full"
-                          />
+                            disabled={!canvasRef.current?.getActiveObject()}
+                          >
+                            <Droplets className="w-4 h-4 mr-2" />
+                            Thay đổi màu sắc
+                          </Button>
                         </div>
-
-                        <Button
-                          size="sm"
-                          onClick={replaceImageColor}
-                          className="w-full"
-                          disabled={!canvasRef.current?.getActiveObject()}
-                        >
-                          <Droplets className="w-4 h-4 mr-2" />
-                          Thay đổi màu sắc
-                        </Button>
-                      </div>
+                      )}
                     </div>
                   )}
 
@@ -3922,6 +4018,105 @@ const PlushDollDesign: React.FC = () => {
                       applyFilterValue={applyFilterValue}
                       clearAllFilters={clearAllFilters}
                     />
+                  )}
+
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => {
+                          const activeObject =
+                            canvasRef.current?.getActiveObject();
+
+                          const resetImageState = (
+                            imageToReset: fabric.Image
+                          ) => {
+                            // This function will be called on the correct image object
+                            canvasRef.current?.setActiveObject(imageToReset);
+
+                            // Reset Image Filters
+                            clearAllFilters();
+                            setFilterValues({
+                              brightness: 0,
+                              contrast: 0,
+                              saturation: 0,
+                              vibrance: 0,
+                              noise: 0,
+                              pixelate: 4,
+                              blur: 0,
+                              gamma: [1, 1, 1],
+                              hue: 0,
+                              removeColorDistance: 0.1,
+                              removeColorColor: "#ffffff",
+                              blendColor: "#ffffff",
+                              blendMode: "multiply",
+                              blendAlpha: 0.5,
+                              grayscaleMode: "average",
+                            });
+                            setIsFilterEnabled(false);
+
+                            // Reset Color Replacement UI
+                            setTargetColor("#ff0000");
+                            setReplacementColor("#00ff00");
+                            setColorTolerance(30);
+                            setIsColorReplacementEnabled(false);
+
+                            canvasRef.current?.requestRenderAll();
+                            saveState();
+                          };
+
+                          if (activeObject && activeObject.type === "image") {
+                            const imageObj = activeObject as fabric.Image & {
+                              originalSrc?: string;
+                            };
+                            const originalSrc = imageObj.originalSrc;
+
+                            // If a color replacement has been applied, revert it.
+                            if (
+                              originalSrc &&
+                              imageObj.getSrc() !== originalSrc
+                            ) {
+                              fabric.Image.fromURL(
+                                originalSrc,
+                                (originalImg) => {
+                                  if (!canvasRef.current) return;
+
+                                  originalImg.set({
+                                    left: imageObj.left,
+                                    top: imageObj.top,
+                                    scaleX: imageObj.scaleX,
+                                    scaleY: imageObj.scaleY,
+                                    angle: imageObj.angle,
+                                    flipX: imageObj.flipX,
+                                    flipY: imageObj.flipY,
+                                    selectable: true,
+                                    evented: true,
+                                  });
+
+                                  const canvas = canvasRef.current;
+                                  const index = canvas
+                                    .getObjects()
+                                    .indexOf(imageObj);
+                                  canvas.remove(imageObj);
+                                  canvas.insertAt(originalImg, index, false);
+
+                                  // Now reset filters and UI on the *newly restored* image
+                                  resetImageState(originalImg);
+                                },
+                                { crossOrigin: "anonymous" }
+                              );
+                            } else {
+                              // No color replacement to revert, just reset filters on the current image
+                              resetImageState(imageObj);
+                            }
+                          }
+                        }}
+                      >
+                        Đặt lại tất cả thay đổi
+                      </Button>
+                    </div>
                   )}
                 </div>
               ) : (
