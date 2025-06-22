@@ -16,6 +16,11 @@ import { Badge } from "@/components/ui/badge";
 import { WALLET_TRANSACTION_V_TYPE } from "@/constants";
 import { getTransactionTypeName } from "@/components/utils/helpers/helpers";
 import { formatDayAndTime } from "@/components/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -25,6 +30,7 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="text-center w-full"
         >
           Loại giao dịch
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -36,7 +42,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const label = getTransactionTypeName(type);
 
       return (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <Badge
             variant={
               type === WALLET_TRANSACTION_V_TYPE.Deposit + "" ||
@@ -63,9 +69,9 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="whitespace-nowrap"
+          className="text-center w-full"
         >
-          Số tiền
+          <div className="pl-1">Số tiền</div>
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -73,7 +79,8 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const amount = Number.parseFloat(row.getValue("amount"));
       const type = row.getValue("transactionType");
-      const isPositive = type === "Deposit";
+      const isPositive =
+        type === "Deposit" || type === "Receive" || type === "RefundDeposit";
 
       // Format the amount as currency
       const formatted = new Intl.NumberFormat("vi-VN", {
@@ -82,7 +89,7 @@ export const columns: ColumnDef<Transaction>[] = [
       }).format(amount);
 
       return (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <span className={isPositive ? "text-green-600" : "text-red-600"}>
             {isPositive ? (
               <ArrowUp className="inline mr-1 h-4 w-4" />
@@ -102,7 +109,7 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="whitespace-nowrap"
+          className="text-center w-full"
         >
           Số dư trước
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -118,7 +125,7 @@ export const columns: ColumnDef<Transaction>[] = [
         currency: "VND",
       }).format(beforeBalance);
 
-      return <div>{formatted}</div>;
+      return <div className="text-center">{formatted}</div>;
     },
   },
   {
@@ -128,7 +135,7 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="whitespace-nowrap"
+          className="text-center w-full"
         >
           Số dư sau
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -144,7 +151,7 @@ export const columns: ColumnDef<Transaction>[] = [
         currency: "VND",
       }).format(afterBalance);
 
-      return <div>{formatted}</div>;
+      return <div className="text-center">{formatted}</div>;
     },
   },
   {
@@ -154,7 +161,7 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="whitespace-nowrap"
+          className="text-center w-full"
         >
           Mô tả
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -163,9 +170,18 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className="max-w-[300px] truncate">
-          {row.getValue("description")}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="max-w-[300px] truncate cursor-pointer text-center">
+              {row.getValue("description")}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            <div className="whitespace-pre-wrap">
+              {row.getValue("description")}
+            </div>
+          </TooltipContent>
+        </Tooltip>
       );
     },
   },
@@ -176,7 +192,7 @@ export const columns: ColumnDef<Transaction>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="whitespace-nowrap"
+          className="text-center w-full"
         >
           Ngày giao dịch
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -187,7 +203,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const date = new Date(row.getValue("transactionDate"));
       // Format the date
       const formatDate = formatDayAndTime(date);
-      return <div className="whitespace-nowrap">{formatDate}</div>;
+      return <div className="whitespace-nowrap text-center">{formatDate}</div>;
     },
   },
   {
@@ -195,25 +211,27 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const transaction = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Mở menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(transaction.id)}
-            >
-              Sao chép ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-            <DropdownMenuItem>Tải xuống biên lai</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex flex-col gap-1 items-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Mở menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(transaction.id)}
+              >
+                Sao chép ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+              <DropdownMenuItem>Tải xuống biên lai</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   },

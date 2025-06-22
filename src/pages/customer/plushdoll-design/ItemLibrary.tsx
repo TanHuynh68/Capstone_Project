@@ -1,8 +1,9 @@
 import { useState, DragEvent, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
-import { PawPrint, Fan } from "lucide-react";
+import { PawPrint, Fan, Shapes } from "lucide-react";
 import UnsplashLibrary from "./UnsplashLibrary";
+import ShapesLibrary from "./ShapesLibrary";
 import SidebarSearchBar from "./SidebarSearchBar";
 
 // Update LibraryItem interface
@@ -16,7 +17,7 @@ export interface LibraryItem {
 }
 
 interface ItemLibraryProps {
-  onSelect: (imageUrl: string) => void;
+  onSelect: (data: string | { type: string; svg: string }) => void;
   isOpen: boolean;
   showUnsplash?: boolean;
   onCloseLibrary: () => void;
@@ -115,6 +116,9 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
       null
     );
+    const [activeTab, setActiveTab] = useState<"unsplash" | "shapes">(
+      "unsplash"
+    );
 
     const handleDragStart = (
       e: DragEvent<HTMLDivElement>,
@@ -127,6 +131,14 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
       const img = new Image();
       img.src = imageUrl;
       e.dataTransfer.setDragImage(img, 50, 50);
+    };
+
+    const handleShapeDragStart = (
+      e: DragEvent<HTMLDivElement>,
+      shapeData: { type: string; svg: string }
+    ) => {
+      e.dataTransfer.setData("text/plain", JSON.stringify(shapeData));
+      e.dataTransfer.effectAllowed = "copy";
     };
 
     const handleItemClick = (imageUrl: string) => {
@@ -148,8 +160,8 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
 
     if (!isOpen && !showUnsplash) return null;
 
+    // Nếu showUnsplash được set, hiển thị panel với tab
     if (showUnsplash) {
-      // Nếu là panel Unsplash thì dùng SidebarPanelWrapper cho UnsplashLibrary
       return (
         <SidebarPanelWrapper
           ref={ref}
@@ -158,11 +170,48 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
           title="Thành phần"
           icon={<Fan className="w-5 h-5" />}
         >
-          <UnsplashLibrary
-            onSelect={onSelect}
-            isOpen={showUnsplash}
-            onDragStart={handleDragStart}
-          />
+          {/* Tab Navigation */}
+          <div className="flex border-b border-border mb-4">
+            <button
+              onClick={() => setActiveTab("unsplash")}
+              className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                activeTab === "unsplash"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Fan className="w-4 h-4 inline mr-2" />
+              Unsplash
+            </button>
+            <button
+              onClick={() => setActiveTab("shapes")}
+              className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                activeTab === "shapes"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Shapes className="w-4 h-4 inline mr-2" />
+              Hình dạng
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === "unsplash" && (
+            <UnsplashLibrary
+              onSelect={onSelect}
+              isOpen={true}
+              onDragStart={handleDragStart}
+            />
+          )}
+
+          {activeTab === "shapes" && (
+            <ShapesLibrary
+              onSelect={onSelect}
+              isOpen={true}
+              onDragStart={handleShapeDragStart}
+            />
+          )}
         </SidebarPanelWrapper>
       );
     }
