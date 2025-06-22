@@ -36,6 +36,7 @@ import {
   RotateCw,
   RotateCcw,
   GripVertical,
+  Droplets,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -225,8 +226,16 @@ const PlushDollDesign: React.FC = () => {
 
   // Add cropping state
   const [isCropping, setIsCropping] = useState(false);
-  const [originalImage, setOriginalImage] = useState<fabric.Image | null>(null);
-  const [clonedImage, setClonedImage] = useState<fabric.Image | null>(null);
+
+  // Add color replacement state
+  const [targetColor, setTargetColor] = useState("#ff0000");
+  const [replacementColor, setReplacementColor] = useState("#00ff00");
+  const [colorTolerance, setColorTolerance] = useState(30);
+
+  // Tabs for right sidebar
+  const [rightSidebarTab, setRightSidebarTab] = useState<"adjust" | "layers">(
+    "adjust"
+  );
 
   const handleApplyChanges = () => {
     const activeObject = canvasRef.current?.getActiveObject();
@@ -289,23 +298,11 @@ const PlushDollDesign: React.FC = () => {
     return convertToPixels(value, "mm");
   };
 
-  const rotateBy = (angle: number) => {
-    const activeObject = canvasRef.current?.getActiveObject();
-    if (activeObject) {
-      const currentAngle = activeObject.get("angle") || 0;
-      activeObject.set("angle", currentAngle + angle);
-      activeObject.setCoords();
-      canvasRef.current?.renderAll();
-      saveState();
-    }
-  };
-
   // Add cropping functions
   const prepareCrop = (imageObj: fabric.Image) => {
     if (!canvasRef.current) return;
 
     setIsCropping(true);
-    setOriginalImage(imageObj);
 
     const s = imageObj.cropX || 0;
     const o = imageObj.cropY || 0;
@@ -313,8 +310,8 @@ const PlushDollDesign: React.FC = () => {
     const l = imageObj.height || imageObj.getScaledHeight();
 
     imageObj.set({
-      cropX: null,
-      cropY: null,
+      cropX: 0,
+      cropY: 0,
       left: (imageObj.left || 0) - s * (imageObj.scaleX || 1),
       top: (imageObj.top || 0) - o * (imageObj.scaleY || 1),
       width:
@@ -329,7 +326,7 @@ const PlushDollDesign: React.FC = () => {
     });
 
     const overlay = new fabric.Rect({
-      id: "overlay-rect",
+      name: "overlay-rect",
       top: imageObj.top,
       left: imageObj.left,
       angle: imageObj.angle,
@@ -341,7 +338,7 @@ const PlushDollDesign: React.FC = () => {
     });
 
     const cropRect = new fabric.Rect({
-      id: "crop-rect",
+      name: "crop-rect",
       top: imageObj.top! + s * (imageObj.scaleY || 1),
       left: imageObj.left! + o * (imageObj.scaleX || 1),
       angle: imageObj.angle,
@@ -407,11 +404,133 @@ const PlushDollDesign: React.FC = () => {
     });
 
     setIsCropping(false);
-    setClonedImage(null);
-    setOriginalImage(null);
 
     canvasRef.current.renderAll();
     saveState();
+  };
+
+  // Add color replacement function
+  const replaceImageColor = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || activeObject.type !== "image" || !canvasRef.current) {
+      toast.error("Vui lòng chọn một hình ảnh để thay đổi màu");
+      return;
+    }
+
+    const imageObj = activeObject as fabric.Image;
+    const imgElement = imageObj.getElement() as HTMLImageElement;
+
+    if (!imgElement) {
+      toast.error("Không thể truy cập dữ liệu hình ảnh");
+      return;
+    }
+
+    // Create a temporary canvas to process the image
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    if (!tempCtx) {
+      toast.error("Không thể tạo canvas tạm thời");
+      return;
+    }
+
+    // Set canvas size to match image
+    tempCanvas.width = imgElement.naturalWidth;
+    tempCanvas.height = imgElement.naturalHeight;
+
+    // Draw the image on temporary canvas
+    tempCtx.drawImage(imgElement, 0, 0);
+
+    // Get image data
+    const imageData = tempCtx.getImageData(
+      0,
+      0,
+      tempCanvas.width,
+      tempCanvas.height
+    );
+    const data = imageData.data;
+
+    // Convert target color to RGB
+    const targetRGB = hexToRgb(targetColor);
+    const replacementRGB = hexToRgb(replacementColor);
+
+    if (!targetRGB || !replacementRGB) {
+      toast.error("Màu sắc không hợp lệ");
+      return;
+    }
+
+    // Process each pixel
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      // Check if current pixel color is within tolerance of target color
+      if (isColorWithinTolerance(r, g, b, targetRGB, colorTolerance)) {
+        // Replace with new color
+        data[i] = replacementRGB.r;
+        data[i + 1] = replacementRGB.g;
+        data[i + 2] = replacementRGB.b;
+        // Keep alpha channel unchanged
+      }
+    }
+
+    // Put the modified image data back
+    tempCtx.putImageData(imageData, 0, 0);
+
+    // Create new fabric image from modified canvas
+    fabric.Image.fromURL(tempCanvas.toDataURL(), (newImg) => {
+      if (!canvasRef.current) return;
+
+      // Copy properties from original image
+      newImg.set({
+        left: imageObj.left,
+        top: imageObj.top,
+        scaleX: imageObj.scaleX,
+        scaleY: imageObj.scaleY,
+        angle: imageObj.angle,
+        flipX: imageObj.flipX,
+        flipY: imageObj.flipY,
+        selectable: true,
+        evented: true,
+      });
+
+      // Replace the original image
+      canvasRef.current.remove(imageObj);
+      canvasRef.current.add(newImg);
+      canvasRef.current.setActiveObject(newImg);
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success("Đã thay đổi màu sắc thành công!");
+    });
+  };
+
+  // Helper function to convert hex color to RGB
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  };
+
+  // Helper function to check if color is within tolerance
+  const isColorWithinTolerance = (
+    r: number,
+    g: number,
+    b: number,
+    target: { r: number; g: number; b: number },
+    tolerance: number
+  ) => {
+    const deltaR = Math.abs(r - target.r);
+    const deltaG = Math.abs(g - target.g);
+    const deltaB = Math.abs(b - target.b);
+
+    return deltaR <= tolerance && deltaG <= tolerance && deltaB <= tolerance;
   };
 
   const handleDoubleClick = (e: fabric.IEvent) => {
@@ -1588,8 +1707,36 @@ const PlushDollDesign: React.FC = () => {
   };
 
   // Add new function to handle item selection
-  const handleItemSelect = (imageUrl: string) => {
-    fabric.Image.fromURL(imageUrl, (img) => {
+  const handleItemSelect = (data: string | { type: string; svg: string }) => {
+    // Check if data is shape data
+    if (typeof data === "object" && data.type && data.svg) {
+      // Handle shape data
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${data.svg}</svg>`;
+
+      fabric.loadSVGFromString(svgString, (objects) => {
+        if (objects && objects.length > 0) {
+          const group = new fabric.Group(objects, {
+            left: canvasRef.current!.width! / 2 - 50, // Center the shape
+            top: canvasRef.current!.height! / 2 - 50,
+            selectable: true,
+            originX: "center",
+            originY: "center",
+            scaleX: 1,
+            scaleY: 1,
+          });
+
+          canvasRef.current?.add(group);
+          canvasRef.current?.setActiveObject(group);
+          canvasRef.current?.bringToFront(group);
+          saveState();
+        }
+      });
+      return;
+    }
+
+    // Handle image URL
+    const imageUrl = data as string;
+    fabric.Image.fromURL(imageUrl, (img: fabric.Image) => {
       // Set initial size - smaller default size
       const maxSize = 200; // Reduced from 200 to 150
       const aspectRatio = img.width! / img.height!;
@@ -1641,8 +1788,8 @@ const PlushDollDesign: React.FC = () => {
       e.preventDefault();
       e.stopPropagation();
 
-      const imageUrl = e.dataTransfer.getData("text/plain");
-      if (!imageUrl) return;
+      const data = e.dataTransfer.getData("text/plain");
+      if (!data) return;
 
       // Get canvas position and scale
       const wrapperRect = wrapper.getBoundingClientRect();
@@ -1655,8 +1802,39 @@ const PlushDollDesign: React.FC = () => {
       const canvasX = x / scaleRatio;
       const canvasY = y / scaleRatio;
 
-      // Create and add image
-      fabric.Image.fromURL(imageUrl, (img) => {
+      // Try to parse as shape data first
+      try {
+        const shapeData = JSON.parse(data);
+        if (shapeData.type && shapeData.svg) {
+          // This is a shape, create SVG object
+          const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${shapeData.svg}</svg>`;
+
+          fabric.loadSVGFromString(svgString, (objects) => {
+            if (objects && objects.length > 0) {
+              const group = new fabric.Group(objects, {
+                left: canvasX - 50, // Center the shape
+                top: canvasY - 50,
+                selectable: true,
+                originX: "center",
+                originY: "center",
+                scaleX: 1,
+                scaleY: 1,
+              });
+
+              canvas.add(group);
+              canvas.setActiveObject(group);
+              canvas.requestRenderAll();
+              saveState();
+            }
+          });
+          return;
+        }
+      } catch {
+        // Not a shape, treat as image URL
+      }
+
+      // Handle as image URL
+      fabric.Image.fromURL(data, (img: fabric.Image) => {
         // Set initial size
         const maxSize = 200;
         const aspectRatio = img.width! / img.height!;
@@ -1963,6 +2141,19 @@ const PlushDollDesign: React.FC = () => {
       fetchCanvasData();
     }
   }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
+
+  // Thêm useEffect để tắt scroll của trang chính
+  // useEffect(() => {
+  //   // Tắt scroll của body và html
+  //   document.body.style.overflow = "hidden";
+  //   document.documentElement.style.overflow = "hidden";
+
+  //   // Cleanup khi component unmount
+  //   return () => {
+  //     document.body.style.overflow = "";
+  //     document.documentElement.style.overflow = "";
+  //   };
+  // }, []);
 
   // Add useEffect to update group/ungroup button states
   // useEffect(() => {
@@ -2525,7 +2716,7 @@ const PlushDollDesign: React.FC = () => {
         {/* Main sidebar */}
         <aside
           className={`${
-            isSidebarCollapsed ? "w-20" : "w-64"
+            isSidebarCollapsed ? "w-20" : "w-45"
           } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative`}
         >
           <Button
@@ -3124,8 +3315,8 @@ const PlushDollDesign: React.FC = () => {
         {/* Right Sidebar */}
         <aside
           className={`${
-            rightSidebarOpen ? "w-80" : "w-16"
-          } transition-all duration-300 border-l border-border bg-card py-4 flex flex-col gap-4 relative`}
+            rightSidebarOpen ? "w-60" : "w-20"
+          } transition-all duration-300 border-l border-border bg-card py-4 flex flex-col gap-4 relative h-full`}
         >
           <Button
             size="icon"
@@ -3134,411 +3325,511 @@ const PlushDollDesign: React.FC = () => {
             onClick={() => setRightSidebarOpen((prev) => !prev)}
           >
             {rightSidebarOpen ? (
-              <ChevronLeft className="w-4 h-4" />
-            ) : (
               <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
             )}
           </Button>
 
-          {rightSidebarOpen ? (
-            <div className="flex flex-col gap-4 px-4">
-              <div className="text-sm font-semibold text-foreground mb-2">
-                Properties Panel
-              </div>
-
-              {/* Canvas Properties */}
-              <div className="space-y-3">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Canvas Info
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Width:</span>
-                    <span className="font-medium">
-                      {actualCanvasWidth} {unit}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Height:</span>
-                    <span className="font-medium">
-                      {actualCanvasHeight} {unit}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Objects:</span>
-                    <span className="font-medium">
-                      {canvasRef.current?.getObjects().length || 0}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Zoom:</span>
-                    <span className="font-medium">
-                      {Math.round(zoom * 100)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Selected Object Properties */}
-              {canvasRef.current?.getActiveObject() && (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      TRANSFORM
-                    </div>
-                    {/* Unit switcher */}
-                    <div className="flex items-center border rounded-md p-0.5 bg-muted">
-                      <Button
-                        size="sm"
-                        variant={propertyUnit === "px" ? "secondary" : "ghost"}
-                        onClick={() => setPropertyUnit("px")}
-                        className="h-5 px-2 text-xs"
-                      >
-                        px
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={propertyUnit === "mm" ? "secondary" : "ghost"}
-                        onClick={() => setPropertyUnit("mm")}
-                        className="h-5 px-2 text-xs"
-                      >
-                        mm
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {/* Position X, Y */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          X
-                        </span>
-                        <Input
-                          type="number"
-                          className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
-                          value={draftProperties.x}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setDraftProperties({
-                              ...draftProperties,
-                              x: newValue,
-                            });
-                          }}
-                          onBlur={handleApplyChanges}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleApplyChanges();
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          Y
-                        </span>
-                        <Input
-                          type="number"
-                          className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
-                          value={draftProperties.y}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setDraftProperties({
-                              ...draftProperties,
-                              y: newValue,
-                            });
-                          }}
-                          onBlur={handleApplyChanges}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleApplyChanges();
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Size W, H */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          W
-                        </span>
-                        <Input
-                          type="number"
-                          className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
-                          value={draftProperties.w}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setDraftProperties({
-                              ...draftProperties,
-                              w: newValue,
-                            });
-                          }}
-                          onBlur={handleApplyChanges}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleApplyChanges();
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          H
-                        </span>
-                        <Input
-                          type="number"
-                          className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
-                          value={draftProperties.h}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setDraftProperties({
-                              ...draftProperties,
-                              h: newValue,
-                            });
-                          }}
-                          onBlur={handleApplyChanges}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleApplyChanges();
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Rotation A and Flip buttons */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          R
-                        </span>
-                        <Input
-                          type="number"
-                          className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
-                          value={draftProperties.a}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setDraftProperties({
-                              ...draftProperties,
-                              a: newValue,
-                            });
-                          }}
-                          onBlur={handleApplyChanges}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleApplyChanges();
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                        />
-                      </div>
-                      {/* <div className="flex-1 flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          className="h-full flex-1"
-                          onClick={flipObjectHorizontal}
-                          title="Lật ngang"
-                        >
-                          <FlipHorizontal size={16} />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="h-full flex-1"
-                          onClick={flipObjectVertical}
-                          title="Lật dọc"
-                        >
-                          <FlipVertical size={16} />
-                        </Button>
-                      </div> */}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Layer Management */}
-              <div className="space-y-3">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Layers ({canvasRef.current?.getObjects().length || 0})
-                </div>
-                <div className="space-y-1 max-h-40 overflow-y-auto">
-                  {canvasRef.current
-                    ?.getObjects()
-                    .slice()
-                    .reverse()
-                    .map((obj, index) => {
-                      const isSelected =
-                        canvasRef.current?.getActiveObject() === obj;
-                      const reversedIndex =
-                        (canvasRef.current?.getObjects().length || 0) -
-                        1 -
-                        index;
-                      const isDragging = draggedLayerIndex === index;
-                      const isDragOver = dragOverIndex === index;
-
-                      // Tạo thumbnail cho layer
-                      const getLayerThumbnail = () => {
-                        if (obj.type === "image") {
-                          // Cho image objects, sử dụng chính ảnh đó
-                          return (
-                            <div className="w-8 h-8 rounded border border-border overflow-hidden bg-muted flex items-center justify-center">
-                              <img
-                                src={(obj as fabric.Image).getSrc()}
-                                alt="Layer"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  // Fallback nếu ảnh không load được
-                                  (e.target as HTMLImageElement).style.display =
-                                    "none";
-                                  (
-                                    e.target as HTMLImageElement
-                                  ).parentElement!.innerHTML = "🖼️";
-                                }}
-                              />
-                            </div>
-                          );
-                        } else if (
-                          obj.type === "textbox" ||
-                          obj.type === "i-text"
-                        ) {
-                          // Cho text objects, hiển thị icon text
-                          return (
-                            <div className="w-8 h-8 rounded border border-border bg-blue-50 flex items-center justify-center">
-                              <Type className="w-4 h-4 text-blue-600" />
-                            </div>
-                          );
-                        } else if (obj.type === "group") {
-                          // Cho group objects, hiển thị icon group
-                          return (
-                            <div className="w-8 h-8 rounded border border-border bg-purple-50 flex items-center justify-center">
-                              <Group className="w-4 h-4 text-purple-600" />
-                            </div>
-                          );
-                        } else if (obj.type === "path") {
-                          // Cho path objects (vẽ), hiển thị icon pencil
-                          return (
-                            <div className="w-8 h-8 rounded border border-border bg-green-50 flex items-center justify-center">
-                              <Pencil className="w-4 h-4 text-green-600" />
-                            </div>
-                          );
-                        } else {
-                          // Fallback cho các object khác
-                          return (
-                            <div className="w-8 h-8 rounded border border-border bg-muted flex items-center justify-center">
-                              <span className="text-xs text-muted-foreground">
-                                {obj.type?.charAt(0).toUpperCase() || "O"}
-                              </span>
-                            </div>
-                          );
-                        }
-                      };
-
-                      // Tạo tên hiển thị cho layer
-                      const getLayerName = () => {
-                        if (obj.type === "image") {
-                          return "Image";
-                        } else if (
-                          obj.type === "textbox" ||
-                          obj.type === "i-text"
-                        ) {
-                          const textbox = obj as fabric.Textbox;
-                          const itext = obj as fabric.IText;
-                          const text = textbox.text || itext.text || "";
-                          return text.length > 15
-                            ? text.substring(0, 15) + "..."
-                            : text || "Text";
-                        } else if (obj.type === "group") {
-                          const group = obj as fabric.Group;
-                          return `Group (${group.getObjects().length})`;
-                        } else if (obj.type === "path") {
-                          return "Drawing";
-                        } else {
-                          return obj.type || "Object";
-                        }
-                      };
-
-                      return (
-                        <div
-                          key={index}
-                          draggable
-                          className={`flex items-center justify-between p-2 rounded text-xs cursor-pointer transition-colors select-none ${
-                            isSelected
-                              ? "bg-primary/10 border border-primary/20"
-                              : isDragging
-                              ? "bg-primary/5 border border-primary/30 opacity-50"
-                              : isDragOver
-                              ? "bg-muted/50 border border-dashed border-primary/50"
-                              : "hover:bg-muted"
-                          }`}
-                          onClick={() => {
-                            if (canvasRef.current) {
-                              canvasRef.current.setActiveObject(obj);
-                              canvasRef.current.requestRenderAll();
-                            }
-                          }}
-                          onDragStart={(e) => handleLayerDragStart(e, index)}
-                          onDragOver={(e) => handleLayerDragOver(e, index)}
-                          onDragLeave={handleLayerDragLeave}
-                          onDrop={(e) => handleLayerDrop(e, index)}
-                          onDragEnd={handleLayerDragEnd}
-                          style={{
-                            userSelect: "none",
-                            WebkitUserSelect: "none",
-                            MozUserSelect: "none",
-                            msUserSelect: "none",
-                          }}
-                        >
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <GripVertical className="w-3 h-3 text-muted-foreground/50 cursor-grab active:cursor-grabbing flex-shrink-0" />
-                            <div className="w-3 h-3 rounded bg-muted-foreground/20 flex items-center justify-center flex-shrink-0">
-                              <span className="text-[10px] text-muted-foreground">
-                                {reversedIndex + 1}
-                              </span>
-                            </div>
-                            {getLayerThumbnail()}
-                            <span className="truncate font-medium">
-                              {getLayerName()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-5 w-5 hover:text-destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (canvasRef.current) {
-                                  canvasRef.current.remove(obj);
-                                  canvasRef.current.requestRenderAll();
-                                  saveState();
-                                }
-                              }}
-                            >
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              <div className="text-xs font-medium text-muted-foreground text-center">
-                Properties
-              </div>
-              <div className="text-xs text-muted-foreground text-center">
-                {canvasRef.current?.getObjects().length || 0} objects
-              </div>
+          {/* Tabs for right sidebar */}
+          {rightSidebarOpen && (
+            <div className="flex border-b border-border mb-4 px-4 flex-shrink-0">
+              <button
+                onClick={() => setRightSidebarTab("adjust")}
+                className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                  rightSidebarTab === "adjust"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Điều chỉnh
+              </button>
+              <button
+                onClick={() => setRightSidebarTab("layers")}
+                className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                  rightSidebarTab === "layers"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Layers
+              </button>
             </div>
           )}
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+            {/* Tab Content */}
+            {rightSidebarOpen ? (
+              rightSidebarTab === "adjust" ? (
+                <div className="flex flex-col gap-4 px-4 pb-4">
+                  <div className="text-sm font-semibold text-foreground mb-2">
+                    Properties Panel
+                  </div>
+                  {/* Canvas Properties */}
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Canvas Info
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Width:</span>
+                        <span className="font-medium">
+                          {actualCanvasWidth} {unit}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Height:</span>
+                        <span className="font-medium">
+                          {actualCanvasHeight} {unit}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Objects:</span>
+                        <span className="font-medium">
+                          {canvasRef.current?.getObjects().length || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Zoom:</span>
+                        <span className="font-medium">
+                          {Math.round(zoom * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selected Object Properties */}
+                  {canvasRef.current?.getActiveObject() && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          TRANSFORM
+                        </div>
+                        {/* Unit switcher */}
+                        <div className="flex items-center border rounded-md p-0.5 bg-muted">
+                          <Button
+                            size="sm"
+                            variant={
+                              propertyUnit === "px" ? "secondary" : "ghost"
+                            }
+                            onClick={() => setPropertyUnit("px")}
+                            className="h-5 px-2 text-xs"
+                          >
+                            px
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={
+                              propertyUnit === "mm" ? "secondary" : "ghost"
+                            }
+                            onClick={() => setPropertyUnit("mm")}
+                            className="h-5 px-2 text-xs"
+                          >
+                            mm
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {/* Position X, Y */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              X
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.x}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  x: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              Y
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.y}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  y: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Size W, H */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              W
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.w}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  w: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              H
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.h}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  h: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Rotation A and Flip buttons */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              R
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.a}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  a: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Color Replacement for Images */}
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <div className="space-y-3">
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Color Replacement
+                      </div>
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">
+                            Màu cần thay đổi:
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="color"
+                              value={targetColor}
+                              onChange={(e) => setTargetColor(e.target.value)}
+                              className="w-12 h-8 p-0 border rounded"
+                            />
+                            <Input
+                              type="text"
+                              value={targetColor}
+                              onChange={(e) => setTargetColor(e.target.value)}
+                              className="flex-1"
+                              placeholder="#ff0000"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">
+                            Màu mới:
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="color"
+                              value={replacementColor}
+                              onChange={(e) =>
+                                setReplacementColor(e.target.value)
+                              }
+                              className="w-12 h-8 p-0 border rounded"
+                            />
+                            <Input
+                              type="text"
+                              value={replacementColor}
+                              onChange={(e) =>
+                                setReplacementColor(e.target.value)
+                              }
+                              className="flex-1"
+                              placeholder="#00ff00"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">
+                            Độ chính xác: {colorTolerance}
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={colorTolerance}
+                            onChange={(e) =>
+                              setColorTolerance(Number(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+
+                        <Button
+                          size="sm"
+                          onClick={replaceImageColor}
+                          className="w-full"
+                          disabled={!canvasRef.current?.getActiveObject()}
+                        >
+                          <Droplets className="w-4 h-4 mr-2" />
+                          Thay đổi màu sắc
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // Layers tab content
+                <div className="flex flex-col gap-4 px-4 pb-4">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                    Layers ({canvasRef.current?.getObjects().length || 0})
+                  </div>
+                  <div className="space-y-1 overflow-y-auto">
+                    {canvasRef.current
+                      ?.getObjects()
+                      .slice()
+                      .reverse()
+                      .map((obj, index) => {
+                        const isSelected =
+                          canvasRef.current?.getActiveObject() === obj;
+                        const reversedIndex =
+                          (canvasRef.current?.getObjects().length || 0) -
+                          1 -
+                          index;
+                        const isDragging = draggedLayerIndex === index;
+                        const isDragOver = dragOverIndex === index;
+
+                        // Tạo thumbnail cho layer
+                        const getLayerThumbnail = () => {
+                          if (obj.type === "image") {
+                            // Cho image objects, sử dụng chính ảnh đó
+                            return (
+                              <div className="w-8 h-8 rounded border border-border overflow-hidden bg-muted flex items-center justify-center">
+                                <img
+                                  src={(obj as fabric.Image).getSrc()}
+                                  alt="Layer"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback nếu ảnh không load được
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).style.display = "none";
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).parentElement!.innerHTML = "🖼️";
+                                  }}
+                                />
+                              </div>
+                            );
+                          } else if (
+                            obj.type === "textbox" ||
+                            obj.type === "i-text"
+                          ) {
+                            // Cho text objects, hiển thị icon text
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-blue-50 flex items-center justify-center">
+                                <Type className="w-4 h-4 text-blue-600" />
+                              </div>
+                            );
+                          } else if (obj.type === "group") {
+                            // Cho group objects, hiển thị icon group
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-purple-50 flex items-center justify-center">
+                                <Group className="w-4 h-4 text-purple-600" />
+                              </div>
+                            );
+                          } else if (obj.type === "path") {
+                            // Cho path objects (vẽ), hiển thị icon pencil
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-green-50 flex items-center justify-center">
+                                <Pencil className="w-4 h-4 text-green-600" />
+                              </div>
+                            );
+                          } else {
+                            // Fallback cho các object khác
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-muted flex items-center justify-center">
+                                <span className="text-xs text-muted-foreground">
+                                  {obj.type?.charAt(0).toUpperCase() || "O"}
+                                </span>
+                              </div>
+                            );
+                          }
+                        };
+
+                        // Tạo tên hiển thị cho layer
+                        const getLayerName = () => {
+                          if (obj.type === "image") {
+                            return "Image";
+                          } else if (
+                            obj.type === "textbox" ||
+                            obj.type === "i-text"
+                          ) {
+                            const textbox = obj as fabric.Textbox;
+                            const itext = obj as fabric.IText;
+                            const text = textbox.text || itext.text || "";
+                            return text.length > 15
+                              ? text.substring(0, 15) + "..."
+                              : text || "Text";
+                          } else if (obj.type === "group") {
+                            const group = obj as fabric.Group;
+                            return `Group (${group.getObjects().length})`;
+                          } else if (obj.type === "path") {
+                            return "Drawing";
+                          } else {
+                            return obj.type || "Object";
+                          }
+                        };
+
+                        return (
+                          <div
+                            key={index}
+                            draggable
+                            className={`flex items-center justify-between p-2 rounded text-xs cursor-pointer transition-colors select-none ${
+                              isSelected
+                                ? "bg-primary/10 border border-primary/20"
+                                : isDragging
+                                ? "bg-primary/5 border border-primary/30 opacity-50"
+                                : isDragOver
+                                ? "bg-muted/50 border border-dashed border-primary/50"
+                                : "hover:bg-muted"
+                            }`}
+                            onClick={() => {
+                              if (canvasRef.current) {
+                                canvasRef.current.setActiveObject(obj);
+                                canvasRef.current.requestRenderAll();
+                              }
+                            }}
+                            onDragStart={(e) => handleLayerDragStart(e, index)}
+                            onDragOver={(e) => handleLayerDragOver(e, index)}
+                            onDragLeave={handleLayerDragLeave}
+                            onDrop={(e) => handleLayerDrop(e, index)}
+                            onDragEnd={handleLayerDragEnd}
+                            style={{
+                              userSelect: "none",
+                              WebkitUserSelect: "none",
+                              MozUserSelect: "none",
+                              msUserSelect: "none",
+                            }}
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <GripVertical className="w-3 h-3 text-muted-foreground/50 cursor-grab active:cursor-grabbing flex-shrink-0" />
+                              <div className="w-3 h-3 rounded bg-muted-foreground/20 flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] text-muted-foreground">
+                                  {reversedIndex + 1}
+                                </span>
+                              </div>
+                              {getLayerThumbnail()}
+                              <span className="truncate font-medium">
+                                {getLayerName()}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (canvasRef.current) {
+                                    canvasRef.current.remove(obj);
+                                    canvasRef.current.requestRenderAll();
+                                    saveState();
+                                  }
+                                }}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-xs font-medium text-muted-foreground text-center">
+                  Properties
+                </div>
+                <div className="text-xs text-muted-foreground text-center">
+                  {canvasRef.current?.getObjects().length || 0} objects
+                </div>
+              </div>
+            )}
+          </div>
         </aside>
       </div>
 
