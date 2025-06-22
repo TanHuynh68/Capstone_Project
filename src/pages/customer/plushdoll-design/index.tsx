@@ -237,6 +237,9 @@ const PlushDollDesign: React.FC = () => {
     "adjust"
   );
 
+  // Thêm state cho shape color
+  const [shapeColor, setShapeColor] = useState("#3b82f6");
+
   const handleApplyChanges = () => {
     const activeObject = canvasRef.current?.getActiveObject();
     if (!activeObject) return;
@@ -1715,6 +1718,31 @@ const PlushDollDesign: React.FC = () => {
 
       fabric.loadSVGFromString(svgString, (objects) => {
         if (objects && objects.length > 0) {
+          // Apply color to all objects in the shape
+          objects.forEach((obj) => {
+            if (
+              obj.type === "path" ||
+              obj.type === "line" ||
+              obj.type === "polygon" ||
+              obj.type === "rect" ||
+              obj.type === "circle" ||
+              obj.type === "ellipse"
+            ) {
+              // Set fill color for filled shapes
+              if (obj.fill && obj.fill !== "none") {
+                obj.set("fill", shapeColor);
+              }
+              // Set stroke color for stroked shapes
+              if (obj.stroke && obj.stroke !== "none") {
+                obj.set("stroke", shapeColor);
+              }
+              // If no fill or stroke, set fill as default
+              if (!obj.fill && !obj.stroke) {
+                obj.set("fill", shapeColor);
+              }
+            }
+          });
+
           const group = new fabric.Group(objects, {
             left: canvasRef.current!.width! / 2 - 50, // Center the shape
             top: canvasRef.current!.height! / 2 - 50,
@@ -3430,6 +3458,99 @@ const PlushDollDesign: React.FC = () => {
                           </Button>
                         </div>
                       </div>
+
+                      {/* Nút chọn màu cho shape, chỉ hiện khi là shape */}
+                      {(() => {
+                        const obj = canvasRef.current?.getActiveObject();
+                        const isShape =
+                          obj &&
+                          (obj.type === "group" ||
+                            [
+                              "path",
+                              "line",
+                              "polygon",
+                              "rect",
+                              "circle",
+                              "ellipse",
+                            ].includes(obj.type));
+                        if (!isShape) return null;
+                        return (
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu shape (đường kẻ/hình dạng):
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={shapeColor}
+                                onChange={(e) => {
+                                  setShapeColor(e.target.value || "#000000");
+                                  if (obj) {
+                                    if (obj.type === "group") {
+                                      (obj as fabric.Group)
+                                        .getObjects()
+                                        .forEach((child) => {
+                                          if (
+                                            child.type === "path" ||
+                                            child.type === "line" ||
+                                            child.type === "polygon" ||
+                                            child.type === "rect" ||
+                                            child.type === "circle" ||
+                                            child.type === "ellipse"
+                                          ) {
+                                            if (
+                                              child.fill &&
+                                              child.fill !== "none"
+                                            )
+                                              child.set("fill", e.target.value);
+                                            if (
+                                              child.stroke &&
+                                              child.stroke !== "none"
+                                            )
+                                              child.set(
+                                                "stroke",
+                                                e.target.value
+                                              );
+                                            if (!child.fill && !child.stroke)
+                                              child.set("fill", e.target.value);
+                                          }
+                                        });
+                                      obj.setCoords();
+                                      canvasRef.current?.renderAll();
+                                      saveState();
+                                    } else if (
+                                      obj.type === "path" ||
+                                      obj.type === "line" ||
+                                      obj.type === "polygon" ||
+                                      obj.type === "rect" ||
+                                      obj.type === "circle" ||
+                                      obj.type === "ellipse"
+                                    ) {
+                                      if (obj.fill && obj.fill !== "none")
+                                        obj.set("fill", e.target.value);
+                                      if (obj.stroke && obj.stroke !== "none")
+                                        obj.set("stroke", e.target.value);
+                                      if (!obj.fill && !obj.stroke)
+                                        obj.set("fill", e.target.value);
+                                      obj.setCoords();
+                                      canvasRef.current?.renderAll();
+                                      saveState();
+                                    }
+                                  }
+                                }}
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={shapeColor}
+                                onChange={(e) => setShapeColor(e.target.value)}
+                                className="flex-1"
+                                placeholder="#3b82f6"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       <div className="space-y-2">
                         {/* Position X, Y */}
