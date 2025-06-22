@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-interface FilterValues {
+export interface FilterValues {
   brightness: number;
   contrast: number;
   saturation: number;
@@ -23,7 +23,7 @@ interface FilterValues {
   grayscaleMode: string;
 }
 
-interface ActiveFilters {
+export interface ActiveFilters {
   grayscale: boolean;
   invert: boolean;
   removeColor: boolean;

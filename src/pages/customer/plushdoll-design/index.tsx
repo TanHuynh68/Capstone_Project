@@ -60,7 +60,10 @@ import { Switch } from "@/components/ui/switch";
 
 import LogoCanvas from "@/components/atoms/custom/logo/LogoCanvas";
 import DrawingToolPanel from "./DrawingToolPanel";
-import ImageFilterPanel from "./ImageFilterPanel";
+import ImageFilterPanel, {
+  FilterValues,
+  ActiveFilters,
+} from "./ImageFilterPanel";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -83,6 +86,19 @@ interface TextProperties {
   underline: boolean;
 }
 
+// Add interface for storing filter state per image
+interface ImageFilterState {
+  values: FilterValues;
+  active: ActiveFilters;
+  isEnabled: boolean;
+}
+
+// Extend fabric.Image interface to include our custom properties
+interface CustomFabricImage extends fabric.Image {
+  customId?: string;
+  originalSrc?: string;
+}
+
 const PlushDollDesign: React.FC = () => {
   // Image Cropping Feature:
   // - Double-click on any image to start cropping
@@ -93,6 +109,7 @@ const PlushDollDesign: React.FC = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
+  const isReplacingColorRef = useRef(false);
   const pasteCountRef = useRef(0);
   const unitRef = useRef<"px" | "cm" | "mm">("px");
   const clipboardRef = useRef<
@@ -143,6 +160,14 @@ const PlushDollDesign: React.FC = () => {
   // Add state for eraser properties
   const [isErasing, setIsErasing] = useState(false);
   const [eraserWidth, setEraserWidth] = useState(10);
+
+  // State to store filter settings for each image object
+  const [imageFilterSettings, setImageFilterSettings] = useState<
+    Map<string, ImageFilterState>
+  >(new Map());
+  const [currentSelectedImageId, setCurrentSelectedImageId] = useState<
+    string | null
+  >(null);
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -288,6 +313,55 @@ const PlushDollDesign: React.FC = () => {
 
   // Thêm state cho shape color
   const [shapeColor, setShapeColor] = useState("#3b82f6");
+
+  const DEFAULT_FILTER_VALUES: FilterValues = {
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    vibrance: 0,
+    noise: 0,
+    pixelate: 4,
+    blur: 0,
+    gamma: [1, 1, 1],
+    hue: 0,
+    removeColorDistance: 0.1,
+    removeColorColor: "#ffffff",
+    blendColor: "#ffffff",
+    blendMode: "multiply",
+    blendAlpha: 0.5,
+    grayscaleMode: "average",
+  };
+
+  const DEFAULT_ACTIVE_FILTERS: ActiveFilters = {
+    grayscale: false,
+    invert: false,
+    removeColor: false,
+    sepia: false,
+    brownie: false,
+    brightness: false,
+    contrast: false,
+    saturation: false,
+    vibrance: false,
+    noise: false,
+    vintage: false,
+    pixelate: false,
+    blur: false,
+    sharpen: false,
+    emboss: false,
+    technicolor: false,
+    polaroid: false,
+    blendColor: false,
+    gamma: false,
+    kodachrome: false,
+    blackwhite: false,
+    hue: false,
+  };
+
+  const DEFAULT_FILTER_STATE: ImageFilterState = {
+    values: DEFAULT_FILTER_VALUES,
+    active: DEFAULT_ACTIVE_FILTERS,
+    isEnabled: false,
+  };
 
   const handleApplyChanges = () => {
     const activeObject = canvasRef.current?.getActiveObject();
@@ -463,40 +537,39 @@ const PlushDollDesign: React.FC = () => {
 
   // Add color replacement function
   const replaceImageColor = () => {
+    isReplacingColorRef.current = true;
+
     const activeObject = canvasRef.current?.getActiveObject();
     if (!activeObject || activeObject.type !== "image" || !canvasRef.current) {
       toast.error("Vui lòng chọn một hình ảnh để thay đổi màu");
+      isReplacingColorRef.current = false;
       return;
     }
 
-    const imageObj = activeObject as fabric.Image & { originalSrc?: string };
+    const imageObj = activeObject as CustomFabricImage;
     const imgElement = imageObj.getElement() as HTMLImageElement;
 
     if (!imgElement) {
       toast.error("Không thể truy cập dữ liệu hình ảnh");
+      isReplacingColorRef.current = false;
       return;
     }
 
-    // IMPORTANT: Preserve the very first source URL.
     const originalSrcToPreserve = imageObj.originalSrc || imageObj.getSrc();
 
-    // Create a temporary canvas to process the image
     const tempCanvas = document.createElement("canvas");
     const tempCtx = tempCanvas.getContext("2d");
 
     if (!tempCtx) {
       toast.error("Không thể tạo canvas tạm thời");
+      isReplacingColorRef.current = false;
       return;
     }
 
-    // Set canvas size to match image
     tempCanvas.width = imgElement.naturalWidth;
     tempCanvas.height = imgElement.naturalHeight;
-
-    // Draw the image on temporary canvas
     tempCtx.drawImage(imgElement, 0, 0);
 
-    // Get image data
     const imageData = tempCtx.getImageData(
       0,
       0,
@@ -504,45 +577,38 @@ const PlushDollDesign: React.FC = () => {
       tempCanvas.height
     );
     const data = imageData.data;
-
-    // Convert target color to RGB
     const targetRGB = hexToRgb(targetColor);
     const replacementRGB = hexToRgb(replacementColor);
 
     if (!targetRGB || !replacementRGB) {
       toast.error("Màu sắc không hợp lệ");
+      isReplacingColorRef.current = false;
       return;
     }
 
-    // Process each pixel
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-
-      // Check if current pixel color is within tolerance of target color
       if (isColorWithinTolerance(r, g, b, targetRGB, colorTolerance)) {
-        // Replace with new color
         data[i] = replacementRGB.r;
         data[i + 1] = replacementRGB.g;
         data[i + 2] = replacementRGB.b;
-        // Keep alpha channel unchanged
       }
     }
 
-    // Put the modified image data back
     tempCtx.putImageData(imageData, 0, 0);
 
-    // Create new fabric image from modified canvas
     fabric.Image.fromURL(tempCanvas.toDataURL(), (newImg) => {
       if (!canvasRef.current) return;
 
-      // Set the originalSrc on the new image object
-      (newImg as fabric.Image & { originalSrc?: string }).originalSrc =
-        originalSrcToPreserve;
+      const newCustomImg = newImg as CustomFabricImage;
+      const oldCustomImg = imageObj as CustomFabricImage;
 
-      // Copy properties from original image
-      newImg.set({
+      newCustomImg.originalSrc = originalSrcToPreserve;
+      newCustomImg.customId = oldCustomImg.customId;
+
+      newCustomImg.set({
         left: imageObj.left,
         top: imageObj.top,
         scaleX: imageObj.scaleX,
@@ -554,14 +620,17 @@ const PlushDollDesign: React.FC = () => {
         evented: true,
       });
 
-      // Replace the original image
       canvasRef.current.remove(imageObj);
-      canvasRef.current.add(newImg);
-      canvasRef.current.setActiveObject(newImg);
+      canvasRef.current.add(newCustomImg);
+      canvasRef.current.setActiveObject(newCustomImg);
       canvasRef.current.requestRenderAll();
       saveState();
 
       toast.success("Đã thay đổi màu sắc thành công!");
+
+      setTimeout(() => {
+        isReplacingColorRef.current = false;
+      }, 100);
     });
   };
 
@@ -778,33 +847,38 @@ const PlushDollDesign: React.FC = () => {
 
       saveInitialState();
 
-      const resetImageAdjustments = () => {
-        setIsFilterEnabled(false);
-        setFilterValues({
-          brightness: 0,
-          contrast: 0,
-          saturation: 0,
-          vibrance: 0,
-          noise: 0,
-          pixelate: 4,
-          blur: 0,
-          gamma: [1, 1, 1],
-          hue: 0,
-          removeColorDistance: 0.1,
-          removeColorColor: "#ffffff",
-          blendColor: "#ffffff",
-          blendMode: "multiply",
-          blendAlpha: 0.5,
-          grayscaleMode: "average",
-        });
-        setIsColorReplacementEnabled(false);
-        setTargetColor("#ff0000");
-        setReplacementColor("#00ff00");
-        setColorTolerance(30);
+      // Extend fabric.Object to include custom properties in JSON output
+      fabric.Object.prototype.toObject = (function (toObject) {
+        return function (this: fabric.Object, propertiesToInclude) {
+          propertiesToInclude = (propertiesToInclude || []).concat([
+            "customId",
+            "originalSrc",
+          ]);
+          return toObject.call(this, propertiesToInclude);
+        };
+      })(fabric.Object.prototype.toObject);
+
+      const handleSelectionChange = () => {
+        if (isReplacingColorRef.current) return;
+
+        const activeObject = canvasRef.current?.getActiveObject();
+        if (activeObject && activeObject.type === "image") {
+          const customImg = activeObject as CustomFabricImage;
+          let imageId = customImg.customId;
+          // Assign an ID if it's missing (e.g., for pasted or newly created objects)
+          if (!imageId) {
+            imageId = `img_${Date.now()}_${Math.random()}`;
+            customImg.customId = imageId;
+          }
+          setCurrentSelectedImageId(imageId);
+        } else {
+          setCurrentSelectedImageId(null);
+        }
       };
 
       // Selection events for smart toolbar
       canvas.on("selection:created", (e) => {
+        handleSelectionChange();
         if (e.selected && e.selected.length > 0) {
           if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
             // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
@@ -822,8 +896,8 @@ const PlushDollDesign: React.FC = () => {
       });
 
       canvas.on("selection:updated", (e) => {
+        handleSelectionChange();
         if (e.selected && e.selected.length > 0) {
-          resetImageAdjustments(); // Reset on new selection
           if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
             // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
             setToolbarVisible(true);
@@ -840,9 +914,9 @@ const PlushDollDesign: React.FC = () => {
       });
 
       canvas.on("selection:cleared", () => {
+        handleSelectionChange();
         setToolbarVisible(false);
         setActiveText(null);
-        resetImageAdjustments(); // Reset when nothing is selected
       });
 
       canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
@@ -1524,6 +1598,16 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(safeJson, () => {
         const canvas = canvasRef.current!;
 
+        // Ensure all loaded images have a custom ID
+        canvas.forEachObject((obj) => {
+          if (obj.type === "image") {
+            const customImg = obj as CustomFabricImage;
+            if (!customImg.customId) {
+              customImg.customId = `img_${Date.now()}_${Math.random()}`;
+            }
+          }
+        });
+
         // ✅ Sau khi load JSON → set lại màu nền (nếu có)
         // if (backgroundColor) {
         //   canvas.setBackgroundColor(backgroundColor, () => {
@@ -1658,6 +1742,8 @@ const PlushDollDesign: React.FC = () => {
       fabric.Image.fromURL(
         f.target?.result as string,
         (img) => {
+          const customImg = img as CustomFabricImage;
+          customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
           img.scaleToWidth(200);
           img.scaleToHeight(200);
           img.set({ left: 100, top: 100, selectable: true });
@@ -1934,6 +2020,8 @@ const PlushDollDesign: React.FC = () => {
     fabric.Image.fromURL(
       imageUrl,
       (img: fabric.Image) => {
+        const customImg = img as CustomFabricImage;
+        customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
         // Set initial size - smaller default size
         const maxSize = 200; // Reduced from 200 to 150
         const aspectRatio = img.width! / img.height!;
@@ -1955,6 +2043,11 @@ const PlushDollDesign: React.FC = () => {
           originX: "center",
           originY: "center",
         });
+
+        // Add a custom ID to the dropped image
+        (
+          img as CustomFabricImage
+        ).customId = `img_${Date.now()}_${Math.random()}`;
 
         canvasRef.current?.add(img);
         canvasRef.current?.setActiveObject(img);
@@ -2036,6 +2129,8 @@ const PlushDollDesign: React.FC = () => {
       fabric.Image.fromURL(
         data,
         (img: fabric.Image) => {
+          const customImg = img as CustomFabricImage;
+          customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
           // Set initial size
           const maxSize = 200;
           const aspectRatio = img.width! / img.height!;
@@ -2058,6 +2153,11 @@ const PlushDollDesign: React.FC = () => {
             originX: "left",
             originY: "top",
           });
+
+          // Add a custom ID to the dropped image
+          (
+            img as CustomFabricImage
+          ).customId = `img_${Date.now()}_${Math.random()}`;
 
           canvas.add(img);
           canvas.setActiveObject(img);
@@ -2736,51 +2836,78 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const resetImageAdjustments = () => {
-      // Reset Image Filters UI and state
+    // This function now only resets the image filter panel UI.
+    // The state of filters is managed per-image.
+    const resetImageFilterPanel = () => {
+      // A crucial check to prevent the UI from resetting during the color replacement process,
+      // which involves temporarily deselecting and reselecting the image.
+      if (isReplacingColorRef.current) {
+        return;
+      }
       setIsFilterEnabled(false);
-      setFilterValues({
-        brightness: 0,
-        contrast: 0,
-        saturation: 0,
-        vibrance: 0,
-        noise: 0,
-        pixelate: 4,
-        blur: 0,
-        gamma: [1, 1, 1],
-        hue: 0,
-        removeColorDistance: 0.1,
-        removeColorColor: "#ffffff",
-        blendColor: "#ffffff",
-        blendMode: "multiply",
-        blendAlpha: 0.5,
-        grayscaleMode: "average",
-      });
-
-      // Reset Color Replacement UI and state
-      setIsColorReplacementEnabled(false);
-      setTargetColor("#ff0000");
-      setReplacementColor("#00ff00");
-      setColorTolerance(30);
+      setFilterValues(DEFAULT_FILTER_VALUES);
+      setActiveFilters(DEFAULT_ACTIVE_FILTERS);
     };
 
-    const handleSelectionChange = () => {
-      // We reset if the selection is cleared, or if the selection is anything other than a single image.
-      // We also reset if it IS an image, to provide a clean slate for the new selection.
-      resetImageAdjustments();
+    // We also need a handler for when selection is completely cleared.
+    const handleSelectionCleared = () => {
+      if (isReplacingColorRef.current) {
+        return;
+      }
+      resetImageFilterPanel();
+      // Also reset color replacement when nothing is selected.
+      setIsColorReplacementEnabled(false);
     };
 
     const canvas = canvasRef.current;
-    canvas.on("selection:created", handleSelectionChange);
-    canvas.on("selection:updated", handleSelectionChange);
-    canvas.on("selection:cleared", resetImageAdjustments); // Use a simpler handler for cleared
+    canvas.on("selection:created", resetImageFilterPanel);
+    canvas.on("selection:updated", resetImageFilterPanel);
+    canvas.on("selection:cleared", handleSelectionCleared);
 
     return () => {
-      canvas.off("selection:created", handleSelectionChange);
-      canvas.off("selection:updated", handleSelectionChange);
-      canvas.off("selection:cleared", resetImageAdjustments);
+      canvas.off("selection:created", resetImageFilterPanel);
+      canvas.off("selection:updated", resetImageFilterPanel);
+      canvas.off("selection:cleared", handleSelectionCleared);
     };
   }, [canvasRef.current]);
+
+  // EFFECT: Load filter settings when selection changes
+  useEffect(() => {
+    if (currentSelectedImageId) {
+      const settings =
+        imageFilterSettings.get(currentSelectedImageId) || DEFAULT_FILTER_STATE;
+      setFilterValues(settings.values);
+      setActiveFilters(settings.active);
+      setIsFilterEnabled(settings.isEnabled);
+    } else {
+      // Reset if no image is selected
+      setFilterValues(DEFAULT_FILTER_STATE.values);
+      setActiveFilters(DEFAULT_FILTER_STATE.active);
+      setIsFilterEnabled(DEFAULT_FILTER_STATE.isEnabled);
+    }
+  }, [currentSelectedImageId]);
+
+  // EFFECT: Save filter settings when they change for the selected image
+  useEffect(() => {
+    if (!currentSelectedImageId) return;
+
+    const currentState: ImageFilterState = {
+      values: filterValues,
+      active: activeFilters,
+      isEnabled: isFilterEnabled,
+    };
+
+    // Prevent re-saving the exact same state that's already in the map
+    const existingState = imageFilterSettings.get(currentSelectedImageId);
+    if (JSON.stringify(existingState) === JSON.stringify(currentState)) {
+      return;
+    }
+
+    const newMap = new Map(imageFilterSettings);
+    newMap.set(currentSelectedImageId, currentState);
+    setImageFilterSettings(newMap);
+    // This dependency array is correct. It triggers a save when the filter UI state changes.
+  }, [filterValues, activeFilters, isFilterEnabled, currentSelectedImageId]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -4031,46 +4158,40 @@ const PlushDollDesign: React.FC = () => {
                             canvasRef.current?.getActiveObject();
 
                           const resetImageState = (
-                            imageToReset: fabric.Image
+                            imageToReset: fabric.Image,
+                            keepColorReplacementOpen = false
                           ) => {
                             // This function will be called on the correct image object
                             canvasRef.current?.setActiveObject(imageToReset);
 
-                            // Reset Image Filters
-                            clearAllFilters();
-                            setFilterValues({
-                              brightness: 0,
-                              contrast: 0,
-                              saturation: 0,
-                              vibrance: 0,
-                              noise: 0,
-                              pixelate: 4,
-                              blur: 0,
-                              gamma: [1, 1, 1],
-                              hue: 0,
-                              removeColorDistance: 0.1,
-                              removeColorColor: "#ffffff",
-                              blendColor: "#ffffff",
-                              blendMode: "multiply",
-                              blendAlpha: 0.5,
-                              grayscaleMode: "average",
-                            });
+                            // Also remove its settings from the map
+                            const imageId = (imageToReset as CustomFabricImage)
+                              .customId;
+                            if (imageId && imageFilterSettings.has(imageId)) {
+                              const newMap = new Map(imageFilterSettings);
+                              newMap.delete(imageId);
+                              setImageFilterSettings(newMap);
+                            }
+
+                            // Reset Image Filters UI
+                            setFilterValues(DEFAULT_FILTER_VALUES);
+                            setActiveFilters(DEFAULT_ACTIVE_FILTERS);
                             setIsFilterEnabled(false);
 
-                            // Reset Color Replacement UI
-                            setTargetColor("#ff0000");
-                            setReplacementColor("#00ff00");
-                            setColorTolerance(30);
-                            setIsColorReplacementEnabled(false);
+                            // Reset Color Replacement UI, but keep it open if needed
+                            if (!keepColorReplacementOpen) {
+                              setIsColorReplacementEnabled(false);
+                              setTargetColor("#ff0000");
+                              setReplacementColor("#00ff00");
+                              setColorTolerance(30);
+                            }
 
                             canvasRef.current?.requestRenderAll();
                             saveState();
                           };
 
                           if (activeObject && activeObject.type === "image") {
-                            const imageObj = activeObject as fabric.Image & {
-                              originalSrc?: string;
-                            };
+                            const imageObj = activeObject as CustomFabricImage;
                             const originalSrc = imageObj.originalSrc;
 
                             // If a color replacement has been applied, revert it.
@@ -4083,7 +4204,13 @@ const PlushDollDesign: React.FC = () => {
                                 (originalImg) => {
                                   if (!canvasRef.current) return;
 
-                                  originalImg.set({
+                                  const newCustomImg =
+                                    originalImg as CustomFabricImage;
+                                  // Preserve original source and ID
+                                  newCustomImg.originalSrc = originalSrc;
+                                  newCustomImg.customId = imageObj.customId;
+
+                                  newCustomImg.set({
                                     left: imageObj.left,
                                     top: imageObj.top,
                                     scaleX: imageObj.scaleX,
@@ -4100,10 +4227,13 @@ const PlushDollDesign: React.FC = () => {
                                     .getObjects()
                                     .indexOf(imageObj);
                                   canvas.remove(imageObj);
-                                  canvas.insertAt(originalImg, index, false);
+                                  canvas.insertAt(newCustomImg, index, false);
 
                                   // Now reset filters and UI on the *newly restored* image
-                                  resetImageState(originalImg);
+                                  resetImageState(
+                                    newCustomImg,
+                                    isColorReplacementEnabled
+                                  );
                                 },
                                 { crossOrigin: "anonymous" }
                               );
