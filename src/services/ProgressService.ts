@@ -34,13 +34,32 @@ const ProgressService = () => {
     [callApi]
   );
 
-  const createProgress = useCallback(
+  const createProgressStep = useCallback(
     async (data: any) => {
+      console.log('createProgressStep: ', data)
+      const formData = new FormData();
+      formData.append("OrderID", data.orderID);
+      formData.append("OfferPhaseID", data.offerPhaseID);
+      formData.append("StepTitle", data.stepTitle);
+      formData.append("Description", data.description);
+
+       if (data.imagesDescriptions?.length) {
+        data.imagesDescriptions.forEach((string: string) => {
+          formData.append("ImagesDescriptions", string);
+        });
+      }
+
+      if (data.images?.length) {
+        data.images.forEach((file: File) => {
+          formData.append("Images", file);
+        });
+      }
+      console.log('formData: ', formData)
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
           `${API_ROUTES.CREATE_PROGRESS}`,
-          data
+          formData
         );
         return res;
       } catch (err: any) {
@@ -69,7 +88,7 @@ const ProgressService = () => {
   return {
     getProgress,
     getProgressReviewDetail,
-    createProgress,
+    createProgressStep,
     createProgressReview,
   };
 };

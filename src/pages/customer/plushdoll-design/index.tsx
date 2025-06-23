@@ -14,8 +14,6 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  RotateCw,
-  RotateCcw,
   Layers,
   ArrowUpFromLine,
   ArrowDownFromLine,
@@ -32,6 +30,13 @@ import {
   Palette,
   Group,
   Ungroup,
+  Settings,
+  FlipHorizontal,
+  FlipVertical,
+  RotateCw,
+  RotateCcw,
+  GripVertical,
+  Droplets,
 } from "lucide-react";
 import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
@@ -48,12 +53,17 @@ import { convertToPixels } from "@/components/utils/convert";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
 import { useLocation } from "react-router-dom";
 import BackgroundColorPanel from "./BackgroundColorPanel";
+import { Switch } from "@/components/ui/switch";
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
 
 import LogoCanvas from "@/components/atoms/custom/logo/LogoCanvas";
 import DrawingToolPanel from "./DrawingToolPanel";
+import ImageFilterPanel, {
+  FilterValues,
+  ActiveFilters,
+} from "./ImageFilterPanel";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -76,10 +86,30 @@ interface TextProperties {
   underline: boolean;
 }
 
+// Add interface for storing filter state per image
+interface ImageFilterState {
+  values: FilterValues;
+  active: ActiveFilters;
+  isEnabled: boolean;
+}
+
+// Extend fabric.Image interface to include our custom properties
+interface CustomFabricImage extends fabric.Image {
+  customId?: string;
+  originalSrc?: string;
+}
+
 const PlushDollDesign: React.FC = () => {
+  // Image Cropping Feature:
+  // - Double-click on any image to start cropping
+  // - Move/scale the crop area as desired
+  // - Click outside the crop area to finalize the crop
+  // - The crop area is constrained to stay within the image bounds
+
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const isRestoringRef = useRef(false);
+  const isReplacingColorRef = useRef(false);
   const pasteCountRef = useRef(0);
   const unitRef = useRef<"px" | "cm" | "mm">("px");
   const clipboardRef = useRef<
@@ -130,6 +160,14 @@ const PlushDollDesign: React.FC = () => {
   // Add state for eraser properties
   const [isErasing, setIsErasing] = useState(false);
   const [eraserWidth, setEraserWidth] = useState(10);
+
+  // State to store filter settings for each image object
+  const [imageFilterSettings, setImageFilterSettings] = useState<
+    Map<string, ImageFilterState>
+  >(new Map());
+  const [currentSelectedImageId, setCurrentSelectedImageId] = useState<
+    string | null
+  >(null);
 
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ x: 20, y: 20 });
@@ -182,6 +220,533 @@ const PlushDollDesign: React.FC = () => {
 
   // ✅ Thêm state để track canvas initialization
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
+
+  // Thêm state cho right sidebar
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [propertyUnit, setPropertyUnit] = useState<"px" | "mm">("px");
+
+  // Thêm state để track selected object properties cho right sidebar
+  const [selectedObjectProperties, setSelectedObjectProperties] = useState<{
+    type?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    rotation?: number;
+    scaleX?: number;
+    scaleY?: number;
+  }>({});
+
+  const [draftProperties, setDraftProperties] = useState({
+    x: "",
+    y: "",
+    w: "",
+    h: "",
+    a: "",
+  });
+
+  // Thêm state cho drag and drop layer
+  const [draggedLayerIndex, setDraggedLayerIndex] = useState<number | null>(
+    null
+  );
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Add cropping state
+  const [isCropping, setIsCropping] = useState(false);
+
+  // Add color replacement state
+  const [targetColor, setTargetColor] = useState("#ff0000");
+  const [replacementColor, setReplacementColor] = useState("#00ff00");
+  const [colorTolerance, setColorTolerance] = useState(30);
+  const [isColorReplacementEnabled, setIsColorReplacementEnabled] =
+    useState(false);
+
+  // Add image filter state
+  const [isFilterEnabled, setIsFilterEnabled] = useState(false);
+  const [filterValues, setFilterValues] = useState({
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    vibrance: 0,
+    noise: 0,
+    pixelate: 4,
+    blur: 0,
+    gamma: [1, 1, 1],
+    hue: 0,
+    removeColorDistance: 0.1,
+    removeColorColor: "#ffffff",
+    blendColor: "#ffffff",
+    blendMode: "multiply",
+    blendAlpha: 0.5,
+    grayscaleMode: "average",
+  });
+
+  const [activeFilters, setActiveFilters] = useState({
+    grayscale: false,
+    invert: false,
+    removeColor: false,
+    sepia: false,
+    brownie: false,
+    brightness: false,
+    contrast: false,
+    saturation: false,
+    vibrance: false,
+    noise: false,
+    vintage: false,
+    pixelate: false,
+    blur: false,
+    sharpen: false,
+    emboss: false,
+    technicolor: false,
+    polaroid: false,
+    blendColor: false,
+    gamma: false,
+    kodachrome: false,
+    blackwhite: false,
+    hue: false,
+  });
+
+  // Tabs for right sidebar
+  const [rightSidebarTab, setRightSidebarTab] = useState<"adjust" | "layers">(
+    "adjust"
+  );
+
+  // Thêm state cho shape color
+  const [shapeColor, setShapeColor] = useState("#3b82f6");
+
+  const DEFAULT_FILTER_VALUES: FilterValues = {
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    vibrance: 0,
+    noise: 0,
+    pixelate: 4,
+    blur: 0,
+    gamma: [1, 1, 1],
+    hue: 0,
+    removeColorDistance: 0.1,
+    removeColorColor: "#ffffff",
+    blendColor: "#ffffff",
+    blendMode: "multiply",
+    blendAlpha: 0.5,
+    grayscaleMode: "average",
+  };
+
+  const DEFAULT_ACTIVE_FILTERS: ActiveFilters = {
+    grayscale: false,
+    invert: false,
+    removeColor: false,
+    sepia: false,
+    brownie: false,
+    brightness: false,
+    contrast: false,
+    saturation: false,
+    vibrance: false,
+    noise: false,
+    vintage: false,
+    pixelate: false,
+    blur: false,
+    sharpen: false,
+    emboss: false,
+    technicolor: false,
+    polaroid: false,
+    blendColor: false,
+    gamma: false,
+    kodachrome: false,
+    blackwhite: false,
+    hue: false,
+  };
+
+  const DEFAULT_FILTER_STATE: ImageFilterState = {
+    values: DEFAULT_FILTER_VALUES,
+    active: DEFAULT_ACTIVE_FILTERS,
+    isEnabled: false,
+  };
+
+  const handleApplyChanges = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject) return;
+
+    // X
+    const newX = convertToPx(parseFloat(draftProperties.x) || 0, propertyUnit);
+    activeObject.set("left", newX);
+
+    // Y
+    const newY = convertToPx(parseFloat(draftProperties.y) || 0, propertyUnit);
+    activeObject.set("top", newY);
+
+    // W
+    const newDisplayWidth = parseFloat(draftProperties.w) || 0;
+    const newWidthPx = convertToPx(newDisplayWidth, propertyUnit);
+    const originalWidth = activeObject.width || 1;
+    activeObject.set("scaleX", newWidthPx / originalWidth);
+
+    // H
+    const newDisplayHeight = parseFloat(draftProperties.h) || 0;
+    const newHeightPx = convertToPx(newDisplayHeight, propertyUnit);
+    const originalHeight = activeObject.height || 1;
+    activeObject.set("scaleY", newHeightPx / originalHeight);
+
+    // A
+    const newAngle = parseFloat(draftProperties.a) || 0;
+    activeObject.set("angle", newAngle);
+
+    activeObject.setCoords();
+    canvasRef.current?.renderAll();
+    saveState();
+  };
+
+  const flipObjectHorizontal = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (activeObject) {
+      activeObject.set("flipX", !activeObject.flipX);
+      canvasRef.current?.renderAll();
+      saveState();
+    }
+  };
+
+  const flipObjectVertical = () => {
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (activeObject) {
+      activeObject.set("flipY", !activeObject.flipY);
+      canvasRef.current?.renderAll();
+      saveState();
+    }
+  };
+
+  const convertFromPx = (value: number, unit: "px" | "mm") => {
+    if (unit === "px") return value;
+    return value / convertToPixels(1, "mm");
+  };
+
+  const convertToPx = (value: number, unit: "px" | "mm") => {
+    if (unit === "px") return value;
+    return convertToPixels(value, "mm");
+  };
+
+  // Add cropping functions
+  const prepareCrop = (imageObj: fabric.Image) => {
+    if (!canvasRef.current) return;
+
+    setIsCropping(true);
+
+    const s = imageObj.cropX || 0;
+    const o = imageObj.cropY || 0;
+    const c = imageObj.width || imageObj.getScaledWidth();
+    const l = imageObj.height || imageObj.getScaledHeight();
+
+    imageObj.set({
+      cropX: 0,
+      cropY: 0,
+      left: (imageObj.left || 0) - s * (imageObj.scaleX || 1),
+      top: (imageObj.top || 0) - o * (imageObj.scaleY || 1),
+      width:
+        (imageObj as fabric.Image & { _originalElement?: HTMLImageElement })
+          ._originalElement?.naturalWidth || c,
+      height:
+        (imageObj as fabric.Image & { _originalElement?: HTMLImageElement })
+          ._originalElement?.naturalHeight || l,
+      dirty: false,
+      selectable: false,
+      opacity: 1,
+    });
+
+    const overlay = new fabric.Rect({
+      name: "overlay-rect",
+      top: imageObj.top,
+      left: imageObj.left,
+      angle: imageObj.angle,
+      width: (imageObj.width ?? 0) * (imageObj.scaleX || 1),
+      height: (imageObj.height ?? 0) * (imageObj.scaleY || 1),
+      selectable: false,
+      fill: "rgba(0, 0, 0, 0.5)",
+      lockRotation: true,
+    });
+
+    const cropRect = new fabric.Rect({
+      name: "crop-rect",
+      top: imageObj.top! + s * (imageObj.scaleY || 1),
+      left: imageObj.left! + o * (imageObj.scaleX || 1),
+      angle: imageObj.angle,
+      width: c * (imageObj.scaleX || 1),
+      height: l * (imageObj.scaleY || 1),
+      stroke: "rgb(42, 67, 101)",
+      strokeWidth: 2,
+      strokeDashArray: [5, 5],
+      fill: "rgba(255, 255, 255, 1)",
+      globalCompositeOperation: "overlay",
+      lockRotation: true,
+      selectable: true,
+    });
+
+    canvasRef.current.add(overlay);
+    canvasRef.current.add(cropRect);
+    canvasRef.current.setActiveObject(cropRect);
+
+    cropRect.on("moving", () => {
+      const bounds = imageObj.getBoundingRect();
+      const rectBounds = cropRect.getBoundingRect();
+
+      if (rectBounds.left < bounds.left) cropRect.left = bounds.left;
+      if (rectBounds.top < bounds.top) cropRect.top = bounds.top;
+      if (rectBounds.left + rectBounds.width > bounds.left + bounds.width)
+        cropRect.left = bounds.left + bounds.width - rectBounds.width;
+      if (rectBounds.top + rectBounds.height > bounds.top + bounds.height)
+        cropRect.top = bounds.top + bounds.height - rectBounds.height;
+
+      canvasRef.current?.renderAll();
+    });
+
+    cropRect.on("deselected", () => {
+      cropImage(cropRect, imageObj);
+      canvasRef.current?.remove(overlay);
+    });
+  };
+
+  const cropImage = (cropRectObj: fabric.Rect, imageObj: fabric.Image) => {
+    if (!canvasRef.current) return;
+
+    canvasRef.current.remove(cropRectObj);
+
+    const cropX =
+      ((cropRectObj.left || 0) - (imageObj.left || 0)) / (imageObj.scaleX || 1);
+    const cropY =
+      ((cropRectObj.top || 0) - (imageObj.top || 0)) / (imageObj.scaleY || 1);
+    const cropWidth =
+      ((cropRectObj.width || 0) * (cropRectObj.scaleX || 1)) /
+      (imageObj.scaleX || 1);
+    const cropHeight =
+      ((cropRectObj.height || 0) * (cropRectObj.scaleY || 1)) /
+      (imageObj.scaleY || 1);
+
+    imageObj.set({
+      cropX,
+      cropY,
+      width: cropWidth,
+      height: cropHeight,
+      top: (imageObj.top || 0) + cropY * (imageObj.scaleY || 1),
+      left: (imageObj.left || 0) + cropX * (imageObj.scaleX || 1),
+      selectable: true,
+    });
+
+    setIsCropping(false);
+
+    canvasRef.current.renderAll();
+    saveState();
+  };
+
+  // Add color replacement function
+  const replaceImageColor = () => {
+    isReplacingColorRef.current = true;
+
+    const activeObject = canvasRef.current?.getActiveObject();
+    if (!activeObject || activeObject.type !== "image" || !canvasRef.current) {
+      toast.error("Vui lòng chọn một hình ảnh để thay đổi màu");
+      isReplacingColorRef.current = false;
+      return;
+    }
+
+    const imageObj = activeObject as CustomFabricImage;
+    const imgElement = imageObj.getElement() as HTMLImageElement;
+
+    if (!imgElement) {
+      toast.error("Không thể truy cập dữ liệu hình ảnh");
+      isReplacingColorRef.current = false;
+      return;
+    }
+
+    const originalSrcToPreserve = imageObj.originalSrc || imageObj.getSrc();
+
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    if (!tempCtx) {
+      toast.error("Không thể tạo canvas tạm thời");
+      isReplacingColorRef.current = false;
+      return;
+    }
+
+    tempCanvas.width = imgElement.naturalWidth;
+    tempCanvas.height = imgElement.naturalHeight;
+    tempCtx.drawImage(imgElement, 0, 0);
+
+    const imageData = tempCtx.getImageData(
+      0,
+      0,
+      tempCanvas.width,
+      tempCanvas.height
+    );
+    const data = imageData.data;
+    const targetRGB = hexToRgb(targetColor);
+    const replacementRGB = hexToRgb(replacementColor);
+
+    if (!targetRGB || !replacementRGB) {
+      toast.error("Màu sắc không hợp lệ");
+      isReplacingColorRef.current = false;
+      return;
+    }
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      if (isColorWithinTolerance(r, g, b, targetRGB, colorTolerance)) {
+        data[i] = replacementRGB.r;
+        data[i + 1] = replacementRGB.g;
+        data[i + 2] = replacementRGB.b;
+      }
+    }
+
+    tempCtx.putImageData(imageData, 0, 0);
+
+    fabric.Image.fromURL(tempCanvas.toDataURL(), (newImg) => {
+      if (!canvasRef.current) return;
+
+      const newCustomImg = newImg as CustomFabricImage;
+      const oldCustomImg = imageObj as CustomFabricImage;
+
+      newCustomImg.originalSrc = originalSrcToPreserve;
+      newCustomImg.customId = oldCustomImg.customId;
+
+      newCustomImg.set({
+        left: imageObj.left,
+        top: imageObj.top,
+        scaleX: imageObj.scaleX,
+        scaleY: imageObj.scaleY,
+        angle: imageObj.angle,
+        flipX: imageObj.flipX,
+        flipY: imageObj.flipY,
+        selectable: true,
+        evented: true,
+      });
+
+      canvasRef.current.remove(imageObj);
+      canvasRef.current.add(newCustomImg);
+      canvasRef.current.setActiveObject(newCustomImg);
+      canvasRef.current.requestRenderAll();
+      saveState();
+
+      toast.success("Đã thay đổi màu sắc thành công!");
+
+      setTimeout(() => {
+        isReplacingColorRef.current = false;
+      }, 100);
+    });
+  };
+
+  // Helper function to convert hex color to RGB
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  };
+
+  // Helper function to check if color is within tolerance
+  const isColorWithinTolerance = (
+    r: number,
+    g: number,
+    b: number,
+    target: { r: number; g: number; b: number },
+    tolerance: number
+  ) => {
+    const deltaR = Math.abs(r - target.r);
+    const deltaG = Math.abs(g - target.g);
+    const deltaB = Math.abs(b - target.b);
+
+    return deltaR <= tolerance && deltaG <= tolerance && deltaB <= tolerance;
+  };
+
+  // Image filter functions
+  const applyFilter = (
+    filterIndex: number,
+    filter: fabric.IBaseFilter | null
+  ) => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    if (!imageObj.filters) {
+      imageObj.filters = [];
+    }
+
+    if (filter) {
+      imageObj.filters[filterIndex] = filter;
+    } else {
+      // Remove the filter at this index
+      imageObj.filters.splice(filterIndex, 1);
+    }
+    imageObj.applyFilters();
+    canvasRef.current?.renderAll();
+    saveState();
+  };
+
+  const applyFilterValue = (
+    filterIndex: number,
+    prop: string,
+    value: string | number | number[]
+  ) => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    if (imageObj.filters?.[filterIndex]) {
+      (imageObj.filters[filterIndex] as unknown as Record<string, unknown>)[
+        prop
+      ] = value;
+      imageObj.applyFilters();
+      canvasRef.current?.renderAll();
+      saveState();
+    }
+  };
+
+  const clearAllFilters = () => {
+    const obj = canvasRef.current?.getActiveObject();
+    if (!obj || obj.type !== "image") return;
+
+    const imageObj = obj as fabric.Image;
+    imageObj.filters = [];
+    imageObj.applyFilters();
+    canvasRef.current?.renderAll();
+    saveState();
+
+    // Reset all filter states
+    setActiveFilters({
+      grayscale: false,
+      invert: false,
+      removeColor: false,
+      sepia: false,
+      brownie: false,
+      brightness: false,
+      contrast: false,
+      saturation: false,
+      vibrance: false,
+      noise: false,
+      vintage: false,
+      pixelate: false,
+      blur: false,
+      sharpen: false,
+      emboss: false,
+      technicolor: false,
+      polaroid: false,
+      blendColor: false,
+      gamma: false,
+      kodachrome: false,
+      blackwhite: false,
+      hue: false,
+    });
+  };
+
+  const handleDoubleClick = (e: fabric.IEvent) => {
+    const target = e.target;
+    if (target && target.type === "image" && !isCropping) {
+      prepareCrop(target as fabric.Image);
+    }
+  };
 
   // Danh sách màu gợi ý
   // (Đã chuyển vào BackgroundColorPanel)
@@ -237,121 +802,212 @@ const PlushDollDesign: React.FC = () => {
       width = parent.clientWidth;
       height = parent.clientHeight;
     }
+
+    // Ensure minimum dimensions
+    width = Math.max(width, 100);
+    height = Math.max(height, 100);
+
     htmlCanvasRef.current.width = width;
     htmlCanvasRef.current.height = height;
-    const canvas = new fabric.Canvas(htmlCanvasRef.current, {
-      backgroundColor: backgroundColor,
-      width,
-      height,
-    });
-    canvas.freeDrawingBrush.color = brushColor;
-    canvas.freeDrawingBrush.width = brushWidth;
-    canvas.renderAll();
-    canvasRef.current = canvas;
 
-    // ✅ Debug khi khởi tạo canvas
-    console.log("Khởi tạo canvas - Số object:", canvas.getObjects().length);
+    try {
+      const canvas = new fabric.Canvas(htmlCanvasRef.current, {
+        backgroundColor: backgroundColor,
+        width,
+        height,
+      });
 
-    // ✅ Đánh dấu canvas đã được khởi tạo
-    setIsCanvasInitialized(true);
-
-    saveInitialState();
-
-    // Selection events for smart toolbar
-    canvas.on("selection:created", (e) => {
-      if (e.selected && e.selected.length > 0) {
-        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
-          setToolbarVisible(true);
-          setActiveText(null);
-          // Update toolbar position for the selection
-          const activeObj = canvas.getActiveObject();
-          if (activeObj) {
-            updateToolbarPos(activeObj);
-          }
-        } else {
-          handleSelection(e.selected[0]);
-        }
+      // Ensure canvas is properly initialized
+      if (!canvas || !canvas.getContext()) {
+        console.error("Failed to initialize canvas");
+        return;
       }
-    });
 
-    canvas.on("selection:updated", (e) => {
-      if (e.selected && e.selected.length > 0) {
-        if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
-          // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
-          setToolbarVisible(true);
-          setActiveText(null);
-          // Update toolbar position for the selection
-          const activeObj = canvas.getActiveObject();
-          if (activeObj) {
-            updateToolbarPos(activeObj);
+      canvas.freeDrawingBrush.color = brushColor;
+      canvas.freeDrawingBrush.width = brushWidth;
+
+      // Use setTimeout to ensure canvas is ready before rendering
+      setTimeout(() => {
+        try {
+          if (canvas && canvas.getContext()) {
+            canvas.renderAll();
           }
-        } else {
-          handleSelection(e.selected[0]);
+        } catch (error) {
+          console.error("Error rendering canvas:", error);
         }
-      }
-    });
+      }, 0);
 
-    canvas.on("selection:cleared", () => {
-      setToolbarVisible(false);
-      setActiveText(null);
-    });
+      canvasRef.current = canvas;
 
-    canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
-    canvas.on("object:added", () => !isRestoringRef.current && saveState());
-    canvas.on("object:modified", saveState);
-    canvas.on("object:moving", (e) => {
-      if (e.target) updateToolbarPos(e.target);
-    });
+      // ✅ Debug khi khởi tạo canvas
+      console.log("Khởi tạo canvas - Số object:", canvas.getObjects().length);
 
-    // ✅ Thêm events cho scaling và rotating để update toolbar position
-    canvas.on("object:scaling", (e) => {
-      if (e.target) updateToolbarPos(e.target);
-    });
+      // ✅ Đánh dấu canvas đã được khởi tạo
+      setIsCanvasInitialized(true);
 
-    canvas.on("object:rotating", (e) => {
-      if (e.target) updateToolbarPos(e.target);
-    });
+      saveInitialState();
 
-    document.addEventListener("keydown", handleKeyDown);
+      // Extend fabric.Object to include custom properties in JSON output
+      fabric.Object.prototype.toObject = (function (toObject) {
+        return function (this: fabric.Object, propertiesToInclude) {
+          propertiesToInclude = (propertiesToInclude || []).concat([
+            "customId",
+            "originalSrc",
+          ]);
+          return toObject.call(this, propertiesToInclude);
+        };
+      })(fabric.Object.prototype.toObject);
 
-    // Add event listener for createNewCanvas
-    const handleCreateNewCanvas = () => {
-      createNewCanvas();
-    };
-    window.addEventListener("createNewCanvas", handleCreateNewCanvas);
+      const handleSelectionChange = () => {
+        if (isReplacingColorRef.current) return;
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("createNewCanvas", handleCreateNewCanvas);
-      canvas.dispose();
-    };
+        const activeObject = canvasRef.current?.getActiveObject();
+        if (activeObject && activeObject.type === "image") {
+          const customImg = activeObject as CustomFabricImage;
+          let imageId = customImg.customId;
+          // Assign an ID if it's missing (e.g., for pasted or newly created objects)
+          if (!imageId) {
+            imageId = `img_${Date.now()}_${Math.random()}`;
+            customImg.customId = imageId;
+          }
+          setCurrentSelectedImageId(imageId);
+        } else {
+          setCurrentSelectedImageId(null);
+        }
+      };
+
+      // Selection events for smart toolbar
+      canvas.on("selection:created", (e) => {
+        handleSelectionChange();
+        if (e.selected && e.selected.length > 0) {
+          if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+            // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+            setToolbarVisible(true);
+            setActiveText(null);
+            // Update toolbar position for the selection
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+              updateToolbarPos(activeObj);
+            }
+          } else {
+            handleSelection(e.selected[0]);
+          }
+        }
+      });
+
+      canvas.on("selection:updated", (e) => {
+        handleSelectionChange();
+        if (e.selected && e.selected.length > 0) {
+          if (canvas.getActiveObject() instanceof fabric.ActiveSelection) {
+            // ✅ Hiển thị toolbar khi chọn nhiều đối tượng
+            setToolbarVisible(true);
+            setActiveText(null);
+            // Update toolbar position for the selection
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+              updateToolbarPos(activeObj);
+            }
+          } else {
+            handleSelection(e.selected[0]);
+          }
+        }
+      });
+
+      canvas.on("selection:cleared", () => {
+        handleSelectionChange();
+        setToolbarVisible(false);
+        setActiveText(null);
+      });
+
+      canvas.on("mouse:up", () => (isDrawing || isErasing) && saveState());
+      canvas.on("object:added", () => !isRestoringRef.current && saveState());
+      canvas.on("object:modified", saveState);
+      canvas.on("object:moving", (e) => {
+        if (e.target) updateToolbarPos(e.target);
+      });
+
+      // ✅ Thêm events cho scaling và rotating để update toolbar position
+      canvas.on("object:scaling", (e) => {
+        if (e.target) updateToolbarPos(e.target);
+      });
+
+      canvas.on("object:rotating", (e) => {
+        if (e.target) updateToolbarPos(e.target);
+      });
+
+      // Add double-click event for image cropping
+      canvas.on("mouse:dblclick", handleDoubleClick);
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      // Add event listener for createNewCanvas
+      const handleCreateNewCanvas = () => {
+        createNewCanvas();
+      };
+      window.addEventListener("createNewCanvas", handleCreateNewCanvas);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("createNewCanvas", handleCreateNewCanvas);
+        if (canvas && typeof canvas.dispose === "function") {
+          try {
+            canvas.dispose();
+          } catch (error) {
+            console.error("Error disposing canvas:", error);
+          }
+        }
+      };
+    } catch (error) {
+      console.error("Error initializing canvas:", error);
+    }
   }, []); // ✅ Bỏ backgroundColor khỏi dependency
 
   // Sync brush properties when they change
   useEffect(() => {
     if (canvasRef.current) {
-      canvasRef.current.freeDrawingBrush.color = brushColor;
-      canvasRef.current.freeDrawingBrush.width = brushWidth;
+      try {
+        // Ensure canvas context exists
+        if (!canvasRef.current.getContext()) {
+          console.error(
+            "Canvas context is null when updating brush properties"
+          );
+          return;
+        }
+        canvasRef.current.freeDrawingBrush.color = brushColor;
+        canvasRef.current.freeDrawingBrush.width = brushWidth;
+      } catch (error) {
+        console.error("Error updating brush properties:", error);
+      }
     }
   }, [brushColor, brushWidth]);
 
   // Sync eraser properties when they change
   useEffect(() => {
     if (canvasRef.current) {
-      // Set drawing mode based on whether drawing or erasing is active
-      canvasRef.current.isDrawingMode = isDrawing || isErasing;
+      try {
+        // Ensure canvas context exists
+        if (!canvasRef.current.getContext()) {
+          console.error(
+            "Canvas context is null when updating eraser properties"
+          );
+          return;
+        }
+        // Set drawing mode based on whether drawing or erasing is active
+        canvasRef.current.isDrawingMode = isDrawing || isErasing;
 
-      if (isErasing) {
-        // Set eraser brush (white brush to erase)
-        canvasRef.current.freeDrawingBrush.color = "#ffffff";
-        canvasRef.current.freeDrawingBrush.width = eraserWidth;
-      } else if (isDrawing) {
-        // Set normal brush
-        canvasRef.current.freeDrawingBrush.color = brushColor;
-        canvasRef.current.freeDrawingBrush.width = brushWidth;
+        if (isErasing) {
+          // Set eraser brush (white brush to erase)
+          canvasRef.current.freeDrawingBrush.color = "#ffffff";
+          canvasRef.current.freeDrawingBrush.width = eraserWidth;
+        } else if (isDrawing) {
+          // Set normal brush
+          canvasRef.current.freeDrawingBrush.color = brushColor;
+          canvasRef.current.freeDrawingBrush.width = brushWidth;
+        }
+        canvasRef.current.renderAll();
+      } catch (error) {
+        console.error("Error updating eraser properties:", error);
       }
-      canvasRef.current.renderAll();
     }
   }, [isErasing, isDrawing, eraserWidth, brushColor, brushWidth]);
 
@@ -391,24 +1047,34 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     const resizeCanvas = () => {
       if (canvasWrapperRef.current && canvasRef.current) {
-        const { clientWidth, clientHeight } = canvasWrapperRef.current;
+        try {
+          const { clientWidth, clientHeight } = canvasWrapperRef.current;
 
-        // ✅ Debug resize canvas
-        console.log("Resize canvas called:", {
-          clientWidth,
-          clientHeight,
-          currentObjects: canvasRef.current.getObjects().length,
-        });
+          // Ensure canvas context exists
+          if (!canvasRef.current.getContext()) {
+            console.error("Canvas context is null during resize");
+            return;
+          }
 
-        canvasRef.current.setWidth(clientWidth);
-        canvasRef.current.setHeight(clientHeight);
-        canvasRef.current.renderAll();
+          // ✅ Debug resize canvas
+          console.log("Resize canvas called:", {
+            clientWidth,
+            clientHeight,
+            currentObjects: canvasRef.current.getObjects().length,
+          });
 
-        // ✅ Debug sau khi resize
-        console.log(
-          "Sau khi resize - Số object:",
-          canvasRef.current.getObjects().length
-        );
+          canvasRef.current.setWidth(clientWidth);
+          canvasRef.current.setHeight(clientHeight);
+          canvasRef.current.renderAll();
+
+          // ✅ Debug sau khi resize
+          console.log(
+            "Sau khi resize - Số object:",
+            canvasRef.current.getObjects().length
+          );
+        } catch (error) {
+          console.error("Error resizing canvas:", error);
+        }
       }
     };
     window.addEventListener("resize", resizeCanvas);
@@ -932,6 +1598,16 @@ const PlushDollDesign: React.FC = () => {
       canvasRef.current.loadFromJSON(safeJson, () => {
         const canvas = canvasRef.current!;
 
+        // Ensure all loaded images have a custom ID
+        canvas.forEachObject((obj) => {
+          if (obj.type === "image") {
+            const customImg = obj as CustomFabricImage;
+            if (!customImg.customId) {
+              customImg.customId = `img_${Date.now()}_${Math.random()}`;
+            }
+          }
+        });
+
         // ✅ Sau khi load JSON → set lại màu nền (nếu có)
         // if (backgroundColor) {
         //   canvas.setBackgroundColor(backgroundColor, () => {
@@ -1063,15 +1739,21 @@ const PlushDollDesign: React.FC = () => {
   const uploadImage = (file: File) => {
     const reader = new FileReader();
     reader.onload = (f) => {
-      fabric.Image.fromURL(f.target?.result as string, (img) => {
-        img.scaleToWidth(200);
-        img.scaleToHeight(200);
-        img.set({ left: 100, top: 100, selectable: true });
-        canvasRef.current?.add(img);
-        canvasRef.current?.setActiveObject(img);
-        canvasRef.current?.bringToFront(img);
-        saveState();
-      });
+      fabric.Image.fromURL(
+        f.target?.result as string,
+        (img) => {
+          const customImg = img as CustomFabricImage;
+          customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
+          img.scaleToWidth(200);
+          img.scaleToHeight(200);
+          img.set({ left: 100, top: 100, selectable: true });
+          canvasRef.current?.add(img);
+          canvasRef.current?.setActiveObject(img);
+          canvasRef.current?.bringToFront(img);
+          saveState();
+        },
+        { crossOrigin: "anonymous" }
+      );
     };
     reader.readAsDataURL(file);
   };
@@ -1281,35 +1963,99 @@ const PlushDollDesign: React.FC = () => {
   };
 
   // Add new function to handle item selection
-  const handleItemSelect = (imageUrl: string) => {
-    fabric.Image.fromURL(imageUrl, (img) => {
-      // Set initial size - smaller default size
-      const maxSize = 200; // Reduced from 200 to 150
-      const aspectRatio = img.width! / img.height!;
+  const handleItemSelect = (data: string | { type: string; svg: string }) => {
+    // Check if data is shape data
+    if (typeof data === "object" && data.type && data.svg) {
+      // Handle shape data
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${data.svg}</svg>`;
 
-      if (aspectRatio > 1) {
-        img.scaleToWidth(maxSize);
-      } else {
-        img.scaleToHeight(maxSize);
-      }
+      fabric.loadSVGFromString(svgString, (objects) => {
+        if (objects && objects.length > 0) {
+          // Apply color to all objects in the shape
+          objects.forEach((obj) => {
+            if (
+              obj.type === "path" ||
+              obj.type === "line" ||
+              obj.type === "polygon" ||
+              obj.type === "rect" ||
+              obj.type === "circle" ||
+              obj.type === "ellipse"
+            ) {
+              // Set fill color for filled shapes
+              if (obj.fill && obj.fill !== "none") {
+                obj.set("fill", shapeColor);
+              }
+              // Set stroke color for stroked shapes
+              if (obj.stroke && obj.stroke !== "none") {
+                obj.set("stroke", shapeColor);
+              }
+              // If no fill or stroke, set fill as default
+              if (!obj.fill && !obj.stroke) {
+                obj.set("fill", shapeColor);
+              }
+            }
+          });
 
-      // Place at center of canvas
-      const centerX = canvasRef.current!.width! / 2;
-      const centerY = canvasRef.current!.height! / 2;
+          const group = new fabric.Group(objects, {
+            left: canvasRef.current!.width! / 2 - 50, // Center the shape
+            top: canvasRef.current!.height! / 2 - 50,
+            selectable: true,
+            originX: "center",
+            originY: "center",
+            scaleX: 1,
+            scaleY: 1,
+          });
 
-      img.set({
-        left: centerX,
-        top: centerY,
-        selectable: true,
-        originX: "center",
-        originY: "center",
+          canvasRef.current?.add(group);
+          canvasRef.current?.setActiveObject(group);
+          canvasRef.current?.bringToFront(group);
+          saveState();
+        }
       });
+      return;
+    }
 
-      canvasRef.current?.add(img);
-      canvasRef.current?.setActiveObject(img);
-      canvasRef.current?.bringToFront(img);
-      saveState();
-    });
+    // Handle image URL
+    const imageUrl = data as string;
+    fabric.Image.fromURL(
+      imageUrl,
+      (img: fabric.Image) => {
+        const customImg = img as CustomFabricImage;
+        customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
+        // Set initial size - smaller default size
+        const maxSize = 200; // Reduced from 200 to 150
+        const aspectRatio = img.width! / img.height!;
+
+        if (aspectRatio > 1) {
+          img.scaleToWidth(maxSize);
+        } else {
+          img.scaleToHeight(maxSize);
+        }
+
+        // Place at center of canvas
+        const centerX = canvasRef.current!.width! / 2;
+        const centerY = canvasRef.current!.height! / 2;
+
+        img.set({
+          left: centerX,
+          top: centerY,
+          selectable: true,
+          originX: "center",
+          originY: "center",
+        });
+
+        // Add a custom ID to the dropped image
+        (
+          img as CustomFabricImage
+        ).customId = `img_${Date.now()}_${Math.random()}`;
+
+        canvasRef.current?.add(img);
+        canvasRef.current?.setActiveObject(img);
+        canvasRef.current?.bringToFront(img);
+        saveState();
+      },
+      { crossOrigin: "anonymous" }
+    );
   };
 
   // Update drag and drop handlers for canvas
@@ -1334,8 +2080,8 @@ const PlushDollDesign: React.FC = () => {
       e.preventDefault();
       e.stopPropagation();
 
-      const imageUrl = e.dataTransfer.getData("text/plain");
-      if (!imageUrl) return;
+      const data = e.dataTransfer.getData("text/plain");
+      if (!data) return;
 
       // Get canvas position and scale
       const wrapperRect = wrapper.getBoundingClientRect();
@@ -1348,36 +2094,78 @@ const PlushDollDesign: React.FC = () => {
       const canvasX = x / scaleRatio;
       const canvasY = y / scaleRatio;
 
-      // Create and add image
-      fabric.Image.fromURL(imageUrl, (img) => {
-        // Set initial size
-        const maxSize = 200;
-        const aspectRatio = img.width! / img.height!;
+      // Try to parse as shape data first
+      try {
+        const shapeData = JSON.parse(data);
+        if (shapeData.type && shapeData.svg) {
+          // This is a shape, create SVG object
+          const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${shapeData.svg}</svg>`;
 
-        if (aspectRatio > 1) {
-          img.scaleToWidth(maxSize);
-        } else {
-          img.scaleToHeight(maxSize);
+          fabric.loadSVGFromString(svgString, (objects) => {
+            if (objects && objects.length > 0) {
+              const group = new fabric.Group(objects, {
+                left: canvasX - 50, // Center the shape
+                top: canvasY - 50,
+                selectable: true,
+                originX: "center",
+                originY: "center",
+                scaleX: 1,
+                scaleY: 1,
+              });
+
+              canvas.add(group);
+              canvas.setActiveObject(group);
+              canvas.requestRenderAll();
+              saveState();
+            }
+          });
+          return;
         }
+      } catch {
+        // Not a shape, treat as image URL
+      }
 
-        // Calculate image dimensions after scaling
-        const scaledWidth = img.width! * img.scaleX!;
-        const scaledHeight = img.height! * img.scaleY!;
+      // Handle as image URL
+      fabric.Image.fromURL(
+        data,
+        (img: fabric.Image) => {
+          const customImg = img as CustomFabricImage;
+          customImg.customId = `img_${Date.now()}_${Math.random()}`; // Add custom ID
+          // Set initial size
+          const maxSize = 200;
+          const aspectRatio = img.width! / img.height!;
 
-        // Place image center at cursor position
-        img.set({
-          left: canvasX - scaledWidth / 2,
-          top: canvasY - scaledHeight / 2,
-          selectable: true,
-          originX: "left",
-          originY: "top",
-        });
+          if (aspectRatio > 1) {
+            img.scaleToWidth(maxSize);
+          } else {
+            img.scaleToHeight(maxSize);
+          }
 
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.requestRenderAll();
-        saveState();
-      });
+          // Calculate image dimensions after scaling
+          const scaledWidth = img.width! * img.scaleX!;
+          const scaledHeight = img.height! * img.scaleY!;
+
+          // Place image center at cursor position
+          img.set({
+            left: canvasX - scaledWidth / 2,
+            top: canvasY - scaledHeight / 2,
+            selectable: true,
+            originX: "left",
+            originY: "top",
+          });
+
+          // Add a custom ID to the dropped image
+          (
+            img as CustomFabricImage
+          ).customId = `img_${Date.now()}_${Math.random()}`;
+
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.requestRenderAll();
+          saveState();
+        },
+        { crossOrigin: "anonymous" }
+      );
     };
 
     // Add event listeners to canvas wrapper instead of canvas element
@@ -1462,74 +2250,88 @@ const PlushDollDesign: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!canvasRef.current || !backgroundColor) return;
+    if (!canvasRef.current || !backgroundColor || !isCanvasInitialized) return;
 
-    // ✅ Debug trước khi thay đổi background
-    console.log(
-      "Thay đổi background color từ:",
-      canvasRef.current.backgroundColor,
-      "sang:",
-      backgroundColor
-    );
-    console.log(
-      "Số object trước khi thay đổi:",
-      canvasRef.current.getObjects().length
-    );
+    try {
+      // ✅ Debug trước khi thay đổi background
+      console.log(
+        "Thay đổi background color từ:",
+        canvasRef.current.backgroundColor,
+        "sang:",
+        backgroundColor
+      );
+      console.log(
+        "Số object trước khi thay đổi:",
+        canvasRef.current.getObjects().length
+      );
 
-    // Kiểm tra nếu backgroundColor là gradient
-    if (backgroundColor.startsWith("linear-gradient")) {
-      // Tạo gradient object cho Fabric.js
-      const gradient = new fabric.Gradient({
-        type: "linear",
-        coords: {
-          x1: 0,
-          y1: 0,
-          x2: canvasRef.current.width || 800,
-          y2: canvasRef.current.height || 600,
-        },
-        colorStops: [
-          { offset: 0, color: "#667eea" },
-          { offset: 1, color: "#764ba2" },
-        ],
-      });
-
-      // Parse gradient string để lấy colors và offsets
-      const gradientStr = backgroundColor;
-
-      // Extract colors and percentages from gradient string
-      const colorStopMatches = gradientStr.match(/#[a-fA-F0-9]{6}\s*\d*%?/g);
-      if (colorStopMatches && colorStopMatches.length >= 2) {
-        const colorStops = colorStopMatches.map((match, index) => {
-          const colorMatch = match.match(/#[a-fA-F0-9]{6}/);
-          const percentMatch = match.match(/(\d+)%/);
-
-          const color = colorMatch ? colorMatch[0] : "#667eea";
-          const offset = percentMatch
-            ? parseInt(percentMatch[1]) / 100
-            : index / (colorStopMatches.length - 1);
-
-          return { offset, color };
-        });
-
-        gradient.colorStops = colorStops;
+      // Ensure canvas context exists
+      if (!canvasRef.current.getContext()) {
+        console.error("Canvas context is null when changing background color");
+        return;
       }
 
-      canvasRef.current.setBackgroundColor(gradient, () => {
-        canvasRef.current!.renderAll();
-      });
-    } else {
-      // Màu solid bình thường
-      canvasRef.current.setBackgroundColor(backgroundColor, () => {
-        canvasRef.current!.renderAll();
-      });
-    }
+      // Kiểm tra nếu backgroundColor là gradient
+      if (backgroundColor.startsWith("linear-gradient")) {
+        // Tạo gradient object cho Fabric.js
+        const gradient = new fabric.Gradient({
+          type: "linear",
+          coords: {
+            x1: 0,
+            y1: 0,
+            x2: canvasRef.current.width || 800,
+            y2: canvasRef.current.height || 600,
+          },
+          colorStops: [
+            { offset: 0, color: "#667eea" },
+            { offset: 1, color: "#764ba2" },
+          ],
+        });
 
-    // ✅ Debug sau khi render
-    console.log(
-      "Sau khi set background color - Số object:",
-      canvasRef.current?.getObjects().length
-    );
-  }, [backgroundColor]);
+        // Parse gradient string để lấy colors và offsets
+        const gradientStr = backgroundColor;
+
+        // Extract colors and percentages from gradient string
+        const colorStopMatches = gradientStr.match(/#[a-fA-F0-9]{6}\s*\d*%?/g);
+        if (colorStopMatches && colorStopMatches.length >= 2) {
+          const colorStops = colorStopMatches.map((match, index) => {
+            const colorMatch = match.match(/#[a-fA-F0-9]{6}/);
+            const percentMatch = match.match(/(\d+)%/);
+
+            const color = colorMatch ? colorMatch[0] : "#667eea";
+            const offset = percentMatch
+              ? parseInt(percentMatch[1]) / 100
+              : index / (colorStopMatches.length - 1);
+
+            return { offset, color };
+          });
+
+          gradient.colorStops = colorStops;
+        }
+
+        canvasRef.current.setBackgroundColor(gradient, () => {
+          if (canvasRef.current) {
+            canvasRef.current.renderAll();
+          }
+        });
+      } else {
+        // Màu solid bình thường
+        canvasRef.current.setBackgroundColor(backgroundColor, () => {
+          if (canvasRef.current) {
+            canvasRef.current.renderAll();
+          }
+        });
+      }
+
+      // ✅ Debug sau khi render
+      console.log(
+        "Sau khi set background color - Số object:",
+        canvasRef.current?.getObjects().length
+      );
+    } catch (error) {
+      console.error("Error changing background color:", error);
+    }
+  }, [backgroundColor, isCanvasInitialized]);
 
   // ✅ Thêm useEffect để debug canvas state
   useEffect(() => {
@@ -1545,6 +2347,67 @@ const PlushDollDesign: React.FC = () => {
       });
     }
   }, [canvasRef.current, backgroundColor]);
+
+  // Thêm useEffect để cập nhật selected object properties
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const updateSelectedObjectProperties = () => {
+      const activeObject = canvasRef.current?.getActiveObject();
+      if (activeObject) {
+        setSelectedObjectProperties({
+          type: activeObject.type,
+          x: Math.round(activeObject.left || 0),
+          y: Math.round(activeObject.top || 0),
+          width: Math.round(activeObject.width || 0),
+          height: Math.round(activeObject.height || 0),
+          rotation: Math.round(activeObject.angle || 0),
+          scaleX: activeObject.scaleX,
+          scaleY: activeObject.scaleY,
+        });
+      } else {
+        setSelectedObjectProperties({});
+      }
+    };
+
+    // Update on selection events
+    canvasRef.current.on("selection:created", updateSelectedObjectProperties);
+    canvasRef.current.on("selection:updated", updateSelectedObjectProperties);
+    canvasRef.current.on("selection:cleared", updateSelectedObjectProperties);
+    canvasRef.current.on("object:modified", updateSelectedObjectProperties);
+    canvasRef.current.on("object:moving", updateSelectedObjectProperties);
+    canvasRef.current.on("object:scaling", updateSelectedObjectProperties);
+    canvasRef.current.on("object:rotating", updateSelectedObjectProperties);
+    canvasRef.current.on("object:scaled", updateSelectedObjectProperties);
+
+    return () => {
+      if (canvasRef.current) {
+        canvasRef.current.off(
+          "selection:created",
+          updateSelectedObjectProperties
+        );
+        canvasRef.current.off(
+          "selection:updated",
+          updateSelectedObjectProperties
+        );
+        canvasRef.current.off(
+          "selection:cleared",
+          updateSelectedObjectProperties
+        );
+        canvasRef.current.off(
+          "object:modified",
+          updateSelectedObjectProperties
+        );
+        canvasRef.current.off("object:moving", updateSelectedObjectProperties);
+        canvasRef.current.off("object:scaling", updateSelectedObjectProperties);
+        canvasRef.current.off(
+          "object:rotating",
+          updateSelectedObjectProperties
+        );
+        canvasRef.current.off("object:scaled", updateSelectedObjectProperties);
+      }
+    };
+  }, [canvasRef.current]);
 
   // ✅ Thêm useEffect để load canvas data sau khi canvas đã được khởi tạo
   useEffect(() => {
@@ -1581,6 +2444,19 @@ const PlushDollDesign: React.FC = () => {
       fetchCanvasData();
     }
   }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
+
+  // Thêm useEffect để tắt scroll của trang chính
+  // useEffect(() => {
+  //   // Tắt scroll của body và html
+  //   document.body.style.overflow = "hidden";
+  //   document.documentElement.style.overflow = "hidden";
+
+  //   // Cleanup khi component unmount
+  //   return () => {
+  //     document.body.style.overflow = "";
+  //     document.documentElement.style.overflow = "";
+  //   };
+  // }, []);
 
   // Add useEffect to update group/ungroup button states
   // useEffect(() => {
@@ -1695,6 +2571,68 @@ const PlushDollDesign: React.FC = () => {
     if (!activeObject) return false;
 
     return activeObject.type === "group";
+  };
+
+  // Thêm các hàm xử lý drag and drop cho layer
+  const handleLayerDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedLayerIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+    // Ngăn chặn việc select text khi drag
+    e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
+  };
+
+  const handleLayerDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIndex(index);
+  };
+
+  const handleLayerDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleLayerDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    if (draggedLayerIndex === null || !canvasRef.current) return;
+
+    const objects = canvasRef.current.getObjects();
+    const reversedObjects = objects.slice().reverse();
+
+    // Lấy object được kéo
+    const draggedObject = reversedObjects[draggedLayerIndex];
+
+    if (!draggedObject) return;
+
+    // Nếu kéo về chính vị trí cũ thì không làm gì
+    if (draggedLayerIndex === dropIndex) {
+      setDraggedLayerIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Xóa object khỏi vị trí cũ
+    canvasRef.current.remove(draggedObject);
+
+    // Tính toán vị trí mới trong danh sách gốc
+    const newIndex = objects.length - 1 - dropIndex;
+
+    // Thêm object vào vị trí mới
+    canvasRef.current.insertAt(draggedObject, newIndex, false);
+
+    // Cập nhật canvas
+    canvasRef.current.requestRenderAll();
+    saveState();
+
+    // Reset state
+    setDraggedLayerIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleLayerDragEnd = () => {
+    setDraggedLayerIndex(null);
+    setDragOverIndex(null);
   };
 
   // Define sidebar actions for consistency
@@ -1875,25 +2813,101 @@ const PlushDollDesign: React.FC = () => {
   const drawingToolPanelRef = useRef<HTMLDivElement>(null);
   const backgroundColorPanelRef = useRef<HTMLDivElement>(null);
 
-  const [sidebarsWidth, setSidebarsWidth] = useState(0);
-
-  // Tính tổng width các sidebar đang mở
   useEffect(() => {
-    let total = 0;
-    if (libraryOpen && itemLibraryRef.current) {
-      total += itemLibraryRef.current.offsetWidth;
+    const obj = canvasRef.current?.getActiveObject();
+    if (obj) {
+      setDraftProperties({
+        x: convertFromPx(obj.left || 0, propertyUnit).toFixed(2),
+        y: convertFromPx(obj.top || 0, propertyUnit).toFixed(2),
+        w: convertFromPx(
+          (obj.width || 0) * (obj.scaleX || 1),
+          propertyUnit
+        ).toFixed(2),
+        h: convertFromPx(
+          (obj.height || 0) * (obj.scaleY || 1),
+          propertyUnit
+        ).toFixed(2),
+        a: String(Math.round(obj.angle || 0)),
+      });
     }
-    if (showCanvasList && canvasListSidebarRef.current) {
-      total += canvasListSidebarRef.current.offsetWidth;
+  }, [selectedObjectProperties, propertyUnit]);
+
+  // Reset image adjustment panels when selection changes
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    // This function now only resets the image filter panel UI.
+    // The state of filters is managed per-image.
+    const resetImageFilterPanel = () => {
+      // A crucial check to prevent the UI from resetting during the color replacement process,
+      // which involves temporarily deselecting and reselecting the image.
+      if (isReplacingColorRef.current) {
+        return;
+      }
+      setIsFilterEnabled(false);
+      setFilterValues(DEFAULT_FILTER_VALUES);
+      setActiveFilters(DEFAULT_ACTIVE_FILTERS);
+    };
+
+    // We also need a handler for when selection is completely cleared.
+    const handleSelectionCleared = () => {
+      if (isReplacingColorRef.current) {
+        return;
+      }
+      resetImageFilterPanel();
+      // Also reset color replacement when nothing is selected.
+      setIsColorReplacementEnabled(false);
+    };
+
+    const canvas = canvasRef.current;
+    canvas.on("selection:created", resetImageFilterPanel);
+    canvas.on("selection:updated", resetImageFilterPanel);
+    canvas.on("selection:cleared", handleSelectionCleared);
+
+    return () => {
+      canvas.off("selection:created", resetImageFilterPanel);
+      canvas.off("selection:updated", resetImageFilterPanel);
+      canvas.off("selection:cleared", handleSelectionCleared);
+    };
+  }, [canvasRef.current]);
+
+  // EFFECT: Load filter settings when selection changes
+  useEffect(() => {
+    if (currentSelectedImageId) {
+      const settings =
+        imageFilterSettings.get(currentSelectedImageId) || DEFAULT_FILTER_STATE;
+      setFilterValues(settings.values);
+      setActiveFilters(settings.active);
+      setIsFilterEnabled(settings.isEnabled);
+    } else {
+      // Reset if no image is selected
+      setFilterValues(DEFAULT_FILTER_STATE.values);
+      setActiveFilters(DEFAULT_FILTER_STATE.active);
+      setIsFilterEnabled(DEFAULT_FILTER_STATE.isEnabled);
     }
-    if (drawingPanelOpen && drawingToolPanelRef.current) {
-      total += drawingToolPanelRef.current.offsetWidth;
+  }, [currentSelectedImageId]);
+
+  // EFFECT: Save filter settings when they change for the selected image
+  useEffect(() => {
+    if (!currentSelectedImageId) return;
+
+    const currentState: ImageFilterState = {
+      values: filterValues,
+      active: activeFilters,
+      isEnabled: isFilterEnabled,
+    };
+
+    // Prevent re-saving the exact same state that's already in the map
+    const existingState = imageFilterSettings.get(currentSelectedImageId);
+    if (JSON.stringify(existingState) === JSON.stringify(currentState)) {
+      return;
     }
-    if (backgroundPanelOpen && backgroundColorPanelRef.current) {
-      total += backgroundColorPanelRef.current.offsetWidth;
-    }
-    setSidebarsWidth(total);
-  }, [libraryOpen, showCanvasList, drawingPanelOpen, backgroundPanelOpen]);
+
+    const newMap = new Map(imageFilterSettings);
+    newMap.set(currentSelectedImageId, currentState);
+    setImageFilterSettings(newMap);
+    // This dependency array is correct. It triggers a save when the filter UI state changes.
+  }, [filterValues, activeFilters, isFilterEnabled, currentSelectedImageId]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -2056,14 +3070,25 @@ const PlushDollDesign: React.FC = () => {
               <span className="text-xs font-medium">Tự động lưu: Tắt</span>
             )}
           </Button>
-          {/* <Input
-            type="file"
-            accept=".json"
-            onChange={(e) =>
-              e.target.files && loadCanvasFromJSON(e.target.files[0])
-            }
-            className="w-[120px]"
-          /> */}
+
+          <Button
+            variant={rightSidebarOpen ? "default" : "outline"}
+            onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+            className="flex items-center gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="text-xs font-medium">Properties</span>
+          </Button>
+
+          {/* Cropping mode indicator */}
+          {isCropping && (
+            <div className="flex items-center gap-2 bg-orange-100 border border-orange-300 rounded-lg px-3 py-1">
+              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-medium text-orange-700">
+                Đang cắt ảnh - Nhấp ra ngoài để hoàn thành
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
@@ -2071,7 +3096,7 @@ const PlushDollDesign: React.FC = () => {
         {/* Main sidebar */}
         <aside
           className={`${
-            isSidebarCollapsed ? "w-20" : "w-64"
+            isSidebarCollapsed ? "w-20" : "w-45"
           } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative`}
         >
           <Button
@@ -2484,6 +3509,23 @@ const PlushDollDesign: React.FC = () => {
                       >
                         <RotateCcw className="w-4 h-4" />
                       </Button>
+
+                      <Button
+                        variant="outline"
+                        className="h-full flex-1"
+                        onClick={flipObjectHorizontal}
+                        title="Lật ngang"
+                      >
+                        <FlipHorizontal size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-full flex-1"
+                        onClick={flipObjectVertical}
+                        title="Lật dọc"
+                      >
+                        <FlipVertical size={16} />
+                      </Button>
                       <Button
                         size="icon"
                         variant="outline"
@@ -2586,73 +3628,811 @@ const PlushDollDesign: React.FC = () => {
                 })()}
             </div>
           </div>
+          <div
+            className={
+              "absolute bottom-0 z-30 bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300"
+            }
+            style={{
+              pointerEvents: "auto",
+              right: 0,
+              left: 0,
+            }}
+          >
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleZoomOut}
+              disabled={zoom <= 0.1}
+            >
+              -
+            </Button>
+            <input
+              type="number"
+              min={10}
+              max={500}
+              value={Math.round(zoom * 100)}
+              onChange={(e) => {
+                let value = Number(e.target.value);
+                if (isNaN(value)) value = 100;
+                value = Math.max(10, Math.min(500, value));
+                setZoom(value / 100);
+                if (canvasRef.current) {
+                  canvasRef.current.setZoom(value / 100);
+                  canvasRef.current.requestRenderAll();
+                }
+              }}
+              className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
+              style={{ width: 50 }}
+            />
+            <span className="text-xs">%</span>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleZoomIn}
+              disabled={zoom >= 5}
+            >
+              +
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleFixWindow}
+              className="ml-2 text-xs px-2 h-7"
+            >
+              Fix Window
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleFullWindow}
+              className="text-xs px-2 h-7"
+            >
+              Full Window
+            </Button>
+          </div>
         </div>
+
+        {/* Right Sidebar */}
+        <aside
+          className={`${
+            rightSidebarOpen ? "w-60" : "w-20"
+          } transition-all duration-300 border-l border-border bg-card py-4 flex flex-col gap-4 relative h-full`}
+        >
+          <Button
+            size="icon"
+            variant="outline"
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-card hover:bg-muted shadow-md rounded-full w-6 h-6 flex items-center justify-center"
+            onClick={() => setRightSidebarOpen((prev) => !prev)}
+          >
+            {rightSidebarOpen ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </Button>
+
+          {/* Tabs for right sidebar */}
+          {rightSidebarOpen && (
+            <div className="flex border-b border-border mb-4 px-4 flex-shrink-0">
+              <button
+                onClick={() => setRightSidebarTab("adjust")}
+                className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                  rightSidebarTab === "adjust"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Điều chỉnh
+              </button>
+              <button
+                onClick={() => setRightSidebarTab("layers")}
+                className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
+                  rightSidebarTab === "layers"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Layers
+              </button>
+            </div>
+          )}
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+            {/* Tab Content */}
+            {rightSidebarOpen ? (
+              rightSidebarTab === "adjust" ? (
+                <div className="flex flex-col gap-4 px-4 pb-4">
+                  <div className="text-sm font-semibold text-foreground mb-2">
+                    Properties Panel
+                  </div>
+                  {/* Canvas Properties */}
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Canvas Info
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Width:</span>
+                        <span className="font-medium">
+                          {actualCanvasWidth} {unit}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Height:</span>
+                        <span className="font-medium">
+                          {actualCanvasHeight} {unit}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Objects:</span>
+                        <span className="font-medium">
+                          {canvasRef.current?.getObjects().length || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Zoom:</span>
+                        <span className="font-medium">
+                          {Math.round(zoom * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selected Object Properties */}
+                  {canvasRef.current?.getActiveObject() && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          TRANSFORM
+                        </div>
+                        {/* Unit switcher */}
+                        <div className="flex items-center border rounded-md p-0.5 bg-muted">
+                          <Button
+                            size="sm"
+                            variant={
+                              propertyUnit === "px" ? "secondary" : "ghost"
+                            }
+                            onClick={() => setPropertyUnit("px")}
+                            className="h-5 px-2 text-xs"
+                          >
+                            px
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={
+                              propertyUnit === "mm" ? "secondary" : "ghost"
+                            }
+                            onClick={() => setPropertyUnit("mm")}
+                            className="h-5 px-2 text-xs"
+                          >
+                            mm
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Nút chọn màu cho shape, chỉ hiện khi là shape */}
+                      {(() => {
+                        const obj = canvasRef.current?.getActiveObject();
+                        const isShape =
+                          obj &&
+                          (obj.type === "group" ||
+                            [
+                              "path",
+                              "line",
+                              "polygon",
+                              "rect",
+                              "circle",
+                              "ellipse",
+                            ].includes(obj.type || ""));
+                        if (!isShape) return null;
+                        return (
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu shape (đường kẻ/hình dạng):
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={shapeColor}
+                                onChange={(e) => {
+                                  setShapeColor(e.target.value || "#000000");
+                                  if (obj) {
+                                    if (obj.type === "group") {
+                                      (obj as fabric.Group)
+                                        .getObjects()
+                                        .forEach((child) => {
+                                          if (
+                                            child.type === "path" ||
+                                            child.type === "line" ||
+                                            child.type === "polygon" ||
+                                            child.type === "rect" ||
+                                            child.type === "circle" ||
+                                            child.type === "ellipse"
+                                          ) {
+                                            if (
+                                              child.fill &&
+                                              child.fill !== "none"
+                                            )
+                                              child.set("fill", e.target.value);
+                                            if (
+                                              child.stroke &&
+                                              child.stroke !== "none"
+                                            )
+                                              child.set(
+                                                "stroke",
+                                                e.target.value
+                                              );
+                                            if (!child.fill && !child.stroke)
+                                              child.set("fill", e.target.value);
+                                          }
+                                        });
+                                      obj.setCoords();
+                                      canvasRef.current?.renderAll();
+                                      saveState();
+                                    } else if (
+                                      obj.type === "path" ||
+                                      obj.type === "line" ||
+                                      obj.type === "polygon" ||
+                                      obj.type === "rect" ||
+                                      obj.type === "circle" ||
+                                      obj.type === "ellipse"
+                                    ) {
+                                      if (obj.fill && obj.fill !== "none")
+                                        obj.set("fill", e.target.value);
+                                      if (obj.stroke && obj.stroke !== "none")
+                                        obj.set("stroke", e.target.value);
+                                      if (!obj.fill && !obj.stroke)
+                                        obj.set("fill", e.target.value);
+                                      obj.setCoords();
+                                      canvasRef.current?.renderAll();
+                                      saveState();
+                                    }
+                                  }
+                                }}
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={shapeColor}
+                                onChange={(e) => setShapeColor(e.target.value)}
+                                className="flex-1"
+                                placeholder="#3b82f6"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      <div className="space-y-2">
+                        {/* Position X, Y */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              X
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.x}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  x: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              Y
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.y}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  y: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Size W, H */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              W
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.w}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  w: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              H
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.h}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  h: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Rotation A and Flip buttons */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-1 border rounded-md px-2 py-1 bg-background">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              R
+                            </span>
+                            <Input
+                              type="number"
+                              className="h-6 flex-1 w-full p-0 border-none text-right bg-transparent focus-visible:ring-0"
+                              value={draftProperties.a}
+                              onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDraftProperties({
+                                  ...draftProperties,
+                                  a: newValue,
+                                });
+                              }}
+                              onBlur={handleApplyChanges}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyChanges();
+                                  (e.target as HTMLInputElement).blur();
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Color Replacement for Images */}
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Thay thế màu
+                        </div>
+                        <Switch
+                          id="color-replacement-toggle"
+                          checked={isColorReplacementEnabled}
+                          onCheckedChange={setIsColorReplacementEnabled}
+                        />
+                      </div>
+                      {isColorReplacementEnabled && (
+                        <div className="space-y-3 pt-3">
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu cần thay đổi:
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={targetColor}
+                                onChange={(e) => setTargetColor(e.target.value)}
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={targetColor}
+                                onChange={(e) => setTargetColor(e.target.value)}
+                                className="flex-1"
+                                placeholder="#ff0000"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Màu mới:
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                value={replacementColor}
+                                onChange={(e) =>
+                                  setReplacementColor(e.target.value)
+                                }
+                                className="w-12 h-8 p-0 border rounded"
+                              />
+                              <Input
+                                type="text"
+                                value={replacementColor}
+                                onChange={(e) =>
+                                  setReplacementColor(e.target.value)
+                                }
+                                className="flex-1"
+                                placeholder="#00ff00"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-muted-foreground">
+                              Độ chính xác: {colorTolerance}
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={colorTolerance}
+                              onChange={(e) =>
+                                setColorTolerance(Number(e.target.value))
+                              }
+                              className="w-full"
+                            />
+                          </div>
+
+                          <Button
+                            size="sm"
+                            onClick={replaceImageColor}
+                            className="w-full"
+                            disabled={!canvasRef.current?.getActiveObject()}
+                          >
+                            <Droplets className="w-4 h-4 mr-2" />
+                            Thay đổi màu sắc
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Image Filters */}
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <ImageFilterPanel
+                      isFilterEnabled={isFilterEnabled}
+                      setIsFilterEnabled={setIsFilterEnabled}
+                      filterValues={filterValues}
+                      setFilterValues={setFilterValues}
+                      activeFilters={activeFilters}
+                      setActiveFilters={setActiveFilters}
+                      applyFilter={applyFilter}
+                      applyFilterValue={applyFilterValue}
+                      clearAllFilters={clearAllFilters}
+                    />
+                  )}
+
+                  {canvasRef.current?.getActiveObject()?.type === "image" && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => {
+                          const activeObject =
+                            canvasRef.current?.getActiveObject();
+
+                          const resetImageState = (
+                            imageToReset: fabric.Image,
+                            keepColorReplacementOpen = false
+                          ) => {
+                            // This function will be called on the correct image object
+                            canvasRef.current?.setActiveObject(imageToReset);
+
+                            // Also remove its settings from the map
+                            const imageId = (imageToReset as CustomFabricImage)
+                              .customId;
+                            if (imageId && imageFilterSettings.has(imageId)) {
+                              const newMap = new Map(imageFilterSettings);
+                              newMap.delete(imageId);
+                              setImageFilterSettings(newMap);
+                            }
+
+                            // Reset Image Filters UI
+                            setFilterValues(DEFAULT_FILTER_VALUES);
+                            setActiveFilters(DEFAULT_ACTIVE_FILTERS);
+                            setIsFilterEnabled(false);
+
+                            // Reset Color Replacement UI, but keep it open if needed
+                            if (!keepColorReplacementOpen) {
+                              setIsColorReplacementEnabled(false);
+                              setTargetColor("#ff0000");
+                              setReplacementColor("#00ff00");
+                              setColorTolerance(30);
+                            }
+
+                            canvasRef.current?.requestRenderAll();
+                            saveState();
+                          };
+
+                          if (activeObject && activeObject.type === "image") {
+                            const imageObj = activeObject as CustomFabricImage;
+                            const originalSrc = imageObj.originalSrc;
+
+                            // If a color replacement has been applied, revert it.
+                            if (
+                              originalSrc &&
+                              imageObj.getSrc() !== originalSrc
+                            ) {
+                              fabric.Image.fromURL(
+                                originalSrc,
+                                (originalImg) => {
+                                  if (!canvasRef.current) return;
+
+                                  const newCustomImg =
+                                    originalImg as CustomFabricImage;
+                                  // Preserve original source and ID
+                                  newCustomImg.originalSrc = originalSrc;
+                                  newCustomImg.customId = imageObj.customId;
+
+                                  newCustomImg.set({
+                                    left: imageObj.left,
+                                    top: imageObj.top,
+                                    scaleX: imageObj.scaleX,
+                                    scaleY: imageObj.scaleY,
+                                    angle: imageObj.angle,
+                                    flipX: imageObj.flipX,
+                                    flipY: imageObj.flipY,
+                                    selectable: true,
+                                    evented: true,
+                                  });
+
+                                  const canvas = canvasRef.current;
+                                  const index = canvas
+                                    .getObjects()
+                                    .indexOf(imageObj);
+                                  canvas.remove(imageObj);
+                                  canvas.insertAt(newCustomImg, index, false);
+
+                                  // Now reset filters and UI on the *newly restored* image
+                                  resetImageState(
+                                    newCustomImg,
+                                    isColorReplacementEnabled
+                                  );
+                                },
+                                { crossOrigin: "anonymous" }
+                              );
+                            } else {
+                              // No color replacement to revert, just reset filters on the current image
+                              resetImageState(imageObj);
+                            }
+                          }
+                        }}
+                      >
+                        Đặt lại tất cả thay đổi
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // Layers tab content
+                <div className="flex flex-col gap-4 px-4 pb-4">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                    Layers ({canvasRef.current?.getObjects().length || 0})
+                  </div>
+                  <div className="space-y-1 overflow-y-auto">
+                    {canvasRef.current
+                      ?.getObjects()
+                      .slice()
+                      .reverse()
+                      .map((obj, index) => {
+                        const isSelected =
+                          canvasRef.current?.getActiveObject() === obj;
+                        const reversedIndex =
+                          (canvasRef.current?.getObjects().length || 0) -
+                          1 -
+                          index;
+                        const isDragging = draggedLayerIndex === index;
+                        const isDragOver = dragOverIndex === index;
+
+                        // Tạo thumbnail cho layer
+                        const getLayerThumbnail = () => {
+                          if (obj.type === "image") {
+                            // Cho image objects, sử dụng chính ảnh đó
+                            return (
+                              <div className="w-8 h-8 rounded border border-border overflow-hidden bg-muted flex items-center justify-center">
+                                <img
+                                  src={(obj as fabric.Image).getSrc()}
+                                  alt="Layer"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback nếu ảnh không load được
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).style.display = "none";
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).parentElement!.innerHTML = "🖼️";
+                                  }}
+                                />
+                              </div>
+                            );
+                          } else if (
+                            obj.type === "textbox" ||
+                            obj.type === "i-text"
+                          ) {
+                            // Cho text objects, hiển thị icon text
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-blue-50 flex items-center justify-center">
+                                <Type className="w-4 h-4 text-blue-600" />
+                              </div>
+                            );
+                          } else if (obj.type === "group") {
+                            // Cho group objects, hiển thị icon group
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-purple-50 flex items-center justify-center">
+                                <Group className="w-4 h-4 text-purple-600" />
+                              </div>
+                            );
+                          } else if (obj.type === "path") {
+                            // Cho path objects (vẽ), hiển thị icon pencil
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-green-50 flex items-center justify-center">
+                                <Pencil className="w-4 h-4 text-green-600" />
+                              </div>
+                            );
+                          } else {
+                            // Fallback cho các object khác
+                            return (
+                              <div className="w-8 h-8 rounded border border-border bg-muted flex items-center justify-center">
+                                <span className="text-xs text-muted-foreground">
+                                  {obj.type?.charAt(0).toUpperCase() || "O"}
+                                </span>
+                              </div>
+                            );
+                          }
+                        };
+
+                        // Tạo tên hiển thị cho layer
+                        const getLayerName = () => {
+                          if (obj.type === "image") {
+                            return "Image";
+                          } else if (
+                            obj.type === "textbox" ||
+                            obj.type === "i-text"
+                          ) {
+                            const textbox = obj as fabric.Textbox;
+                            const itext = obj as fabric.IText;
+                            const text = textbox.text || itext.text || "";
+                            return text.length > 15
+                              ? text.substring(0, 15) + "..."
+                              : text || "Text";
+                          } else if (obj.type === "group") {
+                            const group = obj as fabric.Group;
+                            return `Group (${group.getObjects().length})`;
+                          } else if (obj.type === "path") {
+                            return "Drawing";
+                          } else {
+                            return obj.type || "Object";
+                          }
+                        };
+
+                        return (
+                          <div
+                            key={index}
+                            draggable
+                            className={`flex items-center justify-between p-2 rounded text-xs cursor-pointer transition-colors select-none ${
+                              isSelected
+                                ? "bg-primary/10 border border-primary/20"
+                                : isDragging
+                                ? "bg-primary/5 border border-primary/30 opacity-50"
+                                : isDragOver
+                                ? "bg-muted/50 border border-dashed border-primary/50"
+                                : "hover:bg-muted"
+                            }`}
+                            onClick={() => {
+                              if (canvasRef.current) {
+                                canvasRef.current.setActiveObject(obj);
+                                canvasRef.current.requestRenderAll();
+                              }
+                            }}
+                            onDragStart={(e) => handleLayerDragStart(e, index)}
+                            onDragOver={(e) => handleLayerDragOver(e, index)}
+                            onDragLeave={handleLayerDragLeave}
+                            onDrop={(e) => handleLayerDrop(e, index)}
+                            onDragEnd={handleLayerDragEnd}
+                            style={{
+                              userSelect: "none",
+                              WebkitUserSelect: "none",
+                              MozUserSelect: "none",
+                              msUserSelect: "none",
+                            }}
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <GripVertical className="w-3 h-3 text-muted-foreground/50 cursor-grab active:cursor-grabbing flex-shrink-0" />
+                              <div className="w-3 h-3 rounded bg-muted-foreground/20 flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] text-muted-foreground">
+                                  {reversedIndex + 1}
+                                </span>
+                              </div>
+                              {getLayerThumbnail()}
+                              <span className="truncate font-medium">
+                                {getLayerName()}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (canvasRef.current) {
+                                    canvasRef.current.remove(obj);
+                                    canvasRef.current.requestRenderAll();
+                                    saveState();
+                                  }
+                                }}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-xs font-medium text-muted-foreground text-center">
+                  Properties
+                </div>
+                <div className="text-xs text-muted-foreground text-center">
+                  {canvasRef.current?.getObjects().length || 0} objects
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
 
       <CanvasDebugInfo />
-
-      <div
-        className={
-          "absolute bottom-0 z-30 bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300"
-        }
-        style={{
-          pointerEvents: "auto",
-          left: (isSidebarCollapsed ? 80 : 256) + sidebarsWidth, // Đã thay visibleSidebarPanelWidth bằng sidebarsWidth
-          right: 0,
-        }}
-      >
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleZoomOut}
-          disabled={zoom <= 0.1}
-        >
-          -
-        </Button>
-        <input
-          type="number"
-          min={10}
-          max={500}
-          value={Math.round(zoom * 100)}
-          onChange={(e) => {
-            let value = Number(e.target.value);
-            if (isNaN(value)) value = 100;
-            value = Math.max(10, Math.min(500, value));
-            setZoom(value / 100);
-            if (canvasRef.current) {
-              canvasRef.current.setZoom(value / 100);
-              canvasRef.current.requestRenderAll();
-            }
-          }}
-          className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
-          style={{ width: 50 }}
-        />
-        <span className="text-xs">%</span>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleZoomIn}
-          disabled={zoom >= 5}
-        >
-          +
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleFixWindow}
-          className="ml-2 text-xs px-2 h-7"
-        >
-          Fix Window
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleFullWindow}
-          className="text-xs px-2 h-7"
-        >
-          Full Window
-        </Button>
-      </div>
     </div>
   );
 };

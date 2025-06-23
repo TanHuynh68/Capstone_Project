@@ -2,10 +2,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, MessageSquare, Calendar, Clock } from "lucide-react";
-import OrderStatusBadge from "@/components/atoms/order/OrderStatusBadge";
-import PriceDisplay from "@/components/atoms/order/PriceDisplay";
-import OrderDate from "@/components/atoms/order/OrderDate";
+import { Eye, Calendar, Clock, Truck } from "lucide-react";
+import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import PriceDisplay from "@/components/atoms/customer/order/PriceDisplay";
+import OrderDate from "@/components/atoms/customer/order/OrderDate";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
 
@@ -134,7 +134,8 @@ export default function OrderCard({
             size="sm"
             onClick={() => onMessage?.(order?.orderID)}
           >
-            <MessageSquare className="h-4 w-4" />
+            <Truck className="h-4 w-4 mr-2" />
+            Giao hàng
           </Button>
         </div>
       </CardContent>
