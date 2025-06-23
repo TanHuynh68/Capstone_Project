@@ -1,15 +1,24 @@
 "use client"
 
 import type { OfferPhase } from "@/types/orderManagement"
-import OfferPhaseItem from "@/components/molecules/customer/order/OfferPhaseItem"
+import OfferPhaseItem from "@/components/molecules/customer/order-detail/OfferPhaseItem"
+import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema"
 
 interface RightTopPanelProps {
   phases: OfferPhase[]
   selectedPhaseId: string | null
+  orderID: string
   onPhaseSelect: (phaseId: string) => void
+  onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>
 }
 
-export default function RightTopPanel({ phases, selectedPhaseId, onPhaseSelect }: RightTopPanelProps) {
+export default function RightTopPanel({
+  phases,
+  selectedPhaseId,
+  orderID,
+  onPhaseSelect,
+  onCreateProgressStep,
+}: RightTopPanelProps) {
   return (
     <div className="flex flex-col h-[242px]">
       <div className="flex items-center justify-between mb-4">
@@ -23,7 +32,9 @@ export default function RightTopPanel({ phases, selectedPhaseId, onPhaseSelect }
             key={phase.offerPhaseID}
             phase={phase}
             isSelected={selectedPhaseId === phase.offerPhaseID}
+            orderID={orderID}
             onClick={() => onPhaseSelect(phase.offerPhaseID)}
+            onCreateProgressStep={onCreateProgressStep}
           />
         ))}
       </div>

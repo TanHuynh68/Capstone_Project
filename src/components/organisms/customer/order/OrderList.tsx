@@ -11,9 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import OrderStatusBadge from "@/components/atoms/order/OrderStatusBadge";
-import PriceDisplay from "@/components/atoms/order/PriceDisplay";
-import OrderDate from "@/components/atoms/order/OrderDate";
+import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import PriceDisplay from "@/components/atoms/customer/order/PriceDisplay";
+import OrderDate from "@/components/atoms/customer/order/OrderDate";
 
 interface OrderListProps {
   orders: Order[];

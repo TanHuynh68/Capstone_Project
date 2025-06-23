@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Order } from "@/types/orderManagement";
-import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import OrderStatusBadge from "@/components/atoms/customer/order-detail/OrderStatusBadge";
 import {
   MoreHorizontal,
   User,

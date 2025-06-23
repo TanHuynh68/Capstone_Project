@@ -83,24 +83,29 @@ export enum OfferStatusEnum {
 }
 
 export enum OfferPhaseEnum {
-  NotStarted = "NotStarted",
-  Dealed = "Dealed",
-  Deposited = "Deposited",
-  Withdrawed = "Withdrawed",
+  NotStarted = "NotStarted", // NotStarted => Dealed when create offer phase in chat
+  Dealed = "Dealed", // customer deposited for each phase => Deposited
+  Deposited = "Deposited", // before create progress step des have to withdraw cash => Withdrawed
+  // Withdrawed || InProgress || Rework can create progress step
+  Withdrawed = "Withdrawed", // begin create progress step
+  InProgress = "InProgress", // if cus feedback for des failed => Rework || if cus feedback for des success => Done
+  Rework = "Rework", // if cus feedback for des success => Done
   Done = "Done",
 }
+
+export const OfferPhaseVi: Record<OfferPhaseEnum, string> = {
+  [OfferPhaseEnum.NotStarted]: "Chưa bắt đầu",
+  [OfferPhaseEnum.Dealed]: "Đã thương lượng",
+  [OfferPhaseEnum.Deposited]: "Đã đặt cọc",
+  [OfferPhaseEnum.Withdrawed]: "Đã rút",
+  [OfferPhaseEnum.InProgress]: "Đang tiến hành", // New translation
+  [OfferPhaseEnum.Rework]: "Đang chỉnh sửa", // New translation
+  [OfferPhaseEnum.Done]: "Đã hoàn thành",
+};
 
 export const OfferStatusVi: Record<OfferStatusEnum, string> = {
   [OfferStatusEnum.Pending]: "Đang chờ",
   [OfferStatusEnum.Dealing]: "Đang thương lượng",
   [OfferStatusEnum.Accepted]: "Đã chấp nhận",
   [OfferStatusEnum.Rejected]: "Đã từ chối",
-};
-//
-export const OfferPhaseVi: Record<OfferPhaseEnum, string> = {
-  [OfferPhaseEnum.NotStarted]: "Chưa bắt đầu",
-  [OfferPhaseEnum.Dealed]: "Đã thương lượng",
-  [OfferPhaseEnum.Deposited]: "Đã đặt cọc",
-  [OfferPhaseEnum.Withdrawed]: "Đã rút",
-  [OfferPhaseEnum.Done]: "Đã hoàn thành",
 };
