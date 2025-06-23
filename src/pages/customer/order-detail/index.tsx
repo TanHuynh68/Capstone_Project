@@ -1,19 +1,22 @@
+"use client";
+
 import { useParams } from "react-router-dom";
 import OrderManagementTemplate from "@/components/templates/order-detail/OrderManagementTemplate";
 import type {
   OrderDetail,
   ProgressStepResponse,
 } from "@/types/orderManagement";
+import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import OrderService from "@/services/OrderService";
 import { useEffect, useState } from "react";
-import ProgressService from "@/services/Progress";
+import ProgressService from "@/services/ProgressService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
   const { getOrderDetail } = OrderService();
-  const { getProgress } = ProgressService();
+  const { getProgress, createProgressStep } = ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
@@ -46,12 +49,31 @@ export default function OrderManagementPage() {
   const fetchProgressSteps = async (offerPhaseId: string) => {
     const response = await getProgress(id + "", offerPhaseId);
     if (response) {
-      // setOrderDetail(response?.responseRequestModel);
       setProgressSteps(response?.responseRequestModel?.responseList);
       console.log(
         "fetchProgressSteps: ",
         response?.responseRequestModel?.responseList
       );
+    }
+  };
+
+  // Create progress step
+  const handleCreateProgressStep = async (data: CreateProgressStepFormData) => {
+    try {
+      const response = await createProgressStep(data);
+      if (response && response.responseRequestModel) {
+        toast.success("Tạo bước tiến độ thành công!");
+        // Refresh progress steps if a phase is selected
+        if (progressSteps.length > 0) {
+          const currentPhaseId = progressSteps[0]?.progressStep?.progressStepID; // You might need to track this differently
+          await fetchOrderDetail();
+          await fetchProgressSteps(currentPhaseId)
+        }
+      }
+    } catch (error) {
+      console.error("Error creating progress step:", error);
+      toast.error("Không thể tạo bước tiến độ. Vui lòng thử lại.");
+      throw error; // Re-throw to keep dialog open on failure
     }
   };
 
@@ -74,6 +96,7 @@ export default function OrderManagementPage() {
       progressStep={progressSteps}
       orderDetail={orderDetail}
       onFetchProgressSteps={fetchProgressSteps}
+      onCreateProgressStep={handleCreateProgressStep}
     />
   );
 }

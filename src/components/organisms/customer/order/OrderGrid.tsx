@@ -1,4 +1,4 @@
-import OrderCard from "@/components/molecules/order/OrderCard"
+import OrderCard from "@/components/molecules/customer/order/OrderCard"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface OrderGridProps {

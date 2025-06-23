@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
-import OrderFilters from "@/components/molecules/order/OrderFilters"
-import OrderGrid from "@/components/organisms/order/OrderGrid"
-import OrderList from "@/components/organisms/order/OrderList"
+import OrderFilters from "@/components/molecules/customer/order/OrderFilters"
+import OrderGrid from "@/components/organisms/customer/order/OrderGrid"
+import OrderList from "@/components/organisms/customer/order/OrderList"
 
 interface OrderHistoryTemplateProps {
   initialOrders?: Order[]

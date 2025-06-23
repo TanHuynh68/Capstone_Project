@@ -1,8 +1,8 @@
 "use client"
 
 import type { OrderDetail } from "@/types/orderManagement"
-import OrderInfoCard from "@/components/molecules/customer/order/OrderInfoCard"
-import OfferInfoCard from "@/components/molecules/customer/order/OfferInfoCard"
+import OrderInfoCard from "@/components/molecules/customer/order-detail/OrderInfoCard"
+import OfferInfoCard from "@/components/molecules/customer/order-detail/OfferInfoCard"
 
 interface LeftPanelProps {
   orderDetail: OrderDetail
