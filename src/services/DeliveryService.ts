@@ -6,35 +6,31 @@ import { API_ROUTES, HTTP_METHOD } from "@/constants";
 const DeliveryService = () => {
     const { callApi } = useApiService();
 
-    const uploadAvatar = useCallback(
-        async (formData: FormData) => {
-            try {
-                const res = await callApi(
-                    HTTP_METHOD.PUT,
-                    API_ROUTES.UPLOAD_AVATAR,
-                    formData
-                );
-                return res;
-            } catch (err: any) {
-                toast.error(err?.response?.data || "Đã xảy ra lỗi khi tải ảnh.");
-            }
-        },
-        [callApi]
-    );
-
-    const getProfileForAll = useCallback(
+    const getDeliveryByToken = useCallback(
         async (values: any) => {
             try {
-                const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_PROFILE_FOR_ALL, values);
+                const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_DELIVERY_BY_TOKEN, values);
                 return res;
             } catch (err: any) {
-                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin hồ sơ.");
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin giao hàng.");
             }
         },
         [callApi]
     );
 
-    return { uploadAvatar, getProfileForAll };
+    const getDeliveryByOrderID = useCallback(
+        async (values: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_DELIVERY_BY_ORDER_CODE, values);
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin giao hàng.");
+            }
+        },
+        [callApi]
+    );
+
+    return { getDeliveryByToken, getDeliveryByOrderID };
 };
 
 
