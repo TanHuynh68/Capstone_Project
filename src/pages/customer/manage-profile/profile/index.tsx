@@ -42,7 +42,7 @@ import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
 import { ChangePasswordPage, OrderHistoryPage } from "@/pages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShippingForm } from "@/components/organisms/delivery/shipping-form";
+import DeliveryByToken from "@/components/organisms/delivery/delivery-by-token";
 
 interface Profile {
   accountID: string;
@@ -658,11 +658,9 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="delivery">
-          <div className="container max-w-6xl mx-auto py-0">
-            {/* <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "} */}
-            <div className="text-center text-gray-500 text-sm py-0">
-              <ShippingForm />
-            </div>
+          {/* <h2 className="text-xl font-bold mb-4">Lịch sử giao hàng</h2>{" "} */}
+          <div className="text-center text-gray-500 text-sm py-0">
+            <DeliveryByToken />
           </div>
         </TabsContent>
       </Tabs>
