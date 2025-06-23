@@ -64,7 +64,9 @@ export default function OfferPhaseItem({
               <p className="text-sm text-gray-600">{phase.phaseName}</p>
             </div>
             <div className="flex items-center gap-2">
+              {/* display phase status */}
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
+              {/* create new progress step button */}
               <Button
                 variant="outline"
                 size="icon"
