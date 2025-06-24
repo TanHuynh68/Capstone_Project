@@ -6,7 +6,6 @@ import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema"
 import LeftPanel from "@/components/organisms/customer/order-detail/LeftPanel"
 import RightTopPanel from "@/components/organisms/customer/order-detail/RightTopPanel"
 import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel"
-import ProgressService from "@/services/ProgressService"
 
 interface OrderManagementTemplateProps {
   orderDetail: OrderDetail
@@ -14,6 +13,8 @@ interface OrderManagementTemplateProps {
   progressStep: ProgressStepResponse[]
   handleCreateReview: any
   onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>
+  onSelectPhases?: (phaseIds: string[]) => Promise<void>
+  getProgressReviewDetail: any
 }
 
 export default function OrderManagementTemplate({
@@ -22,13 +23,14 @@ export default function OrderManagementTemplate({
   progressStep,
   handleCreateReview,
   onCreateProgressStep,
+  onSelectPhases,
+  getProgressReviewDetail,
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep)
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null)
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [evaluatingStepId, setEvaluatingStepId] = useState<string | null>(null)
   const [loadingSteps, setLoadingSteps] = useState(false)
-  const { getProgressReviewDetail } = ProgressService()
 
   const fetchProgressReviewDetail = async (progressStepID: string) => {
     const response = await getProgressReviewDetail(progressStepID)
@@ -107,9 +109,10 @@ export default function OrderManagementTemplate({
                 <RightTopPanel
                   phases={orderDetail.offerPhases}
                   selectedPhaseId={selectedPhaseId}
-                  orderID={orderDetail.order.orderID}
+                  orderID={orderDetail?.order?.orderID|| ""}
                   onPhaseSelect={handlePhaseSelect}
                   onCreateProgressStep={onCreateProgressStep}
+                  onSelectPhases={onSelectPhases}
                 />
               )}
             </div>

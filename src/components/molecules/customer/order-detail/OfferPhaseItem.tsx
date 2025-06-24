@@ -9,8 +9,9 @@ import type { OfferPhase } from "@/types/orderManagement";
 import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
 import CreateProgressStepDialog from "./CreateProgressStepDialog";
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND, useCurrentUser } from "@/components/utils";
 import { Calendar, DollarSign, FileText, Plus } from "lucide-react";
+import { ROLE } from "@/constants";
 
 interface OfferPhaseItemProps {
   phase: OfferPhase;
@@ -28,6 +29,7 @@ export default function OfferPhaseItem({
   onCreateProgressStep,
 }: OfferPhaseItemProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const currentUser = useCurrentUser();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -66,8 +68,9 @@ export default function OfferPhaseItem({
             <div className="flex items-center gap-2">
               {/* display phase status */}
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
-              {/* create new progress step button */}
-              <Button
+              {/* create new progress step button by designer */}
+              {
+               currentUser?.role === ROLE.DESIGNER && <Button
                 variant="outline"
                 size="icon"
                 onClick={handleCreateClick}
@@ -76,6 +79,7 @@ export default function OfferPhaseItem({
               >
                 <Plus className="h-4 w-4" />
               </Button>
+              }
             </div>
           </div>
 
