@@ -14,7 +14,6 @@ import { UpdateBankCardForm } from "./update-bank-card-form";
 interface UpdateBankCardButtonProps {
   walletID: string;
 }
-export function UpdateBankCardButton({walletID}:UpdateBankCardButtonProps) {
 export function UpdateBankCardButton({ walletID }: UpdateBankCardButtonProps) {
   const [open, setOpen] = useState(false);
 
