@@ -190,7 +190,7 @@ export default function CreateProgressStepDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="min-w-[1200px] max-h-[95vh] overflow-y-auto">
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <ImageIcon className="h-6 w-6 text-blue-600" />
@@ -199,9 +199,9 @@ export default function CreateProgressStepDialog({
           <p className="text-gray-600 text-sm">Thêm bước tiến độ cho giai đoạn thực hiện</p>
         </DialogHeader>
 
-        <div className="space-y-8 py-6">
+        <div className="space-y-8 py-6 grid grid-cols-12 gap-2">
           {/* Step Details */}
-          <Card className="shadow-sm border-gray-200">
+          <Card className="shadow-sm border-gray-200 col-span-4 h-full">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
@@ -252,7 +252,7 @@ export default function CreateProgressStepDialog({
           </Card>
 
           {/* Images Upload */}
-          <Card className="shadow-sm border-gray-200">
+          <Card className="shadow-sm border-gray-200 col-span-8">
             <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-600 rounded-full"></div>

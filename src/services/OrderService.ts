@@ -6,7 +6,10 @@ const OrderService = () => {
   const { callApi } = useApiService();
   const getOrders = useCallback(async () => {
     try {
-      const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_ORDERS}?page=1&size=100`);
+      const res = await callApi(
+        HTTP_METHOD.GET,
+        `${API_ROUTES.GET_ORDERS}?page=1&size=100`
+      );
       return res;
     } catch (err: any) {
       console.error(err?.response?.data);
@@ -56,11 +59,60 @@ const OrderService = () => {
     }
   }, [callApi]);
 
+  const createDepositPhase = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          `${API_ROUTES.CREATE_DEPOSIT_PHASE}`,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  const createDepositListPhase = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          `${API_ROUTES.CREATE_DEPOSIT_LIST_PHASE}`,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  const createWithdrawPhase = useCallback(
+    async (data: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          `${API_ROUTES.CREATE_WITHDRAW_PHASE}`,
+          data
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+  
   return {
     getOrders,
     getOrderDetail,
     createOrder,
     getOrderActivity,
+    createDepositPhase,
+    createDepositListPhase,
+    createWithdrawPhase,
   };
 };
 

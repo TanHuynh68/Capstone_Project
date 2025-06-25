@@ -79,7 +79,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           </div>
         </div>
 
-        <ScrollArea className="max-h-[480px]">
+        <ScrollArea className="h-[480px]">
           <div className="p-4">
             {deposits.length === 0 ? (
               <div className="text-center py-8">
