@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
 
-export function PricingSidebar() {
+interface PricingSidebarProps {
+  onSuccess?: () => void;
+}
+
+export function PricingSidebar({ onSuccess }: PricingSidebarProps) {
+  const handleCreateOrder = () => {
+    // TODO: Xử lý logic tạo đơn hàng
+    console.log("Tạo đơn hàng mới");
+    onSuccess?.();
+  };
+
   return (
     <div className="bg-white rounded-lg border p-6 sticky top-6">
       <div className="space-y-4">
@@ -52,6 +62,7 @@ export function PricingSidebar() {
           <Button
             size="lg"
             className="w-full bg-orange-500 hover:bg-orange-600"
+            onClick={handleCreateOrder}
           >
             TẠO ĐƠN
           </Button>

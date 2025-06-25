@@ -33,37 +33,37 @@ export function SenderInfo() {
           />
         </div>
 
-        {/* District on its own row */}
-        <div>
-          <SelectField
-            label="Quận - Huyện"
-            placeholder="Chọn Quận/Huyện"
-            defaultValue="di-an"
-            required
-            options={[
-              { value: "di-an", label: "Thành phố Dĩ An - Bình Dương" },
-              {
-                value: "thu-dau-mot",
-                label: "Thành phố Thủ Dầu Một - Bình Dương",
-              },
-              { value: "ben-cat", label: "Thị xã Bến Cát - Bình Dương" },
-            ]}
-          />
-        </div>
-
-        {/* Ward on its own row */}
-        <div>
-          <SelectField
-            label="Phường - Xã"
-            placeholder="Chọn Phường/Xã"
-            defaultValue="an-binh"
-            required
-            options={[
-              { value: "an-binh", label: "Phường An Bình" },
-              { value: "dong-hoa", label: "Phường Đông Hòa" },
-              { value: "tan-dong-hiep", label: "Phường Tân Đông Hiệp" },
-            ]}
-          />
+        {/* District and Ward on same row - District 60%, Ward 40% */}
+        <div className="grid grid-cols-5 gap-0">
+          <div className="col-span-3">
+            <SelectField
+              label="Quận - Huyện"
+              placeholder="Chọn Quận/Huyện"
+              defaultValue="di-an"
+              required
+              options={[
+                { value: "di-an", label: "Thành phố Dĩ An - Bình Dương" },
+                {
+                  value: "thu-dau-mot",
+                  label: "Thành phố Thủ Dầu Một - Bình Dương",
+                },
+                { value: "ben-cat", label: "Thị xã Bến Cát - Bình Dương" },
+              ]}
+            />
+          </div>
+          <div className="col-span-2">
+            <SelectField
+              label="Phường - Xã"
+              placeholder="Chọn Phường/Xã"
+              defaultValue="an-binh"
+              required
+              options={[
+                { value: "an-binh", label: "Phường An Bình" },
+                { value: "dong-hoa", label: "Phường Đông Hòa" },
+                { value: "tan-dong-hiep", label: "Phường Tân Đông Hiệp" },
+              ]}
+            />
+          </div>
         </div>
       </div>
     </div>

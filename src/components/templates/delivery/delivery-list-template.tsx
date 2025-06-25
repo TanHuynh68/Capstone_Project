@@ -6,6 +6,7 @@ import { DeliveryTable } from "@/components/organisms/getdelivery/delivery-table
 import { Package } from "lucide-react";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
 import { DataTablePagination } from "@/components/organisms/customer/transaction-history/data-table-pagination";
+import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
 import {
   useReactTable,
   getCoreRowModel,
@@ -110,15 +111,18 @@ export const DeliveryListTemplate: React.FC<DeliveryListTemplateProps> = ({
     <div className="container mx-auto py-8 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-6 w-6" />
-            {title}
-            {totalCount !== undefined && (
-              <span className="text-sm font-normal text-muted-foreground">
-                ({totalCount} đơn hàng)
-              </span>
-            )}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-6 w-6" />
+              {title}
+              {totalCount !== undefined && (
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({totalCount} đơn hàng)
+                </span>
+              )}
+            </CardTitle>
+            <ShippingFormDialog onSuccess={onRefresh} />
+          </div>
         </CardHeader>
         <CardContent>
           <FilterSection
