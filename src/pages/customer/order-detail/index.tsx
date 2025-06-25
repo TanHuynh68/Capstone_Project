@@ -15,8 +15,9 @@ import { MESSAGE } from "@/constants";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
-  const { getOrderDetail } = OrderService();
-  const { getProgress, createProgressStep } = ProgressService();
+  const { getOrderDetail, createDepositListPhase } = OrderService();
+  const { getProgress, createProgressStep, getProgressReviewDetail } =
+    ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
@@ -33,6 +34,15 @@ export default function OrderManagementPage() {
       if (response) {
         setOrderDetail(response?.responseRequestModel);
         console.log("fetchOrderDetail: ", response?.responseRequestModel);
+      }
+    }
+  };
+
+  const createDepositListPhaseByCustomer = async (phaseIds: string[]) => {
+    if (phaseIds) {
+      const response = await createDepositListPhase({offerPhaseIDs: phaseIds});
+      if (response) {
+        fetchOrderDetail();
       }
     }
   };
@@ -67,7 +77,7 @@ export default function OrderManagementPage() {
         if (progressSteps.length > 0) {
           const currentPhaseId = progressSteps[0]?.progressStep?.progressStepID; // You might need to track this differently
           await fetchOrderDetail();
-          await fetchProgressSteps(currentPhaseId)
+          await fetchProgressSteps(currentPhaseId);
         }
       }
     } catch (error) {
@@ -92,11 +102,13 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      getProgressReviewDetail={getProgressReviewDetail}
       handleCreateReview={handleCreateReview}
       progressStep={progressSteps}
       orderDetail={orderDetail}
       onFetchProgressSteps={fetchProgressSteps}
       onCreateProgressStep={handleCreateProgressStep}
+      onSelectPhases={createDepositListPhaseByCustomer}
     />
   );
 }
