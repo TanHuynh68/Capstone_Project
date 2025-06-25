@@ -2482,23 +2482,23 @@ const PlushDollDesign: React.FC = () => {
   // }, []);
 
   // ✅ Component debug để hiển thị thông tin canvas
-  const CanvasDebugInfo = () => {
-    if (!canvasRef.current) return null;
+  // const CanvasDebugInfo = () => {
+  //   if (!canvasRef.current) return null;
 
-    return (
-      <div className="fixed top-20 right-4 bg-black/80 text-white p-3 rounded-lg text-xs z-50">
-        <div className="font-bold mb-2">Canvas Debug Info:</div>
-        <div>Objects: {canvasRef.current.getObjects().length}</div>
-        <div>
-          Size: {canvasRef.current.width} x {canvasRef.current.height}
-        </div>
-        <div>Background: {backgroundColor}</div>
-        <div>Canvas ID: {currentCanvasId || "New"}</div>
-        <div>Title: {currentCanvasTitle}</div>
-        <div>Initialized: {isCanvasInitialized ? "Yes" : "No"}</div>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="fixed top-20 right-4 bg-black/80 text-white p-3 rounded-lg text-xs z-50">
+  //       <div className="font-bold mb-2">Canvas Debug Info:</div>
+  //       <div>Objects: {canvasRef.current.getObjects().length}</div>
+  //       <div>
+  //         Size: {canvasRef.current.width} x {canvasRef.current.height}
+  //       </div>
+  //       <div>Background: {backgroundColor}</div>
+  //       <div>Canvas ID: {currentCanvasId || "New"}</div>
+  //       <div>Title: {currentCanvasTitle}</div>
+  //       <div>Initialized: {isCanvasInitialized ? "Yes" : "No"}</div>
+  //     </div>
+  //   );
+  // };
 
   // Add group/ungroup functions
   const groupObjects = () => {
@@ -2754,6 +2754,7 @@ const PlushDollDesign: React.FC = () => {
         }
       },
     },
+
     // {
     //   key: "remove",
     //   icon: Trash2,
@@ -3079,25 +3080,15 @@ const PlushDollDesign: React.FC = () => {
             <Settings className="w-4 h-4" />
             <span className="text-xs font-medium">Properties</span>
           </Button>
-
-          {/* Cropping mode indicator */}
-          {isCropping && (
-            <div className="flex items-center gap-2 bg-orange-100 border border-orange-300 rounded-lg px-3 py-1">
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-medium text-orange-700">
-                Đang cắt ảnh - Nhấp ra ngoài để hoàn thành
-              </span>
-            </div>
-          )}
         </div>
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 h-full min-h-0">
         {/* Main sidebar */}
         <aside
           className={`${
             isSidebarCollapsed ? "w-20" : "w-45"
-          } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative`}
+          } transition-all duration-300 border-r border-border bg-card py-4 flex flex-col gap-4 relative h-full min-h-0`}
         >
           <Button
             size="icon"
@@ -3112,47 +3103,52 @@ const PlushDollDesign: React.FC = () => {
             )}
           </Button>
 
-          <div className="flex flex-col gap-4 mb-4">
-            {sidebarActions.map((action) => (
-              <div
-                key={action.key}
-                className={`flex ${
-                  isSidebarCollapsed
-                    ? "flex-col items-center "
-                    : "flex-row items-center px-4"
-                } gap-2`}
-              >
-                {isSidebarCollapsed ? (
-                  <>
-                    <button
-                      type="button"
-                      className={`w-10 h-10 rounded-md flex items-center justify-center cursor-pointer transition-colors
-                        ${
-                          action.active
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
-                        }
-                      `}
+          {/* Scrollable content for left sidebar */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="flex flex-col gap-4 mb-4">
+              {sidebarActions.map((action) => (
+                <div
+                  key={action.key}
+                  className={`flex ${
+                    isSidebarCollapsed
+                      ? "flex-col items-center "
+                      : "flex-row items-center px-4"
+                  } gap-2`}
+                >
+                  {isSidebarCollapsed ? (
+                    <>
+                      <button
+                        type="button"
+                        className={`w-10 h-10 rounded-md flex items-center justify-center cursor-pointer transition-colors
+                          ${
+                            action.active
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-muted"
+                          }
+                        `}
+                        onClick={action.onClick}
+                      >
+                        <action.icon className="w-5 h-5" />
+                      </button>
+                      <span className="text-xs font-medium text-center">
+                        {action.label}
+                      </span>
+                    </>
+                  ) : (
+                    <Button
+                      variant={action.active ? "default" : "outline"}
+                      className="w-full h-10 justify-start px-4"
                       onClick={action.onClick}
                     >
-                      <action.icon className="w-5 h-5" />
-                    </button>
-                    <span className="text-xs font-medium text-center">
-                      {action.label}
-                    </span>
-                  </>
-                ) : (
-                  <Button
-                    variant={action.active ? "default" : "outline"}
-                    className="w-full h-10 justify-start px-4"
-                    onClick={action.onClick}
-                  >
-                    <action.icon className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-medium">{action.label}</span>
-                  </Button>
-                )}
-              </div>
-            ))}
+                      <action.icon className="w-5 h-5 mr-2" />
+                      <span className="text-sm font-medium">
+                        {action.label}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </aside>
 
@@ -3442,10 +3438,10 @@ const PlushDollDesign: React.FC = () => {
             </div>
           )}
 
-          <div className="relative flex justify-center items-center bg-muted h-full">
+          <div className="relative flex justify-center items-center bg-muted h-full overflow-auto">
             <div
               ref={canvasWrapperRef}
-              className="relative bg-card shadow-md origin-top"
+              className="relative bg-card shadow-md origin-top overflow-auto"
               style={{
                 width: isFullWindow
                   ? `${canvasWrapperRef.current?.style.width || "100%"}`
@@ -3696,7 +3692,7 @@ const PlushDollDesign: React.FC = () => {
         <aside
           className={`${
             rightSidebarOpen ? "w-60" : "w-20"
-          } transition-all duration-300 border-l border-border bg-card py-4 flex flex-col gap-4 relative h-full`}
+          } transition-all duration-300 border-l border-border bg-card py-4 flex flex-col gap-4 relative h-full min-h-0`}
         >
           <Button
             size="icon"
@@ -3738,7 +3734,7 @@ const PlushDollDesign: React.FC = () => {
           )}
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+          <div className="flex-1 min-h-0 max-h-full overflow-y-auto overflow-x-hidden">
             {/* Tab Content */}
             {rightSidebarOpen ? (
               rightSidebarTab === "adjust" ? (
@@ -4432,7 +4428,7 @@ const PlushDollDesign: React.FC = () => {
         </aside>
       </div>
 
-      <CanvasDebugInfo />
+      {/* <CanvasDebugInfo /> */}
     </div>
   );
 };
