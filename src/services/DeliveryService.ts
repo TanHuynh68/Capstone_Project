@@ -30,7 +30,20 @@ const DeliveryService = () => {
         [callApi]
     );
 
-    return { getDeliveryByToken, getDeliveryByOrderID };
+    const createDelivery = useCallback(
+        async (values: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.POST, API_ROUTES.CREATE_DELIVERY, values);
+                return res;
+            }
+            catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi tạo giao hàng.");
+            }
+            },
+        [callApi]
+    );
+
+    return { getDeliveryByToken, getDeliveryByOrderID, createDelivery };
 };
 
 

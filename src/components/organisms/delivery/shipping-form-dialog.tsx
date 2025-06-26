@@ -7,15 +7,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Package } from "lucide-react";
+import { Package, PackagePlus } from "lucide-react";
 import { ShippingForm } from "./shipping-form";
 
 interface ShippingFormDialogProps {
+  orderID?: string;
   onSuccess?: () => void;
 }
 
-export function ShippingFormDialog({ onSuccess }: ShippingFormDialogProps) {
+export function ShippingFormDialog({
+  orderID,
+  onSuccess,
+}: ShippingFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const [currentOrderID, setCurrentOrderID] = useState<string | undefined>(
+    undefined
+  );
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setCurrentOrderID(orderID);
+    }
+  };
 
   const handleSuccess = () => {
     setOpen(false);
@@ -23,11 +37,11 @@ export function ShippingFormDialog({ onSuccess }: ShippingFormDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Tạo đơn hàng mới
+        <Button variant="outline" size="sm" className="w-full">
+          <PackagePlus className="h-4 w-4 mr-2" />
+          Tạo đơn hàng
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[98vw] w-[98vw] min-w-[1400px] max-h-[95vh] overflow-y-auto">
@@ -37,8 +51,8 @@ export function ShippingFormDialog({ onSuccess }: ShippingFormDialogProps) {
             Tạo đơn hàng giao hàng mới
           </DialogTitle>
         </DialogHeader>
-        <div className="">
-          <ShippingForm onSuccess={handleSuccess} />
+        <div>
+          <ShippingForm orderID={currentOrderID} onSuccess={handleSuccess} />
         </div>
       </DialogContent>
     </Dialog>

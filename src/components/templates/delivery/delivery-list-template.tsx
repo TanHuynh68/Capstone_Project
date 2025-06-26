@@ -6,7 +6,6 @@ import { DeliveryTable } from "@/components/organisms/getdelivery/delivery-table
 import { Package } from "lucide-react";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
 import { DataTablePagination } from "@/components/organisms/customer/transaction-history/data-table-pagination";
-import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
 import {
   useReactTable,
   getCoreRowModel,
@@ -121,7 +120,7 @@ export const DeliveryListTemplate: React.FC<DeliveryListTemplateProps> = ({
                 </span>
               )}
             </CardTitle>
-            <ShippingFormDialog onSuccess={onRefresh} />
+            {/* <ShippingFormDialog onSuccess={onRefresh} /> */}
           </div>
         </CardHeader>
         <CardContent>

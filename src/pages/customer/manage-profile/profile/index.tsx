@@ -619,16 +619,18 @@ const Profile = () => {
                       Địa chỉ
                     </CardTitle>
 
-                    {addresses.length > 0 ? (
-                      <GetAddress
-                        addresses={addresses}
-                        onUpdated={fetchAddresses}
-                      />
-                    ) : (
-                      <p className="text-muted-foreground text-sm mb-4 text-center">
-                        Không có địa chỉ nào.
-                      </p>
-                    )}
+                    <div className="p-4">
+                      {addresses.length > 0 ? (
+                        <GetAddress
+                          addresses={addresses}
+                          onUpdated={fetchAddresses}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground text-sm mb-4 text-center">
+                          Không có địa chỉ nào.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </Card>
               </div>

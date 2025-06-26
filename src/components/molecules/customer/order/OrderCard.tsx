@@ -2,12 +2,13 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Calendar, Clock, Truck } from "lucide-react";
+import { Eye, Calendar, Clock } from "lucide-react";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
 import PriceDisplay from "@/components/atoms/customer/order/PriceDisplay";
 import OrderDate from "@/components/atoms/customer/order/OrderDate";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
+import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
 
 interface OrderCardProps {
   order: Order;
@@ -18,7 +19,6 @@ interface OrderCardProps {
 export default function OrderCard({
   order,
   onView,
-  onMessage,
 }: OrderCardProps) {
   console.log("OrderCardA: ", order);
   const isOverdue =
@@ -114,7 +114,7 @@ export default function OrderCard({
         )}
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <Link
             className="w-full"
             to={`${PATH.ORDER_DETAIL}/${order?.orderID}`}
@@ -122,21 +122,14 @@ export default function OrderCard({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 w-full"
+              className="w-full"
               onClick={() => onView?.(order?.orderID)}
             >
               <Eye className="h-4 w-4 mr-2" />
-              Xem chi tiết
+              Chi tiết
             </Button>
           </Link>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onMessage?.(order?.orderID)}
-          >
-            <Truck className="h-4 w-4 mr-2" />
-            Giao hàng
-          </Button>
+          <ShippingFormDialog orderID={order?.orderID} />
         </div>
       </CardContent>
     </Card>

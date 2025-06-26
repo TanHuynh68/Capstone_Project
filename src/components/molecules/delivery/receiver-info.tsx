@@ -1,7 +1,87 @@
 import { Input } from "../../atoms/delivery/input";
 import { SelectField } from "../../atoms/delivery/select-field";
+import { useState, useEffect } from "react";
+import { getDistricts, getWards } from "@/services/ghnApi";
 
-export function ReceiverInfo() {
+interface ReceiverInfoProps {
+  onChange?: (data: Record<string, unknown>) => void;
+  errors?: Record<string, string>;
+}
+
+interface District {
+  DistrictID: number;
+  DistrictName: string;
+}
+
+interface Ward {
+  WardCode: number;
+  WardName: string;
+}
+
+const HCM_PROVINCE_ID = 202;
+
+export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
+  const [form, setForm] = useState<Record<string, unknown>>({
+    toName: "",
+    toPhone: "",
+    toAddress: "",
+    toDistrictName: "",
+    toWardName: "",
+    toProvinceName: "TP. Hồ Chí Minh",
+  });
+
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>("");
+  const [selectedWardCode, setSelectedWardCode] = useState<string>("");
+
+  useEffect(() => {
+    if (onChange) onChange(form);
+  }, [form, onChange]);
+
+  // Fetch districts on component mount
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const res = await getDistricts(HCM_PROVINCE_ID);
+        setDistricts(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    };
+    fetchDistricts();
+  }, []);
+
+  // Fetch wards when district changes
+  const handleDistrictSelect = async (value: string) => {
+    setSelectedDistrictId(value);
+    const selectedDistrict = districts.find(
+      (d) => String(d.DistrictID) === value
+    );
+    setForm((prev) => ({
+      ...prev,
+      toDistrictName: selectedDistrict?.DistrictName || "",
+      toWardName: "",
+    }));
+    setSelectedWardCode("");
+    setWards([]);
+
+    if (value) {
+      try {
+        const res = await getWards(Number(value));
+        setWards(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching wards:", error);
+      }
+    }
+  };
+
+  const handleWardSelect = (value: string) => {
+    setSelectedWardCode(value);
+    const selectedWard = wards.find((w) => String(w.WardCode) === value);
+    setForm((f) => ({ ...f, toWardName: selectedWard?.WardName || "" }));
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg border">
       <h3 className="text-lg font-semibold mb-4">Bên nhận</h3>
@@ -9,24 +89,33 @@ export function ReceiverInfo() {
       <div className="space-y-4">
         {/* Name and Phone on same row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Họ tên"
-            placeholder="Nhập họ tên"
-            defaultValue="Yumi tran"
-            required
-          />
+          <div>
+            <Input
+              label="Họ tên"
+              placeholder="Nhập họ tên"
+              value={form.toName as string}
+              required
+              onChange={(e) =>
+                setForm((f) => ({ ...f, toName: e.target.value }))
+              }
+            />
+            {errors?.toName && (
+              <div className="text-red-500 text-sm mt-1">{errors.toName}</div>
+            )}
+          </div>
           <div className="relative">
             <Input
               label="Số điện thoại"
               placeholder="Nhập số điện thoại"
-              defaultValue="0909392694"
+              value={form.toPhone as string}
               required
+              onChange={(e) =>
+                setForm((f) => ({ ...f, toPhone: e.target.value }))
+              }
             />
-            {/* <div className="absolute right-2 top-8">
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                An toàn 95%
-              </span>
-            </div> */}
+            {errors?.toPhone && (
+              <div className="text-red-500 text-sm mt-1">{errors.toPhone}</div>
+            )}
           </div>
         </div>
 
@@ -34,40 +123,56 @@ export function ReceiverInfo() {
         <div>
           <Input
             label="Địa chỉ"
-            placeholder="Nhập địa chỉ"
-            defaultValue="96 Ung Văn Khiêm"
+            placeholder="Nhập địa chỉ chi tiết"
+            value={form.toAddress as string}
             required
+            onChange={(e) =>
+              setForm((f) => ({ ...f, toAddress: e.target.value }))
+            }
           />
+          {errors?.toAddress && (
+            <div className="text-red-500 text-sm mt-1">{errors.toAddress}</div>
+          )}
         </div>
 
-        {/* District on its own row */}
-        <div>
-          <SelectField
-            label="Quận - Huyện"
-            placeholder="Chọn Quận/Huyện"
-            defaultValue="binh-thanh"
-            required
-            options={[
-              { value: "binh-thanh", label: "Quận Bình Thạnh - Hồ Chí Minh" },
-              { value: "district1", label: "Quận 1" },
-              { value: "district2", label: "Quận 2" },
-            ]}
-          />
-        </div>
-
-        {/* Ward on its own row */}
-        <div>
-          <SelectField
-            label="Phường - Xã"
-            placeholder="Chọn Phường/Xã"
-            defaultValue="phuong-26"
-            required
-            options={[
-              { value: "phuong-26", label: "Phường 26" },
-              { value: "ward1", label: "Phường 1" },
-              { value: "ward2", label: "Phường 2" },
-            ]}
-          />
+        {/* District and Ward on same row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <SelectField
+              label="Quận - Huyện"
+              placeholder="Chọn Quận/Huyện"
+              value={selectedDistrictId}
+              required
+              options={districts.map((d) => ({
+                value: String(d.DistrictID),
+                label: d.DistrictName,
+              }))}
+              onValueChange={handleDistrictSelect}
+            />
+            {errors?.toDistrictName && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.toDistrictName}
+              </div>
+            )}
+          </div>
+          <div>
+            <SelectField
+              label="Phường - Xã"
+              placeholder="Chọn Phường/Xã"
+              value={selectedWardCode}
+              required
+              options={wards.map((w) => ({
+                value: String(w.WardCode),
+                label: w.WardName,
+              }))}
+              onValueChange={handleWardSelect}
+            />
+            {errors?.toWardName && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.toWardName}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { getDistricts, getWards } from "@/services/ghnApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import PutAddress from "../edit-addresss";
 import DeleteAddress from "../delete-address";
-import { Home } from "lucide-react";
+import { Home, Star } from "lucide-react";
 
 const HCM_PROVINCE_ID = 202;
 const VALID_HCM_DISTRICTS = new Set([
@@ -12,7 +12,7 @@ const VALID_HCM_DISTRICTS = new Set([
 ]);
 
 type GetAddressProps = {
-  addresses: any[];
+  addresses: Record<string, unknown>[];
   onUpdated: () => void;
 };
 
@@ -20,7 +20,10 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
   const [districtMap, setDistrictMap] = useState<Record<number, string>>({});
   const [wardMap, setWardMap] = useState<Record<number, string>>({});
   const [isMapping, setIsMapping] = useState(true);
-  const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
 
   useEffect(() => {
     const fetchMapping = async () => {
@@ -34,21 +37,23 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
         const districtRes = await getDistricts(HCM_PROVINCE_ID);
         const allDistricts = districtRes.data.data;
 
-        const validDistricts = allDistricts.filter((d: any) =>
-          VALID_HCM_DISTRICTS.has(d.DistrictID)
+        const validDistricts = allDistricts.filter(
+          (d: { DistrictID: number }) => VALID_HCM_DISTRICTS.has(d.DistrictID)
         );
 
         const districtMapping: Record<number, string> = {};
         const wardMapping: Record<number, string> = {};
 
-        validDistricts.forEach((d: any) => {
-          districtMapping[d.DistrictID] = d.DistrictName;
-        });
+        validDistricts.forEach(
+          (d: { DistrictID: number; DistrictName: string }) => {
+            districtMapping[d.DistrictID] = d.DistrictName;
+          }
+        );
 
         for (const d of validDistricts) {
           const wardRes = await getWards(d.DistrictID);
           const wards = wardRes.data.data;
-          wards.forEach((w: any) => {
+          wards.forEach((w: { WardCode: number; WardName: string }) => {
             wardMapping[w.WardCode] = w.WardName;
           });
         }
@@ -75,43 +80,68 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
     return String(id);
   };
 
-  const renderAddressItem = (addr: any) => (
+  const renderAddressItem = (addr: Record<string, unknown>) => (
     <li
-      key={addr.addressID}
-      className="relative pt-6 pr-6 pb-4 pl-4 border border-border rounded-lg shadow-md bg-card hover:bg-muted transition"
+      key={addr.addressID as string}
+      className={`relative p-4 border rounded-lg shadow-sm transition-all duration-200 cursor-pointer ${
+        addr.isMainAddress
+          ? "bg-primary/5 border-2 border-primary/20 hover:shadow-md"
+          : "bg-card border-border hover:bg-muted"
+      }`}
       onClick={() => setSelectedAddress(addr)}
     >
-      <div className="flex justify-between items-start gap-2">
-        <div className="flex-1 space-y-1">
-          <p className="text-sm font-medium text-foreground flex flex-wrap items-start gap-2 break-words">
-            <Home className="w-4 h-4 mt-1 text-muted-foreground shrink-0" />
-            <span className="flex-1">
-              {addr.addressDetail}, {getLocationName("ward", addr.ward)},{" "}
-              {getLocationName("district", addr.district)}, TP. Hồ Chí Minh
-            </span>
-          </p>
-
-          {addr.isMainAddress && (
-            <span className="absolute top-2 right-2 inline-block px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 font-medium z-20">
-              Địa chỉ chính
-            </span>
-          )}
-        </div>
-        {!addr.isMainAddress && (
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0">
           <div
-            className="absolute top-2 right-2 z-10"
-            onClick={(e) => e.stopPropagation()}
+            className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              addr.isMainAddress ? "bg-primary/10" : "bg-muted"
+            }`}
           >
-            <DeleteAddress
-              addressID={addr.addressID}
-              addressDetail={addr.addressDetail}
-              ward={addr.ward}
-              district={addr.district}
-              getLocationName={getLocationName}
-              onDeleted={onUpdated}
+            <Home
+              className={`w-4 h-4 ${
+                addr.isMainAddress ? "text-primary" : "text-muted-foreground"
+              }`}
             />
           </div>
-        )}
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2 justify-between">
+            <span
+              className={`text-sm font-semibold break-words ${
+                addr.isMainAddress ? "text-primary" : "text-foreground"
+              }`}
+            >
+              {addr.addressDetail as string}
+            </span>
+            {(addr.isMainAddress as boolean) && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md font-medium">
+                <Star className="w-3 h-3" />
+                Địa chỉ chính
+              </div>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {getLocationName("ward", addr.ward as string | number)},{" "}
+            {getLocationName("district", addr.district as string | number)}, TP.
+            Hồ Chí Minh
+          </p>
+          {!addr.isMainAddress && (
+            <div
+              className="absolute top-1 right-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DeleteAddress
+                addressID={addr.addressID as string}
+                addressDetail={addr.addressDetail as string}
+                ward={addr.ward as string | number}
+                district={addr.district as string | number}
+                getLocationName={getLocationName}
+                onDeleted={onUpdated}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </li>
   );
@@ -127,17 +157,22 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       {Array.from({ length: count }).map((_, i) => (
         <li
           key={i}
-          className="relative pt-6 pr-6 pb-4 pl-4 border border-border rounded-lg shadow-md bg-card h-[72px] flex items-center"
+          className="bg-primary/5 border-2 border-primary/20 rounded-lg p-4 shadow-sm"
         >
-          <Skeleton className="w-4 h-4 mt-1 mr-2" />
-          <Skeleton className="h-5 w-11/12" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-8 h-8 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
         </li>
       ))}
     </ul>
   );
 
   return (
-    <div className="p-4">
+    <div className="p-0">
       {/* <h1 className="text-xl font-bold mb-4 items-center justify-center flex">
         Danh sách địa chỉ
       </h1> */}
@@ -151,7 +186,6 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       ) : (
         <ul className="space-y-4">
           {mainAddress && renderAddressItem(mainAddress)}
-
           {otherAddresses.map((addr) => renderAddressItem(addr))}
         </ul>
       )}
@@ -159,7 +193,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       {/* Modal cập nhật địa chỉ */}
       {selectedAddress && (
         <PutAddress
-          key={selectedAddress.addressID}
+          key={selectedAddress.addressID as string}
           address={selectedAddress}
           onUpdated={() => {
             setSelectedAddress(null);

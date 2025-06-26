@@ -26,7 +26,7 @@ export function Input({
       )}
       <BaseInput
         className={cn(
-          "border-gray-300 focus:border-orange-500 focus:ring-orange-500",
+          "border-gray-300 focus:border-primary focus:ring-primary",
           error && "border-red-500",
           className
         )}
