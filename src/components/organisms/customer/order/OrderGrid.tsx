@@ -48,7 +48,13 @@ function OrderCardSkeleton() {
   );
 }
 
-export default function OrderGrid({ orders, loading, onView, onMessage }: OrderGridProps) {
+export default function OrderGrid({
+  orders,
+  loading,
+  onView,
+  onMessage,
+  onOrderCreated,
+}: OrderGridProps) {
   if (loading === true) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

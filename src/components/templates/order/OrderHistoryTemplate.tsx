@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 import OrderFilters from "@/components/molecules/customer/order/OrderFilters";
 import OrderGrid from "@/components/organisms/customer/order/OrderGrid";
 import OrderList from "@/components/organisms/customer/order/OrderList";
@@ -178,20 +177,19 @@ export default function OrderHistoryTemplate({
               </p>
             </div>
 
-            <Button onClick={onRefresh} disabled={isLoading}>
+            {/* <Button onClick={onRefresh} disabled={isLoading}>
               <RefreshCw
                 className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
               />
               Làm mới
-            </Button>
+            </Button> */}
           </div>
-          <div className="flex items-center justify-between py-6"></div>
         </div>
       </div>
 
       {/* Statistics */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-2xl font-bold text-foreground">
               {stats.total}
@@ -215,31 +213,8 @@ export default function OrderHistoryTemplate({
               {stats.pending}
             </div>
             <div className="text-sm text-muted-foreground">Đang chờ</div>
-          <div className="bg-white p-4 rounded-lg border">
-            <div className="text-2xl font-bold text-gray-900">
-              {stats.total}
-            </div>
-            <div className="text-sm text-gray-600">Tổng đơn hàng</div>
           </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <div className="text-2xl font-bold text-green-600">
-              {stats.completed}
-            </div>
-            <div className="text-sm text-gray-600">Hoàn thành</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.inProgress}
-            </div>
-            <div className="text-sm text-gray-600">Đang thực hiện</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg border">
-            <div className="text-2xl font-bold text-yellow-600">
-              {stats.pending}
-            </div>
-            <div className="text-sm text-gray-600">Đang chờ</div>
-          </div>
-          <div className="bg-card p-4 rounded-lg border border-border">
+          {/* <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-lg font-bold text-foreground">
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
@@ -248,7 +223,7 @@ export default function OrderHistoryTemplate({
               }).format(stats.totalValue)}
             </div>
             <div className="text-sm text-muted-foreground">Tổng giá trị</div>
-          </div>
+          </div> */}
         </div>
 
         {/* Filters */}

@@ -39,10 +39,12 @@ export default function OrderCard({
           </div>
           <OrderStatusBadge status={order?.orderStatus} />
         </div>
-            {/* Note */}
+        {/* Note */}
         {order?.note && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-700 line-clamp-2">{order?.note}</p>
+          <div className="mb-4 p-3 bg-muted rounded-lg">
+            <p className="text-sm text-foreground line-clamp-2">
+              {order?.note}
+            </p>
           </div>
         )}
 
@@ -120,14 +122,14 @@ export default function OrderCard({
         </div>
 
         {/* Note */}
-        {order?.note && (
+        {/* {order?.note && (
           <div className="mb-4 p-3 bg-muted rounded-lg">
             <div className="text-xs text-muted-foreground mb-1">Ghi chú:</div>
             <p className="text-sm text-foreground line-clamp-2">
               {order?.note}
             </p>
           </div>
-        )}
+        )} */}
 
         {/* Actions */}
         <div className="grid grid-cols-2 gap-2">
