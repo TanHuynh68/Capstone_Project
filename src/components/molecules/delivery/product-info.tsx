@@ -112,11 +112,11 @@ export function ProductInfo({
           </div>
           <div>
             <PickShift onChange={setPickShift} errors={errors} />
-          {errors["pickShift.pickShiftId"] && (
-            <span className="text-destructive text-sm mt-1">
-              {errors["pickShift.pickShiftId"]}
-            </span>
-          )}
+            {errors["pickShift.pickShiftId"] && (
+              <span className="text-destructive text-sm mt-1">
+                {errors["pickShift.pickShiftId"]}
+              </span>
+            )}
           </div>
         </div>
 
