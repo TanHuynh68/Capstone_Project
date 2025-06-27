@@ -13,11 +13,13 @@ import { ShippingForm } from "./shipping-form";
 interface ShippingFormDialogProps {
   orderID?: string;
   onSuccess?: () => void;
+  onOrderCreated?: () => void;
 }
 
 export function ShippingFormDialog({
   orderID,
   onSuccess,
+  onOrderCreated,
 }: ShippingFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [currentOrderID, setCurrentOrderID] = useState<string | undefined>(
@@ -36,6 +38,12 @@ export function ShippingFormDialog({
     onSuccess?.();
   };
 
+  const handleOrderCreated = () => {
+    setOpen(false);
+    onSuccess?.();
+    onOrderCreated?.();
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -46,13 +54,17 @@ export function ShippingFormDialog({
       </DialogTrigger>
       <DialogContent className="max-w-[98vw] w-[98vw] min-w-[1400px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Package className="h-5 w-5" />
-            Tạo đơn hàng giao hàng mới
+            Tạo đơn giao hàng
           </DialogTitle>
         </DialogHeader>
         <div>
-          <ShippingForm orderID={currentOrderID} onSuccess={handleSuccess} />
+          <ShippingForm
+            orderID={currentOrderID}
+            onSuccess={handleSuccess}
+            onOrderCreated={handleOrderCreated}
+          />
         </div>
       </DialogContent>
     </Dialog>

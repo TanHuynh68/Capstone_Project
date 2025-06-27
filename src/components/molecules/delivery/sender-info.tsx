@@ -14,6 +14,7 @@ import {
 import { Edit } from "lucide-react";
 import GetAddress from "@/pages/customer/manage-address/address";
 import MainAddressSelector from "./main-address-selector";
+import CreateAddress from "@/pages/customer/manage-address/create-address";
 
 interface SenderInfoProps {
   onChange?: (data: Record<string, unknown>) => void;
@@ -133,20 +134,31 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
     if (profile && addresses.length > 0) {
       const mainAddress =
         addresses.find((addr) => addr.isMainAddress) || addresses[0];
+
+      const districtName = getLocationName(
+        "district",
+        (mainAddress?.district as string | number) || ""
+      );
+      const wardName = getLocationName(
+        "ward",
+        (mainAddress?.ward as string | number) || ""
+      );
+
       setForm((f) => ({
         ...f,
         fromName: profile.fullName || "",
         fromPhone: profile.phoneNumber || "",
-        fromAddress: mainAddress?.addressDetail || "",
+        fromAddress: [
+          mainAddress?.addressDetail,
+          wardName,
+          districtName,
+          "TP. Hồ Chí Minh",
+        ]
+          .filter(Boolean)
+          .join(", "),
         fromProvinceName: "TP. Hồ Chí Minh",
-        fromDistrictName: getLocationName(
-          "district",
-          (mainAddress?.district as string | number) || ""
-        ),
-        fromWardName: getLocationName(
-          "ward",
-          (mainAddress?.ward as string | number) || ""
-        ),
+        fromDistrictName: districtName,
+        fromWardName: wardName,
       }));
     } else if (profile) {
       setForm((f) => ({
@@ -159,47 +171,53 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-lg border">
-        <h3 className="text-lg font-semibold mb-4">Bên gửi</h3>
+      <div className="p-6 rounded-lg border border-border">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Bên gửi</h3>
 
         <div className="space-y-4 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div className="text-sm font-medium mb-2">Họ tên</div>
-              <div className="h-10 w-full bg-gray-200 animate-pulse rounded-md"></div>
+              <div className="text-sm font-medium mb-2 text-foreground">
+                Họ tên
+              </div>
+              <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
             </div>
             <div>
-              <div className="text-sm font-medium mb-2">Số điện thoại</div>
-              <div className="h-10 w-full bg-gray-200 animate-pulse rounded-md"></div>
+              <div className="text-sm font-medium mb-2 text-foreground">
+                Số điện thoại
+              </div>
+              <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
             </div>
           </div>
         </div>
 
         <div className="p-0">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold">Địa chỉ</h3>
+            <h3 className="text-sm font-semibold text-foreground">Địa chỉ</h3>
             <Button variant="outline" size="sm" disabled>
               <Edit className="w-4 h-4 mr-2" />
               Thay đổi
             </Button>
           </div>
-          <div className="h-[100px] w-full bg-gray-200 animate-pulse rounded-md"></div>
+          <div className="h-[100px] w-full bg-muted animate-pulse rounded-md"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg border">
-      <h3 className="text-lg font-semibold mb-4">Bên gửi</h3>
+    <div className="p-6 rounded-lg border border-border">
+      <h3 className="text-lg font-semibold mb-4 text-foreground">Bên gửi</h3>
 
       <div className="space-y-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             {isLoading ? (
               <>
-                <div className="text-sm font-medium mb-2">Họ tên</div>
-                <div className="h-10 w-full bg-gray-200 animate-pulse rounded-md"></div>
+                <div className="text-sm font-medium mb-2 text-foreground">
+                  Họ tên
+                </div>
+                <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
               </>
             ) : (
               <>
@@ -213,7 +231,7 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
                   }
                 />
                 {errors?.fromName && (
-                  <div className="text-red-500 text-sm mt-1">
+                  <div className="text-destructive text-sm mt-1">
                     {errors.fromName}
                   </div>
                 )}
@@ -223,8 +241,10 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
           <div>
             {isLoading ? (
               <>
-                <div className="text-sm font-medium mb-2">Số điện thoại</div>
-                <div className="h-10 w-full bg-gray-200 animate-pulse rounded-md"></div>
+                <div className="text-sm font-medium mb-2 text-foreground">
+                  Số điện thoại
+                </div>
+                <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
               </>
             ) : (
               <>
@@ -275,6 +295,17 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
                 <DialogTitle>Quản lý địa chỉ</DialogTitle>
               </DialogHeader>
               <GetAddress addresses={addresses} onUpdated={fetchAddresses} />
+              {addresses.length < 3 ? (
+                <CreateAddress
+                  className="w-full"
+                  onCreated={fetchAddresses}
+                  addresses={addresses || []}
+                />
+              ) : (
+                <p className="text-sm text-gray-500 mt-2 px-4 text-center">
+                  Bạn đã đạt giới hạn tối đa 3 địa chỉ.
+                </p>
+              )}
             </DialogContent>
           </Dialog>
         </div>

@@ -111,7 +111,7 @@ export const DeliveryListTemplate: React.FC<DeliveryListTemplateProps> = ({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 mb-1">
               <Package className="h-6 w-6" />
               {title}
               {totalCount !== undefined && (
@@ -144,19 +144,19 @@ export const DeliveryListTemplate: React.FC<DeliveryListTemplateProps> = ({
             onViewDetails={onViewDetails}
             searchTerm={searchValue}
           />
-          <div className="py-4">
+          <div className="py-2">
             <DataTablePagination table={table} />
           </div>
         </>
       ) : (
-        <Card>
+        <Card className="p-0">
           <CardContent className="p-0">
             <DeliveryTable
               deliveries={deliveries}
               onViewDetails={onViewDetails}
               searchTerm={searchValue}
             />
-            <div className="py-4">
+            <div className="py-2">
               <DataTablePagination table={table} />
             </div>
           </CardContent>

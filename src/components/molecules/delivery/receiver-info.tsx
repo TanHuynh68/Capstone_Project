@@ -24,6 +24,7 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
   const [form, setForm] = useState<Record<string, unknown>>({
     toName: "",
     toPhone: "",
+    toAddressDetail: "",
     toAddress: "",
     toDistrictName: "",
     toWardName: "",
@@ -36,7 +37,17 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
   const [selectedWardCode, setSelectedWardCode] = useState<string>("");
 
   useEffect(() => {
-    if (onChange) onChange(form);
+    if (onChange) {
+      const fullAddress = buildFullAddress(
+        form.toAddressDetail as string,
+        form.toDistrictName as string,
+        form.toWardName as string
+      );
+      onChange({
+        ...form,
+        toAddress: fullAddress,
+      });
+    }
   }, [form, onChange]);
 
   // Fetch districts on component mount
@@ -79,12 +90,25 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
   const handleWardSelect = (value: string) => {
     setSelectedWardCode(value);
     const selectedWard = wards.find((w) => String(w.WardCode) === value);
-    setForm((f) => ({ ...f, toWardName: selectedWard?.WardName || "" }));
+    setForm((f) => ({
+      ...f,
+      toWardName: selectedWard?.WardName || "",
+    }));
+  };
+
+  const buildFullAddress = (
+    addressDetail: string,
+    districtName: string,
+    wardName: string
+  ) => {
+    return [addressDetail, wardName, districtName, "TP. Hồ Chí Minh"]
+      .filter(Boolean)
+      .join(", ");
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border">
-      <h3 className="text-lg font-semibold mb-4">Bên nhận</h3>
+    <div className="p-6 rounded-lg border border-border">
+      <h3 className="text-lg font-semibold mb-4 text-foreground">Bên nhận</h3>
 
       <div className="space-y-4">
         {/* Name and Phone on same row */}
@@ -100,7 +124,9 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               }
             />
             {errors?.toName && (
-              <div className="text-red-500 text-sm mt-1">{errors.toName}</div>
+              <div className="text-destructive text-sm mt-1">
+                {errors.toName}
+              </div>
             )}
           </div>
           <div className="relative">
@@ -114,7 +140,9 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               }
             />
             {errors?.toPhone && (
-              <div className="text-red-500 text-sm mt-1">{errors.toPhone}</div>
+              <div className="text-destructive text-sm mt-1">
+                {errors.toPhone}
+              </div>
             )}
           </div>
         </div>
@@ -123,15 +151,17 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
         <div>
           <Input
             label="Địa chỉ"
-            placeholder="Nhập địa chỉ chi tiết"
-            value={form.toAddress as string}
+            placeholder="Nhập địa chỉ người nhận"
+            value={form.toAddressDetail as string}
             required
             onChange={(e) =>
-              setForm((f) => ({ ...f, toAddress: e.target.value }))
+              setForm((f) => ({ ...f, toAddressDetail: e.target.value }))
             }
           />
-          {errors?.toAddress && (
-            <div className="text-red-500 text-sm mt-1">{errors.toAddress}</div>
+          {errors?.toAddressDetail && (
+            <div className="text-destructive text-sm mt-1">
+              {errors.toAddressDetail}
+            </div>
           )}
         </div>
 
@@ -150,7 +180,7 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               onValueChange={handleDistrictSelect}
             />
             {errors?.toDistrictName && (
-              <div className="text-red-500 text-sm mt-1">
+              <div className="text-destructive text-sm mt-1">
                 {errors.toDistrictName}
               </div>
             )}
@@ -168,7 +198,7 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               onValueChange={handleWardSelect}
             />
             {errors?.toWardName && (
-              <div className="text-red-500 text-sm mt-1">
+              <div className="text-destructive text-sm mt-1">
                 {errors.toWardName}
               </div>
             )}

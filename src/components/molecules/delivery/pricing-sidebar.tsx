@@ -242,12 +242,12 @@ export function PricingSidebar({
   const showLoading = isLoading || isCalculating;
 
   return (
-    <div className="bg-white rounded-lg border p-4 top-6 ">
+    <div className="rounded-lg border border-border p-4 top-6 ">
       <div className="space-y-4">
         {/* Service Fee */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Phí giao hàng</span>
-          <span className="font-semibold">
+          <span className="text-sm text-muted-foreground">Phí giao hàng</span>
+          <span className="font-semibold text-foreground">
             {showLoading ? (
               <span className="text-muted-foreground">Đang tính...</span>
             ) : typeof displayFee === "number" && !isNaN(displayFee) ? (

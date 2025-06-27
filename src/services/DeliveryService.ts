@@ -30,6 +30,18 @@ const DeliveryService = () => {
         [callApi]
     );
 
+    const getDeliveryDetail = useCallback(
+        async (values: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_DELIVERY_DETAIL, values);
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin giao hàng.");
+            }
+        },
+        [callApi]
+    );
+
     const createDelivery = useCallback(
         async (values: any) => {
             try {
@@ -39,11 +51,11 @@ const DeliveryService = () => {
             catch (err: any) {
                 toast.error(err?.response?.data || "Đã xảy ra lỗi khi tạo giao hàng.");
             }
-            },
+        },
         [callApi]
     );
 
-    return { getDeliveryByToken, getDeliveryByOrderID, createDelivery };
+    return { getDeliveryByToken, getDeliveryByOrderID, createDelivery, getDeliveryDetail };
 };
 
 

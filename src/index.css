@@ -258,3 +258,17 @@ input[type="color"].circle-color-picker::-moz-color-swatch {
   border: none;
   border-radius: 50%;
 }
+
+@keyframes moveLeftRight {
+  0% {
+    transform: translateX(-5px) scale(1);
+  }
+
+  50% {
+    transform: translateX(5px) scale(1.2);
+  }
+
+  100% {
+    transform: translateX(-5px) scale(1);
+  }
+}

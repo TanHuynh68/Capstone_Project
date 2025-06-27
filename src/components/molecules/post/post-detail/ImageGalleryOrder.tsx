@@ -42,8 +42,7 @@ export default function ImageGalleryOrder({
       // <div className={`text-center py-8 ${className}`}>
       //   <p className="text-gray-500">Không có hình ảnh</p>
       // </div>
-      <div>
-      </div>
+      <div></div>
     );
   }
 

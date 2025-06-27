@@ -8,9 +8,14 @@ import DeliveryService from "@/services/DeliveryService";
 interface ShippingFormProps {
   onSuccess?: () => void;
   orderID?: string;
+  onOrderCreated?: () => void;
 }
 
-export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
+export function ShippingForm({
+  onSuccess,
+  orderID,
+  onOrderCreated,
+}: ShippingFormProps) {
   const [sender, setSender] = useState<Record<string, unknown>>({});
   const [receiver, setReceiver] = useState<Record<string, unknown>>({});
   const [product, setProduct] = useState<Record<string, unknown>>({});
@@ -20,6 +25,7 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
   }>({});
   const [shippingFee, setShippingFee] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { createDelivery } = DeliveryService();
 
   // Validate dữ liệu form
@@ -43,8 +49,8 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
     if (!receiver.toPhone) newErrors.toPhone = "Vui lòng nhập SĐT người nhận";
     else if (!/^\d{10}$/.test(String(receiver.toPhone)))
       newErrors.toPhone = "SĐT người nhận phải đủ 10 số";
-    if (!receiver.toAddress)
-      newErrors.toAddress = "Vui lòng nhập địa chỉ người nhận";
+    if (!receiver.toAddressDetail)
+      newErrors.toAddressDetail = "Vui lòng nhập địa chỉ người nhận";
     if (!receiver.toDistrictName)
       newErrors.toDistrictName = "Vui lòng chọn quận/huyện người nhận";
     if (!receiver.toWardName)
@@ -107,6 +113,8 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
     console.log("pickShift", pickShift);
     console.log("shippingFee", shippingFee);
     if (!validate()) return;
+
+    setIsLoading(true);
     const data = {
       ...sender,
       ...receiver,
@@ -127,8 +135,16 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
         formData.append(key, String(value));
       }
     });
-    await createDelivery(formData);
-    onSuccess?.();
+
+    try {
+      await createDelivery(formData);
+      onSuccess?.();
+      onOrderCreated?.();
+    } catch (error) {
+      console.error("Error creating delivery:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Hàm cập nhật lỗi khi input thay đổi
@@ -145,7 +161,7 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Form Content */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="border-t-4 border-primary bg-white rounded-lg">
+          <div className="border-t-4 border-primary rounded-lg">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
               <SenderInfo
                 onChange={(data) => {
@@ -166,7 +182,7 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
                   if (data.toName) clearError("toName");
                   if (data.toPhone && /^\d{10}$/.test(String(data.toPhone)))
                     clearError("toPhone");
-                  if (data.toAddress) clearError("toAddress");
+                  if (data.toAddressDetail) clearError("toAddressDetail");
                   if (data.toDistrictName) clearError("toDistrictName");
                   if (data.toWardName) clearError("toWardName");
                   if (data.toProvinceName) clearError("toProvinceName");
@@ -218,7 +234,7 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
         </div>
         {/* Pricing Sidebar + Create Order Button */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="sticky top-6 flex flex-col gap-4 border-t-4 border-primary bg-white rounded-lg">
+          <div className="sticky top-6 flex flex-col gap-4 border-t-4 border-primary rounded-lg">
             <PricingSidebar
               fee={shippingFee}
               isCalculating={false}
@@ -230,10 +246,22 @@ export function ShippingForm({ onSuccess, orderID }: ShippingFormProps) {
             <div className="flex justify-end bottom-0">
               <button
                 type="button"
-                className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/80 transition"
+                disabled={isLoading}
+                className={`w-full px-6 py-3 rounded-lg font-semibold transition ${
+                  isLoading
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-primary text-primary-foreground hover:bg-primary/80"
+                }`}
                 onClick={handleCreateOrder}
               >
-                TẠO ĐƠN HÀNG
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ĐANG TẠO ĐƠN HÀNG...
+                  </div>
+                ) : (
+                  "TẠO ĐƠN HÀNG"
+                )}
               </button>
             </div>
           </div>

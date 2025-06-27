@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ArrowUpDown, Eye } from "lucide-react";
 import { StatusBadge } from "@/components/atoms/delivery/status-badge";
-import { DeliveryId } from "@/components/atoms/delivery/delivery-id";
+// import { DeliveryId } from "@/components/atoms/delivery/delivery-id";
 import { DeliveryDetailModal } from "@/components/molecules/getdelivery/delivery-detail-modal";
 import { HighlightText } from "@/components/utils/highlight-text";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
@@ -80,7 +80,7 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">
+                {/* <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => handleSort("deliveryID")}
@@ -92,7 +92,7 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                   <Button variant="ghost" onClick={() => handleSort("orderID")}>
                     Mã đơn hàng <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
-                </TableHead>
+                </TableHead> */}
                 <TableHead className="text-center">
                   <Button
                     variant="ghost"
@@ -156,7 +156,7 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
             <TableBody>
               {sortedDeliveries.map((delivery) => (
                 <TableRow key={delivery.deliveryID}>
-                  <TableCell className="text-center">
+                  {/* <TableCell className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="max-w-24 truncate cursor-help">
@@ -185,11 +185,11 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                         <p>{delivery.orderID}</p>
                       </TooltipContent>
                     </Tooltip>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="max-w-16 truncate cursor-help">
+                        <div className="max-w-24 truncate cursor-help">
                           <code className="px-2 py-1 bg-muted rounded text-sm">
                             <HighlightText
                               text={delivery.orderCode}
@@ -205,32 +205,32 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                     </Tooltip>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="font-medium">
+                    <div className="font-medium text-foreground">
                       <HighlightText
                         text={delivery.senderName}
                         searchTerm={searchTerm}
-                        className="font-medium"
+                        className="font-medium text-foreground"
                       />
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="font-medium">
+                    <div className="font-medium text-foreground">
                       <HighlightText
                         text={delivery.receiverName}
                         searchTerm={searchTerm}
-                        className="font-medium"
+                        className="font-medium text-foreground"
                       />
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="font-semibold text-green-600">
+                    <div className="font-semibold text-green-600 dark:text-green-400">
                       <HighlightText
                         text={new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
                         }).format(delivery.deliveryPrice)}
                         searchTerm={searchTerm}
-                        className="font-semibold text-green-600"
+                        className="font-semibold text-green-600 dark:text-green-400"
                       />
                     </div>
                   </TableCell>
@@ -240,11 +240,11 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                   <TableCell className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="text-sm text-gray-600 max-w-32 truncate cursor-help">
+                        <div className="text-sm text-muted-foreground max-w-32 truncate cursor-help">
                           <HighlightText
                             text={delivery.note || "-"}
                             searchTerm={searchTerm}
-                            className="text-sm text-gray-600"
+                            className="text-sm text-muted-foreground"
                           />
                         </div>
                       </TooltipTrigger>
@@ -254,18 +254,18 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                     </Tooltip>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="text-sm">
+                    <div className="text-sm text-foreground">
                       <HighlightText
                         text={new Date(delivery.createdAt).toLocaleDateString(
                           "vi-VN"
                         )}
                         searchTerm={searchTerm}
-                        className="text-sm"
+                        className="text-sm text-foreground"
                       />
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="text-sm">
+                    <div className="text-sm text-foreground">
                       <HighlightText
                         text={
                           delivery.deliveredAt
@@ -275,7 +275,7 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
                             : "-"
                         }
                         searchTerm={searchTerm}
-                        className="text-sm"
+                        className="text-sm text-foreground"
                       />
                     </div>
                   </TableCell>
@@ -304,7 +304,7 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
             setIsModalOpen(false);
             setSelectedDelivery(null);
           }}
-          orderCode={selectedDelivery.orderCode}
+          deliveryID={selectedDelivery.deliveryID}
         />
       )}
     </>

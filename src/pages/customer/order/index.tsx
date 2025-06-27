@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import OrderHistoryTemplate from "@/components/templates/order/OrderHistoryTemplate";
 import OrderService from "@/services/OrderService";
 
-export default function OrderHistoryPage() {
+interface OrderHistoryPageProps {
+  onOrderCreated?: () => void;
+}
+
+export default function OrderHistoryPage({
+  onOrderCreated,
+}: OrderHistoryPageProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const { getOrders } = OrderService();
@@ -24,7 +30,7 @@ export default function OrderHistoryPage() {
 
   const handleRefresh = async () => {
     setLoading(true);
-    await fetchOrders()
+    await fetchOrders();
     setLoading(false);
   };
 
@@ -33,6 +39,7 @@ export default function OrderHistoryPage() {
       initialOrders={orders}
       isLoading={loading}
       onRefresh={handleRefresh}
+      onOrderCreated={onOrderCreated}
     />
   );
 }

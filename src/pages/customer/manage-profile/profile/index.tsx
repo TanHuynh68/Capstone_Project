@@ -654,7 +654,9 @@ const Profile = () => {
         <TabsContent value="orders">
           <div className="container max-w-6xl mx-auto py-0">
             <div className="text-center text-gray-500 text-sm">
-              <OrderHistoryPage />
+              <OrderHistoryPage
+                onOrderCreated={() => setActiveTab("delivery")}
+              />
             </div>
           </div>
         </TabsContent>
