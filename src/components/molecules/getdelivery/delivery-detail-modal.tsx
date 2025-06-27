@@ -13,7 +13,7 @@ import {
   Phone,
   Package,
   Calendar,
-  DollarSign,
+  // DollarSign,
   FileText,
   User,
   ImageIcon,
@@ -127,13 +127,29 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
         ) : deliveryDetail ? (
           <div className="space-y-6">
             {/* Order Code */}
-            <div className="bg-muted p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg flex justify-between">
               <div className="flex items-center gap-1">
                 <FileText className="h-4 w-4 text-primary" />
                 <span className="font-semibold text-primary">Mã đơn hàng:</span>
                 <span className="font-semibold text-foreground">
                   {deliveryDetail.orderCode}
                 </span>
+              </div>
+
+              {/* Delivery Price */}
+              <div className="bg-muted rounded-lg">
+                {/* <div className="flex items-center gap-1 mb-3">
+                  <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="font-semibold text-foreground">
+                    Phí giao hàng
+                  </span>
+                </div> */}
+                <p className="text-lg font-bold text-green-700 dark:text-green-400">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(deliveryDetail.deliveryPrice)}
+                </p>
               </div>
             </div>
 
@@ -145,23 +161,25 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
                   Thông tin thời gian
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-between items-center">
                 <div>
                   <p className="text-xs text-muted-foreground">Ngày tạo</p>
                   <div className="text-sm text-foreground">
                     {formatVietnamDateHours(deliveryDetail.createdAt)}
                   </div>
                 </div>
-                {deliveryDetail.deliveredAt && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Ngày giao hàng
-                    </p>
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Ngày giao hàng
+                  </p>
+                  {deliveryDetail.deliveredAt ? (
                     <div className="text-sm text-foreground">
                       {formatVietnamDateHours(deliveryDetail.deliveredAt)}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-sm text-muted-foreground">Chưa có</div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -279,22 +297,6 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
                 />
               </div>
             )}
-
-            {/* Delivery Price */}
-            <div className="bg-muted p-4 rounded-lg">
-              <div className="flex items-center gap-1 mb-3">
-                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span className="font-semibold text-foreground">
-                  Phí giao hàng
-                </span>
-              </div>
-              <p className="text-xl font-bold text-green-700 dark:text-green-400">
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(deliveryDetail.deliveryPrice)}
-              </p>
-            </div>
 
             {/* Note */}
             {deliveryDetail.note && (

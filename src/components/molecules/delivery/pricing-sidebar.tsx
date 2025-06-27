@@ -103,22 +103,46 @@ export function PricingSidebar({
   const height = product.height;
   const content = product.content;
 
+  // Helper to check if a value is a valid number in a range
+  const isValidNumber = (val: unknown, min: number, max: number) => {
+    const num = Number(val);
+    return typeof num === "number" && !isNaN(num) && num >= min && num <= max;
+  };
+
   // Auto-calculate fee when all required data is available
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const calculateFeeAutomatically = async () => {
-      // Check if all required data is available
+      // Check if all required data is available and valid
       if (
         shopId &&
         fromDistrictName &&
         fromWardName &&
         toDistrictName &&
-        toWardName &&
-        weight &&
-        length &&
-        width &&
-        height
+        toWardName
       ) {
+        // Validate all dimensions before calculating
+        const isWeightValid = isValidNumber(weight, 1, 3000);
+        const isLengthValid = isValidNumber(length, 1, 100);
+        const isWidthValid = isValidNumber(width, 1, 100);
+        const isHeightValid = isValidNumber(height, 1, 150);
+
+        // Only calculate if all dimensions are valid
+        if (
+          !isWeightValid ||
+          !isLengthValid ||
+          !isWidthValid ||
+          !isHeightValid
+        ) {
+          console.log("Kích thước không hợp lệ:", {
+            weight: isWeightValid ? "OK" : "INVALID",
+            length: isLengthValid ? "OK" : "INVALID",
+            width: isWidthValid ? "OK" : "INVALID",
+            height: isHeightValid ? "OK" : "INVALID",
+          });
+          setCalculatedFee(null);
+          return;
+        }
+
         setIsLoading(true);
         try {
           console.log(sender, "sender2");
@@ -241,6 +265,14 @@ export function PricingSidebar({
   const displayFee = calculatedFee !== null ? calculatedFee : fee;
   const showLoading = isLoading || isCalculating;
 
+  // Check if all dimensions are valid for display logic
+  const isWeightValid = isValidNumber(weight, 1, 3000);
+  const isLengthValid = isValidNumber(length, 1, 100);
+  const isWidthValid = isValidNumber(width, 1, 100);
+  const isHeightValid = isValidNumber(height, 1, 150);
+  const allDimensionsValid =
+    isWeightValid && isLengthValid && isWidthValid && isHeightValid;
+
   return (
     <div className="rounded-lg border border-border p-4 top-6 ">
       <div className="space-y-4">
@@ -250,7 +282,9 @@ export function PricingSidebar({
           <span className="font-semibold text-foreground">
             {showLoading ? (
               <span className="text-muted-foreground">Đang tính...</span>
-            ) : typeof displayFee === "number" && !isNaN(displayFee) ? (
+            ) : allDimensionsValid &&
+              typeof displayFee === "number" &&
+              !isNaN(displayFee) ? (
               `${displayFee.toLocaleString()} đ`
             ) : (
               "--"

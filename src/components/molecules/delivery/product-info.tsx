@@ -17,7 +17,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({
   onChange,
-  errors,
+  errors = {},
   setPickShift,
 }: ProductInfoProps) {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -112,6 +112,11 @@ export function ProductInfo({
           </div>
           <div>
             <PickShift onChange={setPickShift} errors={errors} />
+          {errors["pickShift.pickShiftId"] && (
+            <span className="text-destructive text-sm mt-1">
+              {errors["pickShift.pickShiftId"]}
+            </span>
+          )}
           </div>
         </div>
 
@@ -225,6 +230,12 @@ export function ProductInfo({
           )}
           {imageError && (
             <div className="text-red-500 text-sm mt-1">{imageError}</div>
+          )}
+
+          {errors.images && (
+            <span className="text-destructive text-sm mt-1">
+              {errors.images}
+            </span>
           )}
         </div>
 
