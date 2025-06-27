@@ -52,7 +52,7 @@ export default function OfferPhaseItem({
   };
 
   return (
-    <>
+    <div className="p-1">
       <Card
         className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
           isSelected ? "ring-2 ring-blue-500 bg-blue-50" : "hover:bg-gray-50"
@@ -120,6 +120,6 @@ export default function OfferPhaseItem({
         offerPhaseID={phase.offerPhaseID}
         onSubmit={handleCreateSubmit}
       />
-    </>
+    </div>
   );
 }

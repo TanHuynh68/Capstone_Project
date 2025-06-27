@@ -48,14 +48,8 @@ function OrderCardSkeleton() {
   );
 }
 
-export default function OrderGrid({
-  orders,
-  loading,
-  onView,
-  onMessage,
-  onOrderCreated,
-}: OrderGridProps) {
-  if (loading) {
+export default function OrderGrid({ orders, loading, onView, onMessage }: OrderGridProps) {
+  if (loading === true) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (

@@ -50,8 +50,8 @@ export function ChatPostCard({
   const { offerConfirm } = OfferService();
 
   const handleConfirm = async () => {
-    const reponse = await offerConfirm({offerID: post?.offer?.offerID});
-    console.log('offerConfirm: ', reponse)
+    const reponse = await offerConfirm({ offerID: post?.offer?.offerID });
+    console.log("offerConfirm: ", reponse);
     if (reponse) {
       await fetchOffers();
     }
@@ -112,7 +112,7 @@ export function ChatPostCard({
                       onClick={(e) => {
                         e.stopPropagation();
                         handleViewDetails();
-                        fetchOffers()
+                        fetchOffers();
                       }}
                     >
                       Xem chi tiết
@@ -126,11 +126,12 @@ export function ChatPostCard({
                       Xem giai đoạn
                     </DropdownMenuItem>
 
-                    {currentUser?.role === ROLE.DESIGNER && (
-                      <DropdownMenuItem onClick={handleCreatePhaseClick}>
-                        Tạo giai đoạn
-                      </DropdownMenuItem>
-                    )}
+                    {currentUser?.role === ROLE.DESIGNER &&
+                      post?.offer?.offerStatus != "Accepted" && (
+                        <DropdownMenuItem onClick={handleCreatePhaseClick}>
+                          Tạo giai đoạn
+                        </DropdownMenuItem>
+                      )}
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>

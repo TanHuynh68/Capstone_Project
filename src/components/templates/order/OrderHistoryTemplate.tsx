@@ -185,6 +185,7 @@ export default function OrderHistoryTemplate({
               Làm mới
             </Button>
           </div>
+          <div className="flex items-center justify-between py-6"></div>
         </div>
       </div>
 
@@ -214,6 +215,29 @@ export default function OrderHistoryTemplate({
               {stats.pending}
             </div>
             <div className="text-sm text-muted-foreground">Đang chờ</div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-gray-900">
+              {stats.total}
+            </div>
+            <div className="text-sm text-gray-600">Tổng đơn hàng</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-green-600">
+              {stats.completed}
+            </div>
+            <div className="text-sm text-gray-600">Hoàn thành</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.inProgress}
+            </div>
+            <div className="text-sm text-gray-600">Đang thực hiện</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
+            <div className="text-sm text-gray-600">Đang chờ</div>
           </div>
           <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-lg font-bold text-foreground">
@@ -229,6 +253,8 @@ export default function OrderHistoryTemplate({
 
         {/* Filters */}
         <OrderFilters
+          isLoading={isLoading}
+          onRefresh={onRefresh}
           filters={filters}
           onFiltersChange={setFilters}
           sort={sort}

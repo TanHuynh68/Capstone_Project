@@ -39,6 +39,12 @@ export default function OrderCard({
           </div>
           <OrderStatusBadge status={order?.orderStatus} />
         </div>
+            {/* Note */}
+        {order?.note && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-700 line-clamp-2">{order?.note}</p>
+          </div>
+        )}
 
         {/* Price Info */}
         <div className="space-y-2 mb-4">
@@ -90,7 +96,7 @@ export default function OrderCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Clock
               className={`h-4 w-4 ${
                 isOverdue ? "text-destructive" : "text-muted-foreground"

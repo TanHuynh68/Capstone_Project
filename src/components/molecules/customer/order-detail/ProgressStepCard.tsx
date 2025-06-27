@@ -4,7 +4,9 @@ import type { ProgressStep } from "@/types/orderManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle, Clock, X, Eye } from "lucide-react";
+import { Calendar, CheckCircle, Clock, X, Eye, Star } from "lucide-react";
+import { useCurrentUser } from "@/components/utils";
+import { ROLE } from "@/constants";
 
 interface ProgressStepCardProps {
   step: ProgressStep;
@@ -15,7 +17,9 @@ interface ProgressStepCardProps {
 export default function ProgressStepCard({
   step,
   onViewEvaluationDetail,
+  onEvaluate,
 }: ProgressStepCardProps) {
+  const currentUser = useCurrentUser();
   const getStepTypeConfig = (type: string) => {
     switch (type) {
       case "NewDesign":
@@ -131,16 +135,6 @@ export default function ProgressStepCard({
           </div>
         )}
 
-        {/* Customer Note */}
-        {step.customerNote && (
-          <div>
-            <h4 className="font-medium mb-2">Ghi chú của khách hàng:</h4>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">{step.customerNote}</p>
-            </div>
-          </div>
-        )}
-
         {/* Dates */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
@@ -159,6 +153,12 @@ export default function ProgressStepCard({
           </div>
         </div>
 
+        {!hasEvaluation && currentUser.role === ROLE.CUSTOMER && (
+          <Button onClick={onEvaluate} className="w-full" size="sm">
+            <Star className="h-4 w-4 mr-2" />
+            Đánh giá bước này
+          </Button>
+        )}
         {/* Action Buttons */}
         <div className="pt-4 border-t space-y-2 mb-4">
           {/* View Evaluation Detail Button */}

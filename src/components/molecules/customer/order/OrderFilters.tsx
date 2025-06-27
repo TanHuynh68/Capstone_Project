@@ -15,7 +15,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, Filter, CalendarIcon, LayoutGrid, List } from "lucide-react";
+import {
+  Search,
+  Filter,
+  CalendarIcon,
+  LayoutGrid,
+  List,
+  RefreshCw,
+} from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { ORDER_STATUSES } from "@/constants";
@@ -28,6 +35,8 @@ interface OrderFiltersProps {
   viewMode: "grid" | "list";
   onViewModeChange: (mode: "grid" | "list") => void;
   className?: string;
+  isLoading: boolean;
+  onRefresh: any;
 }
 
 export default function OrderFilters({
@@ -38,6 +47,8 @@ export default function OrderFilters({
   viewMode,
   onViewModeChange,
   className = "",
+  isLoading,
+  onRefresh,
 }: OrderFiltersProps) {
   const handleSearchChange = (value: string) => {
     onFiltersChange({ ...filters, search: value });
@@ -260,6 +271,13 @@ export default function OrderFilters({
         <Button variant="outline" onClick={clearFilters}>
           <Filter className="mr-2 h-4 w-4" />
           Xóa bộ lọc
+        </Button>
+
+        <Button onClick={onRefresh} disabled={isLoading}>
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+          />
+          Làm mới
         </Button>
       </div>
     </div>
