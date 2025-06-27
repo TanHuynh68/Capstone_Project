@@ -103,7 +103,7 @@ export default function RightBottomPanel({
           <div className="h-full flex flex-col gap-4">
             {/* Tiến độ thực hiện - phần trên */}
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-4">Tiến độ thực hiện</h3>
+              <h3 className="text-lg font-semibold mb-4">Qúa trình thực hiện</h3>
               <div className="h-full overflow-y-auto pr-2">
                 {progressSteps.length > 0 ? (
                   <Tabs defaultValue="0" className="h-full flex flex-col">
@@ -154,7 +154,7 @@ export default function RightBottomPanel({
           // Layout bình thường
           <div className="h-[415px]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Tiến độ thực hiện</h3>
+              <h3 className="text-lg font-semibold">Qúa trình thực hiện </h3>
               {progressSteps.length > 0 && <span className="text-sm text-gray-500">{progressSteps.length} bước</span>}
             </div>
 

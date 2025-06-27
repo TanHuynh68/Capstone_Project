@@ -76,7 +76,7 @@ export default function ChatTemplate({
       subItem: [
         { title: "Xem đề xuất", tabName: "offerPhase" },
         { title: "Timeline", tabName: "timeline" },
-        { title: "Xem bài đăng", tabName: "viewPost" },
+        { title: "Xem bài đăng", tabName: "viewPost", fetch:fetchOffers },
       ],
     },
   ];

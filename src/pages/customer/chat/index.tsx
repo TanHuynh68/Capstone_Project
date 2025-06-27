@@ -48,7 +48,6 @@ const Chat = () => {
 
   useEffect(() => {
     fetchOffers();
-    console.log("fetchOffers");
   }, [chatRoomID]);
 
   const userMain = useCurrentUser();
@@ -145,7 +144,6 @@ const Chat = () => {
       console.log("📩 Nhận sự kiện ReceiveMessage");
       if (roomId) {
         await getMessageOfChat(roomId);
-
       }
     });
 

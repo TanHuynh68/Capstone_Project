@@ -37,6 +37,12 @@ export default function OrderCard({
           </div>
           <OrderStatusBadge status={order?.orderStatus} />
         </div>
+            {/* Note */}
+        {order?.note && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-700 line-clamp-2">{order?.note}</p>
+          </div>
+        )}
 
         {/* Price Info */}
         <div className="space-y-2 mb-4">
@@ -76,7 +82,7 @@ export default function OrderCard({
 
         {/* Timeline */}
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Calendar className="h-4 w-4 text-gray-400" />
             <div>
               <div className="text-gray-500">Bắt đầu</div>
@@ -84,7 +90,7 @@ export default function OrderCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Clock
               className={`h-4 w-4 ${
                 isOverdue ? "text-red-500" : "text-gray-400"
@@ -105,13 +111,6 @@ export default function OrderCard({
           </div>
         </div>
 
-        {/* Note */}
-        {order?.note && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <div className="text-xs text-gray-500 mb-1">Ghi chú:</div>
-            <p className="text-sm text-gray-700 line-clamp-2">{order?.note}</p>
-          </div>
-        )}
 
         {/* Actions */}
         <div className="flex gap-2">

@@ -3,6 +3,7 @@ import SidebarCollapse, { SidebarCollapseProps } from "@/components/atoms/custom
 export interface SidebarCollapsesProps {
   items: SidebarCollapseProps[],
   onClick: any,
+
 }
 
 const SidebarCollapses = ({ items, onClick }: SidebarCollapsesProps) => {
