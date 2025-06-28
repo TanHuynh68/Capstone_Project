@@ -70,9 +70,9 @@ export default function ChatTemplate({
     {
       title: "Thông tin về đoạn chat",
       subItem: [
-        { title: "Xem đề xuất", tabName: "offerPhase" },
-        { title: "Timeline", tabName: "timeline" },
-        { title: "Xem bài đăng", tabName: "viewPost", fetch:fetchOffers },
+        // { title: "Xem đề xuất", tabName: "offerPhase" },
+        // { title: "Timeline", tabName: "timeline" },
+        { title: "Xem đề xuất", tabName: "viewPost", fetch:fetchOffers },
       ],
     },
   ];

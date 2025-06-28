@@ -75,7 +75,6 @@ const useAuthService = () => {
           API_ROUTES.CHANGE_PASSWORD,
           values
         );
-        toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
         return response;
       } catch (err: any) {
         toast.error(err?.response?.data);
