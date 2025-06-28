@@ -131,7 +131,6 @@ const ChangePassword = () => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
-    console.log("formData: ", formData);
     const response = await changePassword(formData);
     if (response) {
       toast.success(MESSAGE.CHANGE_PASSWORD_SUCCESSFULLY);
