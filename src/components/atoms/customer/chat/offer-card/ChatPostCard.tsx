@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
+import type React from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { MoreHorizontal } from "lucide-react"
-import { useState } from "react"
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 
-import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase"
-import OfferPhasesDialog from "./offerPhasesDialog"
-import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery"
-import { CustomBadge } from "./Badge"
+import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase";
+import OfferPhasesDialog from "./offerPhasesDialog";
+import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
+import { CustomBadge } from "./Badge";
 
 import {
   formatCurrencyVND,
@@ -26,68 +26,75 @@ import {
   offerStatusVariant,
   offerStatusVN,
   useCurrentUser,
-} from "@/components/utils"
-import { ROLE } from "@/constants"
-import OfferService from "@/services/OfferService"
+} from "@/components/utils";
+import { ROLE } from "@/constants";
+import OfferService from "@/services/OfferService";
+import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
 
 export interface ChatPostCardProps {
-  post: OfferDetail
-  setOffersPhase: (phases: any[]) => void
-  fetchOfferPhase: any
-  offersPhase: any[]
-  fetchOffers: () => Promise<void>
+  post: OfferDetail;
+  setOffersPhase: (phases: any[]) => void;
+  fetchOfferPhase: any;
+  offersPhase: any[];
+  fetchOffers: () => Promise<void>;
 }
 
-export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhase, fetchOffers }: ChatPostCardProps) {
-  const currentUser = useCurrentUser()
-  const [showPhasesDialog, setShowPhasesDialog] = useState(false)
-  const [isMainDialogOpen, setIsMainDialogOpen] = useState(false)
-  const [isCreatePhaseDialogOpen, setIsCreatePhaseDialogOpen] = useState(false)
-  const [isConfirming, setIsConfirming] = useState(false)
+export function ChatPostCard({
+  post,
+  fetchOfferPhase,
+  setOffersPhase,
+  offersPhase,
+  fetchOffers,
+}: ChatPostCardProps) {
+  const currentUser = useCurrentUser();
+  const [showPhasesDialog, setShowPhasesDialog] = useState(false);
+  const [isMainDialogOpen, setIsMainDialogOpen] = useState(false);
+  const [isCreatePhaseDialogOpen, setIsCreatePhaseDialogOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
-  const { offerConfirm } = OfferService()
+  const { offerConfirm } = OfferService();
 
   const handleConfirm = async () => {
     try {
-      setIsConfirming(true)
-      const response = await offerConfirm({ offerID: post?.offer?.offerID })
+      setIsConfirming(true);
+      const response = await offerConfirm({ offerID: post?.offer?.offerID });
 
       if (response) {
-        await fetchOffers()
-        console.log("Offer confirmed successfully")
+        await fetchOffers();
+        console.log("Offer confirmed successfully");
       }
     } catch (error) {
-      console.error("Error confirming offer:", error)
+      console.error("Error confirming offer:", error);
     } finally {
-      setIsConfirming(false)
+      setIsConfirming(false);
     }
-  }
+  };
 
   const handleViewPhases = () => {
-    fetchOfferPhase(post?.offer?.offerID)
-    setShowPhasesDialog(true)
-  }
+    fetchOfferPhase(post?.offer?.offerID);
+    setShowPhasesDialog(true);
+  };
 
   const handleViewDetails = () => {
-    setIsMainDialogOpen(true)
-  }
+    setIsMainDialogOpen(true);
+  };
 
   const handleCreatePhaseClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsCreatePhaseDialogOpen(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCreatePhaseDialogOpen(true);
+  };
 
   const handleCreatePhaseSuccess = () => {
-    setIsCreatePhaseDialogOpen(false)
-  }
+    setIsCreatePhaseDialogOpen(false);
+  };
 
   return (
     <div>
       {/* Main Card */}
-      <Card className="w-full p-4 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+      <Card className="w-full p-4 hover:shadow-lg transition-all duration-300 border-l-2">
         <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-3">
+          <div className="space-y-3 flex items-center">
             <img
               className="rounded-lg w-full h-[200px] object-cover"
               src={post?.offer?.sampleImage || "/placeholder.svg"}
@@ -97,15 +104,19 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-bold text-xl text-gray-800 line-clamp-2">{post?.post.title}</h3>
+              <h3 className="font-bold text-xl text-gray-800 line-clamp-2">
+                {post?.post.title}
+              </h3>
 
               <div className="flex items-center gap-3">
-                <CustomBadge variant={offerStatusVariant(post?.offer?.offerStatus)}>
+                <CustomBadge
+                  variant={offerStatusVariant(post?.offer?.offerStatus)}
+                >
                   {offerStatusVN(post?.offer?.offerStatus)}
                 </CustomBadge>
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -119,23 +130,26 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleViewDetails()
+                          e.stopPropagation();
+                          handleViewDetails();
                         }}
                       >
                         📋 Xem chi tiết
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleViewPhases()
+                          e.stopPropagation();
+                          handleViewPhases();
                         }}
                       >
                         📊 Xem giai đoạn
                       </DropdownMenuItem>
-                      {currentUser?.role === ROLE.DESIGNER && post?.offer?.offerStatus !== "Accepted" && (
-                        <DropdownMenuItem onClick={handleCreatePhaseClick}>➕ Tạo giai đoạn</DropdownMenuItem>
-                      )}
+                      {currentUser?.role === ROLE.DESIGNER &&
+                        post?.offer?.offerStatus !== "Accepted" && (
+                          <DropdownMenuItem onClick={handleCreatePhaseClick}>
+                            ➕ Tạo giai đoạn
+                          </DropdownMenuItem>
+                        )}
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -144,24 +158,36 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              {currentUser?.role === ROLE.CUSTOMER && post.offer?.isAcceptedByCus === false && (
-                <Button onClick={handleConfirm} disabled={isConfirming} className="w-full">
-                  {isConfirming ? "Đang xử lý..." : "Chấp nhận đề xuất"}
-                </Button>
-              )}
+              {currentUser?.role === ROLE.CUSTOMER &&
+                post.offer?.isAcceptedByCus === false && (
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={isConfirming}
+                    className="w-full"
+                  >
+                    {isConfirming ? "Đang xử lý..." : "Chấp nhận đề xuất"}
+                  </Button>
+                )}
 
-              {currentUser?.role === ROLE.DESIGNER && post.offer?.isAcceptedByDes === false && (
-                <Button onClick={handleConfirm} disabled={isConfirming} className="w-full">
-                  {isConfirming ? "Đang xử lý..." : "Chấp nhận đề xuất"}
-                </Button>
-              )}
+              {currentUser?.role === ROLE.DESIGNER &&
+                post.offer?.isAcceptedByDes === false && (
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={isConfirming}
+                    className="w-full"
+                  >
+                    {isConfirming ? "Đang xử lý..." : "Chấp nhận đề xuất"}
+                  </Button>
+                )}
             </div>
 
             {/* Price Info */}
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Giá cuối cùng</div>
               <div className="font-bold text-lg text-green-600">
-                {post?.offer?.finalPrice === null ? "Chưa có" : formatCurrencyVND(post?.offer?.finalPrice)}
+                {post?.offer?.finalPrice === null
+                  ? "Chưa có"
+                  : formatCurrencyVND(post?.offer?.finalPrice)}
               </div>
             </div>
 
@@ -169,15 +195,23 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Khách hàng:</span>
-                <Badge variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}>
-                  {post?.offer?.isAcceptedByCus === true ? "Đồng ý" : "Chưa đồng ý"}
+                <Badge
+                  variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}
+                >
+                  {post?.offer?.isAcceptedByCus === true
+                    ? "Đồng ý"
+                    : "Chưa đồng ý"}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Nhà thiết kế:</span>
-                <Badge variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}>
-                  {post?.offer?.isAcceptedByDes === true ? "Đồng ý" : "Chưa đồng ý"}
+                <Badge
+                  variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}
+                >
+                  {post?.offer?.isAcceptedByDes === true
+                    ? "Đồng ý"
+                    : "Chưa đồng ý"}
                 </Badge>
               </div>
             </div>
@@ -195,7 +229,9 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
           <div className="grid grid-cols-2 gap-6 h-full overflow-hidden">
             {/* Post Details */}
             <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">Thông tin bài đăng</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                Thông tin bài đăng
+              </h3>
 
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -209,19 +245,27 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
                   <div>
                     <div className="font-semibold">{post.post.fullName}</div>
                     <div className="text-sm text-gray-600">
-                      {new Date(post.post.createdAt).toLocaleDateString("vi-VN")}
+                      {new Date(post.post.createdAt).toLocaleDateString(
+                        "vi-VN"
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Giá trị sản phẩm</div>
-                    <div className="font-semibold text-blue-600">{formatCurrencyVND(post.post.itemValue)}</div>
+                    <div className="text-sm text-gray-600">
+                      Giá trị sản phẩm
+                    </div>
+                    <div className="font-semibold text-blue-600">
+                      {formatCurrencyVND(post.post.itemValue)}
+                    </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Giá đề xuất</div>
-                    <div className="font-semibold text-green-600">{formatCurrencyVND(post.post.suggestedPrice)}</div>
+                    <div className="font-semibold text-green-600">
+                      {formatCurrencyVND(post.post.suggestedPrice)}
+                    </div>
                   </div>
                 </div>
 
@@ -233,13 +277,20 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
                 )}
 
                 {/* Images */}
-                {(post.post.originalImages?.length > 0 || post.post.requestedImages?.length > 0) && (
+                {(post.post.originalImages?.length > 0 ||
+                  post.post.requestedImages?.length > 0) && (
                   <div className="space-y-3">
                     {post.post.originalImages?.length > 0 && (
-                      <ImageGallery images={post.post.originalImages} title="Hình ảnh gốc" />
+                      <ImageGallery
+                        images={post.post.originalImages}
+                        title="Hình ảnh gốc"
+                      />
                     )}
                     {post.post.requestedImages?.length > 0 && (
-                      <ImageGallery images={post.post.requestedImages} title="Hình ảnh yêu cầu" />
+                      <ImageGallery
+                        images={post.post.requestedImages}
+                        title="Hình ảnh yêu cầu"
+                      />
                     )}
                   </div>
                 )}
@@ -249,7 +300,9 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
             {/* Offer Details */}
             <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800">Thông tin đề xuất</h3>
+                <h3 className="text-lg font-bold text-gray-800">
+                  Thông tin đề xuất
+                </h3>
                 <Button variant="outline" size="sm" onClick={handleViewPhases}>
                   Xem giai đoạn
                 </Button>
@@ -265,9 +318,13 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
                     />
                   )}
                   <div>
-                    <div className="font-semibold">{post.offer.designerName}</div>
+                    <div className="font-semibold">
+                      {post.offer.designerName}
+                    </div>
                     <div className="text-sm text-gray-600">
-                      {new Date(post.offer.createdAt).toLocaleDateString("vi-VN")}
+                      {new Date(post.offer.createdAt).toLocaleDateString(
+                        "vi-VN"
+                      )}
                     </div>
                   </div>
                 </div>
@@ -275,7 +332,9 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Giá ban đầu</div>
-                    <div className="font-semibold text-blue-600">{formatCurrencyVND(post.offer.initPrice)}</div>
+                    <div className="font-semibold text-blue-600">
+                      {formatCurrencyVND(post.offer.initPrice)}
+                    </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Tiền cọc</div>
@@ -296,12 +355,10 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
 
                 {post.offer.sampleImage && (
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 mb-2">Hình ảnh mẫu</div>
-                    <img
-                      className="w-full h-64 object-contain rounded"
-                      src={post.offer.sampleImage || "/placeholder.svg"}
-                      alt="Sample"
-                    />
+                    <div className="text-sm text-gray-600 mb-2">
+                      Hình ảnh mẫu
+                    </div>
+                    <SingleImageGallery imageUrl={post.offer.sampleImage} alt="Ảnh đề xuất" title=""/>
                   </div>
                 )}
               </div>
@@ -311,8 +368,14 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
       </Dialog>
 
       {/* Create Phase Dialog */}
-      <Dialog open={isCreatePhaseDialogOpen} onOpenChange={setIsCreatePhaseDialogOpen}>
-        <DialogContent className="min-w-[650px]" onKeyDown={(e) => e.stopPropagation()}>
+      <Dialog
+        open={isCreatePhaseDialogOpen}
+        onOpenChange={setIsCreatePhaseDialogOpen}
+      >
+        <DialogContent
+          className="min-w-[650px]"
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           <DialogHeader>
             <h2 className="font-bold text-xl text-center">Tạo giai đoạn mới</h2>
           </DialogHeader>
@@ -330,12 +393,12 @@ export function ChatPostCard({ post, fetchOfferPhase, setOffersPhase, offersPhas
       <OfferPhasesDialog
         isOpen={showPhasesDialog}
         onClose={() => {
-          setShowPhasesDialog(false)
-          setOffersPhase([])
+          setShowPhasesDialog(false);
+          setOffersPhase([]);
         }}
         offersPhase={offersPhase}
         fetchOfferPhase={fetchOfferPhase}
       />
     </div>
-  )
+  );
 }

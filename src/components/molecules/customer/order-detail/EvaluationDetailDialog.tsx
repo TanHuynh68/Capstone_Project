@@ -44,9 +44,14 @@ export default function EvaluationDetailDialog({
   }
 
   const passStatus = getPassStatus(evaluation.isPass)
-  const PassIcon = passStatus.icon
 
   const criteriaItems = [
+    {
+      label: "Điểm chất lượng chung",
+      score: evaluation.qualityScore,
+      key: "qualityScore",
+      isScore: true
+    },
     {
       label: "Thiết kế chính xác",
       value: evaluation.isDesignAccurate,
@@ -82,7 +87,7 @@ export default function EvaluationDetailDialog({
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-500" />
-                Điểm tổng quan
+                Tổng quan đánh giá
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -94,22 +99,15 @@ export default function EvaluationDetailDialog({
                   <div className="text-sm text-gray-600">Tổng điểm</div>
                 </div>
                 <div className="text-center">
-                  <div className={`text-2xl font-bold ${getScoreColor(evaluation.qualityScore)}`}>
-                    {evaluation.qualityScore}
+                  <div className={`text-2xl font-bold ${passStatus.color.split(' ')[1]}`}>
+                    {passStatus.label}
                   </div>
-                  <div className="text-sm text-gray-600">Điểm chất lượng</div>
                 </div>
-              </div>
-              <div className="mt-4 flex justify-center">
-                <Badge className={passStatus.color}>
-                  <PassIcon className="h-4 w-4 mr-1" />
-                  {passStatus.label}
-                </Badge>
               </div>
             </CardContent>
           </Card>
 
-          {/* Evaluation Criteria */}
+          {/* Evaluation Criteria with Quality Score */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Tiêu chí đánh giá</CardTitle>
@@ -119,19 +117,25 @@ export default function EvaluationDetailDialog({
                 {criteriaItems.map((item) => (
                   <div key={item.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <span className="font-medium">{item.label}</span>
-                    <Badge className={item.value ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                      {item.value ? (
-                        <>
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Đạt
-                        </>
-                      ) : (
-                        <>
-                          <X className="h-3 w-3 mr-1" />
-                          Chưa đạt
-                        </>
-                      )}
-                    </Badge>
+                    {item.isScore ? (
+                      <Badge className={`${getScoreColor(item.score)} bg-opacity-20`}>
+                        <span className="font-bold text-lg">{item.score}</span>
+                      </Badge>
+                    ) : (
+                      <Badge className={item.value ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                        {item.value ? (
+                          <>
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Đạt
+                          </>
+                        ) : (
+                          <>
+                            <X className="h-3 w-3 mr-1" />
+                            Chưa đạt
+                          </>
+                        )}
+                      </Badge>
+                    )}
                   </div>
                 ))}
               </div>
