@@ -619,16 +619,18 @@ const Profile = () => {
                       Địa chỉ
                     </CardTitle>
 
-                    {addresses.length > 0 ? (
-                      <GetAddress
-                        addresses={addresses}
-                        onUpdated={fetchAddresses}
-                      />
-                    ) : (
-                      <p className="text-muted-foreground text-sm mb-4 text-center">
-                        Không có địa chỉ nào.
-                      </p>
-                    )}
+                    <div className="p-4">
+                      {addresses.length > 0 ? (
+                        <GetAddress
+                          addresses={addresses}
+                          onUpdated={fetchAddresses}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground text-sm mb-4 text-center">
+                          Không có địa chỉ nào.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -652,7 +654,9 @@ const Profile = () => {
         <TabsContent value="orders">
           <div className="container max-w-6xl mx-auto py-0">
             <div className="text-center text-gray-500 text-sm">
-              <OrderHistoryPage />
+              <OrderHistoryPage
+                onOrderCreated={() => setActiveTab("delivery")}
+              />
             </div>
           </div>
         </TabsContent>

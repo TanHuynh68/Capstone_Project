@@ -1,22 +1,30 @@
 interface PriceDisplayProps {
-  amount: number
-  className?: string
-  size?: "sm" | "md" | "lg"
+  amount: number;
+  className?: string;
+  size?: "sm" | "md" | "lg";
 }
 
-export default function PriceDisplay({ amount, className = "", size = "md" }: PriceDisplayProps) {
+export default function PriceDisplay({
+  amount,
+  className = "",
+  size = "md",
+}: PriceDisplayProps) {
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   const sizeClasses = {
     sm: "text-sm",
     md: "text-base",
     lg: "text-lg font-semibold",
-  }
+  };
 
-  return <span className={`${sizeClasses[size]} text-gray-900 ${className}`}>{formatPrice(amount)}</span>
+  return (
+    <span className={`${sizeClasses[size]} text-foreground ${className}`}>
+      {formatPrice(amount)}
+    </span>
+  );
 }

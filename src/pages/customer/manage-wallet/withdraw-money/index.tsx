@@ -104,7 +104,6 @@ export default function WithdrawMoney() {
                         disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -124,6 +123,15 @@ export default function WithdrawMoney() {
               )}
             </Button>
           </div>
+          <FormField
+            control={form.control}
+            name="amount"
+            render={() => (
+              <FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </form>
       </Form>
     </div>

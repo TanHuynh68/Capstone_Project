@@ -10,7 +10,7 @@ export function NotesSection() {
           <Textarea
             id="notes"
             placeholder="Nhập ghi chú"
-            className="min-h-[120px] border-gray-300 focus:border-orange-500"
+            className="min-h-[120px] border-gray-300 focus:border-primary"
           />
         </div>
       </div>

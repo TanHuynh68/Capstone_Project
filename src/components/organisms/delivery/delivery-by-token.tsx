@@ -125,8 +125,10 @@ const DeliveryByToken: React.FC = () => {
             .toLocaleDateString("vi-VN")
             .includes(searchLower));
 
+      // Status filtering with case-insensitive matching
       const matchesStatus =
-        statusFilter === "all" || delivery.deliveryStatus === statusFilter;
+        statusFilter === "all" ||
+        delivery.deliveryStatus.toLowerCase() === statusFilter.toLowerCase();
 
       return matchesSearch && matchesStatus;
     });

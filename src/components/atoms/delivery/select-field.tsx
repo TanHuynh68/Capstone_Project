@@ -41,7 +41,7 @@ export function SelectField({
         onValueChange={onValueChange}
         defaultValue={defaultValue}
       >
-        <SelectTrigger className="border-gray-300 focus:border-orange-500">
+        <SelectTrigger className="border-gray-300 focus:border-primary">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

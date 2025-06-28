@@ -11,7 +11,7 @@ interface OfferPhasesDialogProps {
   isOpen: boolean;
   onClose: () => void;
   offersPhase: OfferPhase[];
-  fetchOfferPhase: () => void;
+  fetchOfferPhase: any
 }
 
 const OfferPhasesDialog = ({

@@ -13,9 +13,11 @@ export default function OrderDate({
 }: OrderDateProps) {
   return (
     <div className={`${className}`}>
-      {label && <span className="text-xs text-gray-500 block">{label}</span>}
-      {/* <span className="text-sm text-gray-900">{formatDate(date)}</span> */}
-      <span className="text-sm text-gray-900">{formatDate(date)}</span>
+      {label && (
+        <span className="text-xs text-muted-foreground block">{label}</span>
+      )}
+      {/* <span className="text-sm text-foreground">{formatDate(date)}</span> */}
+      <span className="text-sm text-foreground">{formatDate(date)}</span>
     </div>
   );
 }

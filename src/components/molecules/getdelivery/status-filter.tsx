@@ -17,9 +17,10 @@ interface StatusFilterProps {
 
 const statusOptions = [
   { label: "Tất cả trạng thái", value: "all" },
+  { label: "Sẵn sàng lấy hàng", value: "ReadyToPick" },
   { label: "Đã lấy hàng", value: "Picked" },
-  { label: "Đang giao", value: "Delivering" },
-  { label: "Đã giao", value: "Delivered" },
+  { label: "Đang giao hàng", value: "Delivering" },
+  { label: "Đã giao hàng", value: "Delivered" },
   { label: "Đã hủy", value: "Cancelled" },
 ];
 

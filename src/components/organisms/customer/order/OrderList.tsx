@@ -9,17 +9,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, MessageSquare } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
 import PriceDisplay from "@/components/atoms/customer/order/PriceDisplay";
 import OrderDate from "@/components/atoms/customer/order/OrderDate";
+import { ShippingFormDialog } from "../../delivery/shipping-form-dialog";
+import { PATH } from "@/routes/path";
+import { Link } from "react-router-dom";
 
 interface OrderListProps {
   orders: Order[];
   loading?: boolean;
   onView?: (orderID: string) => void;
   onMessage?: (orderID: string) => void;
+  onOrderCreated?: () => void;
 }
 
 function OrderRowSkeleton() {
@@ -60,23 +64,23 @@ export default function OrderList({
   orders,
   loading,
   onView,
-  onMessage,
+  onOrderCreated,
 }: OrderListProps) {
   if (loading) {
     return (
-      <div className="border rounded-lg">
+      <div className="border border-border rounded-lg bg-card">
         <Table>
           <TableHeader>
-             <TableRow>
-            <TableHead className="text-center">Đơn hàng</TableHead>
-            <TableHead className="text-center">Trạng thái</TableHead>
-            <TableHead className="text-center">Tổng tiền</TableHead>
-            <TableHead className="text-center">Đặt cọc</TableHead>
-            <TableHead className="text-center">Ngày tạo</TableHead>
-            <TableHead className="text-center">Deadline</TableHead>
-            <TableHead className="text-center">Ghi chú</TableHead>
-            <TableHead className="text-center">Thao tác</TableHead>
-          </TableRow>
+            <TableRow>
+              <TableHead className="text-center">Đơn hàng</TableHead>
+              <TableHead className="text-center">Trạng thái</TableHead>
+              <TableHead className="text-center">Tổng tiền</TableHead>
+              <TableHead className="text-center">Đặt cọc</TableHead>
+              <TableHead className="text-center">Ngày tạo</TableHead>
+              <TableHead className="text-center">Deadline</TableHead>
+              <TableHead className="text-center">Ghi chú</TableHead>
+              <TableHead className="text-center">Thao tác</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {Array.from({ length: 10 }).map((_, index) => (
@@ -90,10 +94,10 @@ export default function OrderList({
 
   if (orders.length === 0) {
     return (
-      <div className="border rounded-lg p-12 text-center">
-        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+      <div className="border border-border rounded-lg p-12 text-center bg-card">
+        <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
           <svg
-            className="w-12 h-12 text-gray-400"
+            className="w-12 h-12 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -106,10 +110,10 @@ export default function OrderList({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-foreground mb-2">
           Không có đơn hàng nào
         </h3>
-        <p className="text-gray-500">
+        <p className="text-muted-foreground">
           Chưa có đơn hàng nào phù hợp với bộ lọc của bạn.
         </p>
       </div>
@@ -117,7 +121,7 @@ export default function OrderList({
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -137,13 +141,13 @@ export default function OrderList({
               new Date(order.deadlineAt) < new Date() &&
               order.orderStatus !== "Completed";
             return (
-              <TableRow key={order.orderID} className="hover:bg-gray-50">
+              <TableRow key={order.orderID} className="hover:bg-muted/50">
                 <TableCell>
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-foreground">
                       #{order.orderID.slice(0, 8)}
                     </div>
-                    {/* <div className="text-sm text-gray-500">{order.customerID.slice(0, 8)}</div> */}
+                    {/* <div className="text-sm text-muted-foreground">{order.customerID.slice(0, 8)}</div> */}
                   </div>
                 </TableCell>
 
@@ -157,7 +161,7 @@ export default function OrderList({
 
                 <TableCell>
                   <div className="space-y-1">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       <PriceDisplay
                         amount={order.designerDepositAmount}
                         size="sm"
@@ -179,36 +183,41 @@ export default function OrderList({
                   <OrderDate
                     date={order.deadlineAt}
                     format="short"
-                    className={isOverdue ? "text-red-600" : ""}
+                    className={isOverdue ? "text-destructive" : ""}
                   />
                   {isOverdue && (
-                    <div className="text-xs text-red-500 mt-1">Quá hạn</div>
+                    <div className="text-xs text-destructive mt-1">Quá hạn</div>
                   )}
                 </TableCell>
 
                 <TableCell>
-                  <div className="max-w-32 truncate text-sm text-gray-600">
+                  <div className="max-w-32 truncate text-sm text-muted-foreground">
                     {order.note || "—"}
                   </div>
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex items-center gap-2 justify-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onView?.(order.orderID)}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      className="w-full"
+                      to={`${PATH.ORDER_DETAIL}/${order?.orderID}`}
                     >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Xem
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onMessage?.(order.orderID)}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-foreground"
+                        onClick={() => onView?.(order?.orderID)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Chi tiết
+                      </Button>
+                    </Link>
+                    <div className="w-full text-foreground">
+                      <ShippingFormDialog
+                        orderID={order?.orderID}
+                        onOrderCreated={onOrderCreated}
+                      />
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>

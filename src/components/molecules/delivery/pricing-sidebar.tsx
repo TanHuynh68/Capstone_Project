@@ -1,60 +1,295 @@
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { getDistricts, getWards } from "@/services/ghnApi";
 
-export function PricingSidebar() {
+interface PricingSidebarProps {
+  fee: number | null;
+  isCalculating: boolean;
+  onCalculateFee: (fee: number) => void;
+  sender: Record<string, unknown>;
+  receiver: Record<string, unknown>;
+  product: Record<string, unknown>;
+}
+
+interface Shop {
+  _id: string;
+  district_id: number;
+  status: number;
+}
+
+interface District {
+  DistrictID: number;
+  DistrictName: string;
+}
+
+interface Ward {
+  WardCode: number;
+  WardName: string;
+}
+
+const GHN_TOKEN = import.meta.env.VITE_GHN_TOKEN;
+const SHOP_ID = import.meta.env.VITE_GHN_SHOP_ID;
+const HCM_PROVINCE_ID = 202;
+
+export function PricingSidebar({
+  fee,
+  isCalculating,
+  onCalculateFee,
+  sender,
+  receiver,
+  product,
+}: PricingSidebarProps) {
+  const [calculatedFee, setCalculatedFee] = useState<number | null>(null);
+  const [shopId, setShopId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [districtMap, setDistrictMap] = useState<Record<string, number>>({});
+  const [wardMap, setWardMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    // Get shop ID and create mapping on component mount
+    const fetchShopIdAndMapping = async () => {
+      try {
+        // Fetch shop ID
+        const response = await fetch(
+          "https://online-gateway.ghn.vn/shiip/public-api/v2/shop/all",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              token: GHN_TOKEN,
+            },
+          }
+        );
+        const data = await response.json();
+        const shop = data.data?.shops?.find(
+          (s: Shop) => s.district_id && s.status === 1
+        );
+        if (shop) setShopId(shop._id);
+
+        // Create reverse mapping (name -> id)
+        const districtRes = await getDistricts(HCM_PROVINCE_ID);
+        const allDistricts = districtRes.data.data;
+
+        const districtNameToId: Record<string, number> = {};
+        const wardNameToCode: Record<string, number> = {};
+
+        allDistricts.forEach((d: District) => {
+          districtNameToId[d.DistrictName] = d.DistrictID;
+        });
+
+        for (const d of allDistricts) {
+          const wardRes = await getWards(d.DistrictID);
+          const wards = wardRes.data.data;
+          wards.forEach((w: Ward) => {
+            wardNameToCode[w.WardName] = w.WardCode;
+          });
+        }
+
+        setDistrictMap(districtNameToId);
+        setWardMap(wardNameToCode);
+      } catch (error) {
+        console.error("Error fetching shop ID and mapping:", error);
+      }
+    };
+    fetchShopIdAndMapping();
+  }, []);
+
+  // 1. Tạo các biến primitive cho từng trường liên quan đến tính phí
+  const fromDistrictName = sender.fromDistrictName;
+  const fromWardName = sender.fromWardName;
+  const toDistrictName = receiver.toDistrictName;
+  const toWardName = receiver.toWardName;
+  const weight = product.weight;
+  const length = product.length;
+  const width = product.width;
+  const height = product.height;
+  const content = product.content;
+
+  // Helper to check if a value is a valid number in a range
+  const isValidNumber = (val: unknown, min: number, max: number) => {
+    const num = Number(val);
+    return typeof num === "number" && !isNaN(num) && num >= min && num <= max;
+  };
+
+  // Auto-calculate fee when all required data is available
+  useEffect(() => {
+    const calculateFeeAutomatically = async () => {
+      // Check if all required data is available and valid
+      if (
+        shopId &&
+        fromDistrictName &&
+        fromWardName &&
+        toDistrictName &&
+        toWardName
+      ) {
+        // Validate all dimensions before calculating
+        const isWeightValid = isValidNumber(weight, 1, 3000);
+        const isLengthValid = isValidNumber(length, 1, 100);
+        const isWidthValid = isValidNumber(width, 1, 100);
+        const isHeightValid = isValidNumber(height, 1, 150);
+
+        // Only calculate if all dimensions are valid
+        if (
+          !isWeightValid ||
+          !isLengthValid ||
+          !isWidthValid ||
+          !isHeightValid
+        ) {
+          console.log("Kích thước không hợp lệ:", {
+            weight: isWeightValid ? "OK" : "INVALID",
+            length: isLengthValid ? "OK" : "INVALID",
+            width: isWidthValid ? "OK" : "INVALID",
+            height: isHeightValid ? "OK" : "INVALID",
+          });
+          setCalculatedFee(null);
+          return;
+        }
+
+        setIsLoading(true);
+        try {
+          console.log(sender, "sender2");
+          console.log(receiver, "receiver2");
+          console.log(product, "product2");
+
+          // Convert name to id/code
+          const fromDistrictId = districtMap[fromDistrictName as string];
+          const fromWardCode = wardMap[fromWardName as string];
+          const toDistrictId = districtMap[toDistrictName as string];
+          const toWardCode = wardMap[toWardName as string];
+
+          if (
+            !fromDistrictId ||
+            !fromWardCode ||
+            !toDistrictId ||
+            !toWardCode
+          ) {
+            console.log("Không tìm thấy mapping cho địa chỉ");
+            setCalculatedFee(null);
+            return;
+          }
+
+          // Get available services
+          const servicesResponse = await fetch(
+            "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                token: GHN_TOKEN,
+              },
+              body: JSON.stringify({
+                shop_id: shopId,
+                from_district: fromDistrictId,
+                to_district: toDistrictId,
+              }),
+            }
+          );
+
+          const servicesData = await servicesResponse.json();
+          const service = servicesData.data?.[0];
+
+          if (!service) {
+            console.log("GHN hiện không hỗ trợ tuyến đường này.");
+            setCalculatedFee(null);
+            return;
+          }
+
+          // Calculate fee
+          const feeData = {
+            from_district_id: fromDistrictId,
+            from_ward_code: String(fromWardCode),
+            to_district_id: toDistrictId,
+            to_ward_code: String(toWardCode),
+            service_id: service.service_id,
+            height: Number(height),
+            length: Number(length),
+            width: Number(width),
+            weight: Number(weight),
+            insurance_value: 0,
+            coupon: null,
+            items: [
+              {
+                name: content || "Sản phẩm",
+                quantity: 1,
+                length: Number(length),
+                width: Number(width),
+                height: Number(height),
+                weight: Number(weight),
+              },
+            ],
+          };
+
+          const feeResponse = await fetch(
+            "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                token: GHN_TOKEN,
+                ShopId: SHOP_ID,
+              },
+              body: JSON.stringify(feeData),
+            }
+          );
+
+          const feeResult = await feeResponse.json();
+          setCalculatedFee(feeResult.data.total);
+          onCalculateFee(feeResult.data.total);
+        } catch (error) {
+          console.error("Error calculating fee:", error);
+          setCalculatedFee(null);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        // Reset fee if data is incomplete
+        setCalculatedFee(null);
+      }
+    };
+
+    calculateFeeAutomatically();
+  }, [
+    shopId,
+    fromDistrictName,
+    fromWardName,
+    toDistrictName,
+    toWardName,
+    weight,
+    length,
+    width,
+    height,
+    content,
+    districtMap,
+    wardMap,
+    // onCalculateFee,
+  ]);
+
+  const displayFee = calculatedFee !== null ? calculatedFee : fee;
+  const showLoading = isLoading || isCalculating;
+
+  // Check if all dimensions are valid for display logic
+  const isWeightValid = isValidNumber(weight, 1, 3000);
+  const isLengthValid = isValidNumber(length, 1, 100);
+  const isWidthValid = isValidNumber(width, 1, 100);
+  const isHeightValid = isValidNumber(height, 1, 150);
+  const allDimensionsValid =
+    isWeightValid && isLengthValid && isWidthValid && isHeightValid;
+
   return (
-    <div className="bg-white rounded-lg border p-6 sticky top-6">
+    <div className="rounded-lg border border-border p-4 top-6 ">
       <div className="space-y-4">
         {/* Service Fee */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Phí dịch vụ</span>
-          <span className="font-semibold">29.001 đ</span>
-        </div>
-
-        {/* Total Fee */}
-        <div className="flex justify-between items-center pt-2 border-t">
-          <span className="font-medium">Tổng phí:</span>
-          <span className="font-bold text-lg">29.001 đ</span>
-        </div>
-
-        {/* Promotional Code Input */}
-        {/* <div className="pt-4">
-          <div className="relative">
-            <Input placeholder="Nhập mã khuyến mãi" className="pr-10" />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div> */}
-
-        {/* GHN Promotional Code */}
-        {/* <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-red-500 text-white text-xs rounded flex items-center justify-center font-bold">
-              G
-            </div>
-            <span className="text-sm font-medium">Mã khuyến mãi từ GHN</span>
-            <div className="w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              3
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-gray-400" />
-        </div> */}
-
-        {/* Action Buttons */}
-        <div className="pt-6 space-y-3 border-t">
-          <Button variant="outline" size="lg" className="w-full">
-            LƯU NHÁP
-          </Button>
-          <Button
-            size="lg"
-            className="w-full bg-orange-500 hover:bg-orange-600"
-          >
-            TẠO ĐƠN
-          </Button>
+          <span className="text-sm text-muted-foreground">Phí giao hàng</span>
+          <span className="font-semibold text-foreground">
+            {showLoading ? (
+              <span className="text-muted-foreground">Đang tính...</span>
+            ) : allDimensionsValid &&
+              typeof displayFee === "number" &&
+              !isNaN(displayFee) ? (
+              `${displayFee.toLocaleString()} đ`
+            ) : (
+              "--"
+            )}
+          </span>
         </div>
       </div>
     </div>
