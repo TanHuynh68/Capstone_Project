@@ -4,14 +4,13 @@ import { useState, useEffect } from "react"
 import type { TimelineItemData } from "../../../molecules/timeline/TimelineItem"
 import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate"
 import PostCard from "./PostCard"
-
 interface InfoAboutTheConversationTabProps {
   posts: OfferDetail[]
   value: string
-  fetchOfferPhase: any
-  setOffersPhase: any
-  offersPhase: any
-  fetchOffers: any
+  fetchOfferPhase: (offerID: string) => Promise<void>
+  setOffersPhase: (phases: any[]) => void
+  offersPhase: any[]
+  fetchOffers: () => Promise<void>
 }
 
 const InfoAboutTheConversationTab = ({
@@ -31,16 +30,16 @@ const InfoAboutTheConversationTab = ({
     if (value !== currentValue) {
       setIsTransitioning(true)
 
-      // Start exit animation
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setCurrentValue(value)
         setAnimationKey((prev) => prev + 1)
 
-        // Start enter animation
         setTimeout(() => {
           setIsTransitioning(false)
         }, 50)
-      }, 200) // Half of transition duration
+      }, 200)
+
+      return () => clearTimeout(timer)
     }
   }, [value, currentValue])
 
@@ -50,16 +49,16 @@ const InfoAboutTheConversationTab = ({
   }, [])
 
   const renderContent = () => {
+    const baseClasses = `transition-all duration-300 ease-in-out transform ${
+      isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
+    }`
+
     switch (currentValue) {
       case "timeline":
         return (
-          <div
-            key={`timeline-${animationKey}`}
-            className={`transition-all duration-300 ease-in-out transform ${
-              isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
-            }`}
-          >
+          <div key={`timeline-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Timeline</h3>
               <TimelineTemplate items={mockTimelineData} />
             </div>
           </div>
@@ -67,13 +66,9 @@ const InfoAboutTheConversationTab = ({
 
       case "viewPost":
         return (
-          <div
-            key={`viewPost-${animationKey}`}
-            className={`transition-all duration-300 ease-in-out transform ${
-              isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
-            }`}
-          >
+          <div key={`viewPost-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Bài đăng ({posts?.length || 0})</h3>
               <PostCard
                 fetchOffers={fetchOffers}
                 offersPhase={offersPhase}
@@ -87,22 +82,19 @@ const InfoAboutTheConversationTab = ({
 
       case "offerPhase":
         return (
-          <div
-            key={`offerPhase-${animationKey}`}
-            className={`transition-all duration-300 ease-in-out transform ${
-              isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
-            }`}
-          >
+          <div key={`offerPhase-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Xem đề xuất</h3>
               <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg">
-                <div className="text-lg font-medium mb-2">Xem đề xuất</div>
-                <div className="text-sm">Nội dung đề xuất sẽ hiển thị ở đây</div>
-                {/* Mock content để test scroll */}
-                <div className="mt-4 space-y-2 text-left">
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <div key={i} className="p-3 bg-white rounded border">
-                      <div className="font-medium">Đề xuất #{i + 1}</div>
-                      <div className="text-sm text-gray-600 mt-1">
+                <div className="text-lg font-medium mb-2">Danh sách đề xuất</div>
+                <div className="text-sm mb-4">Nội dung đề xuất sẽ hiển thị ở đây</div>
+
+                {/* Mock content for testing scroll */}
+                <div className="space-y-3 text-left max-h-96 overflow-y-auto">
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <div key={i} className="p-4 bg-white rounded-lg border shadow-sm">
+                      <div className="font-medium text-gray-800">Đề xuất #{i + 1}</div>
+                      <div className="text-sm text-gray-600 mt-2">
                         Đây là nội dung mô tả chi tiết cho đề xuất số {i + 1}. Nội dung này có thể rất dài và cần scroll
                         để xem hết.
                       </div>
@@ -116,13 +108,8 @@ const InfoAboutTheConversationTab = ({
 
       default:
         return (
-          <div
-            key={`default-${animationKey}`}
-            className={`transition-all duration-300 ease-in-out transform ${
-              isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100"
-            }`}
-          >
-            <div className="p-6 text-center text-gray-400 bg-gray-50 rounded-lg">
+          <div key={`default-${animationKey}`} className={baseClasses}>
+            <div className="p-8 text-center text-gray-400 bg-gray-50 rounded-lg">
               <div className="text-lg font-medium mb-2">Chọn một mục</div>
               <div className="text-sm">Vui lòng chọn một mục từ menu bên trái</div>
             </div>
@@ -132,8 +119,8 @@ const InfoAboutTheConversationTab = ({
   }
 
   return (
-    <div className="relative">
-      <div className="flex flex-col justify-center gap-2 py-3">
+    <div className="relative min-h-0 flex-1">
+      <div className="h-full overflow-y-auto">
         {/* Content Container with Animation */}
         <div className="relative">
           {/* Background Animation */}
@@ -144,24 +131,19 @@ const InfoAboutTheConversationTab = ({
           />
 
           {/* Content with Staggered Animation */}
-          <div className="relative z-10">{renderContent()}</div>
+          <div className="relative z-10 p-4">{renderContent()}</div>
 
           {/* Loading Overlay */}
           {isTransitioning && (
             <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/80 rounded-lg">
               <div className="flex space-x-1">
-                <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                ></div>
+                {[0, 150, 300].map((delay, index) => (
+                  <div
+                    key={index}
+                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: `${delay}ms` }}
+                  />
+                ))}
               </div>
             </div>
           )}
@@ -216,12 +198,4 @@ const mockTimelineData: TimelineItemData[] = [
     description: "This task was cancelled due to changing requirements.",
     type: "cancelled",
   },
-  // Thêm nhiều items để test scroll
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: `extra-${i + 7}`,
-    date: `2024-01-${11 - i}`,
-    title: `Additional Task ${i + 1}`,
-    description: `This is additional timeline item ${i + 1} to test scrolling functionality.`,
-    type: "completed" as const,
-  })),
 ]
