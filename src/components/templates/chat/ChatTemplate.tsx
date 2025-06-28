@@ -6,8 +6,6 @@ import MessageList from "@/components/organisms/customer/chat/MessageList";
 import MessageComposer from "@/components/molecules/customer/chat/MessageComposer";
 import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab";
 import { useState, useEffect } from "react";
-import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
-import { useCurrentUser } from "@/components/utils";
 import type { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
 import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
 import "./index.css";
@@ -45,7 +43,7 @@ export default function ChatTemplate({
   fetchOffers,
 }: ChatTemplateProps) {
   const currentChatUser = users[0];
-  const userMain = useCurrentUser();
+
   const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const handleSetIsOpen = () => {
@@ -58,8 +56,6 @@ export default function ChatTemplate({
 
     return () => clearTimeout(timer);
   }, [isOpen]);
-
-  const user = users.filter((item) => item.chatRoomID === chatRoomID);
   const [value, setValue] = useState<string>("");
   console.log("InfoAboutTheConversationTab: ", posts);
 
@@ -152,41 +148,6 @@ export default function ChatTemplate({
               isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            {/* Avatar Section - Fixed height */}
-            <div className="flex-shrink-0 px-4">
-              <div className="mt-10">
-                <div className="">
-                  <div className="flex justify-center">
-                    <div
-                      className={`transition-all duration-500 ease-out ${
-                        isOpen ? "scale-100 rotate-0" : "scale-75 rotate-12"
-                      }`}
-                    >
-                      <ChatAvatar
-                        name=""
-                        size="xxl"
-                        src={
-                          userMain.id != user[0]?.account1?.accountID
-                            ? user[0]?.account1?.avatar
-                            : user[0]?.account2?.avatar
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div
-                    className={`text-2xl flex justify-center mt-2 transition-all duration-400 ease-out delay-200 ${
-                      isOpen
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-2"
-                    }`}
-                  >
-                    {userMain.id !== user[0]?.account1?.accountID
-                      ? user[0]?.account1?.accountName
-                      : user[0]?.account2?.accountName}
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Sidebar Collapses - Fixed height */}
             <div
