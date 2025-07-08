@@ -21,12 +21,9 @@ interface ChatSidebarProps {
   onSelectChat: (chatId: string) => void
 }
 
-export default function ChatSidebar({ users, onSelectChat, messages, activeChat }: ChatSidebarProps) {
+export default function ChatSidebar({ users, onSelectChat, activeChat }: ChatSidebarProps) {
   const userMain = useCurrentUser()
   const [searchTerm, setSearchTerm] = useState("")
-
-  console.log("ChatSidebar_users: ", users)
-  console.log("ChatSidebar_messages: ", messages)
 
   // Filter users based on search term
   const filteredUsers = users?.filter((user) => {
