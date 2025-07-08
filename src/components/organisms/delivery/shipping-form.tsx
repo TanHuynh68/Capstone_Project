@@ -4,12 +4,7 @@ import { ReceiverInfo } from "../../molecules/delivery/receiver-info";
 import { ProductInfo } from "../../molecules/delivery/product-info";
 import { PricingSidebar } from "../../molecules/delivery/pricing-sidebar";
 import DeliveryService from "@/services/DeliveryService";
-import {
-  validateShippingForm,
-  validateSender,
-  validateReceiver,
-  validateProduct,
-} from "@/schemas/shippingSchema";
+import { validateShippingForm, validateField } from "@/schemas/shippingSchema";
 
 interface ShippingFormProps {
   onSuccess?: () => void;
@@ -50,81 +45,71 @@ export function ShippingForm({
     return result.success;
   };
 
-  // Individual section validation functions
-  const validateSenderSection = (senderData: Record<string, unknown>) => {
-    const result = validateSender(senderData);
-    const newErrors = { ...errors };
-    if (result.success) {
-      // Clear sender-related errors
-      [
-        "fromName",
-        "fromPhone",
-        "fromAddress",
-        "fromDistrictName",
-        "fromWardName",
-        "fromProvinceName",
-      ].forEach((field) => {
-        delete newErrors[field];
-      });
-    } else {
-      // Add sender-related errors
-      Object.entries(result.errors).forEach(([field, message]) => {
-        newErrors[field] = message;
-      });
-    }
-    setErrors(newErrors);
+  // Validate individual field and update errors
+  const validateSingleField = (fieldName: string, value: unknown) => {
+    const result = validateField(fieldName, value);
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+
+      if (result.success) {
+        // Clear only this field's error
+        delete newErrors[fieldName];
+      } else {
+        // Add/update this field's error
+        Object.entries(result.errors).forEach(([field, message]) => {
+          newErrors[field] = message;
+        });
+      }
+
+      return newErrors;
+    });
     return result.success;
   };
 
-  const validateReceiverSection = (receiverData: Record<string, unknown>) => {
-    const result = validateReceiver(receiverData);
-    const newErrors = { ...errors };
-    // Always clear all receiver-related errors
-    [
-      "toName",
-      "toPhone",
-      "toAddressDetail",
-      "toDistrictName",
-      "toWardName",
-      "toProvinceName",
-    ].forEach((field) => {
-      delete newErrors[field];
+  // Handle sender field changes
+  const handleSenderChange = (data: Record<string, unknown>) => {
+    setSender(data);
+    // Validate each field individually
+    Object.entries(data).forEach(([fieldName, value]) => {
+      validateSingleField(fieldName, value);
     });
-    // Add new errors if any
-    if (!result.success) {
-      Object.entries(result.errors).forEach(([field, message]) => {
-        newErrors[field] = message;
-      });
-    }
-    setErrors(newErrors);
-    return result.success;
   };
 
-  const validateProductSection = (productData: Record<string, unknown>) => {
-    const result = validateProduct(productData);
-    const newErrors = { ...errors };
-    // Xóa tất cả key lỗi liên quan
-    [
-      "content",
-      "weight",
-      "length",
-      "width",
-      "height",
-      "images",
-      "note",
-      "files",
-      "pickShift.pickShiftId",
-    ].forEach((field) => {
-      delete newErrors[field];
+  // Handle receiver field changes
+  const handleReceiverChange = (data: Record<string, unknown>) => {
+    setReceiver(data);
+    // Validate each field individually
+    Object.entries(data).forEach(([fieldName, value]) => {
+      validateSingleField(fieldName, value);
     });
-    // Thêm lại lỗi mới nếu có
-    if (!result.success) {
-      Object.entries(result.errors).forEach(([field, message]) => {
-        newErrors[field] = message;
-      });
+  };
+
+  // Handle product field changes
+  const handleProductChange = (data: Record<string, unknown>) => {
+    setProduct(data);
+    // Validate each field individually
+    Object.entries(data).forEach(([fieldName, value]) => {
+      validateSingleField(fieldName, value);
+    });
+  };
+
+  // Handle pick shift changes
+  const handlePickShiftChange = (newPickShift: {
+    pickShiftId?: number;
+    pickShiftTitle?: string;
+  }) => {
+    setPickShift(newPickShift);
+    if (newPickShift.pickShiftId) {
+      validateSingleField("pickShift.pickShiftId", newPickShift.pickShiftId);
     }
-    setErrors(newErrors);
-    return result.success;
+  };
+
+  // Handle shipping fee changes
+  const handleShippingFeeChange = (fee: number | null) => {
+    setShippingFee(fee);
+    if (fee !== null) {
+      validateSingleField("shippingFee", fee);
+    }
   };
 
   // Hàm tạo đơn hàng
@@ -176,29 +161,14 @@ export function ShippingForm({
         <div className="lg:col-span-3 space-y-6">
           <div className="border-t-4 border-primary rounded-lg">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
-              <SenderInfo
-                onChange={(data) => {
-                  setSender(data);
-                  validateSenderSection(data);
-                }}
-                errors={errors}
-              />
-              <ReceiverInfo
-                onChange={(data) => {
-                  setReceiver(data);
-                  validateReceiverSection(data);
-                }}
-                errors={errors}
-              />
+              <SenderInfo onChange={handleSenderChange} errors={errors} />
+              <ReceiverInfo onChange={handleReceiverChange} errors={errors} />
             </div>
           </div>
           <ProductInfo
-            onChange={(data) => {
-              setProduct(data);
-              validateProductSection(data);
-            }}
+            onChange={handleProductChange}
             errors={errors}
-            setPickShift={setPickShift}
+            setPickShift={handlePickShiftChange}
           />
         </div>
         {/* Pricing Sidebar + Create Order Button */}
@@ -207,7 +177,7 @@ export function ShippingForm({
             <PricingSidebar
               fee={shippingFee}
               isCalculating={false}
-              onCalculateFee={(fee) => setShippingFee(fee)}
+              onCalculateFee={handleShippingFeeChange}
               sender={sender}
               receiver={receiver}
               product={product}

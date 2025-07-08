@@ -189,7 +189,7 @@ const Profile = () => {
     if (!selectedFile) return;
 
     const formData = new FormData();
-    formData.append("request", selectedFile);
+    formData.append("attachmentFile ", selectedFile);
 
     try {
       const response = await uploadAvatar(formData);
@@ -614,7 +614,7 @@ const Profile = () => {
                     </div>
                   </CardContent>
 
-                  <div>
+                  <div className="pt-4">
                     <CardTitle className="relative pl-6 pr-6">
                       Địa chỉ
                     </CardTitle>
@@ -737,7 +737,7 @@ const Profile = () => {
             <div className="w-full space-y-2">
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center justify-center">
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
@@ -745,7 +745,7 @@ const Profile = () => {
                   >
                     <Camera className="w-4 h-4 mr-2" />
                     Chọn ảnh
-                  </Button>
+                  </Button> */}
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png"
@@ -780,13 +780,13 @@ const Profile = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button
+            {/* <Button
               variant="outline"
               onClick={handleDialogClose}
               className="w-full sm:w-auto"
             >
               Hủy
-            </Button>
+            </Button> */}
             <Button
               onClick={handleConfirmUpload}
               disabled={!selectedFile || !!fileError}

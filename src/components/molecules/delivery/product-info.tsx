@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useEffect } from "react";
 
 import { Input } from "../../atoms/delivery/input";
 import { Camera } from "lucide-react";
@@ -23,10 +24,19 @@ export function ProductInfo({
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>({ images: [] });
   const [imageError, setImageError] = useState<string | null>(null);
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {}
+  );
 
   // Separate onChange handler for ProductInfo
-  const handleProductInfoChange = (updatedForm: Record<string, unknown>) => {
+  const handleProductInfoChange = (
+    updatedForm: Record<string, unknown>,
+    changedField?: string
+  ) => {
     setForm(updatedForm);
+    if (changedField) {
+      setTouchedFields((prev) => ({ ...prev, [changedField]: true }));
+    }
     if (onChange) {
       onChange(updatedForm);
     }
@@ -96,6 +106,13 @@ export function ProductInfo({
     handleProductInfoChange(updatedForm);
   };
 
+  // useEffect(() => {
+  //   // Chỉ log errors nếu có ít nhất một trường đã nhập (touched)
+  //   if (Object.values(touchedFields).some(Boolean)) {
+  //     console.log(errors);
+  //   }
+  // }, [errors, touchedFields]);
+
   return (
     <div className="">
       <div className="flex items-center justify-between mb-4">
@@ -108,15 +125,12 @@ export function ProductInfo({
             <Input
               label="Tên sản phẩm"
               placeholder="Nhập tên sản phẩm"
-              required
               onChange={(e) => {
                 const updatedForm = { ...form, content: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "content");
               }}
+              error={errors?.content}
             />
-            {errors?.content && (
-              <div className="text-red-500 text-sm mt-1">{errors.content}</div>
-            )}
           </div>
           <div>
             <PickShift onChange={setPickShift} errors={errors} />
@@ -134,60 +148,48 @@ export function ProductInfo({
               label="KL (gram)"
               defaultValue="0"
               type="number"
-              required
               onChange={(e) => {
                 const updatedForm = { ...form, weight: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "weight");
               }}
+              error={errors?.weight}
             />
-            {errors?.weight && (
-              <div className="text-red-500 text-sm mt-1">{errors.weight}</div>
-            )}
           </div>
           <div>
             <Input
               label="Dài (cm)"
               defaultValue="0"
               type="number"
-              required
               onChange={(e) => {
                 const updatedForm = { ...form, length: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "length");
               }}
+              error={errors?.length}
             />
-            {errors?.length && (
-              <div className="text-red-500 text-sm mt-1">{errors.length}</div>
-            )}
           </div>
           <div>
             <Input
               label="Rộng (cm)"
               defaultValue="0"
               type="number"
-              required
               onChange={(e) => {
                 const updatedForm = { ...form, width: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "width");
               }}
+              error={errors?.width}
             />
-            {errors?.width && (
-              <div className="text-red-500 text-sm mt-1">{errors.width}</div>
-            )}
           </div>
           <div>
             <Input
               label="Cao (cm)"
               defaultValue="0"
               type="number"
-              required
               onChange={(e) => {
                 const updatedForm = { ...form, height: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "height");
               }}
+              error={errors?.height}
             />
-            {errors?.height && (
-              <div className="text-red-500 text-sm mt-1">{errors.height}</div>
-            )}
           </div>
         </div>
 
@@ -263,7 +265,7 @@ export function ProductInfo({
               className="min-h-[120px] border-gray-300 focus:border-primary"
               onChange={(e) => {
                 const updatedForm = { ...form, note: e.target.value };
-                handleProductInfoChange(updatedForm);
+                handleProductInfoChange(updatedForm, "note");
               }}
             />
             {errors?.note && (

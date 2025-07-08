@@ -39,7 +39,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
   return (
     <>
       <Card
-        className="hover:shadow-md transition-shadow border cursor-pointer"
+        className="hover:shadow-md hover:bg-primary/5 border hover:border-primary transition-all duration-200 cursor-pointer"
         onClick={handleViewDetails}
       >
         <CardContent className="px-4">

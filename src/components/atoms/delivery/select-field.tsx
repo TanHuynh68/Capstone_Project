@@ -17,6 +17,7 @@ interface SelectFieldProps {
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
+  error?: string;
 }
 
 export function SelectField({
@@ -27,6 +28,7 @@ export function SelectField({
   value,
   onValueChange,
   defaultValue,
+  error,
 }: SelectFieldProps) {
   return (
     <div className="space-y-2">
@@ -41,7 +43,11 @@ export function SelectField({
         onValueChange={onValueChange}
         defaultValue={defaultValue}
       >
-        <SelectTrigger className="border-gray-300 focus:border-primary">
+        <SelectTrigger
+          className={`border-gray-300 focus:border-primary ${
+            error ? "border-red-500" : ""
+          }`}
+        >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -52,6 +58,7 @@ export function SelectField({
           ))}
         </SelectContent>
       </Select>
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }
