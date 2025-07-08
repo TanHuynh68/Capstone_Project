@@ -1,5 +1,5 @@
 import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
-import { formatVietnamDateHours } from "@/components/utils/date";
+import { formatVietnamDateHours } from "@/utils/date";
 import { EditImagePortfolio } from "../../../pages/designer/manage-portfolio/edit-image-portfolio/edit-image-portfolio";
 // import { Heart, Eye } from "lucide-react";
 

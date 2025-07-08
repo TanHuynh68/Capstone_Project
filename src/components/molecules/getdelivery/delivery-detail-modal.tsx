@@ -19,7 +19,7 @@ import {
   ImageIcon,
 } from "lucide-react";
 import DeliveryService from "@/services/DeliveryService";
-import { formatVietnamDateHours } from "@/components/utils/date";
+import { formatVietnamDateHours } from "@/utils/date";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
 
 interface DeliveryImage {

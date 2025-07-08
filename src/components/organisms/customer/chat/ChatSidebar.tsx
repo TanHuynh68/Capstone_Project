@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import ChatButton from "@/components/atoms/customer/chat/ChatButton"
 import ChatListItem from "@/components/molecules/customer/chat/ChatListItem"
 
-import { useCurrentUser } from "@/components/utils"
+import { useCurrentUser } from "@/utils"
 
 import { Link } from "react-router-dom"
 import { USER_ROUTES } from "@/routes/path"

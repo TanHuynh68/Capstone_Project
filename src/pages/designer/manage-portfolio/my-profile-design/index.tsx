@@ -17,11 +17,11 @@ import { Button } from "@/components/ui/button";
 import ReputationService from "@/services/ReputationService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { RoleVietnamese } from "@/components/utils";
+import { RoleVietnamese } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 import PortfolioService from "@/services/PortfolioService";
 import EditPortfolio from "../edit-portfolio/edit-portfolio";
-import { formatVietnamDate } from "@/components/utils/date";
+import { formatVietnamDate } from "@/utils/date";
 
 interface Profile {
   accountID: string;

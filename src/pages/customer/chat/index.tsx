@@ -8,7 +8,7 @@ import {
   detectInputType,
   reverseArray,
   useCurrentUser,
-} from "@/components/utils";
+} from "@/utils";
 import {
   type HubConnection,
   HubConnectionBuilder,

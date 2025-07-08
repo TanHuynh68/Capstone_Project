@@ -19,7 +19,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { toVietnamTime, formatVietnamFullDate } from "@/components/utils/date";
+import { toVietnamTime, formatVietnamFullDate } from "@/utils/date";
 
 export function OfferEditorDialog({
   open,

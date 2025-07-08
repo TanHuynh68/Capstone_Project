@@ -21,7 +21,7 @@ import { ArrowUpDown, Eye } from "lucide-react";
 import { StatusBadge } from "@/components/atoms/delivery/status-badge";
 // import { DeliveryId } from "@/components/atoms/delivery/delivery-id";
 import { DeliveryDetailModal } from "@/components/molecules/getdelivery/delivery-detail-modal";
-import { HighlightText } from "@/components/utils/highlight-text";
+import { HighlightText } from "@/utils/highlight-text";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
 
 interface DeliveryTableProps {

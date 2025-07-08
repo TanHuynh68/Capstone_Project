@@ -7,7 +7,7 @@ import ReputationService from "@/services/ReputationService";
 import GeneralService from "@/services/GeneralService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { RoleVietnamese } from "@/components/utils";
+import { RoleVietnamese } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 
 interface Profile {

@@ -12,7 +12,7 @@ import { toast } from "sonner"
 import { type OfferPhaseFormValues, offerPhaseSchema } from "@/schemas/offerPhaseShecmas"
 import OfferService from "@/services/OfferService"
 import { MESSAGE } from "@/constants"
-import { formatDateToSubmit } from "@/components/utils"
+import { formatDateToSubmit } from "@/utils"
 
 interface ChatCreateOfferPhaseProps {
   offerID: string
