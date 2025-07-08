@@ -20,9 +20,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
-import { useImageCurrentUser } from "@/components/utils/helpers/helpers";
+import { useImageCurrentUser } from "@/utils/helpers/helpers";
 
 const menuItemClass =
   "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition w-full text-foreground";

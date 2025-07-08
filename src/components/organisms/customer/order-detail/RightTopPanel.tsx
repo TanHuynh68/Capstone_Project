@@ -7,7 +7,7 @@ import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import { Button } from "@/components/ui/button";
 import { CheckSquare } from "lucide-react";
 import { useState } from "react";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 
 interface RightTopPanelProps {

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { PATH } from "@/routes/path";
 import useAuthService from "@/services/AuthService";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import AnimatedText from "@/components/utils/animateText";
+import AnimatedText from "@/utils/animateText";
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
 
 export function LoginForm({

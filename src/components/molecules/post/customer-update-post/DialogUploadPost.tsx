@@ -23,7 +23,7 @@ export function DialogUpdatePost({
   return (
     <Dialog>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="min-w-[500px]">
         <DialogHeader>
           <DialogTitle>Cập nhật bài đăng</DialogTitle>
         </DialogHeader>

@@ -26,7 +26,7 @@ import {
   offerStatusVariant,
   offerStatusVN,
   useCurrentUser,
-} from "@/components/utils";
+} from "@/utils";
 import { ROLE } from "@/constants";
 import OfferService from "@/services/OfferService";
 import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";

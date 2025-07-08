@@ -37,7 +37,7 @@ import ReputationService from "@/services/ReputationService";
 import GeneralService from "@/services/GeneralService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { RoleVietnamese } from "@/components/utils";
+import { RoleVietnamese } from "@/utils";
 import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
 import { ChangePasswordPage, OrderHistoryPage } from "@/pages";

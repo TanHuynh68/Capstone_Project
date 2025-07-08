@@ -3,7 +3,7 @@ import { Check, Trash2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { NotificationProps } from "./notification-context";
-import { formatVietnamDateHoursWithSuffix } from "@/components/utils/date";
+import { formatVietnamDateHoursWithSuffix } from "@/utils/date";
 import { useNavigate } from "react-router-dom";
 
 interface NotificationItemProps {

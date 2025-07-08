@@ -8,7 +8,7 @@ import MessageContent from "@/components/molecules/customer/chat/MessageContent"
 import MessageActions from "@/components/atoms/customer/chat/MessageActions";
 import DeleteMessageModal from "@/components/molecules/customer/chat/DeleteMessageModal";
 import EditMessageModal from "@/components/molecules/customer/chat/EditMessageModal";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 
 
 interface ChatMessageProps {

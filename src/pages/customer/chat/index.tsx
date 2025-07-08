@@ -8,7 +8,7 @@ import {
   detectInputType,
   reverseArray,
   useCurrentUser,
-} from "@/components/utils";
+} from "@/utils";
 import {
   type HubConnection,
   HubConnectionBuilder,
@@ -283,7 +283,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-screen w-full">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       <ChatTemplate
         fetchOffers={fetchOffers}
         offersPhase={offersPhase}

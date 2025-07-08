@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import AdminService from "@/services/AdminService";
 import { Badge } from "@/components/ui/badge";
-import { formatVietnamDateHours } from "@/components/utils/date";
+import { formatVietnamDateHours } from "@/utils/date";
 import BenefitCreateForm from "./create-rule";
 interface Benefit {
   benefitID: string;

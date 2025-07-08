@@ -1,4 +1,4 @@
-import {formatDayAndTime} from "@/components/utils/date"
+import {formatDayAndTime} from "@/utils/date"
 import { cn } from "@/lib/utils"
 
 interface ChatTimeProps {

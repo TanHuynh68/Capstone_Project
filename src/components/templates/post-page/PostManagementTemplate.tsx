@@ -8,7 +8,7 @@ import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 
 interface PostManagementTemplateProps {

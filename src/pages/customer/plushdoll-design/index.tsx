@@ -49,7 +49,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
-import { convertToPixels } from "@/components/utils/convert";
+import { convertToPixels } from "@/utils/convert";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
 import { useLocation } from "react-router-dom";
 import BackgroundColorPanel from "./BackgroundColorPanel";

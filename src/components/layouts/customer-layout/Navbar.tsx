@@ -9,7 +9,7 @@ import Cart from "@/components/atoms/layout/navbar/Paint";
 import Post from "@/components/atoms/layout/navbar/Post";
 import UserOption from "@/components/atoms/layout/navbar/UserOption";
 import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
-import { isLoggedIn } from "@/components/utils";
+import { isLoggedIn } from "@/utils";
 import { PATH} from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
 import DualLogo from "@/components/atoms/custom/logo/LogoWeb";

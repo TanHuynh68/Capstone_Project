@@ -1,4 +1,4 @@
-import { formatDate } from "@/components/utils";
+import { formatDate } from "@/utils";
 interface OrderDateProps {
   date: string;
   format?: "full" | "short" | "relative";

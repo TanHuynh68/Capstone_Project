@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/userSlice";
 import { jwtDecode } from "jwt-decode";
-import { normalizeDecodedUser } from "@/components/utils/jwt";
+import { normalizeDecodedUser } from "@/utils/jwt";
 
 export function InitUserFromToken(): null {
   const dispatch = useDispatch();

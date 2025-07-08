@@ -5,9 +5,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/atoms/delivery/status-badge";
 import { DeliveryDetailModal } from "./delivery-detail-modal";
-import { HighlightText } from "@/components/utils/highlight-text";
+import { HighlightText } from "@/utils/highlight-text";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
-import { formatVietnamDateHours } from "@/components/utils/date";
+import { formatVietnamDateHours } from "@/utils/date";
 
 interface DeliveryCardProps {
   delivery: DeliveryItem;
