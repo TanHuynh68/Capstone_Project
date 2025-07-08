@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Offer } from "@/types/orderManagement";
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND } from "@/utils";
 import { DollarSign, Calendar, Image } from "lucide-react";
 import SingleImageGallery from "@/components/atoms/custom/image/SingleImageGallery";
 

@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, CheckSquare, DollarSign } from "lucide-react"
 import type { OfferPhase } from "@/types/orderManagement"
-import { formatCurrencyVND } from "@/components/utils"
+import { formatCurrencyVND } from "@/utils"
 
 interface SelectPhasesDialogProps {
   isOpen: boolean

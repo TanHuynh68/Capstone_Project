@@ -95,58 +95,65 @@ export function UpdatePostForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="ItemValue"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Giá trị sản phẩm</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
+        <div className="grid grid-cols-12">
+          <div className="col-span-7">
+            <FormField
+              control={form.control}
+              name="FinishDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Thời gian kết thúc</FormLabel>
+                  <FormControl>
+                    <div className="flex  flex-col flex-wrap items-center gap-2 @md:flex-row ">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        className="rounded-md border shadow-sm"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="col-span-5 space-y-8 flex flex-col items-center justify-between">
+            <div className="space-y-8">
+              <FormField
+                control={form.control}
+                name="ItemValue"
+                render={({ field }) => (
+                  <FormItem className="">
+                    <FormLabel>Giá trị sản phẩm</FormLabel>
+                    <FormControl className="w-[100px] ">
+                      <Input placeholder="shadcn" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="SuggestedPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giá đề xuất</FormLabel>
+                    <FormControl className="w-[100px]">
+                      <Input placeholder="shadcn" {...field} />
+                    </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="SuggestedPrice"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Giá đề xuất</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="FinishDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Thời gian kết thúc</FormLabel>
-              <FormControl>
-                <div className="flex  flex-col flex-wrap items-center gap-2 @md:flex-row ">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    className="rounded-md border shadow-sm"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex justify-end">
-          <DialogClose >
-            <Button type="submit">Gửi</Button>
-          </DialogClose>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className=" ">
+              <DialogClose>
+                <Button type="submit">Gửi</Button>
+              </DialogClose>
+            </div>
+          </div>
         </div>
       </form>
     </Form>

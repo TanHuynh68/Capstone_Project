@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import "./styles/animations.css";
+import "@/components/styles/animations.css";
 
 createRoot(document.getElementById("root")!).render(<App />);

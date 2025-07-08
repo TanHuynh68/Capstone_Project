@@ -10,7 +10,7 @@ export const updatePostSchema = z.object({
       message: `Giá trị sản phẩm phải lớn hơn hoặc bằng ${minNumber}`,
     })
     .refine((val) => val % 1000 === 0, {
-      message: "Giá trị sản phẩm phải chia hết cho 1000",
+      message: "Phải chia hết cho 1000",
     }),
 
   SuggestedPrice: z.coerce
@@ -19,7 +19,7 @@ export const updatePostSchema = z.object({
       message: `Giá đề xuất phải lớn hơn hoặc bằng ${minNumber}`,
     })
     .refine((val) => val % 1000 === 0, {
-      message: "Giá đề xuất phải chia hết cho 1000",
+      message: "Phải chia hết cho 1000",
     }),
   FinishDate: z
     .date({

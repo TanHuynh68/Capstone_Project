@@ -17,7 +17,7 @@ import {
   DollarSign,
   LockKeyhole,
 } from "lucide-react";
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND } from "@/utils";
 
 interface OrderInfoCardProps {
   order: Order;

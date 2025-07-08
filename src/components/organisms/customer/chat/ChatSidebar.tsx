@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import ChatButton from "@/components/atoms/customer/chat/ChatButton"
 import ChatListItem from "@/components/molecules/customer/chat/ChatListItem"
 
-import { useCurrentUser } from "@/components/utils"
+import { useCurrentUser } from "@/utils"
 
 import { Link } from "react-router-dom"
 import { USER_ROUTES } from "@/routes/path"
@@ -21,12 +21,9 @@ interface ChatSidebarProps {
   onSelectChat: (chatId: string) => void
 }
 
-export default function ChatSidebar({ users, onSelectChat, messages, activeChat }: ChatSidebarProps) {
+export default function ChatSidebar({ users, onSelectChat, activeChat }: ChatSidebarProps) {
   const userMain = useCurrentUser()
   const [searchTerm, setSearchTerm] = useState("")
-
-  console.log("ChatSidebar_users: ", users)
-  console.log("ChatSidebar_messages: ", messages)
 
   // Filter users based on search term
   const filteredUsers = users?.filter((user) => {

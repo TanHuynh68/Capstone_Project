@@ -8,7 +8,7 @@ import { RootState } from "@/redux/store";
 import ChatService from "@/services/ChatService";
 import { PATH } from "@/routes/path";
 import { useNavigate } from "react-router-dom";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 
 interface PostDetailActionsProps {

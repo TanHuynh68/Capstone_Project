@@ -1,6 +1,4 @@
-"use client";
-
-import { Heart, Eye, Calendar, ImageIcon } from "lucide-react";
+import { Calendar, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -128,12 +126,6 @@ export default function PostList({
                     </h3>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(post.postStatus)}
-                      {post.isActive && (
-                        <Badge className="bg-blue-500 hover:bg-blue-600 text-white">
-                          <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse" />
-                          Live
-                        </Badge>
-                      )}
                     </div>
                   </div>
 
@@ -160,14 +152,6 @@ export default function PostList({
 
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
-                        <span>0</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        <span>0</span>
-                      </div>
-                      <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>
                           {new Date(post.createdAt).toLocaleDateString("vi-VN")}
@@ -178,14 +162,6 @@ export default function PostList({
 
                   {/* Price and Date Info */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    {/* <div>
-                      <span className="text-muted-foreground">
-                        Giá sản phẩm
-                      </span>
-                      <p className="font-medium text-blue-600 dark:text-blue-400">
-                        {post.itemValue.toLocaleString()}đ
-                      </p>
-                    </div> */}
                     <div>
                       <span className="text-muted-foreground">Giá đề xuất</span>
                       <p className="font-semibold text-purple-600 dark:text-purple-400">

@@ -1,4 +1,4 @@
-import { formatDayAndTime } from "@/components/utils";
+import { formatDayAndTime } from "@/utils";
 import { Calendar, Clock } from "lucide-react";
 
 interface DateDisplayProps {

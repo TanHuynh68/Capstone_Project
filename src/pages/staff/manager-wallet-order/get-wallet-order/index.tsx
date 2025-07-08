@@ -26,7 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getOrderStatusBadge } from "@/components/utils/badge-utils";
+import { getOrderStatusBadge } from "@/utils/badge-utils";
 import ViewInvoiceButton from "@/components/organisms/manager-withdrawal-by-staff/ViewInvoiceButton";
 
 interface WalletOrder {

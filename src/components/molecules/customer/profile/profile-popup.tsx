@@ -1,4 +1,4 @@
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { PATH } from "@/routes/path";
 import ChatService from "@/services/ChatService";
 import { useNavigate } from "react-router-dom";

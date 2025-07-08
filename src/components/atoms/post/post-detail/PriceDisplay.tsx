@@ -1,4 +1,4 @@
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND } from "@/utils";
 
 interface PriceDisplayProps {
   value: number;

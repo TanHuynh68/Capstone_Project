@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { OfferEditorDialog } from "@/components/organisms/offer/OfferEditorDialog";
 import { useState } from "react";
-import { formatVietnamDate } from "@/components/utils/date";
+import { formatVietnamDate } from "@/utils/date";
 import { OfferEditImage } from "@/components/organisms/offer/OfferEditImage";
 
 interface OfferCardProps {

@@ -14,7 +14,7 @@ import { MESSAGE } from "@/constants/message";
 import StaffService from "@/services/StaffService";
 import ChangeActiveUserButton from "../change-active-user";
 import { Search } from "lucide-react";
-import { formatFullDateWithDistance2 } from "@/components/utils/date";
+import { formatFullDateWithDistance2 } from "@/utils/date";
 import {
   DataTable,
   Column,
@@ -23,7 +23,7 @@ import {
   getGenderBadge,
   getRoleBadge,
   getUserStatusBadge,
-} from "@/components/utils/badge-utils";
+} from "@/utils/badge-utils";
 
 interface User {
   accountID: string;

@@ -4,7 +4,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import ReputationService from "@/services/ReputationService";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { formatVietnamDateHours } from "../../utils/date";
+import { formatVietnamDateHours } from "../../../utils/date";
 
 interface ReputationHistoryItem {
   reputationHistoryID: string;
