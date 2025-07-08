@@ -33,14 +33,15 @@ export default function OrderManagementPage() {
       const response = await getOrderDetail(id);
       if (response) {
         setOrderDetail(response?.responseRequestModel);
-        console.log("fetchOrderDetail: ", response?.responseRequestModel);
       }
     }
   };
 
   const createDepositListPhaseByCustomer = async (phaseIds: string[]) => {
     if (phaseIds) {
-      const response = await createDepositListPhase({offerPhaseIDs: phaseIds});
+      const response = await createDepositListPhase({
+        offerPhaseIDs: phaseIds,
+      });
       if (response) {
         fetchOrderDetail();
       }
@@ -69,21 +70,16 @@ export default function OrderManagementPage() {
 
   // Create progress step
   const handleCreateProgressStep = async (data: CreateProgressStepFormData) => {
-    try {
-      const response = await createProgressStep(data);
-      if (response && response.responseRequestModel) {
-        toast.success("Tạo bước tiến độ thành công!");
-        // Refresh progress steps if a phase is selected
-        if (progressSteps.length > 0) {
-          const currentPhaseId = progressSteps[0]?.progressStep?.progressStepID; // You might need to track this differently
-          await fetchOrderDetail();
-          await fetchProgressSteps(currentPhaseId);
-        }
+    const response = await createProgressStep(data);
+    console.log("handleCreateProgressStep: ", response);
+    if (response && response.responseRequestModel) {
+      toast.success(MESSAGE.CREATE_PROGRESS_STEP);
+      // Refresh progress steps if a phase is selected
+      if (progressSteps.length > 0) {
+        const currentPhaseId = progressSteps[0]?.progressStep?.progressStepID; // You might need to track this differently
+        await fetchOrderDetail();
+        await fetchProgressSteps(currentPhaseId);
       }
-    } catch (error) {
-      console.error("Error creating progress step:", error);
-      toast.error("Không thể tạo bước tiến độ. Vui lòng thử lại.");
-      throw error; // Re-throw to keep dialog open on failure
     }
   };
 
