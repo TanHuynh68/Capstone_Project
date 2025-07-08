@@ -22,7 +22,7 @@ import * as z from "zod";
  * ```
  */
 
-// Sender information schema
+// Sender information schema - less strict for real-time validation
 export const senderSchema = z.object({
     fromName: z.string().min(1, { message: "Vui lòng nhập họ tên người gửi" }),
     fromPhone: z
@@ -35,7 +35,7 @@ export const senderSchema = z.object({
     fromProvinceName: z.string().min(1, { message: "Vui lòng chọn tỉnh/thành người gửi" }),
 });
 
-// Receiver information schema
+// Receiver information schema - less strict for real-time validation
 export const receiverSchema = z.object({
     toName: z.string().min(1, { message: "Vui lòng nhập họ tên người nhận" }),
     toPhone: z
@@ -48,11 +48,61 @@ export const receiverSchema = z.object({
     toProvinceName: z.string().min(1, { message: "Vui lòng chọn tỉnh/thành người nhận" }),
 });
 
-// Product information schema
+// Product information schema - less strict for real-time validation
 export const productSchema = z.object({
-    content: z.string({
-        required_error: "Vui lòng nhập tên sản phẩm"
-    }).min(1, { message: "Vui lòng nhập tên sản phẩm" }),
+    content: z.string().min(1, { message: "Vui lòng nhập tên sản phẩm" }),
+    weight: z.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        z.number()
+            .min(1, { message: "Khối lượng phải lớn hơn 0" })
+            .max(3000, { message: "Khối lượng tối đa là 3000" })
+            .optional()
+    ),
+    length: z.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        z.number()
+            .min(1, { message: "Chiều dài phải lớn hơn 0" })
+            .max(100, { message: "Chiều dài tối đa là 100" })
+            .optional()
+    ),
+    width: z.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        z.number()
+            .min(1, { message: "Chiều rộng phải lớn hơn 0" })
+            .max(100, { message: "Chiều rộng tối đa là 100" })
+            .optional()
+    ),
+    height: z.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        z.number()
+            .min(1, { message: "Chiều cao phải lớn hơn 0" })
+            .max(150, { message: "Chiều cao tối đa là 150" })
+            .optional()
+    ),
+    images: z
+        .array(z.instanceof(File))
+        .min(1, { message: "Vui lòng thêm ít nhất 1 ảnh sản phẩm" })
+        .optional(),
+    note: z.string().optional(),
+});
+
+// Pick shift schema
+export const pickShiftSchema = z.object({
+    pickShiftId: z.preprocess(
+        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        z.number().min(1, { message: "Vui lòng chọn ca lấy hàng" }).optional()
+    ),
+    pickShiftTitle: z.string().optional(),
+});
+
+// Main shipping form schema - strict for final validation
+export const shippingFormSchema = z.object({
+    // Sender information
+    ...senderSchema.shape,
+    // Receiver information
+    ...receiverSchema.shape,
+    // Product information
+    content: z.string().min(1, { message: "Vui lòng nhập tên sản phẩm" }),
     weight: z.preprocess(
         (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
         z.number({
@@ -92,33 +142,18 @@ export const productSchema = z.object({
     images: z
         .array(z.instanceof(File))
         .min(1, { message: "Vui lòng thêm ít nhất 1 ảnh sản phẩm" }),
-    note: z.string({
-        required_error: "Vui lòng nhập ghi chú cho sản phẩm"
-    }).min(1, { message: "Vui lòng nhập ghi chú cho sản phẩm" }),
-});
-
-// Pick shift schema
-export const pickShiftSchema = z.object({
-    pickShiftId: z.preprocess(
-        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
-        z.number({
-            required_error: "Vui lòng chọn ca lấy hàng",
-            invalid_type_error: "Ca lấy hàng phải là số"
-        }).min(1, { message: "Vui lòng chọn ca lấy hàng" })
-    ),
-    pickShiftTitle: z.string().optional(),
-});
-
-// Main shipping form schema
-export const shippingFormSchema = z.object({
-    // Sender information
-    ...senderSchema.shape,
-    // Receiver information
-    ...receiverSchema.shape,
-    // Product information
-    ...productSchema.shape,
+    note: z.string().min(1, { message: "Vui lòng nhập ghi chú cho sản phẩm" }),
     // Pick shift
-    pickShift: pickShiftSchema,
+    pickShift: z.object({
+        pickShiftId: z.preprocess(
+            (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+            z.number({
+                required_error: "Vui lòng chọn ca lấy hàng",
+                invalid_type_error: "Ca lấy hàng phải là số"
+            }).min(1, { message: "Vui lòng chọn ca lấy hàng" })
+        ),
+        pickShiftTitle: z.string().optional(),
+    }),
     // Shipping fee
     shippingFee: z.preprocess(
         (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
@@ -156,10 +191,40 @@ export const validateShippingForm = (data: Record<string, unknown>) => {
     }
 };
 
-// Partial validation for individual sections
+// Partial validation for individual sections - only validate fields that have values
 export const validateSender = (data: Record<string, unknown>) => {
     try {
-        senderSchema.parse(data);
+        // Only validate fields that have values
+        const fieldsToValidate: Record<string, unknown> = {};
+        const requiredFields = ['fromName', 'fromPhone', 'fromAddress', 'fromDistrictName', 'fromWardName', 'fromProvinceName'];
+
+        requiredFields.forEach(field => {
+            if (data[field] && String(data[field]).trim() !== '') {
+                fieldsToValidate[field] = data[field];
+            }
+        });
+
+        // If no fields have values, don't validate
+        if (Object.keys(fieldsToValidate).length === 0) {
+            return { success: true, errors: {} };
+        }
+
+        // Create a partial schema for validation
+        const schemaShape: Record<string, z.ZodTypeAny> = {};
+        requiredFields.forEach(field => {
+            if (fieldsToValidate[field] !== undefined) {
+                if (field === 'fromPhone') {
+                    schemaShape[field] = z.string()
+                        .min(1, { message: "Vui lòng nhập SĐT người gửi" })
+                        .regex(/^\d{10}$/, { message: "SĐT người gửi phải đủ 10 số" });
+                } else {
+                    schemaShape[field] = z.string().min(1, { message: `Vui lòng nhập ${field.replace('from', '').toLowerCase()}` });
+                }
+            }
+        });
+
+        const partialSchema = z.object(schemaShape);
+        partialSchema.parse(fieldsToValidate);
         return { success: true, errors: {} };
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -176,7 +241,37 @@ export const validateSender = (data: Record<string, unknown>) => {
 
 export const validateReceiver = (data: Record<string, unknown>) => {
     try {
-        receiverSchema.parse(data);
+        // Only validate fields that have values
+        const fieldsToValidate: Record<string, unknown> = {};
+        const requiredFields = ['toName', 'toPhone', 'toAddressDetail', 'toDistrictName', 'toWardName', 'toProvinceName'];
+
+        requiredFields.forEach(field => {
+            if (data[field] && String(data[field]).trim() !== '') {
+                fieldsToValidate[field] = data[field];
+            }
+        });
+
+        // If no fields have values, don't validate
+        if (Object.keys(fieldsToValidate).length === 0) {
+            return { success: true, errors: {} };
+        }
+
+        // Create a partial schema for validation
+        const schemaShape: Record<string, z.ZodTypeAny> = {};
+        requiredFields.forEach(field => {
+            if (fieldsToValidate[field] !== undefined) {
+                if (field === 'toPhone') {
+                    schemaShape[field] = z.string()
+                        .min(1, { message: "Vui lòng nhập SĐT người nhận" })
+                        .regex(/^\d{10}$/, { message: "SĐT người nhận phải đủ 10 số" });
+                } else {
+                    schemaShape[field] = z.string().min(1, { message: `Vui lòng nhập ${field.replace('to', '').toLowerCase()}` });
+                }
+            }
+        });
+
+        const partialSchema = z.object(schemaShape);
+        partialSchema.parse(fieldsToValidate);
         return { success: true, errors: {} };
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -193,7 +288,46 @@ export const validateReceiver = (data: Record<string, unknown>) => {
 
 export const validateProduct = (data: Record<string, unknown>) => {
     try {
-        productSchema.parse(data);
+        // Only validate fields that have values
+        const fieldsToValidate: Record<string, unknown> = {};
+        const requiredFields = ['content', 'weight', 'length', 'width', 'height', 'images', 'note'];
+
+        requiredFields.forEach(field => {
+            if (data[field] !== undefined && data[field] !== null && data[field] !== '') {
+                fieldsToValidate[field] = data[field];
+            }
+        });
+
+        // If no fields have values, don't validate
+        if (Object.keys(fieldsToValidate).length === 0) {
+            return { success: true, errors: {} };
+        }
+
+        // Create a partial schema for validation
+        const schemaShape: Record<string, z.ZodTypeAny> = {};
+        requiredFields.forEach(field => {
+            if (fieldsToValidate[field] !== undefined) {
+                if (['weight', 'length', 'width', 'height'].includes(field)) {
+                    schemaShape[field] = z.preprocess(
+                        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+                        z.number()
+                            .min(1, { message: `${field.charAt(0).toUpperCase() + field.slice(1)} phải lớn hơn 0` })
+                            .max(field === 'weight' ? 3000 : field === 'height' ? 150 : 100, {
+                                message: `${field.charAt(0).toUpperCase() + field.slice(1)} tối đa là ${field === 'weight' ? 3000 : field === 'height' ? 150 : 100}`
+                            })
+                    );
+                } else if (field === 'images') {
+                    schemaShape[field] = z.array(z.instanceof(File)).min(1, { message: "Vui lòng thêm ít nhất 1 ảnh sản phẩm" });
+                } else if (field === 'content') {
+                    schemaShape[field] = z.string().min(1, { message: "Vui lòng nhập tên sản phẩm" });
+                } else if (field === 'note') {
+                    schemaShape[field] = z.string().min(1, { message: "Vui lòng nhập ghi chú cho sản phẩm" });
+                }
+            }
+        });
+
+        const partialSchema = z.object(schemaShape);
+        partialSchema.parse(fieldsToValidate);
         return { success: true, errors: {} };
     } catch (error) {
         if (error instanceof z.ZodError) {

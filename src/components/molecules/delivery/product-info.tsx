@@ -4,7 +4,7 @@ import type React from "react";
 
 import { Input } from "../../atoms/delivery/input";
 import { Camera } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import ImageGalleryOrder from "../post/post-detail/ImageGalleryOrder";
 import { PickShift } from "./pick-shift";
@@ -24,9 +24,13 @@ export function ProductInfo({
   const [form, setForm] = useState<Record<string, unknown>>({ images: [] });
   const [imageError, setImageError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (onChange) onChange(form);
-  }, [form, onChange]);
+  // Separate onChange handler for ProductInfo
+  const handleProductInfoChange = (updatedForm: Record<string, unknown>) => {
+    setForm(updatedForm);
+    if (onChange) {
+      onChange(updatedForm);
+    }
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const filesArr = event.target.files;
@@ -45,10 +49,11 @@ export function ProductInfo({
         ...prev,
         ...filesToAdd.map((file) => URL.createObjectURL(file)),
       ]);
-      setForm((f) => ({
-        ...f,
+      const updatedForm = {
+        ...form,
         images: [...currentFiles, ...filesToAdd],
-      }));
+      };
+      handleProductInfoChange(updatedForm);
     }
   };
 
@@ -70,10 +75,11 @@ export function ProductInfo({
         ...prev,
         ...filesToAdd.map((file) => URL.createObjectURL(file)),
       ]);
-      setForm((f) => ({
-        ...f,
+      const updatedForm = {
+        ...form,
         images: [...currentFiles, ...filesToAdd],
-      }));
+      };
+      handleProductInfoChange(updatedForm);
     }
   };
 
@@ -83,10 +89,11 @@ export function ProductInfo({
 
   const removeImage = (index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
-    setForm((f) => ({
-      ...f,
-      images: ((f.images as File[]) || []).filter((_, i) => i !== index),
-    }));
+    const updatedForm = {
+      ...form,
+      images: ((form.images as File[]) || []).filter((_, i) => i !== index),
+    };
+    handleProductInfoChange(updatedForm);
   };
 
   return (
@@ -102,9 +109,10 @@ export function ProductInfo({
               label="Tên sản phẩm"
               placeholder="Nhập tên sản phẩm"
               required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, content: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, content: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.content && (
               <div className="text-red-500 text-sm mt-1">{errors.content}</div>
@@ -127,9 +135,10 @@ export function ProductInfo({
               defaultValue="0"
               type="number"
               required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, weight: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, weight: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.weight && (
               <div className="text-red-500 text-sm mt-1">{errors.weight}</div>
@@ -141,9 +150,10 @@ export function ProductInfo({
               defaultValue="0"
               type="number"
               required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, length: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, length: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.length && (
               <div className="text-red-500 text-sm mt-1">{errors.length}</div>
@@ -155,9 +165,10 @@ export function ProductInfo({
               defaultValue="0"
               type="number"
               required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, width: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, width: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.width && (
               <div className="text-red-500 text-sm mt-1">{errors.width}</div>
@@ -169,9 +180,10 @@ export function ProductInfo({
               defaultValue="0"
               type="number"
               required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, height: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, height: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.height && (
               <div className="text-red-500 text-sm mt-1">{errors.height}</div>
@@ -249,7 +261,10 @@ export function ProductInfo({
               id="notes"
               placeholder="Nhập ghi chú"
               className="min-h-[120px] border-gray-300 focus:border-primary"
-              onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
+              onChange={(e) => {
+                const updatedForm = { ...form, note: e.target.value };
+                handleProductInfoChange(updatedForm);
+              }}
             />
             {errors?.note && (
               <div className="text-red-500 text-sm mt-1">{errors.note}</div>
