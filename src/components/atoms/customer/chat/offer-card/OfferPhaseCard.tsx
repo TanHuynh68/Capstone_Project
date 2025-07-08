@@ -7,7 +7,7 @@ import { useState } from "react"
 import UpdateOfferPhase from "../chat-form/UpdateOfferPhase"
 import { CustomBadge } from "./Badge"
 
-import { formatDateRangeVN, offerStatusVariant, offerStatusVN, useCurrentUser } from "@/components/utils"
+import { formatDateRangeVN, offerStatusVariant, offerStatusVN, useCurrentUser } from "@/utils"
 import { ROLE } from "@/constants"
 
 interface OfferPhaseCardProps {

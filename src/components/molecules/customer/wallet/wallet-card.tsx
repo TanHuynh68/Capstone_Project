@@ -1,7 +1,7 @@
 import type React from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatBankAccountNumber, formatCurrencyVND } from "@/components/utils";
+import { formatBankAccountNumber, formatCurrencyVND } from "@/utils";
 
 export interface WalletCardProps {
   balance: number;

@@ -78,8 +78,8 @@ export default function ChatTemplate({
   ];
 
   return (
-    <div className=" py-3 px-4 h-[95%]">
-      <div className="flex w-full h-full overflow-hidden gap-4">
+    <div className="py-3 px-4 h-full"> {/* Không dùng h-[100%], dùng h-full sẽ tốt hơn */}
+    <div className="flex w-full h-full overflow-hidden gap-4">
         {/* Sidebar */}
         <div
           className={`border border-solid rounded-xl  transition-all duration-300 ease-in-out ${

@@ -1,7 +1,7 @@
 
 import { cn } from "@/lib/utils"
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar"
-import { useCurrentUser } from "@/components/utils"
+import { useCurrentUser } from "@/utils"
 
 interface ChatListItemProps {
   id: string

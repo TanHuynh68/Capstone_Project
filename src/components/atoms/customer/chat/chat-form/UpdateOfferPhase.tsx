@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { type OfferPhaseFormValues, offerPhaseSchema } from "@/schemas/offerPhaseShecmas"
 import OfferService from "@/services/OfferService"
 import { MESSAGE } from "@/constants"
-import { formatDayAndTime } from "@/components/utils"
+import { formatDayAndTime } from "@/utils"
 
 interface OfferPhase {
   offerPhaseID: string

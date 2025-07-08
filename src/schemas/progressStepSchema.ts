@@ -21,9 +21,9 @@ export const createProgressStepSchema = z
         message: "Kích thước ảnh không được vượt quá 5MB",
       }),
   })
-  .refine((data) => data.images.length === data.imagesDescriptions.length, {
-    message: "Số lượng ảnh phải bằng số lượng mô tả",
-    path: ["images"],
-  })
+  // .refine((data) => data.images.length === data.imagesDescriptions.length, {
+  //   message: "Số lượng ảnh phải bằng số lượng mô tả",
+  //   path: ["images"],
+  // })
 
 export type CreateProgressStepFormData = z.infer<typeof createProgressStepSchema>

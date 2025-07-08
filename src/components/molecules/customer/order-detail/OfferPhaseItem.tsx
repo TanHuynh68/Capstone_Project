@@ -9,7 +9,7 @@ import type { OfferPhase } from "@/types/orderManagement";
 import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
 import CreateProgressStepDialog from "./CreateProgressStepDialog";
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
-import { formatCurrencyVND, useCurrentUser } from "@/components/utils";
+import { formatCurrencyVND, useCurrentUser } from "@/utils";
 import { Calendar, DollarSign, FileText, Plus } from "lucide-react";
 import { ROLE } from "@/constants";
 

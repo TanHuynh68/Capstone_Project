@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND } from "@/utils";
 import { Wallet } from "lucide-react"; // icon ví tiền
 
 interface BalanceProps {

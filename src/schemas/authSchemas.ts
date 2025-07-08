@@ -4,7 +4,7 @@
  * This file contains Zod schemas for authentication-related forms.
  */
 
-import { ValidationErrors } from "@/components/utils/validation"
+import { ValidationErrors } from "@/utils/validation"
 import { z } from "zod"
 
 /**

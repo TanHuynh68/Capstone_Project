@@ -13,13 +13,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ReputationService from "@/services/ReputationService";
-import { RoleVietnamese } from "@/components/utils";
+import { RoleVietnamese } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 import PortfolioService from "@/services/PortfolioService";
 import { useParams } from "react-router-dom";
 import {
   formatVietnamDate,
-} from "@/components/utils/date";
+} from "@/utils/date";
 
 interface Profile {
   accountID: string;

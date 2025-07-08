@@ -31,9 +31,6 @@ export function OfferInAllPost({
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
   const [isExiting, setIsExiting] = useState(false);
 
-  //   console.log(selectedPostId, "selectedPostIdselectedPostIdselectedPostId");
-  //   console.log(offers, "offersoffersoffers");
-
   // Handle smooth transitions when offers change or visibility changes
   useEffect(() => {
     if (!isVisible && visibleOffers.length > 0) {

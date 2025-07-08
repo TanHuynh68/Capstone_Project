@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle, Clock, X, Eye, Star } from "lucide-react";
-import { useCurrentUser } from "@/components/utils";
+import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 
 interface ProgressStepCardProps {

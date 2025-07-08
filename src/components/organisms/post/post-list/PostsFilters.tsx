@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchInput from "@/components/atoms/post/post-list/SearchInput";
 import FilterDropdown from "@/components/molecules/general/home/FilterDropdown";
 import { USER_ROUTES } from "@/routes/path";
-import {  useCurrentUser } from "@/components/utils";
+import {  useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 
 interface PostsFiltersProps {

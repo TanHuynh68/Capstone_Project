@@ -4,7 +4,7 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import { Separator } from "@/components/ui/separator"
-import { formatCurrencyVND } from "@/components/utils";
+import { formatCurrencyVND } from "@/utils";
 import { PATH } from "@/routes/path";
 import { Link } from "react-router-dom"
 

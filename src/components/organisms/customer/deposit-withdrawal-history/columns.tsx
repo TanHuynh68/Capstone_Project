@@ -17,7 +17,7 @@ import {
   formatDayAndTime,
   getOrderType,
   getPaymentMethodFromDescription,
-} from "@/components/utils";
+} from "@/utils";
 import ViewInvoiceButton from "@/components/organisms/manager-withdrawal-by-staff/ViewInvoiceButton";
 import {
   Tooltip,

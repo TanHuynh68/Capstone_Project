@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { API_ROUTES, HTTP_METHOD, MESSAGE, ROLE } from "@/constants";
 import { loginSuccess } from "@/redux/userSlice";
-import { normalizeDecodedUser } from "@/components/utils/jwt";
+import { normalizeDecodedUser } from "@/utils/jwt";
 import { PATH } from "@/routes/path";
 
 const useAuthService = () => {

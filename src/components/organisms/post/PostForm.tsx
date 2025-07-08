@@ -26,7 +26,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { formatDate, formatDateToSubmit } from "@/components/utils";
+import { formatDate, formatDateToSubmit } from "@/utils";
 
 export default function PostForm() {
   const [OriginalAttachmentFiles, setOriginalAttachmentFiles] = useState<
