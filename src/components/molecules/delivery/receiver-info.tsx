@@ -36,19 +36,21 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>("");
   const [selectedWardCode, setSelectedWardCode] = useState<string>("");
 
-  useEffect(() => {
+  // Separate onChange handler for ReceiverInfo
+  const handleReceiverInfoChange = (updatedForm: Record<string, unknown>) => {
+    setForm(updatedForm);
     if (onChange) {
       const fullAddress = buildFullAddress(
-        form.toAddressDetail as string,
-        form.toDistrictName as string,
-        form.toWardName as string
+        updatedForm.toAddressDetail as string,
+        updatedForm.toDistrictName as string,
+        updatedForm.toWardName as string
       );
       onChange({
-        ...form,
+        ...updatedForm,
         toAddress: fullAddress,
       });
     }
-  }, [form, onChange]);
+  };
 
   // Fetch districts on component mount
   useEffect(() => {
@@ -69,11 +71,12 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
     const selectedDistrict = districts.find(
       (d) => String(d.DistrictID) === value
     );
-    setForm((prev) => ({
-      ...prev,
+    const updatedForm = {
+      ...form,
       toDistrictName: selectedDistrict?.DistrictName || "",
       toWardName: "",
-    }));
+    };
+    handleReceiverInfoChange(updatedForm);
     setSelectedWardCode("");
     setWards([]);
 
@@ -90,10 +93,11 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
   const handleWardSelect = (value: string) => {
     setSelectedWardCode(value);
     const selectedWard = wards.find((w) => String(w.WardCode) === value);
-    setForm((f) => ({
-      ...f,
+    const updatedForm = {
+      ...form,
       toWardName: selectedWard?.WardName || "",
-    }));
+    };
+    handleReceiverInfoChange(updatedForm);
   };
 
   const buildFullAddress = (
@@ -118,32 +122,24 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               label="Họ tên"
               placeholder="Nhập họ tên"
               value={form.toName as string}
-              required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, toName: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, toName: e.target.value };
+                handleReceiverInfoChange(updatedForm);
+              }}
+              error={errors?.toName}
             />
-            {errors?.toName && (
-              <div className="text-destructive text-sm mt-1">
-                {errors.toName}
-              </div>
-            )}
           </div>
           <div className="relative">
             <Input
               label="Số điện thoại"
               placeholder="Nhập số điện thoại"
               value={form.toPhone as string}
-              required
-              onChange={(e) =>
-                setForm((f) => ({ ...f, toPhone: e.target.value }))
-              }
+              onChange={(e) => {
+                const updatedForm = { ...form, toPhone: e.target.value };
+                handleReceiverInfoChange(updatedForm);
+              }}
+              error={errors?.toPhone}
             />
-            {errors?.toPhone && (
-              <div className="text-destructive text-sm mt-1">
-                {errors.toPhone}
-              </div>
-            )}
           </div>
         </div>
 
@@ -153,16 +149,12 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
             label="Địa chỉ"
             placeholder="Nhập địa chỉ người nhận"
             value={form.toAddressDetail as string}
-            required
-            onChange={(e) =>
-              setForm((f) => ({ ...f, toAddressDetail: e.target.value }))
-            }
+            onChange={(e) => {
+              const updatedForm = { ...form, toAddressDetail: e.target.value };
+              handleReceiverInfoChange(updatedForm);
+            }}
+            error={errors?.toAddressDetail}
           />
-          {errors?.toAddressDetail && (
-            <div className="text-destructive text-sm mt-1">
-              {errors.toAddressDetail}
-            </div>
-          )}
         </div>
 
         {/* District and Ward on same row */}
@@ -172,36 +164,26 @@ export function ReceiverInfo({ onChange, errors }: ReceiverInfoProps) {
               label="Quận - Huyện"
               placeholder="Chọn Quận/Huyện"
               value={selectedDistrictId}
-              required
               options={districts.map((d) => ({
                 value: String(d.DistrictID),
                 label: d.DistrictName,
               }))}
               onValueChange={handleDistrictSelect}
+              error={errors?.toDistrictName}
             />
-            {errors?.toDistrictName && (
-              <div className="text-destructive text-sm mt-1">
-                {errors.toDistrictName}
-              </div>
-            )}
           </div>
           <div>
             <SelectField
               label="Phường - Xã"
               placeholder="Chọn Phường/Xã"
               value={selectedWardCode}
-              required
               options={wards.map((w) => ({
                 value: String(w.WardCode),
                 label: w.WardName,
               }))}
               onValueChange={handleWardSelect}
+              error={errors?.toWardName}
             />
-            {errors?.toWardName && (
-              <div className="text-destructive text-sm mt-1">
-                {errors.toWardName}
-              </div>
-            )}
           </div>
         </div>
       </div>

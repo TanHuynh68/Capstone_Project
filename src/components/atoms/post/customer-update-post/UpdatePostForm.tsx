@@ -22,6 +22,7 @@ import PostService from "@/services/PostService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import { DialogClose } from "@/components/ui/dialog";
+import { formatDateToSubmit } from "@/utils";
 
 interface UpdatePostFormProps {
   fetchPosts: any;
@@ -41,16 +42,17 @@ export function UpdatePostForm({
       title: values.Title,
       itemValue: values.ItemValue,
       description: values.Description,
-      finishDate: values.FinishDate,
+      finishDate: formatDateToSubmit(values.FinishDate + ""),
       suggestedPrice: values.SuggestedPrice,
     };
+    console.log("valueSubmit: ", valueSubmit);
     const response = await updatePost(valueSubmit);
-    if (response) {
+    console.log("response: ", response);
+    if (response && response.isSuccess) {
       await fetchPosts();
       toast.success(MESSAGE.UPDATE_POST_SUCCESSFULLY);
     }
   };
-
   const form = useForm({
     resolver: zodResolver(updatePostSchema),
     defaultValues: {
@@ -72,7 +74,7 @@ export function UpdatePostForm({
           name="Title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tiêu đề</FormLabel>
+              <FormLabel>Tiêu đề 2</FormLabel>
               <FormControl>
                 <Input placeholder="shadcn" {...field} />
               </FormControl>

@@ -59,7 +59,7 @@ export function ProjectsGridAll({ onPortfolioData }: ProjectsGridProps) {
   }, [getPortfolioDesignerForAll, onPortfolioData]);
 
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 px-1 sm:px-2 md:px-4">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 px-1 sm:px-2 md:p-4">
       {projects.length === 0 ? (
         <div className="col-span-full text-center py-8 text-gray-500 flex flex-col items-center gap-2">
           <FolderOpen className="w-12 h-12 text-gray-400" />

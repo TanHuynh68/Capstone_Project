@@ -168,27 +168,9 @@ export default function OrderHistoryTemplate({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-6">
-            <div>
-              <p className="text-muted-foreground mt-1">
-                Quản lý và theo dõi tất cả đơn hàng của bạn
-              </p>
-            </div>
-
-            {/* <Button onClick={onRefresh} disabled={isLoading}>
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
-              />
-              Làm mới
-            </Button> */}
-          </div>
-        </div>
-      </div>
 
       {/* Statistics */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-0 sm:px-0 lg:px-0 ">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-2xl font-bold text-foreground">

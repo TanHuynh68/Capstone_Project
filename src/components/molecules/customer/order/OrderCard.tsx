@@ -27,7 +27,7 @@ export default function OrderCard({
     new Date(order?.deadlineAt) < new Date() &&
     order?.orderStatus !== "Completed";
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200 p-0">
+    <Card className="hover:shadow-md hover:bg-primary/5 border hover:border-primary transition-all duration-200 p-0">
       <CardContent className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
