@@ -1,8 +1,5 @@
-"use client";
 
 import type React from "react";
-import { useEffect } from "react";
-
 import { Input } from "../../atoms/delivery/input";
 import { Camera } from "lucide-react";
 import { useState } from "react";
@@ -24,9 +21,9 @@ export function ProductInfo({
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>({ images: [] });
   const [imageError, setImageError] = useState<string | null>(null);
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
-    {}
-  );
+  // const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+  //   {}
+  // );
 
   // Separate onChange handler for ProductInfo
   const handleProductInfoChange = (
@@ -35,7 +32,7 @@ export function ProductInfo({
   ) => {
     setForm(updatedForm);
     if (changedField) {
-      setTouchedFields((prev) => ({ ...prev, [changedField]: true }));
+      // setTouchedFields((prev) => ({ ...prev, [changedField]: true }));
     }
     if (onChange) {
       onChange(updatedForm);

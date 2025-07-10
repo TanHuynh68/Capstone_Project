@@ -68,7 +68,7 @@ export default function ChatTemplate({
 
   const items: SidebarCollapseProps[] = [
     {
-      title: "Thông tin về đoạn chat",
+      title: "Thông tin đoạn chat",
       subItem: [
         // { title: "Xem đề xuất", tabName: "offerPhase" },
         // { title: "Timeline", tabName: "timeline" },
