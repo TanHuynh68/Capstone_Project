@@ -11,8 +11,6 @@ import { useDeleteConfirmation } from "@/hooks/useDeleteConfirmation";
 import DeleteConfirmationModal from "@/components/molecules/delete/DeleteConfirmationModal";
 import { toast } from "sonner";
 import { DialogUpdatePost } from "@/components/molecules/post/customer-update-post/DialogUploadPost";
-import { Switch } from "@/components/ui/switch";
-import PostService from "@/services/PostService";
 
 // Global state to track offer visibility for each post
 const offerVisibilityMap = new Map<string, boolean>();
@@ -40,7 +38,6 @@ export default function PostCustomerHeader({
   fetchPosts,
 }: PostCustomerHeaderProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const { enablePost, disablePost } = PostService();
   const [localIsSelected, setLocalIsSelected] = useState(() => {
     // Initialize from global state or prop, but invert the logic
     // isSelected = true means offers are visible, so button should show "Ẩn offers"
@@ -169,15 +166,6 @@ export default function PostCustomerHeader({
     { href: "/post", title: "Bài đăng" },
     { href: "", title: "Bài đăng chi tiết" },
   ];
-  const handleUpdateActive = async (value: boolean) => {
-    console.log("value; ", value);
-    if (value === true) {
-      const res = await disablePost({ projectPostID: post?.projectPostID });
-      console.log("res: ", res);
-    } else if (value === false) {
-      await enablePost({ projectPostID: post?.projectPostID });
-    }
-  };
 
   return (
     <div
