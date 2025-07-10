@@ -32,7 +32,6 @@ const formatDate = (dateString: string) => {
 
 const Deposit = ({ amount, deposits }: DepositProps) => {
   const totalDeposits = deposits.length;
-    console.log('deposits: ', deposits)
   return (
     <Popover>
       <PopoverTrigger>
@@ -43,28 +42,23 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
         >
           <div className="relative">
             <LockKeyhole className="w-5 h-5 text-red-500" />
-            {/* {pendingDeposits > 0 && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">{pendingDeposits}</span>
-              </div>
-            )} */}
           </div>
           <div className="flex flex-col items-start">
             <span className="text-red-600 font-bold text-base leading-none">
               {formatCurrencyVND(amount)}
             </span>
             <span className="text-xs text-muted-foreground">
-              {totalDeposits} khoản cọc
+              {totalDeposits} khoản
             </span>
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[530px] p-0">
+      <PopoverContent className="w-[420px] p-0">
         <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b ">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-lg text-gray-900">
-                Danh sách tiền cọc
+                Danh sách tiền cọc 
               </h4>
               <p className="text-sm text-gray-600 mt-1">
                 Quản lý các khoản tiền tạm khóa
@@ -74,12 +68,11 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
               <div className="text-2xl font-bold text-red-600">
                 {formatCurrencyVND(amount)}
               </div>
-              <div className="text-xs text-gray-500">{totalDeposits} khoản</div>
             </div>
           </div>
         </div>
 
-        <ScrollArea className="h-[480px]">
+        <ScrollArea className="h-[370px]">
           <div className="p-4">
             {deposits.length === 0 ? (
               <div className="text-center py-8">
@@ -94,13 +87,14 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
             ) : (
               <div className="space-y-3 ">
                 {deposits.map((deposit) => {
+                  // card
                   return (
                     <div
                       key={deposit.orderDepositID}
-                      className="group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
+                      className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
                     >
                       {/* Main content */}
-                      <div className="pr-20">
+                      <div className="">
                         <div className="flex items-start gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Banknote className="w-5 h-5 text-red-600" />
@@ -126,7 +120,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                         <Separator className="my-3" />
 
                         {/* Details */}
-                        <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="flex justify-between gap-3 text-xs">
                           <div className="flex items-center gap-2 text-gray-600">
                             <Hash className="w-3 h-3" />
                             <span className="truncate">
@@ -134,11 +128,11 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">
-                            <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
-                              {deposit.type}
-                            </span>
+                            {/* <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
+                              {deposit.type === 'Deposit' ? 'Tiền cọc' : deposit.type}
+                            </span> */}
                           </div>
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-gray-600 ">
                             <Calendar className="w-3 h-3" />
                             <span>
                               Tạo: {formatDate(deposit.depositAt + "")}

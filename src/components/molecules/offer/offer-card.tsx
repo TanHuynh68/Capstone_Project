@@ -203,13 +203,15 @@ export function OfferCard({
                 </DropdownMenuItem>
 
                 {/* Xóa đề xuất */}
-                <DropdownMenuItem
+                {
+                  offer?.offerStatus === 'Pending' && <DropdownMenuItem
                   onSelect={handleDeleteOffer}
                   className="flex items-center px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 transition-colors"
                 >
                   <Trash2 className="mr-2 h-4 w-4 text-destructive dark:text-destructive" />
-                  <span>Xóa đề xuất</span>
+                  <span>Xóa đề xuất 2</span>
                 </DropdownMenuItem>
+                }
               </DropdownMenuContent>
             </DropdownMenu>
           )}

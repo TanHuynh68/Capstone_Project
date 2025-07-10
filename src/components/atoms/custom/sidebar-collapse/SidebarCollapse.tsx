@@ -37,7 +37,7 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
       <SidebarMenu>
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
           <SidebarMenuItem>
-            <CollapsibleTrigger className="font-semibold text-lg hover:bg-gray-100 p-3 rounded-lg w-full flex items-center justify-between transition-colors">
+            <CollapsibleTrigger className="font-semibold text-lg hover:bg-gray-100 p-3 mt-3 rounded-lg w-full flex items-center justify-between transition-colors">
               <span>{title}</span>
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
             </CollapsibleTrigger>

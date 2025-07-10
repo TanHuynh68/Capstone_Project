@@ -220,7 +220,7 @@ export default function PostCustomerHeader({
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon">
+          {/* <Button variant="ghost" size="icon">
             <div className="flex items-center space-x-2">
               <Switch
                 onClick={() => handleUpdateActive(post?.isActive)}
@@ -228,7 +228,7 @@ export default function PostCustomerHeader({
                 id="airplane-mode"
               />
             </div>
-          </Button>
+          </Button> */}
           <DialogUpdatePost
             fetchPosts={fetchPosts}
             projectPostId={post.projectPostID}
