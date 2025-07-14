@@ -54,6 +54,7 @@ export enum STAFF_ROUTES {
   STAFF = "/staff", // Đảm bảo có dấu "/" ở đầu
   STAFF_DASHBOARD = "dashboard",
   STAFF_MANAGER_USERS = "manager-users",
+  STAFF_MANAGE_REPORT = "manage-report",
   STAFF_MANAGER_WITHDRAWAL = "manager-withdrawal",
   STAFF_MANAGER_WALLET_TRANSACTION = "manager-wallet-transaction",
 }
@@ -103,6 +104,10 @@ export enum PATH {
   STAFF_ROUTES.STAFF_DASHBOARD +
   "/" +
   STAFF_ROUTES.STAFF_MANAGER_WALLET_TRANSACTION,
+
+  STAFF_MANAGE_REPORT = STAFF_ROUTES.STAFF +
+  "/" +
+  STAFF_ROUTES.STAFF_MANAGE_REPORT,
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
