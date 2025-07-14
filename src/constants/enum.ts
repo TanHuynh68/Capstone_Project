@@ -109,3 +109,4 @@ export const OfferStatusVi: Record<OfferStatusEnum, string> = {
   [OfferStatusEnum.Accepted]: "Đã chấp nhận",
   [OfferStatusEnum.Rejected]: "Đã từ chối",
 };
+

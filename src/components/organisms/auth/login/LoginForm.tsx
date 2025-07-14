@@ -73,158 +73,165 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden w-full max-w-[1200px] mx-auto py-0">
-        <CardContent className="grid h-full p-0  md:grid-cols-2">
-          <form
-            className="flex h-full flex-col justify-center p-6 md:p-8"
-            onSubmit={handleLogin}
-          >
-            <div className="flex flex-col gap-6 pt-16 pb-16">
-              <div className="flex flex-col items-center text-center">
-                <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
-                  <AnimatedText
-                    texts={[
-                      "Rất vui khi gặp lại bạn! 😊",
-                      "Cùng tạo điều đáng yêu! 🧸",
-                      "Chúc bạn một ngày vui vẻ! 🌞",
-                      // "Labubu lên đồ – bạn là stylist pro! 😎",
-                    ]}
-                    speed={80}
-                    eraseSpeed={40}
-                    delayBetweenTexts={1000}
-                    delayBetweenLoops={1500}
-                  />
+    <div
+      className={cn(
+        "flex flex-col gap-6 justify-center items-center",
+        className
+      )}
+      {...props}
+    >
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <Card className="overflow-hidden w-full max-w-[1200px] mx-auto py-0">
+          <CardContent className="grid h-full p-0 md:grid-cols-2">
+            <form
+              className="flex h-full flex-col justify-center p-6 md:p-8"
+              onSubmit={handleLogin}
+            >
+              <div className="flex flex-col gap-6 pt-16 pb-16">
+                <div className="flex flex-col items-center text-center">
+                  <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
+                    <AnimatedText
+                      texts={[
+                        "Rất vui khi gặp lại bạn! 😊",
+                        "Cùng tạo điều đáng yêu! 🧸",
+                        "Chúc bạn luôn vui vẻ! 🌞",
+                        // "Labubu lên đồ – bạn là stylist pro! 😎",
+                      ]}
+                      speed={80}
+                      eraseSpeed={40}
+                      delayBetweenTexts={1000}
+                      delayBetweenLoops={1500}
+                    />
 
-                  <span className="cursor">|</span>
+                    <span className="cursor">|</span>
+                  </div>
+
+                  <p className="text-balance text-muted-foreground mt-2">
+                    Đăng nhập tài khoản PlushDollCustom
+                  </p>
                 </div>
 
-                <p className="text-balance text-muted-foreground mt-2">
-                  Đăng nhập tài khoản PlushDollCustom
-                </p>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="username">Email/Số điện thoại</Label>
-                <Input
-                  key={usernameShake ? "username-shake" : "username"} // ép re-render
-                  id="username"
-                  type="text"
-                  placeholder="m@example.com"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    if (usernameError) setUsernameError("");
-                  }}
-                  onFocus={() => {
-                    setUsernameError("");
-                    setUsernameShake(false);
-                  }}
-                  onBlur={() => {
-                    if (!username.trim()) {
-                      setUsernameError(
-                        "Vui lòng nhập email hoặc số điện thoại"
-                      );
-                      triggerShake(setUsernameShake);
-                    } else {
-                      setUsernameError("");
-                    }
-                  }}
-                  className={cn(
-                    usernameError && "border-red-500",
-                    usernameShake && "animate-[shake_0.5s_ease-in-out]"
-                  )}
-                  disabled={loading}
-                />
-
-                {usernameError && (
-                  <p className="text-red-500 text-sm mt-1">{usernameError}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Link
-                    to={PATH.FORGOT_PASSWORD}
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Quên mật khẩu?
-                  </Link>
-                </div>
-                <div className="relative">
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Email/Số điện thoại</Label>
                   <Input
-                    key={passwordShake ? "password-shake" : "password"} // ép re-render
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
+                    key={usernameShake ? "username-shake" : "username"} // ép re-render
+                    id="username"
+                    type="text"
+                    placeholder="Email hoặc số điện thoại"
+                    value={username}
                     onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (passwordError) setPasswordError("");
+                      setUsername(e.target.value);
+                      if (usernameError) setUsernameError("");
                     }}
                     onFocus={() => {
-                      setPasswordError("");
-                      setPasswordShake(false);
+                      setUsernameError("");
+                      setUsernameShake(false);
                     }}
                     onBlur={() => {
-                      if (!password.trim()) {
-                        setPasswordError("Vui lòng nhập mật khẩu");
-                        triggerShake(setPasswordShake);
+                      if (!username.trim()) {
+                        setUsernameError(
+                          "Vui lòng nhập email hoặc số điện thoại"
+                        );
+                        triggerShake(setUsernameShake);
                       } else {
-                        setPasswordError("");
+                        setUsernameError("");
                       }
                     }}
                     className={cn(
-                      passwordError && "border-red-500",
-                      passwordShake && "animate-[shake_0.5s_ease-in-out]"
+                      usernameError && "border-red-500",
+                      usernameShake && "animate-[shake_0.5s_ease-in-out]"
                     )}
                     disabled={loading}
                   />
 
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
+                  {usernameError && (
+                    <p className="text-red-500 text-sm mt-1">{usernameError}</p>
+                  )}
                 </div>
-                {passwordError && (
-                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-                )}
-              </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Đăng nhập
-              </Button>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Mật khẩu</Label>
+                    <Link
+                      to={PATH.FORGOT_PASSWORD}
+                      className="ml-auto text-sm underline-offset-2 hover:underline"
+                    >
+                      Quên mật khẩu?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      key={passwordShake ? "password-shake" : "password"} // ép re-render
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (passwordError) setPasswordError("");
+                      }}
+                      onFocus={() => {
+                        setPasswordError("");
+                        setPasswordShake(false);
+                      }}
+                      onBlur={() => {
+                        if (!password.trim()) {
+                          setPasswordError("Vui lòng nhập mật khẩu");
+                          triggerShake(setPasswordShake);
+                        } else {
+                          setPasswordError("");
+                        }
+                      }}
+                      className={cn(
+                        passwordError && "border-red-500",
+                        passwordShake && "animate-[shake_0.5s_ease-in-out]"
+                      )}
+                      disabled={loading}
+                    />
 
-              <div className="text-center text-sm">
-                <p className="text-gray-600">
-                  Chưa có tài khoản?{" "}
-                  <Link
-                    to="/auth/register"
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Đăng ký
-                  </Link>
-                </p>
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                  {passwordError && (
+                    <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Đăng nhập
+                </Button>
+
+                <div className="text-center text-sm">
+                  <p className="text-gray-600">
+                    Chưa có tài khoản?{" "}
+                    <Link
+                      to="/auth/register"
+                      className="font-medium text-blue-600 hover:text-blue-500"
+                    >
+                      Đăng ký
+                    </Link>
+                  </p>
+                </div>
               </div>
+            </form>
+            <div className="relative hidden h-full bg-muted md:block">
+              <LoginVideo />
             </div>
-          </form>
+          </CardContent>
+        </Card>
+      </div>
 
-          <div className="relative hidden h-full bg-muted md:block">
-            <LoginVideo />
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+      <div className="ztext-balance text-center text-xs text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a]:text-blue-600 hover:[&_a]:text-blue-800 text-white">
         Khi tiếp tục, bạn đồng ý với <Link to="#">Điều khoản dịch vụ</Link> và{" "}
         <Link to="#">Chính sách bảo mật</Link> của chúng tôi.
       </div>

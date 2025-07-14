@@ -1,21 +1,27 @@
-import TimelineIcon, { type TimelineIconType } from "@/components/atoms/customer/chat/timeline/TimelineIcon"
-import TimelineDate from "@/components/atoms/customer/chat/timeline/TimelineDate"
+import TimelineIcon, {
+  type TimelineIconType,
+} from "@/components/atoms/customer/chat/timeline/TimelineIcon";
+import TimelineDate from "@/components/atoms/customer/chat/timeline/TimelineDate";
 
 export interface TimelineItemData {
-  id: string
-  date: string
-  title: string
-  description: string
-  type: TimelineIconType
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  type: TimelineIconType;
 }
 
 interface TimelineItemProps {
-  item: TimelineItemData
-  isLast?: boolean
-  className?: string
+  item: TimelineItemData;
+  isLast?: boolean;
+  className?: string;
 }
 
-export default function TimelineItem({ item, isLast = false, className = "" }: TimelineItemProps) {
+export default function TimelineItem({
+  item,
+  isLast = false,
+  className = "",
+}: TimelineItemProps) {
   return (
     <div className={`relative flex gap-4 ${className}`}>
       {/* Date */}
@@ -26,7 +32,7 @@ export default function TimelineItem({ item, isLast = false, className = "" }: T
       {/* Icon and Line */}
       <div className="flex flex-col items-center">
         <TimelineIcon type={item.type} />
-        {!isLast && <div className="w-px h-full bg-gray-700 mt-2" />}
+        {!isLast && <div className="w-px h-10 bg-gray-700 mt-2" />}
       </div>
 
       {/* Content */}
@@ -35,5 +41,5 @@ export default function TimelineItem({ item, isLast = false, className = "" }: T
         <p className="text-sm leading-relaxed">{item.description}</p>
       </div>
     </div>
-  )
+  );
 }
