@@ -47,17 +47,20 @@ const OrderService = () => {
     [callApi]
   );
 
-  const getOrderActivity = useCallback(async () => {
-    try {
-      const res = await callApi(
-        HTTP_METHOD.GET,
-        `${API_ROUTES.GET_ORDER_ACTIVITY}`
-      );
-      return res;
-    } catch (err: any) {
-      console.error(err?.response?.data);
-    }
-  }, [callApi]);
+  const getOrderActivity = useCallback(
+    async (orderID: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_ORDER_ACTIVITY}?orderID=${orderID}`
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
 
   const createDepositPhase = useCallback(
     async (data: any) => {
@@ -104,7 +107,7 @@ const OrderService = () => {
     },
     [callApi]
   );
-  
+
   return {
     getOrders,
     getOrderDetail,

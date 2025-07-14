@@ -62,8 +62,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 w-full max-w-3xl mx-auto"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormFieldController
             control={form.control}
             name="fullName"
@@ -90,7 +93,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
             )}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormFieldController
             control={form.control}
             name="password"
@@ -117,8 +120,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
             )}
           />
         </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormFieldController
             control={form.control}
             name="email"
@@ -132,9 +134,8 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
               />
             )}
           />
-
-          <div className="w-full flex gap-4">
-            <div>
+          <div className="flex flex-row w-full gap-4">
+            <div className="w-full">
               <FormFieldController
                 control={form.control}
                 name="gender"
@@ -149,7 +150,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 )}
               />
             </div>
-            <div>
+            <div className="w-full">
               <FormFieldController
                 control={form.control}
                 name="role"
@@ -164,16 +165,17 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 )}
               />
             </div>
-            <div>
-              <Button className="mt-5.5" type="submit" disabled={isLoading}>
-                {isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
-              </Button>
-            </div>
           </div>
+        </div>
+        {/* Nút tạo tài khoản full width, tách hàng riêng */}
+        <div>
+          <Button className="w-full mt-2" type="submit" disabled={isLoading}>
+            {isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
+          </Button>
         </div>
       </form>
 
-      <div className="mt-6 text-center text-sm">
+      <div className="mt-0 text-center text-sm">
         <p className="text-gray-600">
           Bạn đã có tài khoản?{" "}
           <Link

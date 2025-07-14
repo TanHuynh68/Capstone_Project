@@ -1,20 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { OrderDetail, EvaluationCriteria, ProgressStepResponse } from "@/types/orderManagement"
-import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema"
-import LeftPanel from "@/components/organisms/customer/order-detail/LeftPanel"
-import RightTopPanel from "@/components/organisms/customer/order-detail/RightTopPanel"
-import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel"
+import { useState } from "react";
+import type {
+  OrderDetail,
+  EvaluationCriteria,
+  ProgressStepResponse,
+} from "@/types/orderManagement";
+import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
+import LeftPanel from "@/components/organisms/customer/order-detail/LeftPanel";
+import RightTopPanel from "@/components/organisms/customer/order-detail/RightTopPanel";
+import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel";
+import ActivityLogDialog from "@/components/molecules/customer/order-detail/ActivityLogDialog";
+import type { TimelineItemData } from "@/components/molecules/timeline/TimelineItem";
+import OrderService from "@/services/OrderService";
+import { ACTIVITY_TYPE_VI } from "@/constants/order";
 
 interface OrderManagementTemplateProps {
-  orderDetail: OrderDetail
-  onFetchProgressSteps: any
-  progressStep: ProgressStepResponse[]
-  handleCreateReview: any
-  onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>
-  onSelectPhases?: (phaseIds: string[]) => Promise<void>
-  getProgressReviewDetail: any
+  orderDetail: OrderDetail;
+  onFetchProgressSteps: any;
+  progressStep: ProgressStepResponse[];
+  handleCreateReview: any;
+  onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>;
+  onSelectPhases?: (phaseIds: string[]) => Promise<void>;
+  getProgressReviewDetail: any;
 }
 
 export default function OrderManagementTemplate({
@@ -26,63 +34,133 @@ export default function OrderManagementTemplate({
   onSelectPhases,
   getProgressReviewDetail,
 }: OrderManagementTemplateProps) {
-  console.log("OrderManagementTemplate: ", progressStep)
-  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null)
-  const [isEvaluating, setIsEvaluating] = useState(false)
-  const [evaluatingStepId, setEvaluatingStepId] = useState<string | null>(null)
-  const [loadingSteps, setLoadingSteps] = useState(false)
+  console.log("OrderManagementTemplate: ", progressStep);
+  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluatingStepId, setEvaluatingStepId] = useState<string | null>(null);
+  const [loadingSteps, setLoadingSteps] = useState(false);
+  const [activityLogOpen, setActivityLogOpen] = useState(false);
+  const [activityLog, setActivityLog] = useState<TimelineItemData[]>([]);
+  const [activityLogLoading, setActivityLogLoading] = useState(false);
+  const orderService = OrderService();
 
   const fetchProgressReviewDetail = async (progressStepID: string) => {
-    const response = await getProgressReviewDetail(progressStepID)
+    const response = await getProgressReviewDetail(progressStepID);
     if (response && response.responseRequestModel) {
-      return response.responseRequestModel
+      return response.responseRequestModel;
     }
-  }
+  };
 
   const handlePhaseSelect = async (phaseId: string) => {
-    setSelectedPhaseId(phaseId)
-    setLoadingSteps(true)
+    setSelectedPhaseId(phaseId);
+    setLoadingSteps(true);
     // call back fetch progress step
-    await onFetchProgressSteps(phaseId)
-    setLoadingSteps(false)
-  }
+    await onFetchProgressSteps(phaseId);
+    setLoadingSteps(false);
+  };
 
   const handleViewPhases = () => {
-    console.log("View phases clicked")
+    console.log("View phases clicked");
     // Implement view phases logic
-  }
+  };
 
   const handleViewDelivery = () => {
-    console.log("View delivery clicked")
+    console.log("View delivery clicked");
     // Implement view delivery logic
-  }
+  };
 
-  const handleViewActivityLog = () => {
-    console.log("View activity log clicked")
-    // Implement view activity log logic
-  }
+  // Map activityType to TimelineIconType
+  const mapActivityTypeToIcon = (
+    activityType: string
+  ): TimelineItemData["type"] => {
+    switch (activityType) {
+      case "Deposit":
+        return "completed"; // icon check (đặt cọc thành công)
+      case "Withdraw":
+        return "cancelled"; // icon warning đỏ (rút tiền/hủy)
+      case "CreateOrder":
+        return "calendar"; // icon lịch (tạo đơn)
+      case "UpdateOrder":
+        return "progress"; // icon răng cưa (cập nhật)
+      case "CancelOrder":
+        return "cancelled"; // icon warning đỏ (hủy đơn)
+      case "General":
+        return "calendar";
+      case "Warning":
+        return "warning"; // icon đồng hồ vàng
+      default:
+        return "calendar";
+    }
+  };
 
-  const handleEvaluationSubmit = async (stepId: string, criteria: EvaluationCriteria) => {
+  const handleViewActivityLog = async () => {
+    setActivityLogLoading(true);
+    setActivityLogOpen(true);
+    try {
+      // Fetch activity log for this order
+      // Pass orderID as query param if needed
+      const res = await orderService.getOrderActivity(
+        orderDetail.order.orderID
+      );
+      const responseList = res?.responseRequestModel?.responseList || [];
+      // Map to TimelineItemData
+      const timelineItems: TimelineItemData[] = responseList.map(
+        (item: {
+          orderActivityLogID: string;
+          createdAt: string;
+          activityType: string;
+          activity: string;
+        }) => ({
+          id: item.orderActivityLogID,
+          date: item.createdAt,
+          title:
+            ACTIVITY_TYPE_VI[
+              item.activityType as keyof typeof ACTIVITY_TYPE_VI
+            ] ?? item.activityType,
+          description: item.activity,
+          type: mapActivityTypeToIcon(item.activityType),
+        })
+      );
+      setActivityLog(timelineItems);
+    } catch {
+      setActivityLog([]);
+    } finally {
+      setActivityLogLoading(false);
+    }
+  };
+
+  const handleEvaluationSubmit = async (
+    stepId: string,
+    criteria: EvaluationCriteria
+  ) => {
     await handleCreateReview({
       progressStepID: stepId,
       ...criteria,
       // rating star 1->5 => 2->10
       qualityScore: criteria.qualityScore * 2,
-    })
-  }
+    });
+  };
 
   const handleStartEvaluation = (stepId: string) => {
-    setEvaluatingStepId(stepId)
-    setIsEvaluating(true)
-  }
+    setEvaluatingStepId(stepId);
+    setIsEvaluating(true);
+  };
 
   const handleFinishEvaluation = () => {
-    setIsEvaluating(false)
-    setEvaluatingStepId(null)
-  }
+    setIsEvaluating(false);
+    setEvaluatingStepId(null);
+  };
 
   return (
     <div className="bg-gray-50 p-4">
+      <ActivityLogDialog
+        open={activityLogOpen}
+        onOpenChange={setActivityLogOpen}
+        loading={activityLogLoading}
+        items={activityLog}
+        onClose={() => setActivityLogOpen(false)}
+      />
+      {/* Main content */}
       <div className="h-full max-w-7xl mx-auto">
         <div className="grid grid-cols-2 gap-6 h-full">
           {/* Left Panel - 50% width */}
@@ -96,7 +174,11 @@ export default function OrderManagementTemplate({
           </div>
 
           {/* Right Panel - 50% width, conditional layout */}
-          <div className={`${isEvaluating ? "flex flex-col" : "flex flex-col gap-6"}`}>
+          <div
+            className={`${
+              isEvaluating ? "flex flex-col" : "flex flex-col gap-6"
+            }`}
+          >
             {/* Top Right Panel - Giai đoạn thực hiện (ẩn khi đánh giá) */}
             <div
               className={`bg-white rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform ${
@@ -109,7 +191,7 @@ export default function OrderManagementTemplate({
                 <RightTopPanel
                   phases={orderDetail.offerPhases}
                   selectedPhaseId={selectedPhaseId}
-                  orderID={orderDetail?.order?.orderID|| ""}
+                  orderID={orderDetail?.order?.orderID || ""}
                   onPhaseSelect={handlePhaseSelect}
                   onCreateProgressStep={onCreateProgressStep}
                   onSelectPhases={onSelectPhases}
@@ -141,5 +223,5 @@ export default function OrderManagementTemplate({
         </div>
       </div>
     </div>
-  )
+  );
 }
