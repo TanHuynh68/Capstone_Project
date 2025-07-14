@@ -68,14 +68,14 @@ export default function WithdrawMoney() {
         </p>
       </div>
 
-      <div className="flex gap-3 mt-4">
+      <div className="flex gap-2 mt-4">
         {quickAmounts.map((amount) => (
           <Button
             key={amount}
             variant="outline"
             type="button"
             onClick={() => form.setValue("amount", amount.toString())}
-            className="px-4 flex-1 py-2 cursor-pointer h-[60px] text-sm"
+            className="px-4 flex-none py-4 cursor-pointer h-[60px] text-sm"
           >
             {amount.toLocaleString("vi-VN")}
           </Button>
