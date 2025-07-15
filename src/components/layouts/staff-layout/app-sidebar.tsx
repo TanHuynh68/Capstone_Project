@@ -58,6 +58,11 @@ const data = {
       icon: UsersIcon,
     },
     {
+      title: "Quản lý tố cáo",
+      url: `${PATH.STAFF_MANAGE_REPORT}`,
+      icon: Wallet,
+    },
+    {
       title: "Lịch sử giao dịch ví",
       url: `${PATH.STAFF_MANAGER_WALLET_TRANSACTION}`,
       icon: Wallet,

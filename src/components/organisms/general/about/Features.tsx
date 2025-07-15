@@ -55,7 +55,7 @@ export default function Features() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <Heading level={2} className="text-foreground">
-            Tại sao chọn DollCraft
+            Tại sao chọn Plush Doll Custom
           </Heading>
           <Paragraph
             size="lg"

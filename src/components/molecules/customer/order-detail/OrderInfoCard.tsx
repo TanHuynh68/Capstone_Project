@@ -64,7 +64,7 @@ export default function OrderInfoCard({
                 Giao hàng
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onViewActivityLog}>
-                Activity log
+                Lịch sử đơn hàng
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -118,7 +118,6 @@ export default function OrderInfoCard({
             {formatDate(order.deadlineAt)}
           </span>
         </div>
-
       </CardContent>
     </Card>
   );
