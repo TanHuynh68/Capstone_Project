@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Package, PackagePlus } from "lucide-react";
 import { ShippingForm } from "./shipping-form";
-import { Order } from "@/types/order";
 
 interface ShippingFormDialogProps {
   orderID?: string;

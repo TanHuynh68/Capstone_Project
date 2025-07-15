@@ -7,7 +7,6 @@ import DeliveryService from "@/services/DeliveryService";
 import { validateShippingForm, validateField } from "@/schemas/shippingSchema";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { Order } from "@/types/order";
 import { ReceiverInfoAutofill } from "@/components/molecules/delivery/receiver-info-autofill";
 
 interface ShippingFormProps {

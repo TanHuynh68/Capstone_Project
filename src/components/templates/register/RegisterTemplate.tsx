@@ -7,10 +7,7 @@ import { toast } from "sonner";
 import { PATH } from "@/routes/path";
 import { MESSAGE } from "@/constants";
 import useAuthService from "@/services/AuthService";
-import { Card, CardContent } from "@/components/ui/card";
 import bgImage from "@/assets/login-bg.jpg";
-import RegisterVideo from "@/components/atoms/auth/register/RegisterVideo";
-import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 export default function RegisterTemplate() {
   const { register } = useAuthService();
