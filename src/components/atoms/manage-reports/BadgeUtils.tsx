@@ -20,29 +20,24 @@ export const getReportStatusBadge = (status: string) => {
 };
 
 export const getReportTypeBadge = (type: string) => {
-  const typeNumber = Number.parseInt(type);
-  switch (typeNumber) {
-    case 0:
-      return <Badge variant="outline">Người dùng</Badge>;
-    case 1:
-      return <Badge variant="outline">Bài đăng</Badge>;
-    case 2:
-      return <Badge variant="outline">Bình luận</Badge>;
-    case 3:
-      return <Badge variant="outline">Nhóm</Badge>;
-    case 4:
-      return <Badge variant="outline">Sự kiện</Badge>;
-    case 5:
-      return <Badge variant="outline">Trang</Badge>;
-    case 6:
-      return <Badge variant="outline">Story</Badge>;
-    case 7:
-      return <Badge variant="outline">Tin nhắn</Badge>;
-    case 8:
-      return <Badge variant="outline">Bài đăng nhóm</Badge>;
-    case 9:
-      return <Badge variant="outline">Khác</Badge>;
+  switch (type) {
+    case "GeneralReport":
+      return <Badge variant="default">Chung</Badge>;
+    case "AccountReport":
+      return <Badge variant="default">Người dùng</Badge>;
+    case "PostReport":
+      return <Badge variant="secondary">Bài đăng</Badge>;
+    case "OrderReport":
+      return <Badge variant="outline">Đơn hàng</Badge>;
+    case "ShippingReport":
+      return <Badge variant="default">Vận chuyển</Badge>;
+    case "OrderWalletReport":
+      return <Badge variant="secondary">Giao dịch ví</Badge>;
+    case "PaymentReport":
+      return <Badge variant="outline">Thanh toán</Badge>;
+    case "CommunityFeedback":
+      return <Badge variant="default">Góp ý cộng đồng</Badge>;
     default:
-      return <Badge variant="outline">{type}</Badge>;
+      return <Badge variant="outline">Không xác định</Badge>;
   }
-};
+};;
