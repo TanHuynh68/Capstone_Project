@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { SenderInfo } from "../../molecules/delivery/sender-info";
-import { ReceiverInfo } from "../../molecules/delivery/receiver-info";
+// import { ReceiverInfo } from "../../molecules/delivery/receiver-info";
 import { ProductInfo } from "../../molecules/delivery/product-info";
 import { PricingSidebar } from "../../molecules/delivery/pricing-sidebar";
 import DeliveryService from "@/services/DeliveryService";
 import { validateShippingForm, validateField } from "@/schemas/shippingSchema";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { Order } from "@/types/order";
+import { ReceiverInfoAutofill } from "@/components/molecules/delivery/receiver-info-autofill";
 
 interface ShippingFormProps {
   onSuccess?: () => void;
   orderID?: string;
+  order?: Order;
   onOrderCreated?: () => void;
 }
 
 export function ShippingForm({
   onSuccess,
   orderID,
+  order,
   onOrderCreated,
 }: ShippingFormProps) {
   const [sender, setSender] = useState<Record<string, unknown>>({});
@@ -28,6 +34,14 @@ export function ShippingForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { createDelivery } = DeliveryService();
+  const currentUserId = useSelector((state: RootState) => state.user.id);
+  let receiverAccountId = undefined;
+  if (order) {
+    if (order.customerID !== currentUserId)
+      receiverAccountId = order.customerID;
+    else if (order.designerID !== currentUserId)
+      receiverAccountId = order.designerID;
+  }
 
   // Validate dữ liệu form using Zod schema
   const validate = () => {
@@ -162,7 +176,16 @@ export function ShippingForm({
           <div className="border-t-4 border-primary rounded-lg">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
               <SenderInfo onChange={handleSenderChange} errors={errors} />
-              <ReceiverInfo onChange={handleReceiverChange} errors={errors} />
+              {/* <ReceiverInfo
+                onChange={handleReceiverChange}
+                errors={errors}
+                accountId={receiverAccountId}
+              /> */}
+              <ReceiverInfoAutofill
+                onChange={handleReceiverChange}
+                errors={errors}
+                accountId={receiverAccountId}
+              />
             </div>
           </div>
           <ProductInfo

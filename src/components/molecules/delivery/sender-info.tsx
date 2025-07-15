@@ -1,4 +1,3 @@
-import { Input } from "../../atoms/delivery/input";
 import { useCallback, useEffect, useState } from "react";
 import CustomerService from "@/services/CustomerService";
 import useAuthService from "@/services/AuthService";
@@ -207,62 +206,36 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
 
   return (
     <div className="p-6 rounded-lg border border-border">
-      <h3 className="text-lg font-semibold mb-4 text-foreground">Bên gửi</h3>
+      <h3 className="text-lg font-semibold mb-4 text-foreground">Người gửi</h3>
 
       <div className="space-y-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            {isLoading ? (
-              <>
-                <div className="text-sm font-medium mb-2 text-foreground">
-                  Họ tên
-                </div>
-                <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
-              </>
-            ) : (
-              <>
-                <Input
-                  label="Họ tên"
-                  placeholder="Nhập họ tên"
-                  defaultValue={profile?.fullName as string}
-                  required
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, fromName: e.target.value }))
-                  }
-                />
-                {errors?.fromName && (
-                  <div className="text-destructive text-sm mt-1">
-                    {errors.fromName}
-                  </div>
-                )}
-              </>
+            <div className="text-sm font-medium mb-2 text-foreground">
+              Họ tên
+            </div>
+            <span className="block h-10 px-3 py-2 bg-muted rounded-md flex items-center text-foreground text-sm">
+              {typeof profile?.fullName === "string" ? profile.fullName : ""}
+            </span>
+            {errors?.fromName && (
+              <div className="text-destructive text-sm mt-1">
+                {errors.fromName}
+              </div>
             )}
           </div>
           <div>
-            {isLoading ? (
-              <>
-                <div className="text-sm font-medium mb-2 text-foreground">
-                  Số điện thoại
-                </div>
-                <div className="h-10 w-full bg-muted animate-pulse rounded-md"></div>
-              </>
-            ) : (
-              <>
-                <Input
-                  label="Số điện thoại"
-                  placeholder="Nhập số điện thoại"
-                  defaultValue={profile?.phoneNumber as string}
-                  required
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, fromPhone: e.target.value }))
-                  }
-                />
-                {errors?.fromPhone && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {errors.fromPhone}
-                  </div>
-                )}
-              </>
+            <div className="text-sm font-medium mb-2 text-foreground">
+              Số điện thoại
+            </div>
+            <span className="block h-10 px-3 py-2 bg-muted rounded-md flex items-center text-foreground text-sm">
+              {typeof profile?.phoneNumber === "string"
+                ? profile.phoneNumber
+                : ""}
+            </span>
+            {errors?.fromPhone && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.fromPhone}
+              </div>
             )}
           </div>
         </div>

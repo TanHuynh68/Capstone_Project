@@ -149,6 +149,7 @@ export default function OrderCard({
           </Link>
           <ShippingFormDialog
             orderID={order?.orderID}
+            order={order}
             onOrderCreated={onOrderCreated}
           />
         </div>
