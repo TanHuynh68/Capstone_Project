@@ -133,6 +133,8 @@ export function ShippingForm({
     console.log("product", product);
     console.log("pickShift", pickShift);
     console.log("shippingFee", shippingFee);
+
+    console.log("errors", errors);
     if (!validate()) return;
 
     setIsLoading(true);

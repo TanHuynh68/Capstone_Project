@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getDistricts, getWards } from "@/services/ghnApi";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home, MapPin, Phone } from "lucide-react";
+import { Home, MapPin } from "lucide-react";
 
 const HCM_PROVINCE_ID = 202;
 const VALID_HCM_DISTRICTS = new Set([

@@ -210,9 +210,7 @@ export function ReceiverInfoAutofill({
                 : ""}
             </span>
             {errors?.toPhone && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.toPhone}
-              </div>
+              <div className="text-red-500 text-sm mt-1">{errors.toPhone}</div>
             )}
           </div>
         </div>
