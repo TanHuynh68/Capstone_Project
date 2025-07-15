@@ -23,6 +23,7 @@ export const enum API_ENDPOINTS {
   PORTFOLIO = "portfolio",
   PROGRESS = "progress",
   DELIVERY = "delivery",
+  REPORT = "report",
 }
 
 export enum API_ROUTES {
@@ -153,4 +154,7 @@ export enum API_ROUTES {
   GET_DELIVERY_BY_ORDER_CODE = `${API_ENDPOINTS.DELIVERY}/order-detail`,
   CREATE_DELIVERY = `${API_ENDPOINTS.DELIVERY}/create-order`,
   GET_DELIVERY_DETAIL = `${API_ENDPOINTS.DELIVERY}/delivery-detail`,
+  // Staff Manage Report
+  GET_REPORT = `/staff/${API_ENDPOINTS.REPORT}`,
+  UPDATE_REPORT = `/staff/${API_ENDPOINTS.REPORT}`,
 }
