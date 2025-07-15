@@ -12,12 +12,14 @@ import { ShippingForm } from "./shipping-form";
 
 interface ShippingFormDialogProps {
   orderID?: string;
+  order?: Order;
   onSuccess?: () => void;
   onOrderCreated?: () => void;
 }
 
 export function ShippingFormDialog({
   orderID,
+  order,
   onSuccess,
   onOrderCreated,
 }: ShippingFormDialogProps) {
@@ -25,11 +27,15 @@ export function ShippingFormDialog({
   const [currentOrderID, setCurrentOrderID] = useState<string | undefined>(
     undefined
   );
+  const [currentOrder, setCurrentOrder] = useState<Order | undefined>(
+    undefined
+  );
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen) {
       setCurrentOrderID(orderID);
+      setCurrentOrder(order);
     }
   };
 
@@ -62,6 +68,7 @@ export function ShippingFormDialog({
         <div>
           <ShippingForm
             orderID={currentOrderID}
+            order={currentOrder}
             onSuccess={handleSuccess}
             onOrderCreated={handleOrderCreated}
           />

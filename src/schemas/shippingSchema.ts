@@ -51,7 +51,7 @@ export const receiverSchema = z.object({
         .trim()
         .min(1, { message: "Vui lòng nhập SĐT người nhận" })
         .regex(phoneRegex, { message: "SĐT người nhận phải đúng định dạng (0xxxxxxxxx)" }),
-    toAddressDetail: z.string().trim().min(1, { message: "Vui lòng nhập địa chỉ người nhận" }),
+    // toAddressDetail: z.string().trim().min(1, { message: "Vui lòng nhập địa chỉ người nhận" }),
     toDistrictName: z.string().trim().min(1, { message: "Vui lòng chọn quận/huyện người nhận" }),
     toWardName: z.string().trim().min(1, { message: "Vui lòng chọn phường/xã người nhận" }),
     toProvinceName: z.string().trim().min(1, { message: "Vui lòng chọn tỉnh/thành người nhận" }),
@@ -190,7 +190,7 @@ export const validateField = (fieldName: string, value: unknown): ValidationResu
         toName: z.string().trim().min(1, { message: "Vui lòng nhập họ tên người nhận" }),
         toPhone: z.string().trim().min(1, { message: "Vui lòng nhập SĐT người nhận" })
             .regex(phoneRegex, { message: "SĐT người nhận phải đúng định dạng (0xxxxxxxxx)" }),
-        toAddressDetail: z.string().trim().min(1, { message: "Vui lòng nhập địa chỉ người nhận" }),
+        // toAddressDetail: z.string().trim().min(1, { message: "Vui lòng nhập địa chỉ người nhận" }),
         toDistrictName: z.string().trim().min(1, { message: "Vui lòng chọn quận/huyện người nhận" }),
         toWardName: z.string().trim().min(1, { message: "Vui lòng chọn phường/xã người nhận" }),
         toProvinceName: z.string().trim().min(1, { message: "Vui lòng chọn tỉnh/thành người nhận" }),
@@ -259,7 +259,7 @@ export const validateSender = (data: Record<string, unknown>): ValidationResult 
 export const validateReceiver = (data: Record<string, unknown>): ValidationResult => {
     // Only validate fields that have values
     const fieldsToValidate: Record<string, unknown> = {};
-    const receiverFields = ['toName', 'toPhone', 'toAddressDetail', 'toDistrictName', 'toWardName', 'toProvinceName'];
+    const receiverFields = ['toName', 'toPhone', 'toDistrictName', 'toWardName', 'toProvinceName'];
 
     receiverFields.forEach(field => {
         if (data[field] && String(data[field]).trim() !== '') {

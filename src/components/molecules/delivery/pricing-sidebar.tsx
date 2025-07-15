@@ -45,6 +45,9 @@ export function PricingSidebar({
   const [wardMap, setWardMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    console.log(sender, "sender");
+    console.log(receiver, "receiver");
+    console.log(product, "product");
     // Get shop ID and create mapping on component mount
     const fetchShopIdAndMapping = async () => {
       try {
@@ -113,6 +116,11 @@ export function PricingSidebar({
   useEffect(() => {
     const calculateFeeAutomatically = async () => {
       // Check if all required data is available and valid
+      console.log(shopId, "shopId");
+      console.log(fromDistrictName, "fromDistrictName");
+      console.log(fromWardName, "fromWardName");
+      console.log(toDistrictName, "toDistrictName");
+      console.log(toWardName, "toWardName");
       if (
         shopId &&
         fromDistrictName &&
@@ -127,6 +135,12 @@ export function PricingSidebar({
         const isHeightValid = isValidNumber(height, 1, 150);
 
         // Only calculate if all dimensions are valid
+
+        console.log(isWeightValid, "isWeightValid");
+        console.log(isLengthValid, "isLengthValid");
+        console.log(isWidthValid, "isWidthValid");
+        console.log(isHeightValid, "isHeightValid");
+
         if (
           !isWeightValid ||
           !isLengthValid ||
@@ -192,6 +206,8 @@ export function PricingSidebar({
             return;
           }
 
+          console.log("1231212312");
+
           // Calculate fee
           const feeData = {
             from_district_id: fromDistrictId,
@@ -241,6 +257,7 @@ export function PricingSidebar({
         }
       } else {
         // Reset fee if data is incomplete
+        console.log("data is incomplete");
         setCalculatedFee(null);
       }
     };
