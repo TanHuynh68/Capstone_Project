@@ -1,14 +1,11 @@
 import axios from "axios";
 import { toast } from "sonner";
 import ENV from "./env";
-import { logout } from "@/redux/userSlice";
-import { store } from "@/redux/store";
 
 const axiosInstance = axios.create({
   baseURL: ENV.BASE_URL,
 });
 
-let isTokenExpired = false;
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -39,16 +36,18 @@ axiosInstance.interceptors.response.use(
       }
 
       if (isAuthError && !isLoginRequest && token) {
-        if (!isTokenExpired) {
-          isTokenExpired = true;
-          toast.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!');
-          setTimeout(() => {
-            localStorage.clear();
-            store.dispatch(logout());
-            window.location.href = '/';
-            isTokenExpired = false;
-          }, 1300);
-        }
+        console.log('isAuthError: ', isAuthError)
+        console.log('isLoginRequest: ', isLoginRequest)
+        // if (!isTokenExpired) {
+        //   isTokenExpired = true;
+        //   toast.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!');
+        //   setTimeout(() => {
+        //     localStorage.clear();
+        //     store.dispatch(logout());
+        //     window.location.href = '/';
+        //     isTokenExpired = false;
+        //   }, 1300);
+        // }
       }
     }
 
