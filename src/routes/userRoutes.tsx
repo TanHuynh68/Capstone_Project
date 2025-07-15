@@ -13,6 +13,7 @@ import {
   CustomerManagePost,
   OrderHistoryPage,
   OrderDetailPage,
+  CustomerManageReportsPage,
 } from "../pages";
 import PayOsPaymentResult from "@/pages/customer/manage-wallet/payos-payment-result";
 import QRLoginPage from "@/pages/auth/login-qr";
@@ -96,6 +97,10 @@ export const userRoutes = [
       {
         path: USER_ROUTES.ORDER_DETAIL_PAGE,
         element: <OrderDetailPage />,
+      },
+      {
+        path: USER_ROUTES.CUSTOMER_MANAGE_REPORTS,
+        element: <CustomerManageReportsPage />,
       },
     ],
   },

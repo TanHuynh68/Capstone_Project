@@ -6,7 +6,7 @@ import ManagerWalletOrderByStaff from "@/pages/staff/manager-wallet-order/get-wa
 import { ProtectedRouteByRole } from "./protect";
 import { ROLE } from "@/constants";
 import GetWalletTransaction from "@/pages/staff/manager-wallet-order/get-wallet-transaction/get-wallet-transaction";
-import ManagerReportsByStaff from "@/pages/staff/manage-reports";
+import { StaffManageReportsPage } from "@/pages";
 
 export const staffRoutes = [
   {
@@ -40,9 +40,8 @@ export const staffRoutes = [
         element: <GetWalletTransaction />,
       },
       {
-        path:
-          STAFF_ROUTES.STAFF_MANAGE_REPORT,
-        element: <ManagerReportsByStaff />,
+        path: STAFF_ROUTES.STAFF_MANAGE_REPORT,
+        element: <StaffManageReportsPage />,
       },
     ],
   },

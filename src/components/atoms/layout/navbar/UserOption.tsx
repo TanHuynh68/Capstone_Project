@@ -10,8 +10,9 @@ import {
   Newspaper,
   ShoppingBag,
   Truck,
+  Flag
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   DropdownMenu,
@@ -70,7 +71,6 @@ const UserOption = () => {
         >
           <Wallet className={iconClass} />
           <span>Ví của tôi</span>
-
         </DropdownMenuItem>
 
         {user.role === ROLE.CUSTOMER && (
@@ -108,7 +108,13 @@ const UserOption = () => {
           <Truck className={iconClass} />
           <span>Giao hàng</span>
         </DropdownMenuItem>
-
+        <DropdownMenuItem
+          onClick={() => navigate(USER_ROUTES.CUSTOMER_MANAGE_REPORTS)}
+          className={menuItemClass}
+        >
+          <Flag className={iconClass} />
+          <span>Tố cáo</span>
+        </DropdownMenuItem>
         <div className="my-1 border-t border-border" />
 
         <DropdownMenuItem

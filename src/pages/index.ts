@@ -24,3 +24,5 @@ export { default as CustomerManagePost } from "./customer/manage-post";
 export { default as PostDetailPage } from "./general/post/post-detail";
 export { default as OrderHistoryPage } from "./customer/order";
 export { default as OrderDetailPage } from "./customer/order-detail";
+export { default as StaffManageReportsPage } from "./staff/manage-reports";
+export { default as CustomerManageReportsPage } from "./customer/manage-reports";

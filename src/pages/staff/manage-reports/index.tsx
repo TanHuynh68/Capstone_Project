@@ -1,10 +1,10 @@
-import type React from "react";
+
 import ReportsTable from "@/components/organisms/manage-reports/ReportsTable";
 import ProcessReportDialog from "@/components/molecules/manage-reports/ProcessReportDialog";
 import ReportsFilterBar from "@/components/molecules/manage-reports/ReportsFilterBar";
 import { useReportsLogic } from "@/hooks/useReportsLogic";
 
-const ManagerReportsByStaff: React.FC = () => {
+const ManagerReportsByStaff = () => {
   const {
     reports,
     loading,

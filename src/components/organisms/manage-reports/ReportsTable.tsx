@@ -1,13 +1,5 @@
-"use client";
 
 import type React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DataTable,
   type Column,
@@ -18,8 +10,7 @@ import {
 } from "@/components/atoms/manage-reports/BadgeUtils";
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { PAGE_SIZE } from "@/constants/reports.constants";
-import { getStatusNumber, highlightMatch } from "@/utils/reports.utils";
-
+import { highlightMatch } from "@/utils/reports.utils";
 interface ReportsTableProps {
   reports: Report[];
   loading: boolean;
@@ -118,22 +109,6 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
           >
             Giải quyết
           </button>
-          <Select
-            value={getStatusNumber(row.reportStatus).toString()}
-            onValueChange={(value) =>
-              actions.onUpdateStatus(row.reportID, Number(value))
-            }
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Đang chờ</SelectItem>
-              <SelectItem value="1">Đang xử lý</SelectItem>
-              <SelectItem value="2">Duyệt</SelectItem>
-              <SelectItem value="3">Từ chối</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       ),
     },
