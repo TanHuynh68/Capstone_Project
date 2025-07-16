@@ -32,7 +32,7 @@ export default function TimelineItem({
       {/* Icon and Line */}
       <div className="flex flex-col items-center">
         <TimelineIcon type={item.type} />
-        {!isLast && <div className="w-px h-10 bg-gray-700 mt-2" />}
+        {!isLast && <div className="w-px h-20 bg-gray-700 mt-0" />}
       </div>
 
       {/* Content */}

@@ -21,6 +21,7 @@ import {
 import DeliveryService from "@/services/DeliveryService";
 import { formatVietnamDateHours } from "@/utils/date";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
+import UploadDeliveryImageDialog from "./UploadDeliveryImageDialog";
 
 interface DeliveryImage {
   deliveryImageID: string;
@@ -66,7 +67,8 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
   const [deliveryDetail, setDeliveryDetail] =
     useState<DeliveryDetailData | null>(null);
   const [loading, setLoading] = useState(false);
-  const { getDeliveryDetail } = DeliveryService();
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const { getDeliveryDetail, uploadDeliveryImage } = DeliveryService();
 
   const fetchDeliveryDetail = async () => {
     if (!deliveryID) return;
@@ -98,6 +100,18 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
       imageType: image.uploadType as "Original" | "Requested",
       createdBy: image.uploadType,
     }));
+  };
+
+  // Thêm hàm xử lý upload ảnh
+  const handleUploadDeliveryImage = async (file: File, description: string) => {
+    if (!deliveryDetail) return;
+    const formData = new FormData();
+    formData.append("deliveryID", deliveryDetail.deliveryID);
+    formData.append("image", file);
+    formData.append("description", description);
+    await uploadDeliveryImage(formData);
+    setShowUploadDialog(false);
+    fetchDeliveryDetail(); // reload lại chi tiết đơn hàng
   };
 
   return (
@@ -316,7 +330,24 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
             Không tìm thấy thông tin chi tiết đơn giao hàng
           </div>
         )}
+        {/* Cuối cùng của DialogContent, sau phần hiển thị chi tiết */}
+        {deliveryDetail && deliveryDetail.deliveryStatus === "Delivered" && (
+          <div className="flex justify-center mt-2">
+            <button
+              className="w-full px-6 py-3 rounded-xl bg-primary text-white dark:text-foreground font-bold text-base transition hover:bg-primary/90"
+              onClick={() => setShowUploadDialog(true)}
+            >
+              Tải ảnh minh chứng
+            </button>
+          </div>
+        )}
       </DialogContent>
+      {/* Dialog upload ảnh giao hàng */}
+      <UploadDeliveryImageDialog
+        open={showUploadDialog}
+        onClose={() => setShowUploadDialog(false)}
+        onSubmit={handleUploadDeliveryImage}
+      />
     </Dialog>
   );
 };

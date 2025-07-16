@@ -8,9 +8,18 @@ interface StatusBadgeProps {
 }
 
 const statusConfig = {
-  // PascalCase mappings
   ReadyToPick: {
     label: "Sẵn sàng lấy hàng",
+    variant: "secondary" as const,
+    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+  },
+  Picking: {
+    label: "Đang lấy hàng",
+    variant: "secondary" as const,
+    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+  },
+  MoneyCollectPicking: {
+    label: "Đang thu tiền khi lấy hàng",
     variant: "secondary" as const,
     className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
   },
@@ -19,8 +28,28 @@ const statusConfig = {
     variant: "secondary" as const,
     className: "bg-blue-100 text-blue-800 hover:bg-blue-200",
   },
+  Storing: {
+    label: "Đang lưu kho",
+    variant: "secondary" as const,
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  },
+  Transporting: {
+    label: "Đang vận chuyển",
+    variant: "default" as const,
+    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
+  },
+  Sorting: {
+    label: "Đang phân loại",
+    variant: "secondary" as const,
+    className: "bg-purple-100 text-purple-800 hover:bg-purple-200",
+  },
   Delivering: {
     label: "Đang giao hàng",
+    variant: "default" as const,
+    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
+  },
+  MoneyCollectDelivering: {
+    label: "Đang thu tiền khi giao hàng",
     variant: "default" as const,
     className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
   },
@@ -29,82 +58,75 @@ const statusConfig = {
     variant: "default" as const,
     className: "bg-green-100 text-green-800 hover:bg-green-200",
   },
-  Cancelled: {
-    label: "Đã hủy",
+  DeliveryFail: {
+    label: "Giao hàng thất bại",
     variant: "destructive" as const,
     className: "bg-red-100 text-red-800 hover:bg-red-200",
   },
-  // Lowercase mappings
-  readytopick: {
-    label: "Sẵn sàng lấy hàng",
+  WaitingToReturn: {
+    label: "Chờ trả hàng",
     variant: "secondary" as const,
-    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
   },
-  picked: {
-    label: "Đã lấy hàng",
+  Returning: {
+    label: "Đang trả hàng",
     variant: "secondary" as const,
-    className: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
   },
-  delivering: {
-    label: "Đang giao hàng",
-    variant: "default" as const,
-    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  },
-  delivered: {
-    label: "Đã giao hàng",
-    variant: "default" as const,
-    className: "bg-green-100 text-green-800 hover:bg-green-200",
-  },
-  cancelled: {
-    label: "Đã hủy",
-    variant: "destructive" as const,
-    className: "bg-red-100 text-red-800 hover:bg-red-200",
-  },
-  // Additional variations that might come from API
-  "ready-to-pick": {
-    label: "Sẵn sàng lấy hàng",
-    variant: "secondary" as const,
-    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  },
-  ready_to_pick: {
-    label: "Sẵn sàng lấy hàng",
-    variant: "secondary" as const,
-    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  },
-  "in-transit": {
-    label: "Đang giao hàng",
-    variant: "default" as const,
-    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  },
-  in_transit: {
-    label: "Đang giao hàng",
-    variant: "default" as const,
-    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  },
-  "out-for-delivery": {
-    label: "Đang giao hàng",
-    variant: "default" as const,
-    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  },
-  out_for_delivery: {
-    label: "Đang giao hàng",
-    variant: "default" as const,
-    className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  },
-  completed: {
-    label: "Đã giao hàng",
-    variant: "default" as const,
-    className: "bg-green-100 text-green-800 hover:bg-green-200",
-  },
-  failed: {
-    label: "Đã hủy",
-    variant: "destructive" as const,
-    className: "bg-red-100 text-red-800 hover:bg-red-200",
-  },
-  returned: {
+  Returned: {
     label: "Đã trả hàng",
     variant: "destructive" as const,
     className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Cancel: {
+    label: "Đã hủy",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Exception: {
+    label: "Ngoại lệ",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Damaged: {
+    label: "Hư hỏng",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Lost: {
+    label: "Thất lạc",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Destroy: {
+    label: "Đã tiêu hủy",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  ReturnTransporting: {
+    label: "Đang vận chuyển trả hàng",
+    variant: "secondary" as const,
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  },
+  ReturnSorting: {
+    label: "Đang phân loại trả hàng",
+    variant: "secondary" as const,
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  },
+  ReturnStoring: {
+    label: "Đang lưu kho trả hàng",
+    variant: "secondary" as const,
+    className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  },
+  OutForDeliveryFail: {
+    label: "Giao hàng thu tiền thất bại",
+    variant: "destructive" as const,
+    className: "bg-red-100 text-red-800 hover:bg-red-200",
+  },
+  Other: {
+    label: "Trạng thái khác",
+    variant: "outline" as const,
+    className: "",
   },
 };
 

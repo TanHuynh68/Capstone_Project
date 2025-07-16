@@ -1,21 +1,14 @@
-import {
-  Calendar,
-  Settings,
-  Check,
-  Clock,
-  AlertCircle,
-  User,
-} from "lucide-react";
+import { Settings, Check, Info, Banknote, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type TimelineIconType =
-  | "pending"
+  | "info"
+  | "banknote"
+  | "ship"
   | "progress"
-  | "completed"
-  | "cancelled"
-  | "warning"
-  | "user"
+  | "check"
   | "calendar";
+  
 
 interface TimelineIconProps {
   type: TimelineIconType;
@@ -25,50 +18,44 @@ interface TimelineIconProps {
 export default function TimelineIcon({ type, className }: TimelineIconProps) {
   const getIcon = () => {
     switch (type) {
-      case "pending":
-        return <Calendar className="h-4 w-4" />;
+      case "info":
+        return <Info className="h-4 w-4" />;
+      case "banknote":
+        return <Banknote className="h-4 w-4" />;
+      case "ship":
+        return <Truck className="h-4 w-4" />;
       case "progress":
         return <Settings className="h-4 w-4" />;
-      case "completed":
+      case "check":
         return <Check className="h-4 w-4" />;
-      case "cancelled":
-        return <AlertCircle className="h-4 w-4" />;
-      case "warning":
-        return <Clock className="h-4 w-4" />;
-      case "user":
-        return <User className="h-4 w-4" />;
-      case "calendar":
-        return <Calendar className="h-4 w-4" />;
       default:
-        return <Calendar className="h-4 w-4" />;
+        return <Info className="h-4 w-4" />;
     }
   };
 
   const getBackgroundColor = () => {
     switch (type) {
-      case "pending":
-        return "bg-gray-600";
+      case "info":
+        return "bg-blue-600";
+      case "banknote":
+        return "bg-blue-600";
+      case "ship":
+        return "bg-blue-600";
       case "progress":
         return "bg-blue-600";
-      case "completed":
-        return "bg-green-600";
-      case "cancelled":
-        return "bg-red-600";
-      case "warning":
-        return "bg-yellow-600";
-      case "user":
-        return "bg-purple-600";
+      case "check":
+        return "bg-blue-600";
       case "calendar":
-        return "bg-indigo-600";
+        return "bg-blue-600";
       default:
-        return "bg-gray-600";
+        return "bg-blue-600";
     }
   };
 
   return (
     <div
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-full text-white",
+        "flex h-8 w-8 items-center justify-center rounded-full text-white",
         getBackgroundColor(),
         className
       )}
