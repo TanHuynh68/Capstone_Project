@@ -224,9 +224,6 @@ export default function RightBottomPanel({
                         title={`Bước ${index + 1}`}
                       />
                     ))}
-                    <span className="ml-2 text-sm text-gray-500">
-                      Bước {currentStepIndex + 1}/{progressSteps.length}
-                    </span>
                   </div>
 
                   {/* Current Step Content */}

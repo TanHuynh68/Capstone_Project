@@ -22,7 +22,7 @@ export const useReportsLogic = () => {
 
   const { getReportsByStaff, processReport } = ReportService()
 
-  // Lấy danh sách báo cáo
+  // Lấy danh sách tố cáo
   const fetchReports = useCallback(
     async (params?: { showToast?: boolean }) => {
       setLoading(true)
@@ -43,11 +43,11 @@ export const useReportsLogic = () => {
         setTotalPages(total)
 
         if (params?.showToast) {
-          toast.success("Lấy danh sách báo cáo thành công")
+          toast.success("Lấy danh sách tố cáo thành công")
         }
       } catch (error) {
         console.error("Fetch reports error:", error)
-        toast.error("Lấy danh sách báo cáo thất bại")
+        toast.error("Lấy danh sách tố cáo thất bại")
       } finally {
         setLoading(false)
       }
@@ -55,13 +55,13 @@ export const useReportsLogic = () => {
     [getReportsByStaff, filters],
   )
 
-  // Xử lý báo cáo
+  // Xử lý tố cáo
   const handleProcessReport = useCallback((report: Report) => {
     setSelectedReport(report)
     setIsProcessDialogOpen(true)
   }, [])
 
-  // Cập nhật trạng thái báo cáo
+  // Cập nhật trạng thái tố cáo
   const handleUpdateReportStatus = useCallback(
     async (
       // reportID: string,
@@ -70,29 +70,29 @@ export const useReportsLogic = () => {
       try {
         // TODO: Implement API call
         // await updateReportStatus(reportID, newStatus);
-        toast.success("Cập nhật trạng thái báo cáo thành công")
+        toast.success("Cập nhật trạng thái tố cáo thành công")
         fetchReports()
       } catch (error) {
         console.error("Update status error:", error)
-        toast.error("Cập nhật trạng thái báo cáo thất bại")
+        toast.error("Cập nhật trạng thái tố cáo thất bại")
       }
     },
     [fetchReports],
   )
 
-  // Xử lý submit báo cáo
+  // Xử lý submit tố cáo
   const handleProcessSubmit = useCallback(
     async (data: ProcessReportData) => {
       try {
         await processReport(data)
-        toast.success("Xử lý báo cáo thành công")
+        toast.success("Xử lý tố cáo thành công")
         setIsProcessDialogOpen(false)
         setSelectedReport(null)
         fetchReports()
         return true
       } catch (error) {
         console.error("Process report error:", error)
-        toast.error("Xử lý báo cáo thất bại")
+        toast.error("Xử lý tố cáo thất bại")
         return false
       }
     },
@@ -120,7 +120,7 @@ export const useReportsLogic = () => {
     setSelectedReport(null)
   }, [])
 
-  // Lọc báo cáo theo từ khóa tìm kiếm (client-side filtering)
+  // Lọc tố cáo theo từ khóa tìm kiếm (client-side filtering)
   const filteredReports = useMemo(() => {
     return filterReportsBySearch(reports, filters.searchTerm)
   }, [reports, filters.searchTerm])

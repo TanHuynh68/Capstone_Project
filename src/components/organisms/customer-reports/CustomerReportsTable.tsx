@@ -54,7 +54,7 @@ const CustomerReportsTable: React.FC<CustomerReportsTableProps> = ({
       ),
     },
     {
-      header: "Loại báo cáo",
+      header: "Loại tố cáo",
       accessorKey: "reportType",
       className: "text-center",
       cell: (row) => getCustomerReportTypeBadge(row.reportType),
@@ -106,7 +106,7 @@ const CustomerReportsTable: React.FC<CustomerReportsTableProps> = ({
       columns={columns}
       data={reports}
       loading={loading}
-      emptyMessage="Bạn chưa có báo cáo nào."
+      emptyMessage="Bạn chưa có tố cáo nào."
       pagination={{
         currentPage,
         totalPages,
