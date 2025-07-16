@@ -30,7 +30,7 @@ export function ShippingFormDialog({
   const [currentOrder, setCurrentOrder] = useState<Order | undefined>(
     undefined
   );
-
+  
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen) {
@@ -55,7 +55,7 @@ export function ShippingFormDialog({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full">
           <PackagePlus className="h-4 w-4 mr-2" />
-          Tạo đơn hàng
+          Giao hàng
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[98vw] w-[98vw] min-w-[1400px] max-h-[95vh] overflow-y-auto">
