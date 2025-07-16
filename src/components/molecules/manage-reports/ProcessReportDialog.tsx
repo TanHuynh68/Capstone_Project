@@ -114,9 +114,9 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <FileText className="h-6 w-6 text-blue-600" />
-            Giải quyết báo cáo
+            Giải quyết tố cáo
           </DialogTitle>
-          <p className="text-gray-600 text-sm">Xử lý và đưa ra quyết định cho báo cáo này</p>
+          <p className="text-gray-600 text-sm">Xử lý và đưa ra quyết định cho tố cáo này</p>
         </DialogHeader>
 
         <div className="space-y-6 py-6">
@@ -125,17 +125,13 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                Thông tin báo cáo
+                Thông tin tố cáo
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">ID Báo cáo</Label>
-                  <p className="text-sm font-mono bg-gray-100 p-2 rounded mt-1">{report.reportID}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">Người báo cáo</Label>
+                  <Label className="text-sm font-semibold text-gray-700">Người tố cáo</Label>
                   <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.reporter}</p>
                 </div>
                 <div>
@@ -143,7 +139,7 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
                   <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.title}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">Loại báo cáo</Label>
+                  <Label className="text-sm font-semibold text-gray-700">Loại tố cáo</Label>
                   <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.reportType}</p>
                 </div>
                 <div>
@@ -180,7 +176,7 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
                       <XCircle className="h-5 w-5 text-red-500" />
                     )}
                     <Label htmlFor="accept-switch" className="text-sm font-medium">
-                      {formData.accept ? "Chấp nhận báo cáo" : "Từ chối báo cáo"}
+                      {formData.accept ? "Chấp nhận tố cáo" : "Từ chối tố cáo"}
                     </Label>
                   </div>
                   <Switch
@@ -208,8 +204,8 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
                   onChange={(e) => handleInputChange("processNote", e.target.value)}
                   placeholder={
                     formData.accept
-                      ? "Nhập lý do chấp nhận báo cáo và các hành động đã thực hiện..."
-                      : "Nhập lý do từ chối báo cáo..."
+                      ? "Nhập lý do chấp nhận tố cáo và các hành động đã thực hiện..."
+                      : "Nhập lý do từ chối tố cáo..."
                   }
                   rows={4}
                   className={`resize-none ${
@@ -253,12 +249,12 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
               ) : formData.accept ? (
                 <>
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Chấp nhận báo cáo
+                  Chấp nhận tố cáo
                 </>
               ) : (
                 <>
                   <XCircle className="h-4 w-4 mr-2" />
-                  Từ chối báo cáo
+                  Từ chối tố cáo
                 </>
               )}
             </Button>

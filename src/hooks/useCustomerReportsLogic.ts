@@ -23,7 +23,7 @@ export const useCustomerReportsLogic = () => {
 
   const { getCustomerReports, getReportDetail, deleteReport } = CustomerReportService()
 
-  // Lấy danh sách báo cáo
+  // Lấy danh sách tố cáo
   const fetchReports = useCallback(
     async (params?: { showToast?: boolean }) => {
       setLoading(true)
@@ -43,11 +43,11 @@ export const useCustomerReportsLogic = () => {
         setTotalPages(total)
 
         if (params?.showToast) {
-          toast.success("Lấy danh sách báo cáo thành công")
+          toast.success("Lấy danh sách tố cáo thành công")
         }
       } catch (error) {
         console.error("Fetch reports error:", error)
-        toast.error("Lấy danh sách báo cáo thất bại")
+        toast.error("Lấy danh sách tố cáo thất bại")
       } finally {
         setLoading(false)
       }
@@ -55,7 +55,7 @@ export const useCustomerReportsLogic = () => {
     [getCustomerReports, filters],
   )
 
-  // Lấy chi tiết báo cáo
+  // Lấy chi tiết tố cáo
   const fetchReportDetail = useCallback(
     async (reportID: string) => {
       setDetailLoading(true)
@@ -64,7 +64,7 @@ export const useCustomerReportsLogic = () => {
         setReportDetail(detail?.responseRequestModel)
       } catch (error) {
         console.error("Fetch report detail error:", error)
-        toast.error("Lấy chi tiết báo cáo thất bại")
+        toast.error("Lấy chi tiết tố cáo thất bại")
       } finally {
         setDetailLoading(false)
       }
@@ -72,7 +72,7 @@ export const useCustomerReportsLogic = () => {
     [getReportDetail],
   )
 
-  // Xem chi tiết báo cáo
+  // Xem chi tiết tố cáo
   const handleViewDetail = useCallback(
     (report: CustomerReport) => {
       setSelectedReport(report)
@@ -82,25 +82,25 @@ export const useCustomerReportsLogic = () => {
     [fetchReportDetail],
   )
 
-  // Xóa báo cáo
+  // Xóa tố cáo
   const handleDeleteReport = useCallback((report: CustomerReport) => {
     setSelectedReport(report)
     setIsDeleteDialogOpen(true)
   }, [])
 
-  // Xác nhận xóa báo cáo
+  // Xác nhận xóa tố cáo
   const handleConfirmDelete = useCallback(async () => {
     if (!selectedReport) return
 
     try {
       await deleteReport(selectedReport.reportID)
-      toast.success("Xóa báo cáo thành công")
+      toast.success("Xóa tố cáo thành công")
       setIsDeleteDialogOpen(false)
       setSelectedReport(null)
       fetchReports()
     } catch (error) {
       console.error("Delete report error:", error)
-      toast.error("Xóa báo cáo thất bại")
+      toast.error("Xóa tố cáo thất bại")
       throw error
     }
   }, [selectedReport, deleteReport, fetchReports])

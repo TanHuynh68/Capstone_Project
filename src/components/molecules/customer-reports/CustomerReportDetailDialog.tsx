@@ -1,12 +1,10 @@
 "use client"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { FileText, User, Calendar, MessageSquare, CheckCircle, XCircle, Clock } from "lucide-react"
 import {
   getCustomerReportStatusBadge,
-  getCustomerReportTypeBadge,
 } from "@/components/atoms/customer-reports/CustomerReportBadges"
 import { formatFullDateWithDistance2 } from "@/utils"
 
@@ -33,7 +31,7 @@ export default function CustomerReportDetailDialog({
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <FileText className="h-6 w-6 text-blue-600" />
-            Chi tiết báo cáo
+            Chi tiết tố cáo
           </DialogTitle>
         </DialogHeader>
 
@@ -43,7 +41,7 @@ export default function CustomerReportDetailDialog({
             <span className="ml-2">Đang tải...</span>
           </div>
         ) : reportDetail ? (
-          <div className="space-y-6 py-6">
+          <div className="space-y-6 py-2">
             {/* Basic Information */}
             <Card className="shadow-sm border-gray-200">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
@@ -54,18 +52,22 @@ export default function CustomerReportDetailDialog({
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-700">ID Báo cáo</Label>
-                    <p className="text-sm font-mono bg-gray-100 p-2 rounded mt-1">{reportDetail.reportID}</p>
-                  </div>
+
                   <div>
                     <Label className="text-sm font-semibold text-gray-700">Tiêu đề</Label>
                     <p className="text-sm bg-gray-100 p-2 rounded mt-1">{reportDetail.title}</p>
                   </div>
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-700">Loại báo cáo</Label>
-                    <div className="mt-1">{getCustomerReportTypeBadge(reportDetail.reportType)}</div>
+                                    <div>
+                    <Label className="text-sm font-semibold text-gray-700">Ngày tạo</Label>
+                    <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      {formatFullDateWithDistance2(reportDetail?.createdAt)}
+                    </p>
                   </div>
+                  {/* <div>
+                    <Label className="text-sm font-semibold text-gray-700">Loại tố cáo</Label>
+                    <div className="mt-1">{getCustomerReportTypeBadge(reportDetail.reportType)}</div>
+                  </div> */}
                   <div>
                     <Label className="text-sm font-semibold text-gray-700">Trạng thái</Label>
                     <div className="mt-1">{getCustomerReportStatusBadge(reportDetail.reportStatus)}</div>
@@ -76,13 +78,7 @@ export default function CustomerReportDetailDialog({
                       <p className="text-sm bg-gray-100 p-2 rounded mt-1 font-mono">{reportDetail.targetID}</p>
                     </div>
                   )}
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-700">Ngày tạo</Label>
-                    <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      {formatFullDateWithDistance2(reportDetail?.createdAt)}
-                    </p>
-                  </div>
+
                 </div>
               </CardContent>
             </Card>
@@ -92,7 +88,7 @@ export default function CustomerReportDetailDialog({
               <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-green-600" />
-                  Nội dung báo cáo
+                  Nội dung tố cáo
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -107,12 +103,12 @@ export default function CustomerReportDetailDialog({
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <User className="h-5 w-5 text-purple-600" />
-                  Thông tin người báo cáo
+                  Thông tin người tố cáo
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">Người báo cáo</Label>
+                  <Label className="text-sm font-semibold text-gray-700">Người tố cáo</Label>
                   <p className="text-sm bg-gray-100 p-2 rounded mt-1">{reportDetail.reporter}</p>
                 </div>
               </CardContent>
@@ -164,13 +160,6 @@ export default function CustomerReportDetailDialog({
             )}
           </div>
         ) : null}
-
-        {/* Action Buttons */}
-        <div className="flex justify-end pt-6 border-t">
-          <Button variant="outline" onClick={onClose} className="px-6 bg-transparent">
-            Đóng
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   )

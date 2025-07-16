@@ -30,7 +30,7 @@ export default function CustomerDeleteReportDialog({
   onConfirm,
   report,
   status = "idle",
-  errorMessage = "Đã xảy ra lỗi khi xóa báo cáo. Vui lòng thử lại sau.",
+  errorMessage = "Đã xảy ra lỗi khi xóa tố cáo. Vui lòng thử lại sau.",
   className,
 }: CustomerDeleteReportDialogProps) {
   const [internalStatus, setInternalStatus] = useState<DeleteStatus>(status)
@@ -89,7 +89,7 @@ export default function CustomerDeleteReportDialog({
           )}
 
           <DialogTitle className="text-center text-lg">
-            {internalStatus === "idle" && "Xác nhận xóa báo cáo"}
+            {internalStatus === "idle" && "Xác nhận xóa tố cáo"}
             {internalStatus === "loading" && "Đang xóa..."}
             {internalStatus === "success" && "Xóa thành công!"}
             {internalStatus === "error" && "Xóa thất bại"}
@@ -98,14 +98,14 @@ export default function CustomerDeleteReportDialog({
           <DialogDescription className="text-center">
             {internalStatus === "idle" && (
               <>
-                Bạn có chắc chắn muốn xóa báo cáo này không? Hành động này không thể hoàn tác.
+                Bạn có chắc chắn muốn xóa tố cáo này không? Hành động này không thể hoàn tác.
                 <div className="mt-2 font-medium text-gray-900">
                   <div className="text-sm text-gray-600">Tiêu đề:</div>
                   <span className="text-red-500">{report.title}</span>
                 </div>
               </>
             )}
-            {internalStatus === "loading" && "Đang xóa báo cáo..."}
+            {internalStatus === "loading" && "Đang xóa tố cáo..."}
             {internalStatus === "success" && "Báo cáo đã được xóa thành công."}
             {internalStatus === "error" && errorMessage}
           </DialogDescription>

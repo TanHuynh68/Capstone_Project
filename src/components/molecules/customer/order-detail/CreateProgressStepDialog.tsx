@@ -194,7 +194,6 @@ export default function CreateProgressStepDialog({
       // Success - close dialog and reset form
       handleClose();
       resetForm();
-      toast.success("Tạo bước tiến độ thành công!");
     } catch (error) {
       console.error("Error creating progress step:", error);
       toast.error("Có lỗi xảy ra khi tạo bước tiến độ", {
@@ -255,10 +254,10 @@ export default function CreateProgressStepDialog({
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <ImageIcon className="h-6 w-6 text-blue-600" />
-            Tạo bước tiến độ mới
+            Tạo tiến độ mới
           </DialogTitle>
           <p className="text-gray-600 text-sm">
-            Thêm bước tiến độ cho giai đoạn thực hiện
+            Thêm tiến độ cho giai đoạn thực hiện
           </p>
         </DialogHeader>
 
@@ -545,7 +544,7 @@ export default function CreateProgressStepDialog({
                   Đang tạo...
                 </>
               ) : (
-                "Tạo bước tiến độ"
+                "Tạo tiến độ"
               )}
             </Button>
           </div>
