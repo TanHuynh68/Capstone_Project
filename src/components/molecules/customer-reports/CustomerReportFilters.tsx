@@ -15,7 +15,7 @@ const CustomerReportFiltersComponent: React.FC<CustomerReportFiltersProps> = ({ 
       <div className="flex flex-col sm:flex-row gap-2 items-center">
         <Select value={filters.reportType} onValueChange={(val) => onFilterChange({ reportType: val })}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Chọn loại báo cáo" />
+            <SelectValue placeholder="Chọn loại tố cáo" />
           </SelectTrigger>
           <SelectContent>
             {CUSTOMER_REPORT_TYPES.map((type) => (

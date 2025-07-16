@@ -59,7 +59,7 @@ const ReportsFilterBar: React.FC<ReportsFilterBarProps> = ({
           onValueChange={(val) => onFilterChange({ reportType: val })}
         >
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Chọn loại báo cáo" />
+            <SelectValue placeholder="Chọn loại tố cáo" />
           </SelectTrigger>
           <SelectContent>
             {REPORT_TYPES.map((type) => (

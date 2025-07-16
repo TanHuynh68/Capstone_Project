@@ -75,7 +75,7 @@ export default function OfferPhaseItem({
                 size="icon"
                 onClick={handleCreateClick}
                 className="h-8 w-8"
-                title="Tạo bước tiến độ"
+                title="Tạo tiến độ"
               >
                 <Plus className="h-4 w-4" />
               </Button>

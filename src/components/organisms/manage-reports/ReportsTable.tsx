@@ -51,7 +51,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       ),
     },
     {
-      header: "Người báo cáo",
+      header: "Người tố cáo",
       accessorKey: "reporter",
       sortable: true,
       className: "text-center",
@@ -69,7 +69,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       ),
     },
     {
-      header: "Loại báo cáo",
+      header: "Loại tố cáo",
       accessorKey: "reportType",
       className: "text-center",
       cell: (row) => getReportTypeBadge(row.reportType),
@@ -119,7 +119,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       columns={columns}
       data={reports}
       loading={loading}
-      emptyMessage="Không có báo cáo nào."
+      emptyMessage="Không có tố cáo nào."
       pagination={{
         currentPage,
         totalPages,

@@ -1,5 +1,5 @@
 export const CUSTOMER_REPORT_TYPES = [
-  { value: "all", label: "Tất cả loại báo cáo" },
+  { value: "all", label: "Tất cả loại tố cáo" },
   { value: "0", label: "Báo cáo chung" },
   { value: "1", label: "Báo cáo người dùng" },
   { value: "2", label: "Báo cáo bài đăng" },
