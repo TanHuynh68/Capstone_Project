@@ -43,6 +43,7 @@ export default function OrderManagementPage() {
         offerPhaseIDs: phaseIds,
       });
       if (response) {
+        toast.success(MESSAGE.DEPOSIT_SUCCESSFULLY);
         fetchOrderDetail();
       }
     }

@@ -6,10 +6,10 @@ import SelectPhasesDialog from "@/components/molecules/customer/order-detail/Sel
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import { Button } from "@/components/ui/button";
 import { CheckSquare } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
-
+import './RightTop.css'
 interface RightTopPanelProps {
   phases: OfferPhase[];
   selectedPhaseId: string | null;
@@ -30,6 +30,28 @@ export default function RightTopPanel({
   const [isSelectPhasesDialogOpen, setIsSelectPhasesDialogOpen] =
     useState(false);
   const currentUser = useCurrentUser();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const handlePhaseSelect = (phaseId: string) => {
+    onPhaseSelect(phaseId);
+
+    const container = containerRef.current;
+    const selectedItem = itemRefs.current[phaseId];
+
+    if (container && selectedItem) {
+      const containerRect = container.getBoundingClientRect();
+      const itemRect = selectedItem.getBoundingClientRect();
+
+      const offset = itemRect.top - containerRect.top;
+      const scrollAmount =
+        offset - container.clientHeight / 2 + itemRect.height / 2;
+
+      container.scrollTop += scrollAmount;
+    }
+  };
+
   const handleSelectPhases = async (phaseIds: string[]) => {
     if (onSelectPhases) {
       await onSelectPhases(phaseIds);
@@ -43,7 +65,6 @@ export default function RightTopPanel({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Giai đoạn thực hiện</h3>
           <div className="flex items-center gap-2">
-            {/* customer deposit cash for phases that customer selected */}
             {currentUser?.role === ROLE.CUSTOMER && (
               <Button
                 variant="outline"
@@ -61,25 +82,33 @@ export default function RightTopPanel({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-auto space-y-3 pr-2 scroll-smooth"
+        >
           {phases.map((phase) => (
-            <OfferPhaseItem
+            <div
               key={phase.offerPhaseID}
-              phase={phase}
-              isSelected={selectedPhaseId === phase.offerPhaseID}
-              orderID={orderID}
-              onClick={() => onPhaseSelect(phase.offerPhaseID)}
-              onCreateProgressStep={onCreateProgressStep}
-            />
+              ref={(el: any) => (itemRefs.current[phase.offerPhaseID] = el)}
+            >
+              <OfferPhaseItem
+                phase={phase}
+                isSelected={selectedPhaseId === phase.offerPhaseID}
+                orderID={orderID}
+                onClick={() => handlePhaseSelect(phase.offerPhaseID)}
+                onCreateProgressStep={onCreateProgressStep}
+              />
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Select Phases Dialog */}
       <SelectPhasesDialog
         isOpen={isSelectPhasesDialogOpen}
         onClose={() => setIsSelectPhasesDialogOpen(false)}
-        phases={phases.filter(item => item.offerPhaseStatus === 'NotStarted')}
+        phases={phases.filter(
+          (item) => item.offerPhaseStatus === "Dealed"
+        )}
         onSubmit={handleSelectPhases}
       />
     </>
