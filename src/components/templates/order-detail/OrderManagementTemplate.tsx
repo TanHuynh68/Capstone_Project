@@ -23,6 +23,7 @@ interface OrderManagementTemplateProps {
   onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>;
   onSelectPhases?: (phaseIds: string[]) => Promise<void>;
   getProgressReviewDetail: any;
+  onDesignerWithdraw: (phaseIds: string[]) => Promise<void>;
 }
 
 export default function OrderManagementTemplate({
@@ -33,6 +34,7 @@ export default function OrderManagementTemplate({
   onCreateProgressStep,
   onSelectPhases,
   getProgressReviewDetail,
+  onDesignerWithdraw
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -151,6 +153,7 @@ export default function OrderManagementTemplate({
     setEvaluatingStepId(null);
   };
 
+
   return (
     <div className="bg-gray-50 p-4 overflow-y-auto">
       <ActivityLogDialog
@@ -189,6 +192,7 @@ export default function OrderManagementTemplate({
             >
               {!isEvaluating && (
                 <RightTopPanel
+                  onWithdrawDeposit={onDesignerWithdraw}
                   phases={orderDetail.offerPhases}
                   selectedPhaseId={selectedPhaseId}
                   orderID={orderDetail?.order?.orderID || ""}

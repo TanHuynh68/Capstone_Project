@@ -85,4 +85,5 @@ export const MESSAGE = {
   CREATE_PROGRESS_STEP:"Tạo tiến độ thành công!",
   //CUSTOMER DEPOSIT FOR OFFERPHASE IN ORDER DETAIL
   DEPOSIT_SUCCESSFULLY: "Đặt cọc thành công!",
+  WITHDRAW_SUCCESSFULLY: "Đặt cọc thành công!",
 };
