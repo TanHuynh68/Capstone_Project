@@ -93,12 +93,12 @@ const OrderService = () => {
     [callApi]
   );
   const createWithdrawPhase = useCallback(
-    async (data: any) => {
+    async (id: any) => {
       try {
         const res = await callApi(
           HTTP_METHOD.POST,
           `${API_ROUTES.CREATE_WITHDRAW_PHASE}`,
-          data
+          {offerPhaseID: id}
         );
         return res;
       } catch (err: any) {

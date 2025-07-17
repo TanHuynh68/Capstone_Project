@@ -61,25 +61,27 @@ export default function OfferPhaseItem({
       >
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-2">
-            <div className="flex gap-2 flex-1">
-              <h4 className="font-semibold text-sm">{phase.phase}</h4>
+            <div className="flex gap-2 flex-1 items-center">
+              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-blue-500 text-gray-800">
+                {phase.phase}
+              </span>
               <p className="text-sm text-gray-600">{phase.phaseName}</p>
             </div>
             <div className="flex items-center gap-2">
               {/* display phase status */}
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
               {/* create new progress step button by designer */}
-              {
-               currentUser?.role === ROLE.DESIGNER && <Button
-                variant="outline"
-                size="icon"
-                onClick={handleCreateClick}
-                className="h-8 w-8"
-                title="Tạo tiến độ"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-              }
+              {currentUser?.role === ROLE.DESIGNER && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCreateClick}
+                  className="h-8 w-8"
+                  title="Tạo tiến độ"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
 
