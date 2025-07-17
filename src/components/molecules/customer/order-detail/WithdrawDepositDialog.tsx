@@ -169,7 +169,7 @@ export default function WithdrawDepositDialog({
             <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
               <Wallet className="h-5 w-5 text-white" />
               Rút tiền cọc
-            </DialogTitle>
+            </DialogTitle> 
             <p className="text-sm text-white mt-1">
               Chọn các giai đoạn để rút tiền cọc đã đặt
             </p>

@@ -170,7 +170,7 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
 
   if (isLoading) {
     return (
-      <div className="p-6 rounded-lg border border-border">
+      <div className="p-6 rounded-lg border border-border border-t-4 border-t-primary">
         <h3 className="text-lg font-semibold mb-4 text-foreground">Bên gửi</h3>
 
         <div className="space-y-4 mb-4">
@@ -205,7 +205,7 @@ export function SenderInfo({ onChange, errors }: SenderInfoProps) {
   }
 
   return (
-    <div className="p-6 rounded-lg border border-border">
+    <div className="p-6 rounded-lg border border-border border-t-4 border-t-primary">
       <h3 className="text-lg font-semibold mb-4 text-foreground">Người gửi</h3>
 
       <div className="space-y-4 mb-4">

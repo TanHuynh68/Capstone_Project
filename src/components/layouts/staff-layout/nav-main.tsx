@@ -1,8 +1,8 @@
 "use client";
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { PlusCircleIcon, MailIcon, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { type LucideIcon } from "lucide-react";
+// import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -25,7 +25,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         {/* Quick Create Section */}
-        <SidebarMenu>
+        {/* <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
               tooltip="Quick Create"
@@ -45,7 +45,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
               <span className="sr-only">Inbox</span>
             </Button>
           </SidebarMenuItem>
-        </SidebarMenu>
+        </SidebarMenu> */}
 
         {/* Navigation Items */}
         <SidebarMenu>

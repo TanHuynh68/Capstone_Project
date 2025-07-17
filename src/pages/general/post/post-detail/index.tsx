@@ -1,41 +1,42 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import PostDetailTemplate from "@/components/templates/post-detail/PostDetailTemplate";
-import PostService from "@/services/PostService";
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import PostDetailTemplate from "@/components/templates/post-detail/PostDetailTemplate"
+import PostService from "@/services/PostService"
 
 export default function PostDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { getPostDetail } = PostService();
-  
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [post, setPost] = useState<Post | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { getPostDetail } = PostService()
+
   useEffect(() => {
-    getPost();
-  }, [id]);
+    getPost()
+  }, [id])
 
   const getPost = async () => {
     if (!id) {
-      setError("ID bài đăng không hợp lệ");
-      setLoading(false);
-      return;
+      setError("ID bài đăng không hợp lệ")
+      setLoading(false)
+      return
     }
-    setLoading(true);
-    const response = await getPostDetail(id);
+
+    setLoading(true)
+    const response = await getPostDetail(id)
     if (response) {
-      setPost(response.responseRequestModel);
+      setPost(response.responseRequestModel)
     } else {
-      setError("Không thể tải thông tin bài đăng");
+      setError("Không thể tải thông tin bài đăng")
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleBack = () => {
-    navigate(-1);
-  };
+    navigate(-1)
+  }
 
   if (loading) {
     return (
@@ -45,26 +46,21 @@ export default function PostDetailPage() {
           <p className="text-gray-600">Đang tải thông tin bài đăng...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !post) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">
-            {error || "Không tìm thấy bài đăng"}
-          </p>
-          <button
-            onClick={handleBack}
-            className="text-blue-600 hover:text-blue-700 underline"
-          >
+          <p className="text-red-600 mb-4">{error || "Không tìm thấy bài đăng"}</p>
+          <button onClick={handleBack} className="text-blue-600 hover:text-blue-700 underline">
             Quay lại
           </button>
         </div>
       </div>
-    );
+    )
   }
 
-  return <PostDetailTemplate post={post} onBack={handleBack} />;
+  return <PostDetailTemplate post={post} onBack={handleBack} />
 }

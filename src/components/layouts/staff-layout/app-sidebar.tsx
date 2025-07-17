@@ -2,25 +2,22 @@
 
 import type * as React from "react";
 import {
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
+  // BarChartIcon,
+  // CameraIcon,
+  // ClipboardListIcon,
+  // DatabaseIcon,
+  // FileCodeIcon,
+  // FileIcon,
+  // FileTextIcon,
+  // FolderIcon,
+  // HelpCircleIcon,
   LogOutIcon,
-  SearchIcon,
-  SettingsIcon,
-  UsersIcon,
-  Wallet,
+  // SearchIcon,
+  // SettingsIcon,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
+// import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import {
   Sidebar,
@@ -31,145 +28,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavDocuments } from "./nav-documents";
-import { useDispatch } from "react-redux";
+// import { NavDocuments } from "./nav-documents";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { logout } from "@/redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
-import { PATH } from "@/routes/path";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: `${PATH.STAFF_DASHBOARD}`,
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Quản lý người dùng",
-      url: `${PATH.STAFF_DASHBOARD_MANAGER_USERS}`,
-      icon: UsersIcon,
-    },
-    {
-      title: "Quản lý tố cáo",
-      url: `${PATH.STAFF_MANAGE_REPORT}`,
-      icon: Wallet,
-    },
-    {
-      title: "Lịch sử giao dịch ví",
-      url: `${PATH.STAFF_MANAGER_WALLET_TRANSACTION}`,
-      icon: Wallet,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: FolderIcon,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Đơn giao dịch",
-      url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
-};
+import { staffSidebarData } from "./sidebar-data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -196,12 +68,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={staffSidebarData.navMain} />
+        {/* <NavDocuments items={data.documents} /> */}
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user.name || "Chưa cập nhật",
+            email: user.role || "",
+            avatar: user.avatar || "/public/images/animation_favicon.gif",
+          }}
+        />
         <div className="border-t mt-2 pt-2">
           <SidebarMenu>
             <SidebarMenuItem>

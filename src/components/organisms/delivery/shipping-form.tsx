@@ -174,7 +174,7 @@ export function ShippingForm({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Form Content */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="border-t-4 border-primary rounded-lg">
+          <div className="">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-0">
               <SenderInfo onChange={handleSenderChange} errors={errors} />
               {/* <ReceiverInfo
@@ -220,10 +220,10 @@ export function ShippingForm({
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ĐANG TẠO ĐƠN HÀNG...
+                    ĐANG TẠO GIAO HÀNG...
                   </div>
                 ) : (
-                  "TẠO ĐƠN HÀNG"
+                  "TẠO GIAO HÀNG"
                 )}
               </button>
             </div>

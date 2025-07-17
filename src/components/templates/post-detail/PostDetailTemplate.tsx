@@ -1,10 +1,12 @@
+"use client";
+
 import PostDetailHeader from "@/components/organisms/post/post-detail/PostDetailHeader";
 import PostDetailContent from "@/components/organisms/post/post-detail/PostDetailContent";
 import PostDetailActions from "@/components/organisms/post/post-detail/PostDetailActions";
 import { OfferInAllPost } from "@/components/organisms/offer/offer-in-all-post";
 import { useOffersAll } from "@/hooks/use-offers-all";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import type { RootState } from "@/redux/store";
 import { Link } from "react-router-dom";
 import { useCallback } from "react";
 

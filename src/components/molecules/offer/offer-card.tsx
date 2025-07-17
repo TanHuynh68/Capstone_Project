@@ -176,6 +176,24 @@ export function OfferCard({
             </div>
           )}
 
+          {/* Add Rejected status */}
+          {offer.offerStatus === "Rejected" && (
+            <div className="relative group w-fit h-fit pl-2">
+              <div
+                className="w-3 h-3 bg-red-400 dark:bg-red-500 rounded-full transition-opacity duration-300 group-hover:opacity-0 animate-blink2"
+                title="Đã từ chối"
+              />
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-right">
+                <Badge
+                  variant="danger"
+                  className="text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-500/20 whitespace-nowrap"
+                >
+                  Đã từ chối
+                </Badge>
+              </div>
+            </div>
+          )}
+
           {isCreator && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -203,15 +221,15 @@ export function OfferCard({
                 </DropdownMenuItem>
 
                 {/* Xóa đề xuất */}
-                {
-                  offer?.offerStatus === 'Pending' && <DropdownMenuItem
-                  onSelect={handleDeleteOffer}
-                  className="flex items-center px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 transition-colors"
-                >
-                  <Trash2 className="mr-2 h-4 w-4 text-destructive dark:text-destructive" />
-                  <span>Xóa đề xuất 2</span>
-                </DropdownMenuItem>
-                }
+                {offer?.offerStatus === "Pending" && (
+                  <DropdownMenuItem
+                    onSelect={handleDeleteOffer}
+                    className="flex items-center px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 transition-colors"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4 text-destructive dark:text-destructive" />
+                    <span>Xóa đề xuất 2</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
