@@ -71,17 +71,20 @@ export default function OfferPhaseItem({
               {/* display phase status */}
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
               {/* create new progress step button by designer */}
-              {currentUser?.role === ROLE.DESIGNER && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleCreateClick}
-                  className="h-8 w-8"
-                  title="Tạo tiến độ"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              )}
+              {currentUser?.role === ROLE.DESIGNER &&
+                (phase.offerPhaseStatus === "Withdrawed" ||
+                  phase.offerPhaseStatus === "InProgress" ||
+                  phase.offerPhaseStatus === "Rework") && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCreateClick}
+                    className="h-8 w-8"
+                    title="Tạo tiến độ"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                )}
             </div>
           </div>
 

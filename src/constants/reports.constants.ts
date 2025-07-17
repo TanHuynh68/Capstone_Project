@@ -1,3 +1,4 @@
+// staff
 export const REPORT_TYPES = [
   { value: "all", label: "Tất cả loại tố cáo" },
   { value: "0", label: "Báo cáo chung" },

@@ -1,6 +1,6 @@
 export const CUSTOMER_REPORT_TYPES = [
   { value: "all", label: "Tất cả loại tố cáo" },
-  { value: "0", label: "Báo cáo chung" },
+  { value: "0", label: "Báo cáo chung" }, //
   { value: "1", label: "Báo cáo người dùng" },
   { value: "2", label: "Báo cáo bài đăng" },
   { value: "3", label: "Báo cáo đơn hàng" },
@@ -9,7 +9,6 @@ export const CUSTOMER_REPORT_TYPES = [
   { value: "6", label: "Báo cáo thanh toán" },
   { value: "7", label: "Góp ý cộng đồng" },
 ];
-
 
 export const CUSTOMER_REPORT_STATUSES = [
   { value: "all", label: "Tất cả trạng thái" },

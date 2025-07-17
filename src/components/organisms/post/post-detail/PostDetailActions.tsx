@@ -1,10 +1,12 @@
+"use client";
+
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, PlusCircle } from "lucide-react";
 import OfferService from "@/services/OfferService";
 import CreateOfferModal from "@/pages/designer/manage-offer-designer/CreateOfferModal";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import type { RootState } from "@/redux/store";
 import ChatService from "@/services/ChatService";
 import { PATH } from "@/routes/path";
 import { useNavigate } from "react-router-dom";
@@ -32,10 +34,10 @@ export default function PostDetailActions({
   const [showModal, setShowModal] = useState(false);
   const role = useSelector((state: RootState) => state.user.role);
   const currentUser = useCurrentUser();
+
   const handleSubmitOffer = useCallback(
     async (formData: FormData) => {
       // Đã bỏ kiểm tra giá khởi điểm phải lớn hơn giá trị sản phẩm
-
       formData.append("ProjectPostID", post.projectPostID);
       const result = await createOffer(formData);
       console.log("Offer created:", result);
@@ -59,7 +61,6 @@ export default function PostDetailActions({
           className={`bg-card text-card-foreground rounded-lg shadow-sm border border-border p-6 ${className}`}
         >
           <h2 className="text-xl font-semibold mb-4">Hành động</h2>
-
           <div
             className={`grid ${
               role?.trim().toLowerCase() === "designer" &&
@@ -79,7 +80,6 @@ export default function PostDetailActions({
                 Liên hệ ngay
               </Button>
             )}
-
             {role?.trim().toLowerCase() === "designer" &&
               !loading &&
               offers.length === 0 && (
@@ -93,7 +93,6 @@ export default function PostDetailActions({
                 </Button>
               )}
           </div>
-
           {/* Modal */}
           <CreateOfferModal
             open={showModal}
