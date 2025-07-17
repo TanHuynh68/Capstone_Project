@@ -62,7 +62,7 @@ export function ShippingFormDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Package className="h-5 w-5" />
-            Tạo đơn giao hàng
+            Tạo giao hàng
           </DialogTitle>
         </DialogHeader>
         <div>

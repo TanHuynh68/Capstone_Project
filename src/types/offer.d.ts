@@ -37,7 +37,7 @@ interface Offer {
   sampleImage: string;
   isAcceptedByCus: boolean;
   isAcceptedByDes: boolean;
-  offerStatus: "Pending" | "Dealing" | "Accepted";
+  offerStatus: "Pending" | "Dealing" | "Accepted" | "Rejected";
   createdAt: string;
   deadlineEndAt: string;
   // Additional properties for profile card

@@ -1,158 +1,22 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
+import { appSidebarData } from "./sidebar-data";
 import { SiteHeader } from "./site-header";
-import {
-  DatabaseIcon,
-  ClipboardListIcon,
-  FileIcon,
-  LayoutDashboardIcon,
-  GavelIcon,
-  ListIcon,
-  BarChartIcon,
-  FolderIcon,
-  UsersIcon,
-  CameraIcon,
-  FileTextIcon,
-  FileCodeIcon,
-  SettingsIcon,
-  HelpCircleIcon,
-  SearchIcon,
-} from "lucide-react";
-import { ADMIN_ROUTES } from "@/routes/path";
+// import { ADMIN_ROUTES } from "@/routes/path"; // Remove unused import
 
-// Copy lại mảng documents từ AppSidebar
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Quản lý luật lệ",
-      url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
-      icon: GavelIcon,
-    },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: FolderIcon,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
-};
+// Xóa biến data cục bộ, dùng appSidebarData thay thế
+// const data = { ... } // <-- XÓA
 
 export default function AdminLayout() {
   const location = useLocation();
 
   // Gộp tất cả các mảng lại
   const allNavItems = [
-    ...data.navMain,
-    ...data.navClouds,
-    ...data.navSecondary,
-    ...data.documents,
+    ...appSidebarData.navMain,
+    ...appSidebarData.navClouds,
+    ...appSidebarData.navSecondary,
+    ...appSidebarData.documents,
   ];
 
   // Tìm item khớp url

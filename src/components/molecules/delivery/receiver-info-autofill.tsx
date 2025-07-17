@@ -159,7 +159,7 @@ export function ReceiverInfoAutofill({
 
   if (isLoading) {
     return (
-      <div className="p-6 rounded-lg border border-border">
+      <div className="p-6 rounded-lg border border-border border-t-4 border-t-primary">
         <h3 className="text-lg font-semibold mb-4 text-foreground">Bên nhận</h3>
         <div className="space-y-4 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +182,7 @@ export function ReceiverInfoAutofill({
   }
 
   return (
-    <div className="p-6 rounded-lg border border-border">
+    <div className="p-6 rounded-lg border border-border border-t-4 border-t-primary">
       <h3 className="text-lg font-semibold mb-4 text-foreground">Người nhận</h3>
 
       <div className="space-y-4 mb-4">
