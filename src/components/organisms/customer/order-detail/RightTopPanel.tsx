@@ -92,7 +92,7 @@ export default function RightTopPanel({
                 variant="outline"
                 size="sm"
                 onClick={() => setIsWithdrawDialogOpen(true)}
-                className="flex items-center gap-2 text-green-600 border-green-200 hover:bg-green-50"
+                className="flex items-center gap-2 text-blue-600 border-green-200 hover:bg-green-50"
               >
                 <Wallet className="h-4 w-4" />
                 Rút tiền cọc

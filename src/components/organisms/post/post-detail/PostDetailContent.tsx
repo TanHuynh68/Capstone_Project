@@ -29,7 +29,6 @@ export default function PostDetailContent({
           <div className="bg-muted rounded-lg p-4">
             <PriceDisplay value={post.itemValue} label="Giá trị sản phẩm" />
           </div>
-
           <div className="bg-primary/10 text-priceHighlight-foreground rounded-lg p-4">
             <PriceDisplay value={post.suggestedPrice} label="Giá đề xuất" />
           </div>
@@ -55,5 +54,3 @@ export default function PostDetailContent({
     </div>
   );
 }
-
-
