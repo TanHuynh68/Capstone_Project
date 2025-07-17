@@ -72,22 +72,6 @@ export default function OrderCard({
           )}
         </div>
 
-        {/* Deposit Progress
-        {order?.requiredDepositAmount > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>Tiến độ đặt cọc</span>
-              <span>{Math.round(depositProgress)}%</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(depositProgress, 100)}%` }}
-              />
-            </div>
-          </div>
-        )} */}
-
         {/* Timeline */}
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div className="flex items-center gap-2">
@@ -149,6 +133,7 @@ export default function OrderCard({
           </Link>
           <ShippingFormDialog
             orderID={order?.orderID}
+            order={order}
             onOrderCreated={onOrderCreated}
           />
         </div>

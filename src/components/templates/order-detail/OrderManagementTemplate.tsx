@@ -23,6 +23,7 @@ interface OrderManagementTemplateProps {
   onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>;
   onSelectPhases?: (phaseIds: string[]) => Promise<void>;
   getProgressReviewDetail: any;
+  onDesignerWithdraw: (phaseIds: string[]) => Promise<void>;
 }
 
 export default function OrderManagementTemplate({
@@ -33,6 +34,7 @@ export default function OrderManagementTemplate({
   onCreateProgressStep,
   onSelectPhases,
   getProgressReviewDetail,
+  onDesignerWithdraw
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -74,22 +76,22 @@ export default function OrderManagementTemplate({
     activityType: string
   ): TimelineItemData["type"] => {
     switch (activityType) {
-      case "Deposit":
-        return "completed"; // icon check (đặt cọc thành công)
-      case "Withdraw":
-        return "cancelled"; // icon warning đỏ (rút tiền/hủy)
-      case "CreateOrder":
-        return "calendar"; // icon lịch (tạo đơn)
-      case "UpdateOrder":
-        return "progress"; // icon răng cưa (cập nhật)
-      case "CancelOrder":
-        return "cancelled"; // icon warning đỏ (hủy đơn)
       case "General":
-        return "calendar";
-      case "Warning":
-        return "warning"; // icon đồng hồ vàng
+        return "info";
+      case "Deposit":
+        return "banknote";
+      case "Withdraw":
+        return "banknote";
+      case "Refund":
+        return "banknote";
+      case "Ship":
+        return "ship";
+      case "Progress":
+        return "progress";
+      case "Check":
+        return "check";
       default:
-        return "calendar";
+        return "info";
     }
   };
 
@@ -151,8 +153,9 @@ export default function OrderManagementTemplate({
     setEvaluatingStepId(null);
   };
 
+
   return (
-    <div className="bg-gray-50 p-4">
+    <div className="bg-gray-50 p-4 overflow-y-auto">
       <ActivityLogDialog
         open={activityLogOpen}
         onOpenChange={setActivityLogOpen}
@@ -189,6 +192,7 @@ export default function OrderManagementTemplate({
             >
               {!isEvaluating && (
                 <RightTopPanel
+                  onWithdrawDeposit={onDesignerWithdraw}
                   phases={orderDetail.offerPhases}
                   selectedPhaseId={selectedPhaseId}
                   orderID={orderDetail?.order?.orderID || ""}

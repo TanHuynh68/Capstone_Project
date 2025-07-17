@@ -27,6 +27,23 @@ const CustomerService = () => {
     [callApi]
   );
 
+  const getAddressesReceiver = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          API_ROUTES.GET_ADDRESSES_RECEIVER,
+          values
+        );
+        // toast.success(MESSAGE.GET_ADDRESS_SUCCESSFULLY);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || MESSAGE.GET_ADDRESS_FAILED);
+      }
+    },
+    [callApi]
+  );
+
   const postAddresses = useCallback(
     async (values: any) => {
       try {
@@ -167,7 +184,7 @@ const CustomerService = () => {
   );
 
 
-  return { getAddresses, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, putCanvas, deleteCanvas, copyCanvas, loading, setIsLoading };
+  return { getAddresses, getAddressesReceiver, postAddresses, putAddresses, deleteAddresses, getCanvas, postCanvas, putCanvas, deleteCanvas, copyCanvas, loading, setIsLoading };
 };
 
 export default CustomerService;

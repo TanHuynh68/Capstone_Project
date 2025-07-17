@@ -58,13 +58,13 @@ export default function OrderInfoCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onViewPhases}>
-                Xem giai đoạn
+                Giai đoạn
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onViewDelivery}>
                 Giao hàng
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onViewActivityLog}>
-                Lịch sử đơn hàng
+                Hoạt động
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

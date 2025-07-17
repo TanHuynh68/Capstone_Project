@@ -1,8 +1,20 @@
+interface LoadingSpinnerProps {
+  fixed?: boolean;
+}
 
-export default function LoadingSpinner() {
+export default function LoadingSpinner({ fixed = false }: LoadingSpinnerProps) {
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="w-12 h-12 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+    <div
+      className={`z-50 fade-in fade-out flex items-center justify-center bg-black/40 backdrop-blur-[2px]
+    ${fixed ? "fixed inset-0" : "min-h-screen"}
+  `}
+    >
+      <img
+        src="/images/animation_logo.gif"
+        alt="Loading..."
+        className="w-full max-w-xs object-contain"
+        style={{ pointerEvents: "none" }}
+      />
     </div>
-  )
+  );
 }

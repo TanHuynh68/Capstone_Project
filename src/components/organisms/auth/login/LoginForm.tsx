@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { PATH } from "@/routes/path";
 import useAuthService from "@/services/AuthService";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import AnimatedText from "@/utils/animateText";
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
+import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 export function LoginForm({
   className,
@@ -87,9 +87,10 @@ export function LoginForm({
               className="flex h-full flex-col justify-center p-6 md:p-8"
               onSubmit={handleLogin}
             >
-              <div className="flex flex-col gap-6 pt-16 pb-16">
+              <div className="flex flex-col gap-6 pt-12 pb-12">
                 <div className="flex flex-col items-center text-center">
-                  <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
+                  <LogoWeb logoSize={{ width: 260, height: 50 }} />
+                  {/* <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
                     <AnimatedText
                       texts={[
                         "Rất vui khi gặp lại bạn! 😊",
@@ -104,7 +105,7 @@ export function LoginForm({
                     />
 
                     <span className="cursor">|</span>
-                  </div>
+                  </div> */}
 
                   <p className="text-balance text-muted-foreground mt-2">
                     Đăng nhập tài khoản PlushDollCustom
@@ -229,11 +230,6 @@ export function LoginForm({
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="ztext-balance text-center text-xs text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a]:text-blue-600 hover:[&_a]:text-blue-800 text-white">
-        Khi tiếp tục, bạn đồng ý với <Link to="#">Điều khoản dịch vụ</Link> và{" "}
-        <Link to="#">Chính sách bảo mật</Link> của chúng tôi.
       </div>
     </div>
   );

@@ -147,11 +147,11 @@ export default function RightBottomPanel({
                     <div className="flex-1 overflow-hidden">
                       <div className="h-full overflow-y-auto">
                         <ProgressStepCard
-                          step={progressSteps[currentStepIndex].progressStep}
+                          step={progressSteps[currentStepIndex]?.progressStep}
                           onEvaluate={() =>
                             handleEvaluate(
-                              progressSteps[currentStepIndex].progressStep
-                                .progressStepID
+                              progressSteps[currentStepIndex]?.progressStep
+                                ?.progressStepID
                             )
                           }
                           onViewEvaluationDetail={handleViewEvaluationDetail}
@@ -224,9 +224,6 @@ export default function RightBottomPanel({
                         title={`Bước ${index + 1}`}
                       />
                     ))}
-                    <span className="ml-2 text-sm text-gray-500">
-                      Bước {currentStepIndex + 1}/{progressSteps.length}
-                    </span>
                   </div>
 
                   {/* Current Step Content */}
