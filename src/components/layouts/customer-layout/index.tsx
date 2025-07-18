@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layouts/customer-layout/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
 import { Footer } from "./Footer";
 import { USER_ROUTES } from "@/routes/path";
+
 // CustomerLayout.tsx
 const CustomerLayout = () => {
   const location = useLocation();
@@ -12,9 +13,7 @@ const CustomerLayout = () => {
     USER_ROUTES.CHAT,
     `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
   ];
-  const HIDE_HEADER_ROUTES = [
-    `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
-  ];
+  const HIDE_HEADER_ROUTES = [`/${USER_ROUTES.PLUSHDOLL_DESIGN}`];
 
   const hideFooter = HIDE_FOOTER_ROUTES.includes(location.pathname);
   const hideHeader = HIDE_HEADER_ROUTES.includes(location.pathname);
@@ -35,7 +34,7 @@ const CustomerLayout = () => {
       </div>
 
       {!hideFooter && (
-        <div className="border-t mt-10">
+        <div className="">
           <div className="container mx-auto">
             <Footer />
           </div>

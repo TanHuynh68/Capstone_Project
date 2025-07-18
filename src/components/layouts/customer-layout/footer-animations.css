@@ -1,0 +1,86 @@
+/* Additional CSS for Footer animations - Add to your globals.css */
+
+/* Enhanced hover effects for footer */
+.footer-link-hover {
+    position: relative;
+    overflow: hidden;
+}
+
+.footer-link-hover::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: hsl(var(--primary));
+    transition: left 0.3s ease;
+}
+
+.footer-link-hover:hover::before {
+    left: 0;
+}
+
+/* Social icon glow effect */
+.social-icon-glow:hover {
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.4);
+}
+
+/* Newsletter input focus effect */
+.newsletter-input:focus {
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+/* Staggered animation for contact items */
+.contact-item {
+    transform: translateX(-20px);
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.contact-item.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Footer section slide-in effect */
+.footer-section {
+    transform: translateY(30px);
+    opacity: 0;
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.footer-section.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Separator animation */
+.footer-separator {
+    width: 0;
+    transition: width 1s ease-in-out;
+}
+
+.footer-separator.visible {
+    width: 100%;
+}
+
+/* Background pattern animation */
+.footer-bg-pattern {
+    background-image: radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.04) 0%, transparent 50%);
+    animation: patternFloat 20s ease-in-out infinite;
+}
+
+@keyframes patternFloat {
+
+    0%,
+    100% {
+        background-position: 0% 0%, 100% 0%, 50% 100%;
+    }
+
+    50% {
+        background-position: 100% 100%, 0% 100%, 0% 0%;
+    }
+}
