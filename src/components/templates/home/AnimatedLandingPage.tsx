@@ -17,11 +17,14 @@ import {
   Palette,
   Lightbulb,
   Heart,
+  ArrowUp,
 } from "lucide-react";
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
 
 export default function AnimatedLandingPage() {
   const [visibleElements, setVisibleElements] = useState(new Set());
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollBtnVisible, setScrollBtnVisible] = useState(false);
 
   // Intersection Observer for scroll animations
   useEffect(() => {
@@ -41,6 +44,26 @@ export default function AnimatedLandingPage() {
 
     return () => observer.disconnect();
   }, []);
+
+  // Show scroll-to-top button when scrolled down
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Animation for scroll-to-top button
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (showScrollTop) {
+      setScrollBtnVisible(true);
+    } else {
+      timeout = setTimeout(() => setScrollBtnVisible(false), 300); // match animation duration
+    }
+    return () => clearTimeout(timeout);
+  }, [showScrollTop]);
 
   const features = [
     {
@@ -594,6 +617,22 @@ export default function AnimatedLandingPage() {
           </div>
         </div>
       </section>
+      {/* Scroll to Top Button */}
+      {scrollBtnVisible && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className={`fixed bottom-8 right-8 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-2 hover:bg-primary/90 transition-all flex items-center justify-center cursor-pointer
+            ${
+              showScrollTop
+                ? "animate-fade-in opacity-100"
+                : "animate-fade-out opacity-0 pointer-events-none"
+            }`}
+          aria-label="Scroll to top"
+          style={{ transition: "opacity 0.3s" }}
+        >
+          <ArrowUp className="h-8 w-8" />
+        </button>
+      )}
     </div>
   );
 }
