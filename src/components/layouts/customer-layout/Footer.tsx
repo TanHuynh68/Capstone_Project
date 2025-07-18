@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Facebook,
@@ -8,156 +11,221 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
-
 import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Separator } from "../../ui/separator";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 
 export function Footer() {
+  const [visibleElements, setVisibleElements] = useState(new Set());
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleElements((prev) => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    const animatedElements = document.querySelectorAll("[data-animate]");
+    animatedElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  const socialLinks = [
+    { icon: Facebook, label: "Facebook", href: "#" },
+    { icon: Twitter, label: "Twitter", href: "#" },
+    { icon: Instagram, label: "Instagram", href: "#" },
+    { icon: Linkedin, label: "LinkedIn", href: "#" },
+  ];
+
+  const quickLinks = [
+    { to: "/", label: "Trang chủ" },
+    { to: "/about", label: "Giới thiệu" },
+    { to: "/products", label: "Sản phẩm" },
+    { to: "/services", label: "Dịch vụ" },
+    { to: "/contact", label: "Liên hệ" },
+  ];
+
+  const contactInfo = [
+    {
+      icon: MapPin,
+      content: (
+        <>
+          123 Đường Doanh Nghiệp, Tầng 1
+          <br />
+          Quận 1, TP. Hồ Chí Minh
+        </>
+      ),
+    },
+    { icon: Phone, content: "+84 912 345 678" },
+    { icon: Mail, content: "lienhe@plushdollcustom.com.vn" },
+  ];
+
   return (
-    <footer className="bg-background text-foreground">
-      <div className="container px-4 py-12 md:px-6 md:py-16">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="bg-background text-foreground relative">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-10 left-10 w-3 h-3 bg-primary/20 rounded-full animate-float"></div>
+        <div
+          className="absolute top-20 right-20 w-4 h-4 bg-primary/15 rounded-full animate-float"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute bottom-20 left-1/4 w-2 h-2 bg-primary/25 rounded-full animate-float"
+          style={{ animationDelay: "2s" }}
+        ></div>
+      </div>
+
+      <div className="container px-4 py-12 md:px-10 md:py-12 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-8">
           {/* Thông tin công ty */}
-          <div className="space-y-4">
-            <LogoWeb />
+          <div
+            className={`space-y-4 transition-all duration-700 ${
+              visibleElements.has("footer-company")
+                ? "animate-fly-in-left"
+                : "opacity-0 translate-x-[-50px]"
+            }`}
+            data-animate
+            id="footer-company"
+          >
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <LogoWeb />
+            </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Chúng tôi cung cấp sản phẩm và dịch vụ chất lượng từ năm 1992. Sứ
-              mệnh của chúng tôi là mang đến giải pháp tối ưu cho khách hàng.
+              <span className="font-bold text-primary">PlushDollCustom</span>{" "}
+              được tạo ra để đáp ứng nhu cầu ngày càng tăng về những con búp bê
+              nhồi bông độc đáo, do chính người dùng thiết kế.
             </p>
             <div className="flex gap-3">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Facebook className="h-4 w-4" />
-                <span className="sr-only">Facebook</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Twitter className="h-4 w-4" />
-                <span className="sr-only">Twitter</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Instagram className="h-4 w-4" />
-                <span className="sr-only">Instagram</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Linkedin className="h-4 w-4" />
-                <span className="sr-only">LinkedIn</span>
-              </Button>
+              {socialLinks.map((social, index) => (
+                <Button
+                  key={social.label}
+                  variant="ghost"
+                  size="icon"
+                  className={`rounded-full hover:bg-primary/10 hover:text-primary transform hover:scale-110 transition-all duration-300 hover:animate-shake ${
+                    visibleElements.has("footer-company")
+                      ? "animate-zoom-in"
+                      : "opacity-0 scale-50"
+                  }`}
+                  style={{ animationDelay: `${(index + 1) * 200}ms` }}
+                >
+                  <social.icon className="h-4 w-4" />
+                  <span className="sr-only">{social.label}</span>
+                </Button>
+              ))}
             </div>
           </div>
 
           {/* Liên kết nhanh */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Liên kết nhanh</h3>
+          <div
+            className={`space-y-4 transition-all duration-700 ${
+              visibleElements.has("footer-links")
+                ? "animate-fly-in-up"
+                : "opacity-0 translate-y-[50px]"
+            }`}
+            style={{ animationDelay: "200ms" }}
+            data-animate
+            id="footer-links"
+          >
+            <h3 className="text-lg font-semibold text-primary">
+              Liên kết nhanh
+            </h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  to="/"
-                  className="text-muted-foreground hover:text-primary"
+              {quickLinks.map((link, index) => (
+                <li
+                  key={link.to}
+                  className={`transform transition-all duration-500 ${
+                    visibleElements.has("footer-links")
+                      ? "animate-fade-in"
+                      : "opacity-0"
+                  }`}
+                  style={{ animationDelay: `${400 + index * 100}ms` }}
                 >
-                  Trang chủ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="text-muted-foreground hover:text-primary"
+                  <Link
+                    to={link.to}
+                    className="text-muted-foreground hover:text-primary transition-all duration-300 hover:translate-x-1 inline-block hover:scale-105"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Hỗ trợ */}
+          <div
+            className={`space-y-4 transition-all duration-700 ${
+              visibleElements.has("footer-contact")
+                ? "animate-fly-in-right"
+                : "opacity-0 translate-x-[50px]"
+            }`}
+            style={{ animationDelay: "400ms" }}
+            data-animate
+            id="footer-contact"
+          >
+            <h3 className="text-lg font-semibold text-primary">Hỗ trợ</h3>
+            <ul className="space-y-2 text-sm">
+              {[
+                { to: "/help", label: "Trung tâm trợ giúp" },
+                { to: "/faq", label: "Câu hỏi thường gặp" },
+                { to: "/guide", label: "Hướng dẫn sử dụng" },
+                { to: "/warranty", label: "Chính sách bảo hành" },
+              ].map((link, index) => (
+                <li
+                  key={link.to}
+                  className={`transform transition-all duration-500 ${
+                    visibleElements.has("footer-contact")
+                      ? "animate-fade-in"
+                      : "opacity-0"
+                  }`}
+                  style={{ animationDelay: `${800 + index * 100}ms` }}
                 >
-                  Giới thiệu
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/products"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  Sản phẩm
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/services"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  Dịch vụ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/blog"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  Tin tức
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  Liên hệ
-                </Link>
-              </li>
+                  <Link
+                    to={link.to}
+                    className="text-muted-foreground hover:text-primary transition-all duration-300 hover:translate-x-1 inline-block hover:scale-105"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Thông tin liên hệ */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Liên hệ</h3>
+          <div
+            className={`space-y-4 transition-all duration-700 ${
+              visibleElements.has("footer-support")
+                ? "animate-fly-in-down"
+                : "opacity-0 translate-y-[-50px]"
+            }`}
+            style={{ animationDelay: "600ms" }}
+            data-animate
+            id="footer-support"
+          >
+            <h3 className="text-lg font-semibold text-primary">Liên hệ</h3>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  123 Đường Doanh Nghiệp, Tầng 1
-                  <br />
-                  Quận 1, TP. Hồ Chí Minh
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-5 w-5 text-muted-foreground" />
-                <span className="text-muted-foreground">+84 912 345 678</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  lienhe@plushdollcustom.com.vn
-                </span>
-              </li>
+              {contactInfo.map((contact, index) => (
+                <li
+                  key={index}
+                  className={`flex items-start gap-2 group transition-all duration-500 ${
+                    visibleElements.has("footer-support")
+                      ? "animate-slide-diagonal"
+                      : "opacity-0"
+                  }`}
+                  style={{ animationDelay: `${600 + index * 150}ms` }}
+                >
+                  <contact.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+                  <span className="text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                    {contact.content}
+                  </span>
+                </li>
+              ))}
             </ul>
-          </div>
-
-          {/* Đăng ký nhận tin */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Đăng ký nhận tin</h3>
-            <p className="text-sm text-muted-foreground">
-              Nhận thông tin mới nhất và ưu đãi đặc biệt từ chúng tôi.
-            </p>
-            <div className="flex flex-col space-y-2">
-              <Input
-                type="email"
-                placeholder="Địa chỉ email của bạn"
-                className="h-10"
-              />
-              <Button className="w-fit">Đăng ký</Button>
-            </div>
-          </div>
-        </div>
-
-        <Separator className="my-10" />
-
-        {/* Footer dưới */}
-        <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-          <p>&copy; {new Date().getFullYear()} PlushDollCustom</p>
-          <div className="flex gap-4">
-            <Link to="/privacy" className="hover:text-primary">
-              Chính sách bảo mật
-            </Link>
-            <Link to="/terms" className="hover:text-primary">
-              Điều khoản sử dụng
-            </Link>
-            <Link to="/cookies" className="hover:text-primary">
-              Chính sách Cookie
-            </Link>
           </div>
         </div>
       </div>
