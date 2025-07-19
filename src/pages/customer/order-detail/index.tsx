@@ -15,7 +15,8 @@ import { MESSAGE } from "@/constants";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
-  const { getOrderDetail, createDepositListPhase, createWithdrawPhase } = OrderService();
+  const { getOrderDetail, createDepositListPhase, createWithdrawPhase } =
+    OrderService();
   const { getProgress, createProgressStep, getProgressReviewDetail } =
     ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
@@ -49,8 +50,10 @@ export default function OrderManagementPage() {
     }
   };
 
+  // withdraw by des
   const handleWithdrawByDesigner = async (phaseIds: string[]) => {
     if (phaseIds) {
+      console.log('phaseIds: ', phaseIds)
       const response = await createWithdrawPhase(phaseIds);
       if (response) {
         toast.success(MESSAGE.WITHDRAW_SUCCESSFULLY);
@@ -109,7 +112,7 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
-    onDesignerWithdraw={handleWithdrawByDesigner}
+      onDesignerWithdraw={handleWithdrawByDesigner}
       getProgressReviewDetail={getProgressReviewDetail}
       handleCreateReview={handleCreateReview}
       progressStep={progressSteps}

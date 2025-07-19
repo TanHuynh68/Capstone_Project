@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {  Eye, Trash2, Pencil } from "lucide-react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 import DateDisplay from "@/components/atoms/post/post-detail/DateDisplay";
 import UserInfo from "@/components/molecules/post/post-detail/UserInfo";
 import StatusBadge from "@/components/atoms/post/post-list/StatusBadge";
@@ -21,7 +21,7 @@ interface PostCustomerHeaderProps {
   className?: string;
   onViewOffers?: () => void;
   isSelected?: boolean;
-  onDelete?: (post: Post) => Promise<void>;
+  onDelete?: any;
   onRefresh?: () => void;
   hasUnresolvedOffers?: boolean;
   fetchPosts: any;
@@ -95,9 +95,12 @@ export default function PostCustomerHeader({
     onDelete: async (postToDelete) => {
       try {
         if (onDelete) {
-          await onDelete(postToDelete);
+          const response = await onDelete(postToDelete);
+          console.log('response: ', response)
           // Show success toast
-          toast.success("Xóa bài đăng thành công");
+          if (response && response.isSuccess) {
+            toast.success("Xóa bài đăng thành công");
+          }
           // Refresh posts if refresh function is provided
           if (onRefresh) {
             onRefresh();

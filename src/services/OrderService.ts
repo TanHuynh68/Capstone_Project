@@ -98,7 +98,7 @@ const OrderService = () => {
         const res = await callApi(
           HTTP_METHOD.POST,
           `${API_ROUTES.CREATE_WITHDRAW_PHASE}`,
-          {offerPhaseID: id}
+          {OfferPhaseIDs: id}
         );
         return res;
       } catch (err: any) {
