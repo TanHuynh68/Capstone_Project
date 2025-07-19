@@ -2,8 +2,8 @@
 
 import type {
   EvaluationCriteria,
-  ProgressStepResponse,
   ProgressStepApproval,
+  ProgressStepResponse,
 } from "@/types/orderManagement";
 
 import ProgressStepCard from "@/components/molecules/customer/order-detail/ProgressStepCard";
@@ -142,12 +142,12 @@ export default function RightBottomPanel({
                         Bước {currentStepIndex + 1}/{progressSteps.length}
                       </span>
                     </div>
-
+                    
                     {/* Current Step Content */}
                     <div className="flex-1 overflow-hidden">
                       <div className="h-full overflow-y-auto">
                         <ProgressStepCard
-                          step={progressSteps[currentStepIndex]?.progressStep}
+                          step={progressSteps[currentStepIndex]}
                           onEvaluate={() =>
                             handleEvaluate(
                               progressSteps[currentStepIndex]?.progressStep
@@ -186,9 +186,9 @@ export default function RightBottomPanel({
           </div>
         ) : (
           // Layout bình thường
-          <div className="h-[415px]">
+          <div className="h-">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Quá trình thực hiện </h3>
+              <h3 className="text-lg font-semibold">Quá trình thực hiện 2</h3>
               {progressSteps.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {progressSteps.length} bước
@@ -230,7 +230,7 @@ export default function RightBottomPanel({
                   <div className="flex-1 overflow-hidden">
                     <div className="h-full overflow-y-auto">
                       <ProgressStepCard
-                        step={progressSteps[currentStepIndex].progressStep}
+                        step={progressSteps[currentStepIndex]}
                         onEvaluate={() =>
                           handleEvaluate(
                             progressSteps[currentStepIndex].progressStep

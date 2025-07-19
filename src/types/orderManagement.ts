@@ -77,10 +77,6 @@ export interface ProgressStep {
   customerNote?: string | null
   createdAt: string
   updateAt: string
-
-  // Navigation properties (populated from response)
-  progressImages?: ProgressImage[]
-  approval?: ProgressStepApproval
 }
 
 export interface ProgressImage {

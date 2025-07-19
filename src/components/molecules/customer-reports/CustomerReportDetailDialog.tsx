@@ -1,20 +1,29 @@
-"use client"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { FileText, User, Calendar, MessageSquare, CheckCircle, XCircle, Clock } from "lucide-react"
+"use client";
 import {
-  getCustomerReportStatusBadge,
-} from "@/components/atoms/customer-reports/CustomerReportBadges"
-import { formatFullDateWithDistance2 } from "@/utils"
-
-
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  FileText,
+  User,
+  Calendar,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  Clock,
+} from "lucide-react";
+import { getCustomerReportStatusBadge } from "@/components/atoms/customer-reports/CustomerReportBadges";
+import { formatFullDateWithDistance2 } from "@/utils";
 
 interface CustomerReportDetailDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  reportDetail: CustomerReportDetail | null
-  loading: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  reportDetail: CustomerReportDetail | null;
+  loading: boolean;
 }
 
 export default function CustomerReportDetailDialog({
@@ -23,8 +32,8 @@ export default function CustomerReportDetailDialog({
   reportDetail,
   loading,
 }: CustomerReportDetailDialogProps) {
-  if (!reportDetail && !loading) return null
-    console.log('reportDetail: ', reportDetail)
+  if (!reportDetail && !loading) return null;
+  console.log("reportDetail: ", reportDetail);
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -44,41 +53,34 @@ export default function CustomerReportDetailDialog({
           <div className="space-y-6 py-2">
             {/* Basic Information */}
             <Card className="shadow-sm border-gray-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-                <CardTitle className="text-lg flex items-center gap-2">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg h-full">
+                <CardTitle className="text-lg flex items-center gap-2 mt-2">
                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  Thông tin cơ bản
+                  <div className="flex justify-between w-full  ">
+                    <div> Thông tin cơ bản</div>
+                    {getCustomerReportStatusBadge(reportDetail.reportStatus)}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                   <div>
-                    <Label className="text-sm font-semibold text-gray-700">Tiêu đề</Label>
-                    <p className="text-sm bg-gray-100 p-2 rounded mt-1">{reportDetail.title}</p>
+                    <Label className="text-sm font-semibold text-gray-700">
+                      Tiêu đề
+                    </Label>
+                    <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                      {reportDetail.title}
+                    </p>
                   </div>
-                                    <div>
-                    <Label className="text-sm font-semibold text-gray-700">Ngày tạo</Label>
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700">
+                      Ngày tạo
+                    </Label>
                     <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-gray-500" />
                       {formatFullDateWithDistance2(reportDetail?.createdAt)}
                     </p>
                   </div>
-                  {/* <div>
-                    <Label className="text-sm font-semibold text-gray-700">Loại tố cáo</Label>
-                    <div className="mt-1">{getCustomerReportTypeBadge(reportDetail.reportType)}</div>
-                  </div> */}
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-700">Trạng thái</Label>
-                    <div className="mt-1">{getCustomerReportStatusBadge(reportDetail.reportStatus)}</div>
-                  </div>
-                  {reportDetail.targetID && (
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700">Target ID</Label>
-                      <p className="text-sm bg-gray-100 p-2 rounded mt-1 font-mono">{reportDetail.targetID}</p>
-                    </div>
-                  )}
-
                 </div>
               </CardContent>
             </Card>
@@ -93,7 +95,9 @@ export default function CustomerReportDetailDialog({
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{reportDetail.content}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {reportDetail.content}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -108,14 +112,20 @@ export default function CustomerReportDetailDialog({
               </CardHeader>
               <CardContent className="pt-6">
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">Người tố cáo</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">{reportDetail.reporter}</p>
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Người tố cáo
+                  </Label>
+                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                    {reportDetail.reporter}
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Resolution Information */}
-            {(reportDetail.resolver || reportDetail.processNote || reportDetail.resolvedAt) && (
+            {(reportDetail.resolver ||
+              reportDetail.processNote ||
+              reportDetail.resolvedAt) && (
               <Card className="shadow-sm border-gray-200">
                 <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-t-lg">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -133,25 +143,37 @@ export default function CustomerReportDetailDialog({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {reportDetail.resolver && (
                       <div>
-                        <Label className="text-sm font-semibold text-gray-700">Người xử lý</Label>
-                        <p className="text-sm bg-gray-100 p-2 rounded mt-1">{reportDetail.resolver}</p>
+                        <Label className="text-sm font-semibold text-gray-700">
+                          Người xử lý
+                        </Label>
+                        <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                          {reportDetail.resolver}
+                        </p>
                       </div>
                     )}
                     {reportDetail.resolvedAt && (
                       <div>
-                        <Label className="text-sm font-semibold text-gray-700">Ngày xử lý</Label>
+                        <Label className="text-sm font-semibold text-gray-700">
+                          Ngày xử lý
+                        </Label>
                         <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
-                          {formatFullDateWithDistance2(reportDetail?.resolvedAt)}
+                          {formatFullDateWithDistance2(
+                            reportDetail?.resolvedAt
+                          )}
                         </p>
                       </div>
                     )}
                   </div>
                   {reportDetail.processNote && (
                     <div>
-                      <Label className="text-sm font-semibold text-gray-700">Ghi chú xử lý</Label>
+                      <Label className="text-sm font-semibold text-gray-700">
+                        Ghi chú xử lý
+                      </Label>
                       <div className="bg-gray-50 p-4 rounded-lg mt-1">
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{reportDetail.processNote}</p>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {reportDetail.processNote}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -162,5 +184,5 @@ export default function CustomerReportDetailDialog({
         ) : null}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

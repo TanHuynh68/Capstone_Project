@@ -147,16 +147,6 @@ export default function ChatMessage({
           />
         </div>
 
-        {/* Avatar bên phải cho tin nhắn của người dùng hiện tại */}
-        {isCurrentUser && (
-          <ChatAvatar
-            src={senderInfo?.avatar}
-            name={senderInfo.name}
-            color="bg-blue-500"
-            size="sm"
-            className="ml-3 self-end"
-          />
-        )}
       </div>
 
       {/* Delete Message Modal */}
