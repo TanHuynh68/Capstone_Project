@@ -1,40 +1,62 @@
-"use client"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
-import { X, Loader2, FileText, CheckCircle, XCircle } from "lucide-react"
-import { processReportSchema, type ProcessReportFormData } from "@/schemas/updateReportSchema"
-import type { ZodError } from "zod"
+"use client";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import {
+  X,
+  Loader2,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Calendar,
+} from "lucide-react";
+import {
+  processReportSchema,
+  type ProcessReportFormData,
+} from "@/schemas/updateReportSchema";
+import type { ZodError } from "zod";
+import { formatFullDateWithDistance2 } from "@/utils";
+import { getCustomerReportStatusBadge } from "@/components/atoms/customer-reports/CustomerReportBadges";
 
 interface Report {
-  reportID: string
-  reporter: string
-  targetID: string
-  title: string
-  reportType: string
-  reportStatus: string
-  createdAt: string
+  reportID: string;
+  reporter: string;
+  targetID: string;
+  title: string;
+  reportType: string;
+  reportStatus: string;
+  createdAt: string;
 }
 
 interface ProcessReportDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  report: Report | null
-  onSubmit: (data: ProcessReportFormData) => Promise<boolean>
+  isOpen: boolean;
+  onClose: () => void;
+  report: Report | null;
+  onSubmit: (data: ProcessReportFormData) => Promise<boolean>;
 }
 
-export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit }: ProcessReportDialogProps) {
+export default function ProcessReportDialog({
+  isOpen,
+  onClose,
+  report,
+  onSubmit,
+}: ProcessReportDialogProps) {
   const [formData, setFormData] = useState<ProcessReportFormData>({
     reportID: "",
     processNote: "",
     accept: true,
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Update form data when report changes
   useEffect(() => {
@@ -43,70 +65,73 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
         reportID: report.reportID,
         processNote: "",
         accept: true,
-      })
-      setErrors({})
+      });
+      setErrors({});
     }
-  }, [report])
+  }, [report]);
 
-  const handleInputChange = (field: keyof ProcessReportFormData, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleInputChange = (
+    field: keyof ProcessReportFormData,
+    value: string | boolean
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
   const validateForm = (): boolean => {
     try {
-      processReportSchema.parse(formData)
-      setErrors({})
-      return true
+      processReportSchema.parse(formData);
+      setErrors({});
+      return true;
     } catch (error) {
       if (error instanceof Error && "issues" in error) {
-        const zodError = error as ZodError
-        const newErrors: Record<string, string> = {}
+        const zodError = error as ZodError;
+        const newErrors: Record<string, string> = {};
         zodError.issues.forEach((issue) => {
-          const path = issue.path.join(".")
-          newErrors[path] = issue.message
-        })
-        setErrors(newErrors)
+          const path = issue.path.join(".");
+          newErrors[path] = issue.message;
+        });
+        setErrors(newErrors);
       }
-      return false
+      return false;
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const success = await onSubmit(formData)
+      const success = await onSubmit(formData);
       if (success) {
-        handleClose()
-        resetForm()
+        handleClose();
+        resetForm();
       }
     } catch (error) {
-      console.error("Error processing report:", error)
+      console.error("Error processing report:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const resetForm = () => {
     setFormData({
       reportID: "",
       processNote: "",
       accept: true,
-    })
-    setErrors({})
-  }
+    });
+    setErrors({});
+  };
 
   const handleClose = () => {
-    onClose()
-    setErrors({})
-  }
+    onClose();
+    setErrors({});
+  };
 
-  if (!report) return null
+  if (!report) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -116,39 +141,41 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
             <FileText className="h-6 w-6 text-blue-600" />
             Giải quyết tố cáo
           </DialogTitle>
-          <p className="text-gray-600 text-sm">Xử lý và đưa ra quyết định cho tố cáo này</p>
+          <p className="text-gray-600 text-sm">
+            Xử lý và đưa ra quyết định cho tố cáo này
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 py-6">
           {/* Report Information */}
           <Card className="shadow-sm border-gray-200">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-              <CardTitle className="text-lg flex items-center gap-2">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg h-full">
+              <CardTitle className="text-lg flex items-center gap-2 mt-2">
                 <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                Thông tin tố cáo
+                <div className="flex justify-between w-full">
+                  <div>Thông tin cơ bản</div>
+                  {getCustomerReportStatusBadge(report.reportStatus)}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">Người tố cáo</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.reporter}</p>
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Tiêu đề
+                  </Label>
+                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                    {report.title}
+                  </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700">Tiêu đề</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.title}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">Loại tố cáo</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.reportType}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">Target ID</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1 font-mono">{report.targetID || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">Trạng thái hiện tại</Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">{report.reportStatus}</p>
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Ngày tạo
+                  </Label>
+                  <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    {formatFullDateWithDistance2(report?.createdAt)}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -175,14 +202,19 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
                     ) : (
                       <XCircle className="h-5 w-5 text-red-500" />
                     )}
-                    <Label htmlFor="accept-switch" className="text-sm font-medium">
+                    <Label
+                      htmlFor="accept-switch"
+                      className="text-sm font-medium"
+                    >
                       {formData.accept ? "Chấp nhận tố cáo" : "Từ chối tố cáo"}
                     </Label>
                   </div>
                   <Switch
                     id="accept-switch"
                     checked={formData.accept}
-                    onCheckedChange={(checked) => handleInputChange("accept", checked)}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("accept", checked)
+                    }
                   />
                 </div>
                 {errors.accept && (
@@ -195,13 +227,18 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
 
               {/* Process Note */}
               <div className="space-y-3">
-                <Label htmlFor="processNote" className="text-sm font-semibold text-gray-700">
+                <Label
+                  htmlFor="processNote"
+                  className="text-sm font-semibold text-gray-700"
+                >
                   Ghi chú xử lý <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
                   id="processNote"
                   value={formData.processNote}
-                  onChange={(e) => handleInputChange("processNote", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("processNote", e.target.value)
+                  }
                   placeholder={
                     formData.accept
                       ? "Nhập lý do chấp nhận tố cáo và các hành động đã thực hiện..."
@@ -209,7 +246,9 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
                   }
                   rows={4}
                   className={`resize-none ${
-                    errors.processNote ? "border-red-500 focus:border-red-500 bg-red-50" : "focus:border-blue-500"
+                    errors.processNote
+                      ? "border-red-500 focus:border-red-500 bg-red-50"
+                      : "focus:border-blue-500"
                   }`}
                 />
                 {errors.processNote && (
@@ -226,10 +265,16 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
         {/* Action Buttons */}
         <div className="flex justify-between items-center pt-6 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
           <div className="text-sm text-gray-500">
-            <span className="font-medium">Lưu ý:</span> Quyết định này sẽ được ghi lại và không thể hoàn tác
+            <span className="font-medium">Lưu ý:</span> Quyết định này sẽ được
+            ghi lại và không thể hoàn tác
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleClose} disabled={isSubmitting} className="px-6 bg-transparent">
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="px-6 bg-transparent"
+            >
               Hủy bỏ
             </Button>
             <Button
@@ -262,5 +307,5 @@ export default function ProcessReportDialog({ isOpen, onClose, report, onSubmit 
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
