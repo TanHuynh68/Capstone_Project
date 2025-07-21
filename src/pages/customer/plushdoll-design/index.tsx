@@ -38,7 +38,6 @@ import {
   GripVertical,
   Droplets,
 } from "lucide-react";
-import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
 // import CanvasList from "./get-canvas";
 import ItemLibrary from "./ItemLibrary";
@@ -64,6 +63,7 @@ import ImageFilterPanel, {
   FilterValues,
   ActiveFilters,
 } from "./ImageFilterPanel";
+import CanvasService from "@/services/CanvasService";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -180,7 +180,7 @@ const PlushDollDesign: React.FC = () => {
     index: -1,
   });
 
-  const { postCanvas, getCanvas, putCanvas } = CustomerService();
+  const { postCanvas, getCanvas, putCanvas } = CanvasService();
 
   // Add this near other state declarations
   const [textProperties, setTextProperties] = useState({
@@ -755,7 +755,8 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     console.log(location.state, "location.state");
 
-    const hasCanvasId = location.state?.canvasId;
+    const hasCanvasId =
+      location.state?.selectedCanvasId || location.state?.canvasId;
 
     if (hasCanvasId) {
       // ✅ Không load canvas data ở đây nữa, sẽ load sau khi canvas khởi tạo
@@ -1640,7 +1641,7 @@ const PlushDollDesign: React.FC = () => {
           currentCanvasId: canvasId,
         });
 
-        // toast.success("Đã tải thiết kế thành công!");
+        toast.success(`Đã tải thiết kế "${canvasTitle}" thành công!`);
       });
     } catch (error) {
       console.error("Error loading thiết kế:", error);
@@ -1836,6 +1837,7 @@ const PlushDollDesign: React.FC = () => {
         canvasInfoId: currentCanvasId,
         canvasTitle: trimmedTitle,
         canvasDescription: canvasDescription,
+        isLatest: true, // Đánh dấu là canvas mới nhất
       });
 
       // Check if update was successful
@@ -1873,31 +1875,63 @@ const PlushDollDesign: React.FC = () => {
     const canvasDescription = JSON.stringify(canvasJson);
 
     try {
+      // Lấy canvasFolderId từ location.state hoặc URL params
+      const canvasFolderId =
+        location.state?.folderId ||
+        location.state?.canvasFolderId ||
+        currentCanvasId ||
+        "default-folder";
+
       if (currentCanvasId) {
-        // Update existing canvas with correct format
+        // Nếu đã có canvas ID, cập nhật canvas hiện tại
         const response = await putCanvas({
           canvasInfoId: currentCanvasId,
           canvasTitle: currentCanvasTitle,
           canvasDescription,
+          isLatest: true, // Đánh dấu là canvas mới nhất
         });
 
         if (!response?.isSuccess) {
           throw new Error(response?.message || "Cập nhật thất bại");
         }
       } else {
-        // Create new canvas with correct format
-        const response = await postCanvas({
-          canvasTitle: currentCanvasTitle,
-          canvasDescription,
-        });
+        // Kiểm tra xem folder có canvas nào không
+        const folderCanvasData = await getCanvas({ canvasFolderId });
+        const canvasList =
+          folderCanvasData?.responseRequestModel?.responseList?.items || [];
 
-        if (!response?.isSuccess) {
-          throw new Error(response?.message || "Tạo mới thất bại");
-        }
+        if (canvasList.length > 0) {
+          // Folder đã có canvas, cập nhật canvas đầu tiên
+          const existingCanvas = canvasList[0];
+          const response = await putCanvas({
+            canvasInfoId: existingCanvas.canvasInfoId,
+            canvasTitle: currentCanvasTitle,
+            canvasDescription,
+            isLatest: true,
+          });
 
-        // Set the new canvas ID from response
-        if (response?.responseRequestModel?.canvasInfoId) {
-          setCurrentCanvasId(response.responseRequestModel.canvasInfoId);
+          if (!response?.isSuccess) {
+            throw new Error(response?.message || "Cập nhật thất bại");
+          }
+
+          // Set the existing canvas ID
+          setCurrentCanvasId(existingCanvas.canvasInfoId);
+        } else {
+          // Folder chưa có canvas, tạo mới
+          const response = await postCanvas({
+            canvasFolderId: canvasFolderId,
+            canvasTitle: currentCanvasTitle,
+            canvasDescription,
+          });
+
+          if (!response?.isSuccess) {
+            throw new Error(response?.message || "Tạo mới thất bại");
+          }
+
+          // Set the new canvas ID from response
+          if (response?.responseRequestModel?.canvasInfoId) {
+            setCurrentCanvasId(response.responseRequestModel.canvasInfoId);
+          }
         }
       }
 
@@ -2413,17 +2447,43 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     if (!isCanvasInitialized || !canvasRef.current) return;
 
-    // Nếu có location.state với canvasId, load canvas data
-    if (location.state?.canvasId) {
-      console.log("Canvas đã khởi tạo, bắt đầu load data từ location.state");
+    // Nếu có location.state với selectedCanvasId hoặc canvasId, load canvas data
+    const canvasId =
+      location.state?.selectedCanvasId || location.state?.canvasId;
+    if (canvasId) {
+      console.log("Canvas đã khởi tạo, bắt đầu load data từ location.state", {
+        canvasId,
+        locationState: location.state,
+      });
+
+      // Nếu có canvasDescription trực tiếp từ location.state, load ngay
+      if (location.state?.canvasDescription) {
+        console.log("Loading canvas from direct description");
+        loadCanvasFromDescription(
+          location.state.canvasDescription,
+          location.state.canvasTitle || "Thiết kế",
+          canvasId
+        );
+        return;
+      }
+
+      // Nếu không có canvasDescription và có hasExistingCanvas = false, tạo canvas mới
+      if (location.state?.hasExistingCanvas === false) {
+        console.log("Creating new canvas in folder");
+        setCurrentCanvasTitle(location.state?.canvasTitle || "Thiết kế mới");
+        setCurrentCanvasId(canvasId);
+        toast.success("Đã tạo canvas mới trong thư mục!");
+        return;
+      }
+
+      // Nếu không có description, fetch từ API
       const fetchCanvasData = async () => {
         try {
           const data = await getCanvas({ page: 1, size: 100 });
           const canvasList =
             data?.responseRequestModel?.responseList?.items || [];
           const targetCanvas = canvasList.find(
-            (canvas: CanvasObject) =>
-              canvas.canvasInfoId === location.state.canvasId
+            (canvas: CanvasObject) => canvas.canvasInfoId === canvasId
           );
 
           if (targetCanvas) {
@@ -2433,7 +2493,13 @@ const PlushDollDesign: React.FC = () => {
               targetCanvas.canvasInfoId
             );
           } else {
-            toast.error("Không tìm thấy thông tin thiết kế");
+            console.log("Canvas not found in API, creating new canvas");
+            // Nếu không tìm thấy canvas trong API, tạo canvas mới
+            setCurrentCanvasTitle(
+              location.state?.canvasTitle || "Thiết kế mới"
+            );
+            setCurrentCanvasId(canvasId);
+            toast.success("Đã tạo canvas mới!");
           }
         } catch (error) {
           console.error("Error fetching canvas data:", error);
@@ -2443,7 +2509,7 @@ const PlushDollDesign: React.FC = () => {
 
       fetchCanvasData();
     }
-  }, [isCanvasInitialized, location.state?.canvasId, getCanvas]);
+  }, [isCanvasInitialized, location.state, getCanvas]);
 
   // Thêm useEffect để tắt scroll của trang chính
   // useEffect(() => {
@@ -3172,11 +3238,13 @@ const PlushDollDesign: React.FC = () => {
           isOpen={showCanvasList}
           onClose={() => setShowCanvasList(false)}
           initialCanvasState={
-            location.state?.canvasId
+            location.state?.selectedCanvasId || location.state?.canvasId
               ? {
-                  canvasId: location.state.canvasId,
-                  canvasTitle: location.state.canvasTitle,
-                  canvasDescription: location.state.canvasDescription,
+                  canvasId:
+                    location.state?.selectedCanvasId ||
+                    location.state?.canvasId,
+                  canvasTitle: location.state?.canvasTitle,
+                  canvasDescription: location.state?.canvasDescription,
                 }
               : undefined
           }

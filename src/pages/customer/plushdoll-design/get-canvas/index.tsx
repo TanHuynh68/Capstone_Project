@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import CustomerService from "@/services/CustomerService";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import DeleteCanvasButton from "../delete-canvas/DeleteCanvasButton";
 import SidebarSearchBar from "../SidebarSearchBar";
+import CanvasService from "@/services/CanvasService";
 
 interface CanvasItem {
   canvasInfoId: string;
@@ -52,7 +52,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
   const [searchTitle, setSearchTitle] = useState("");
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const size = 10;
-  const { getCanvas } = CustomerService();
+  const { getCanvas } = CanvasService();
 
   // Function to generate canvas preview
   const generateCanvasPreview = async (item: CanvasItem): Promise<string> => {
@@ -113,7 +113,12 @@ const CanvasList: React.FC<CanvasListProps> = ({
   const loadList = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getCanvas({ canvasTitle: searchTitle, page, size });
+      const data = await getCanvas({
+        canvasFolderId: "default-folder-id",
+        canvasTitle: searchTitle,
+        page,
+        size,
+      });
       const items = data?.responseRequestModel?.responseList?.items || [];
 
       // Generate previews for all items

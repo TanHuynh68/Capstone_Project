@@ -130,7 +130,7 @@ const BackgroundColorPanel = forwardRef<
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (!backgroundColor || backgroundColor === "") {
+    if (!backgroundColor || backgroundColor === "" || typeof backgroundColor !== 'string') {
       setBackgroundColor("#ffffff");
     }
   }, [backgroundColor, setBackgroundColor]);
@@ -138,7 +138,7 @@ const BackgroundColorPanel = forwardRef<
   const filteredSolidColors = useMemo(() => {
     if (!searchQuery) return solidColors;
     return solidColors.filter((color) =>
-      color.toLowerCase().includes(searchQuery.toLowerCase())
+      String(color).toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery]);
 
@@ -175,7 +175,7 @@ const BackgroundColorPanel = forwardRef<
                     color === "#ffffff" ? "border-border" : "border-transparent"
                   }
                   ${
-                    color.toLowerCase() === backgroundColor.toLowerCase()
+                    String(color).toLowerCase() === String(backgroundColor).toLowerCase()
                       ? "ring-2 ring-primary ring-offset-2"
                       : ""
                   }`}
@@ -217,7 +217,7 @@ const BackgroundColorPanel = forwardRef<
           <input
             type="color"
             value={
-              backgroundColor.startsWith("#") ? backgroundColor : "#ffffff"
+              String(backgroundColor).startsWith("#") ? String(backgroundColor) : "#ffffff"
             }
             onChange={(e) => setBackgroundColor(e.target.value)}
             className="w-8 h-8 border rounded-full cursor-pointer appearance-none hover:scale-110 transition-transform bg-transparent"
@@ -229,14 +229,14 @@ const BackgroundColorPanel = forwardRef<
           <div
             className="absolute inset-0 rounded-full pointer-events-none border shadow-sm"
             style={{
-              background: backgroundColor.startsWith("#")
-                ? backgroundColor
+              background: String(backgroundColor).startsWith("#")
+                ? String(backgroundColor)
                 : "#ffffff",
             }}
           />
         </div>
         <span className="text-xs text-muted-foreground max-w-20 truncate">
-          {backgroundColor.startsWith("#") ? backgroundColor : "Gradient"}
+          {String(backgroundColor).startsWith("#") ? String(backgroundColor) : "Gradient"}
         </span>
       </div>
     </SidebarPanelWrapper>
