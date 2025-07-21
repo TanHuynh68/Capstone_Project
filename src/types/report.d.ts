@@ -16,11 +16,12 @@ interface TableFilters {
 }
 
 interface TableActions {
-    onProcessReport: (report: Report) => void;
-    onUpdateStatus: (reportID: string, status: number) => void;
-    onSearch: (searchTerm: string) => void;
-    onFilterChange: (filters: Partial<TableFilters>) => void;
-    onPageChange: (page: number) => void;
+    onProcessReport: (report: Report) => void
+    onViewDetail: (report: Report) => void
+    onUpdateStatus: (reportID: string, newStatus: number) => void
+    onSearch: (searchTerm: string) => void
+    onFilterChange: (filters: Partial<TableFilters>) => void
+    onPageChange: (page: number) => void
 }
 
 interface ProcessReportData {

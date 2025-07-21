@@ -6,7 +6,7 @@ interface CustomerReport {
     createdAt: string
 }
 
-interface CustomerReportDetail {
+interface ReportDetail {
     reportID: string
     reporter: string
     targetID: string
@@ -18,8 +18,15 @@ interface CustomerReportDetail {
     resolver?: string
     processNote?: string
     resolvedAt?: string
+    reportImages: ReportImages[]
 }
 
+interface ReportImages {
+    reportImageID: string,
+    imageURL: string,
+    imageNote: string,
+    uploadAt: string
+}
 interface CustomerReportFilters {
     reportType: string
     reportStatus: string

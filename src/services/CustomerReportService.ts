@@ -39,7 +39,7 @@ const CustomerReportService = () => {
     const deleteReport = useCallback(
         async (reportID: string) => {
             try {
-                const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.CUSTOMER_DELETE_REPORT_DETAIL}/${reportID}`);
+                const res = await callApi(HTTP_METHOD.DELETE, `${API_ROUTES.CUSTOMER_DELETE_REPORT_DETAIL}/${reportID}`);
                 return res;
             } catch (err: any) {
                 toast.error(err?.response?.data);
