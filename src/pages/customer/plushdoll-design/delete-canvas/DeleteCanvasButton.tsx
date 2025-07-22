@@ -11,9 +11,9 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import CustomerService from "@/services/CustomerService";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import CanvasService from "@/services/CanvasService";
 
 interface DeleteCanvasButtonProps {
   canvasInfoId: string;
@@ -24,7 +24,7 @@ const DeleteCanvasButton: React.FC<DeleteCanvasButtonProps> = ({
   canvasInfoId,
   canvasTitle,
 }) => {
-  const { deleteCanvas } = CustomerService();
+  const { deleteCanvas } = CanvasService();
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {

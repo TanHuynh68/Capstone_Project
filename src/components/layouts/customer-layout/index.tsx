@@ -11,9 +11,11 @@ const CustomerLayout = () => {
 
   const HIDE_FOOTER_ROUTES = [
     USER_ROUTES.CHAT,
-    `/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+    `/${USER_ROUTES.CANVAS_PAGE}/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
   ];
-  const HIDE_HEADER_ROUTES = [`/${USER_ROUTES.PLUSHDOLL_DESIGN}`];
+  const HIDE_HEADER_ROUTES = [
+    `/${USER_ROUTES.CANVAS_PAGE}/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+  ];
 
   const hideFooter = HIDE_FOOTER_ROUTES.includes(location.pathname);
   const hideHeader = HIDE_HEADER_ROUTES.includes(location.pathname);
@@ -34,7 +36,7 @@ const CustomerLayout = () => {
       </div>
 
       {!hideFooter && (
-        <div className="">
+        <div className="border-b shrink-0">
           <div className="container mx-auto">
             <Footer />
           </div>

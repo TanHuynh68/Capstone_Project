@@ -21,6 +21,7 @@ import PlushDollDesign from "@/pages/customer/plushdoll-design";
 import { ROLE } from "@/constants";
 import { ProtectedRouteByRole } from "./protect";
 import PostOfferPage from "@/pages/customer/post-offer";
+import CanvasPage from "@/components/templates/canvas/CanvasPage";
 //
 export const userRoutes = [
   {
@@ -47,7 +48,6 @@ export const userRoutes = [
         path: USER_ROUTES.MY_WALLET,
 
         element: <WalletPage />,
-
       },
       {
         path: USER_ROUTES.PAYMENT_RESULT,
@@ -74,8 +74,12 @@ export const userRoutes = [
         element: <QRLoginPage />,
       },
       {
-        path: USER_ROUTES.PLUSHDOLL_DESIGN,
+        path: USER_ROUTES.CANVAS_PAGE + "/" + USER_ROUTES.PLUSHDOLL_DESIGN,
         element: <PlushDollDesign />,
+      },
+      {
+        path: USER_ROUTES.CANVAS_PAGE,
+        element: <CanvasPage />,
       },
       {
         path: USER_ROUTES.CUSTOMER_UPLOAD_PAGE,

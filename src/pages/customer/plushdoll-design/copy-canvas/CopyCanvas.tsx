@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ChatImage from "@/components/atoms/customer/chat/chat-show-data/ChatImage";
-import CustomerService from "@/services/CustomerService";
+import CanvasService from "@/services/CanvasService";
 import { Player } from "@lottiefiles/react-lottie-player";
 import { Link } from "react-router-dom";
 import { USER_ROUTES } from "@/routes/path";
@@ -29,7 +29,7 @@ export default function CopyCanvas({
   const [copied, setCopied] = useState(false);
   const [idCanvas, setIdCanvas] = useState<string | null>(null);
 
-  const { copyCanvas } = CustomerService();
+  const { copyCanvas } = CanvasService();
 
   useEffect(() => {
     // Lấy idCanvas từ localStorage khi component mount
