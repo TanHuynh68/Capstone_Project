@@ -14,12 +14,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-
 import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase";
 import OfferPhasesDialog from "./offerPhasesDialog";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
 import { CustomBadge } from "./Badge";
-
 import {
   formatCurrencyVND,
   isAcceptedVariant,
@@ -51,14 +49,12 @@ export function ChatPostCard({
   const [isMainDialogOpen, setIsMainDialogOpen] = useState(false);
   const [isCreatePhaseDialogOpen, setIsCreatePhaseDialogOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
-
   const { offerConfirm } = OfferService();
 
   const handleConfirm = async () => {
     try {
       setIsConfirming(true);
       const response = await offerConfirm({ offerID: post?.offer?.offerID });
-
       if (response) {
         await fetchOffers();
         console.log("Offer confirmed successfully");
@@ -101,20 +97,17 @@ export function ChatPostCard({
               alt={post?.post?.title}
             />
           </div>
-
           <div className="space-y-4">
             <div className="space-y-2">
               <h3 className="font-bold text-xl text-gray-800 line-clamp-2">
                 {post?.post.title}
               </h3>
-
               <div className="flex items-center gap-3">
                 <CustomBadge
                   variant={offerStatusVariant(post?.offer?.offerStatus)}
                 >
                   {offerStatusVN(post?.offer?.offerStatus)}
                 </CustomBadge>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                     <Button
@@ -155,7 +148,6 @@ export function ChatPostCard({
                 </DropdownMenu>
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="space-y-3">
               {currentUser?.role === ROLE.CUSTOMER &&
@@ -168,7 +160,6 @@ export function ChatPostCard({
                     {isConfirming ? "Đang xử lý..." : "Chấp nhận đề xuất"}
                   </Button>
                 )}
-
               {currentUser?.role === ROLE.DESIGNER &&
                 post.offer?.isAcceptedByDes === false && (
                   <Button
@@ -180,7 +171,6 @@ export function ChatPostCard({
                   </Button>
                 )}
             </div>
-
             {/* Price Info */}
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Giá cuối cùng</div>
@@ -190,7 +180,6 @@ export function ChatPostCard({
                   : formatCurrencyVND(post?.offer?.finalPrice)}
               </div>
             </div>
-
             {/* Status Info */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -203,7 +192,6 @@ export function ChatPostCard({
                     : "Chưa đồng ý"}
                 </Badge>
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Nhà thiết kế:</span>
                 <Badge
@@ -225,14 +213,12 @@ export function ChatPostCard({
           <DialogHeader>
             <h2 className="text-xl font-bold">Chi tiết bài đăng và đề xuất</h2>
           </DialogHeader>
-
           <div className="grid grid-cols-2 gap-6 h-full overflow-hidden">
             {/* Post Details */}
             <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
               <h3 className="text-lg font-bold text-gray-800 mb-4">
                 Thông tin bài đăng
               </h3>
-
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   {post.post.avatar && (
@@ -251,7 +237,6 @@ export function ChatPostCard({
                     </div>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">
@@ -268,14 +253,12 @@ export function ChatPostCard({
                     </div>
                   </div>
                 </div>
-
                 {post.post.description && (
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600 mb-2">Mô tả</div>
                     <div className="text-sm">{post.post.description}</div>
                   </div>
                 )}
-
                 {/* Images */}
                 {(post.post.originalImages?.length > 0 ||
                   post.post.requestedImages?.length > 0) && (
@@ -296,7 +279,6 @@ export function ChatPostCard({
                 )}
               </div>
             </div>
-
             {/* Offer Details */}
             <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
@@ -307,7 +289,6 @@ export function ChatPostCard({
                   Xem giai đoạn
                 </Button>
               </div>
-
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   {post.offer.avatar && (
@@ -328,7 +309,6 @@ export function ChatPostCard({
                     </div>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Giá ban đầu</div>
@@ -345,20 +325,22 @@ export function ChatPostCard({
                     </div>
                   </div>
                 </div>
-
                 {post.offer.note && (
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600 mb-2">Ghi chú</div>
                     <div className="text-sm">{post.offer.note}</div>
                   </div>
                 )}
-
                 {post.offer.sampleImage && (
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600 mb-2">
                       Hình ảnh mẫu
                     </div>
-                    <SingleImageGallery imageUrl={post.offer.sampleImage} alt="Ảnh đề xuất" title=""/>
+                    <SingleImageGallery
+                      imageUrl={post.offer.sampleImage}
+                      alt="Ảnh đề xuất"
+                      title=""
+                    />
                   </div>
                 )}
               </div>

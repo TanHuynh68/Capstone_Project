@@ -1,31 +1,32 @@
-"use client";
+"use client"
 
-import ChatSidebar from "@/components/organisms/customer/chat/ChatSidebar";
-import ChatHeader from "@/components/organisms/customer/chat/ChatHeader";
-import MessageList from "@/components/organisms/customer/chat/MessageList";
-import MessageComposer from "@/components/molecules/customer/chat/MessageComposer";
-import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab";
-import { useState, useEffect } from "react";
-import type { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse";
-import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses";
-import "./index.css";
+import ChatSidebar from "@/components/organisms/customer/chat/ChatSidebar"
+import ChatHeader from "@/components/organisms/customer/chat/ChatHeader"
+import MessageList from "@/components/organisms/customer/chat/MessageList"
+import MessageComposer from "@/components/molecules/customer/chat/MessageComposer"
+import InfoAboutTheConversationTab from "@/components/organisms/customer/chat/InfoAboutTheConversationTab"
+import { useState, useEffect } from "react"
+import type { SidebarCollapseProps } from "@/components/atoms/custom/sidebar-collapse/SidebarCollapse"
+import SidebarCollapses from "@/components/molecules/custom/sidebar-collapse/SidebarCollapses"
+import "./index.css"
 
 interface ChatTemplateProps {
-  setShouldScroll: any;
-  message: Message[];
-  users: UserChat[];
-  chatRoomID: string;
-  onSelectChat: any;
-  onSendMessage: (message: string) => void;
-  shouldScrollToBottom: boolean;
-  loadingMessage: boolean;
-  onDeletMessage: any;
-  onEditMessage: any;
-  posts: OfferDetail[];
-  fetchOfferPhase: any;
-  setOffersPhase: any;
-  offersPhase: any;
-  fetchOffers: any;
+  setShouldScroll: any
+  message: Message[]
+  users: UserChat[]
+  chatRoomID: string
+  onSelectChat: any
+  onSendMessage: (message: string) => void
+  shouldScrollToBottom: boolean
+  loadingMessage: boolean
+  onDeletMessage: any
+  onEditMessage: any
+  posts: OfferDetail[]
+  fetchOfferPhase: any
+  setOffersPhase: any
+  offersPhase: any
+  fetchOffers: any
+  setPosts: any
 }
 
 export default function ChatTemplate({
@@ -42,29 +43,36 @@ export default function ChatTemplate({
   offersPhase,
   fetchOffers,
 }: ChatTemplateProps) {
-  const currentChatUser = users[0];
-
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const currentChatUser = users[0]
+  const [isOpen, setIsOpen] = useState<boolean>(true)
 
   const handleSetIsOpen = () => {
-    setIsOpen(!isOpen);
-  };
+    const newIsOpen = !isOpen
+    setIsOpen(newIsOpen)
+
+    // Reset state when hiding the info panel
+    if (!newIsOpen) {
+      setValue("")
+      // Reset any other states if needed
+      setOffersPhase([])
+    }
+  }
 
   // Reset animation state after transition completes
   useEffect(() => {
-    const timer = setTimeout(() => {}, 300); // Match the transition duration
+    const timer = setTimeout(() => {}, 300) // Match the transition duration
+    return () => clearTimeout(timer)
+  }, [isOpen])
 
-    return () => clearTimeout(timer);
-  }, [isOpen]);
-  const [value, setValue] = useState<string>("");
-  console.log("InfoAboutTheConversationTab: ", posts);
+  const [value, setValue] = useState<string>("")
+  console.log("InfoAboutTheConversationTab: ", posts)
 
   const handleSetTabsContent = (valueItem: any) => {
-    if(valueItem === "offerPhase"){
+    if (valueItem === "offerPhase" && posts.length === 0) {
       fetchOffers()
     }
-    setValue(valueItem);
-  };
+    setValue(valueItem)
+  }
 
   const items: SidebarCollapseProps[] = [
     {
@@ -72,28 +80,23 @@ export default function ChatTemplate({
       subItem: [
         // { title: "Xem đề xuất", tabName: "offerPhase" },
         // { title: "Timeline", tabName: "timeline" },
-        { title: "Xem đề xuất", tabName: "viewPost", fetch:fetchOffers },
+        { title: "Xem đề xuất", tabName: "viewPost", fetch: fetchOffers },
       ],
     },
-  ];
+  ]
 
   return (
-    <div className="py-3 px-4 h-full"> {/* Không dùng h-[100%], dùng h-full sẽ tốt hơn */}
-    <div className="flex w-full h-full overflow-hidden gap-4">
+    <div className="py-3 px-4 h-full">
+      {" "}
+      {/* Không dùng h-[100%], dùng h-full sẽ tốt hơn */}
+      <div className="flex w-full h-full overflow-hidden gap-4">
         {/* Sidebar */}
         <div
           className={`border border-solid rounded-xl  transition-all duration-300 ease-in-out ${
-            isOpen
-              ? "flex-1.5 opacity-100 translate-x-0 hidden 2xl:block"
-              : "flex-1.5 opacity-100 translate-x-0"
+            isOpen ? "flex-1.5 opacity-100 translate-x-0 hidden 2xl:block" : "flex-1.5 opacity-100 translate-x-0"
           }`}
         >
-          <ChatSidebar
-            users={users}
-            messages={message}
-            activeChat={chatRoomID}
-            onSelectChat={onSelectChat}
-          />
+          <ChatSidebar users={users} messages={message} activeChat={chatRoomID} onSelectChat={onSelectChat} />
         </div>
 
         {/* Main Chat Area */}
@@ -104,10 +107,7 @@ export default function ChatTemplate({
         >
           <div className="sticky top-0 z-10 rounded-t-xl overflow-hidden">
             {currentChatUser && (
-              <ChatHeader
-                setIsOpen={handleSetIsOpen}
-                user={users.filter((item) => item.chatRoomID === chatRoomID)}
-              />
+              <ChatHeader setIsOpen={handleSetIsOpen} user={users.filter((item) => item.chatRoomID === chatRoomID)} />
             )}
           </div>
           {currentChatUser && (
@@ -125,9 +125,7 @@ export default function ChatTemplate({
               <MessageComposer onSendMessage={onSendMessage} />
             </div>
           ) : (
-            <div className="flex justify-center items-center h-screen">
-              Chưa có ai để trò chuyện
-            </div>
+            <div className="flex justify-center items-center h-screen">Chưa có ai để trò chuyện</div>
           )}
         </div>
 
@@ -139,8 +137,7 @@ export default function ChatTemplate({
               : "flex-0 max-w-0 min-w-0 opacity-0 translate-x-full scale-95 overflow-hidden"
           }`}
           style={{
-            transitionProperty:
-              "flex, max-width, min-width, opacity, transform",
+            transitionProperty: "flex, max-width, min-width, opacity, transform",
           }}
         >
           <div
@@ -148,19 +145,14 @@ export default function ChatTemplate({
               isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-
             {/* Sidebar Collapses - Fixed height */}
             <div
               className={`flex-shrink-0 px-4 transition-all duration-400 ease-out delay-300 ${
                 isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
-              <SidebarCollapses
-                onClick={handleSetTabsContent}
-                items={items}
-              />
+              <SidebarCollapses onClick={handleSetTabsContent} items={items} />
             </div>
-
             {/* Info Content - Scrollable area */}
             <div
               className={`flex-1 min-h-0 transition-all duration-500 ease-out delay-400 ${
@@ -182,5 +174,5 @@ export default function ChatTemplate({
         </div>
       </div>
     </div>
-  );
+  )
 }
