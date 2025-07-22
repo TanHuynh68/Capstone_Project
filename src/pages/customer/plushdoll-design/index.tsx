@@ -108,6 +108,8 @@ interface CustomFabricImage extends fabric.Image {
   originalSrc?: string;
 }
 
+import CanvasVersionHistory from "@/pages/customer/plushdoll-design/canvas-history/CanvasVersionHistory";
+
 const PlushDollDesign: React.FC = () => {
   // Image Cropping Feature:
   // - Double-click on any image to start cropping
@@ -1398,8 +1400,8 @@ const PlushDollDesign: React.FC = () => {
     const zoom = canvasRef.current.getZoom ? canvasRef.current.getZoom() : 1;
 
     // Tính toán offset canvas trong wrapper
-    const offsetX = (canvasRect.left - wrapperRect.left);
-    const offsetY = (canvasRect.top - wrapperRect.top);
+    const offsetX = canvasRect.left - wrapperRect.left;
+    const offsetY = canvasRect.top - wrapperRect.top;
 
     setToolbarPos({
       x: (bound.left + bound.width / 2) * zoom + offsetX,
@@ -3140,7 +3142,7 @@ const PlushDollDesign: React.FC = () => {
               <Menu className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start" side="bottom">
+          <DropdownMenuContent className="w-40" align="start" side="bottom">
             <DropdownMenuSub
               onOpenChange={(open) => {
                 if (open) {
@@ -3219,47 +3221,22 @@ const PlushDollDesign: React.FC = () => {
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Lịch sử phiên bản</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <div className="p-2 w-64">
-                  <div className="font-semibold text-sm mb-2">
-                    Các phiên bản gần đây
-                  </div>
-                  <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
-                    {/* Dữ liệu mẫu, bạn có thể map từ API thực tế */}
-                    <div className="flex items-center justify-between p-2 rounded hover:bg-muted transition">
-                      <div>
-                        <div className="font-medium text-xs">Phiên bản 1</div>
-                        <div className="text-xs text-muted-foreground">
-                          12/05/2024 14:30
-                        </div>
-                      </div>
-                      <Button size="sm" className="text-xs px-2 py-1">
-                        Khôi phục
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded hover:bg-muted transition">
-                      <div>
-                        <div className="font-medium text-xs">Phiên bản 2</div>
-                        <div className="text-xs text-muted-foreground">
-                          10/05/2024 09:10
-                        </div>
-                      </div>
-                      <Button size="sm" className="text-xs px-2 py-1">
-                        Khôi phục
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded hover:bg-muted transition">
-                      <div>
-                        <div className="font-medium text-xs">Phiên bản 3</div>
-                        <div className="text-xs text-muted-foreground">
-                          05/05/2024 17:45
-                        </div>
-                      </div>
-                      <Button size="sm" className="text-xs px-2 py-1">
-                        Khôi phục
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                {/* Replace hardcoded version list with CanvasVersionHistory */}
+                <CanvasVersionHistory
+                  canvasFolderId={
+                    location.state?.folderId ||
+                    location.state?.canvasFolderId ||
+                    currentCanvasId ||
+                    "default-folder"
+                  }
+                  onRestore={(ver) => {
+                    loadCanvasFromDescription(
+                      ver.canvasDescription,
+                      ver.canvasTitle,
+                      ver.canvasInfoId
+                    );
+                  }}
+                />
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           </DropdownMenuContent>

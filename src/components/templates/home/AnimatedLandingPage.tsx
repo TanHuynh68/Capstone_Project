@@ -8,9 +8,7 @@ import {
   Camera,
   Zap,
   Star,
-  ArrowRight,
-  Play,
-  Award,
+  Award,  
   Users,
   TrendingUp,
   Globe,
@@ -18,8 +16,12 @@ import {
   Lightbulb,
   Heart,
   ArrowUp,
+  Paintbrush2,
+  Mail,
 } from "lucide-react";
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
+import { USER_ROUTES } from "@/routes/path";
+import { Link } from "react-router-dom";
 
 export default function AnimatedLandingPage() {
   const [visibleElements, setVisibleElements] = useState(new Set());
@@ -71,22 +73,21 @@ export default function AnimatedLandingPage() {
       title: "Chụp ảnh chuyên nghiệp",
       description:
         "Ghi lại những khoảnh khắc tuyệt đẹp với công nghệ camera tiên tiến của chúng tôi",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      image: "/images/header-banner.png",
     },
     {
       icon: <Zap className="w-8 h-8" />,
       title: "Tốc độ siêu nhanh",
       description:
         "Trải nghiệm hiệu suất cực nhanh với các giải pháp được tối ưu hóa",
-      image:
-        "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg",
+      image: "/images/header-banner.png",
     },
     {
       icon: <Globe className="w-8 h-8" />,
       title: "Phạm vi toàn cầu",
       description:
         "Kết nối với khán giả trên toàn thế giới thông qua nền tảng của chúng tôi",
-      image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+      image: "/images/header-banner.png",
     },
   ];
 
@@ -98,8 +99,7 @@ export default function AnimatedLandingPage() {
       experience: "8+ năm kinh nghiệm",
       description:
         "Chuyên gia thiết kế giao diện người dùng với phong cách hiện đại và sáng tạo",
-      avatar:
-        "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg",
+      avatar: "/images/labubu-2.png",
       projects: "200+",
       rating: 4.9,
     },
@@ -110,7 +110,7 @@ export default function AnimatedLandingPage() {
       experience: "6+ năm kinh nghiệm",
       description:
         "Chuyên về thiết kế thương hiệu và nhận diện thị giác độc đáo",
-      avatar: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
+      avatar: "/images/labubu-3.png",
       projects: "150+",
       rating: 4.8,
     },
@@ -121,8 +121,7 @@ export default function AnimatedLandingPage() {
       experience: "7+ năm kinh nghiệm",
       description:
         "Nghệ sĩ minh họa tài năng với khả năng tạo ra những tác phẩm nghệ thuật ấn tượng",
-      avatar:
-        "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg",
+      avatar: "/images/labubu-4.png",
       projects: "180+",
       rating: 5.0,
     },
@@ -133,19 +132,19 @@ export default function AnimatedLandingPage() {
       experience: "5+ năm kinh nghiệm",
       description:
         "Chuyên gia animation và motion graphics với kỹ thuật tinh tế",
-      avatar: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
+      avatar: "/images/labubu-5.png",
       projects: "120+",
       rating: 4.7,
     },
   ];
 
   const gallery = [
-    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-    "https://images.pexels.com/photos/247917/pexels-photo-247917.jpeg",
-    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-    "https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg",
+    "/images/labubu-5.png",
+    "/images/labubu-6.png",
+    "/images/labubu-7.png",
+    "/images/labubu-8.png",
+    "/images/labubu-9.png",
+    "/images/labubu-10.png",
   ];
 
   const testimonials = [
@@ -153,21 +152,19 @@ export default function AnimatedLandingPage() {
       name: "Nguyễn Văn Hùng",
       role: "Giám đốc sáng tạo",
       text: "Nền tảng này đã thay đổi hoàn toàn quy trình sáng tạo của chúng tôi!",
-      avatar:
-        "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg",
+      avatar: "/images/labubu-1.png",
     },
     {
       name: "Trần Thị Mai",
       role: "Quản lý Marketing",
       text: "Kết quả vượt xa mong đợi của chúng tôi. Rất khuyến khích!",
-      avatar: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
+      avatar: "/images/labubu-2.png",
     },
     {
       name: "Lê Minh Tuấn",
       role: "Nhiếp ảnh gia",
       text: "Những công cụ chuyên nghiệp thực sự tạo ra sự khác biệt trong công việc của tôi.",
-      avatar:
-        "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg",
+      avatar: "/images/labubu-3.png",
     },
   ];
 
@@ -227,17 +224,30 @@ export default function AnimatedLandingPage() {
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 transform hover:scale-105 transition-all duration-300 group"
+                  asChild
                 >
-                  Bắt đầu sáng tạo
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <Link
+                    to={USER_ROUTES.CANVAS_PAGE}
+                    className="flex items-center gap-2 "
+                  >
+                    <Paintbrush2 className="h-5 w-5" />
+                    <span className="inline-block align-middle">
+                      Bắt đầu sáng tạo
+                    </span>
+                  </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-primary text-primary hover:bg-primary/5 group bg-transparent"
                 >
-                  <Play className="mr-2 w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Xem demo
+                  <Link
+                    to={USER_ROUTES.CONTACT_PAGE}
+                    className="flex items-center gap-2 "
+                  >
+                    <Mail className="h-5 w-5" />
+                    <span className="inline-block align-middle">Liên hệ</span>
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -302,7 +312,7 @@ export default function AnimatedLandingPage() {
                     <img
                       src={feature.image || "/placeholder.svg"}
                       alt={feature.title}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500 "
                     />
                     <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/10 transition-colors duration-500"></div>
                   </div>
@@ -508,7 +518,7 @@ export default function AnimatedLandingPage() {
                 <img
                   src={image || "/placeholder.svg"}
                   alt={`Thư viện ${index + 1}`}
-                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-64 object-contain group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-4 left-4 text-white">

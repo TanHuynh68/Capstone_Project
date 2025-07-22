@@ -4,33 +4,104 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Menu, Smile, Send, MessageCircle } from "lucide-react";
+import { Minus, Send } from "lucide-react";
+import ChatAIService from "@/services/ChatAIService";
+import Lottie from "react-lottie-player";
+import robotAIAnimation from "@/../public/lottiefiles/RobotAI.json";
 
 export default function ChatAIHomepage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([
+    {
+      role: "bot",
+      content:
+        "Chào Bạn, mình là trợ lý thông minh của PlushDollCustom. Rất vui được hỗ trợ Bạn.",
+    },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const { postChatAI } = ChatAIService();
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setLoading(true);
+    try {
+      // Gửi nội dung chat tới API
+      const res = await postChatAI({ question: input });
+      // Giả sử response là { answer: string }
+
+      console.log(res, "res");
+      if (res?.responseRequestModel) {
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", content: res?.responseRequestModel },
+        ]);
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", content: "Đã xảy ra lỗi, vui lòng thử lại." },
+      ]);
+    } finally {
+      setLoading(false);
+      setInput("");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !loading) {
+      handleSend();
+    }
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-0 right-0 z-50 m-0 p-0">
       {/* Trigger Button */}
       <Button
         size="icon"
-        className="rounded-full w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+        className="bg-transparent p-0 border-none shadow-none hover:bg-transparent cursor-pointer"
         aria-label="Open chat"
         onClick={toggleChat}
+        style={{ width: 200, height: 150, marginRight: -50, padding: 0 }}
       >
-        <MessageCircle className="h-7 w-7" />
+        <div
+          style={{
+            width: 200,
+            height: 150,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          <Lottie
+            loop
+            play
+            animationData={robotAIAnimation}
+            style={{ width: 200, height: 150 }}
+          />
+        </div>
       </Button>
 
       {/* Chat Box */}
       <div
         className={`
           fixed bottom-4 right-4
-          w-full max-w-md h-[calc(100vh-64px)] md:h-[600px]
-          flex flex-col rounded-xl shadow-lg overflow-hidden bg-white
+          w-full max-w-sm h-[calc(100vh-32px)] md:h-[60vh]
+          flex flex-col rounded-xl shadow-lg overflow-hidden
+          bg-background text-foreground dark:bg-background dark:text-foreground
           transition-all duration-300 ease-in-out
           ${
             isOpen
@@ -38,24 +109,23 @@ export default function ChatAIHomepage() {
               : "translate-y-full opacity-0 pointer-events-none"
           }
         `}
-        style={{ transform: isOpen ? "translateY(0)" : "translateY(100%)" }} // Ensure smooth transition
+        style={{ transform: isOpen ? "translateY(0)" : "translateY(100%)" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white shrink-0">
+        <div className="flex items-center justify-between p-3 bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground shrink-0">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10 border-2 border-white">
-              <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
-                alt="ACB Logo"
-              />
+            <Avatar className="w-10 h-10 border-2 border-primary bg-background dark:border-primary dark:bg-background">
+              <AvatarImage src="/images/logo.png" alt="PlushDollCustom Logo" />
               <AvatarFallback>AC</AvatarFallback>
             </Avatar>
-            <h2 className="text-lg font-semibold">Chat cùng ACB</h2>
+            <h2 className="text-base font-semibold dark:text-primary-foreground">
+              Chat cùng PlushDollCustom
+            </h2>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20"
+            className="text-primary-foreground hover:bg-primary/20 dark:text-primary-foreground dark:hover:bg-primary/20"
             onClick={toggleChat}
           >
             <Minus className="h-5 w-5" />
@@ -63,52 +133,59 @@ export default function ChatAIHomepage() {
         </div>
 
         {/* Chat Content */}
-        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-gray-50">
-          <div className="flex justify-center py-4">
-            <img
-              src="/placeholder.svg?height=120&width=120"
-              alt="Robot Illustration"
-              className="h-32 w-32 object-contain"
-            />
-          </div>
-          <div className="text-center text-gray-700 text-sm px-4">
-            <p>
-              Chào Bạn, mình là ONE - trợ lý thông minh của ACB. Rất vui được hỗ
-              trợ Bạn.
-            </p>
-          </div>
-
-          <div className="relative flex items-center justify-center py-4">
-            <div className="absolute inset-x-0 h-px bg-gray-200" />
-            <span className="relative z-10 bg-gray-50 px-3 text-xs text-gray-500">
-              Hôm nay
-            </span>
+        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-card text-card-foreground dark:bg-card dark:text-primary-foreground">
+          <div className="space-y-2">
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={
+                  msg.role === "user"
+                    ? "flex justify-end"
+                    : "flex justify-start items-start"
+                }
+              >
+                {msg.role === "bot" && (
+                  <Avatar className="w-6 h-6 mr-2 mt-0.5">
+                    <AvatarImage src="/images/logo.png" alt="Bot" />
+                    <AvatarFallback>PD</AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground dark:text-primary-foreground rounded-2xl px-4 py-2 max-w-[70%] text-base shadow-md dark:bg-primary"
+                      : "bg-muted text-muted-foreground dark:text-white rounded-xl px-3 py-1.5 max-w-[70%] text-base dark:bg-muted"
+                  }
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-muted text-muted-foreground rounded-lg px-3 py-1.5 max-w-xs animate-pulse text-xs dark:bg-muted dark:text-primary-foreground">
+                  Đang trả lời...
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Input Area */}
-        <div className="flex items-center p-4 border-t border-gray-200 bg-white space-x-2 shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-500 hover:bg-gray-100"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center p-4 border-t border-border bg-card text-card-foreground dark:bg-card dark:text-primary-foreground">
           <Input
             placeholder="Bạn cần hỗ trợ gì ..."
-            className="flex-1 rounded-full px-4 py-2 bg-gray-100 border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="flex-1 rounded-full px-3 py-1.5 bg-muted text-muted-foreground border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-xs dark:bg-muted dark:text-primary-foreground"
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
           />
           <Button
-            variant="ghost"
             size="icon"
-            className="text-gray-500 hover:bg-gray-100"
-          >
-            <Smile className="h-5 w-5" />
-          </Button>
-          <Button
-            size="icon"
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full dark:bg-primary dark:text-primary-foreground"
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
           >
             <Send className="h-5 w-5" />
           </Button>

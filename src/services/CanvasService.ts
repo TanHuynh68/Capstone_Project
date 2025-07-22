@@ -34,6 +34,7 @@ interface CanvasResponse {
     isLatest?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    versionNumber?: number; // <-- add this line
 }
 
 const CanvasService = () => {

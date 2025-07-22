@@ -23,7 +23,6 @@ import {
 import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/CanvasListInPage";
 import { USER_ROUTES } from "@/routes/path";
 import CanvasService from "@/services/CanvasService";
-import { toast } from "sonner";
 
 interface ImageDimensions {
   width: number;
@@ -273,14 +272,14 @@ export default function CanvasPage() {
             },
           });
         } else {
-          toast.error("Tạo canvas đầu tiên thất bại!");
+          // toast.error("Tạo canvas đầu tiên thất bại!");
         }
       } else {
-        toast.error("Không thể tạo thư mục mới");
+        // toast.error("Không thể tạo thư mục mới");
       }
     } catch (error) {
       console.error("Error creating folder or canvas:", error);
-      toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
+      // toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
     }
   };
 
