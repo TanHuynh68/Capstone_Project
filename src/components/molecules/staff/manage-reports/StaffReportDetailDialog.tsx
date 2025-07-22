@@ -11,12 +11,10 @@ import { Label } from "@/components/ui/label";
 import {
   FileText,
   Calendar,
-  MessageSquare,
   CheckCircle,
   XCircle,
   Clock,
-  ImageIcon,
-  User,
+  ImageIcon,  
 } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { useState } from "react";
