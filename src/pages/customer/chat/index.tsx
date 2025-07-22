@@ -4,11 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ChatTemplate from "@/components/templates/chat/ChatTemplate";
 import ChatService from "@/services/ChatService";
 import OfferService from "@/services/OfferService";
-import {
-  detectInputType,
-  reverseArray,
-  useCurrentUser,
-} from "@/utils";
+import { detectInputType, reverseArray, useCurrentUser } from "@/utils";
 import {
   type HubConnection,
   HubConnectionBuilder,
@@ -180,8 +176,7 @@ const Chat = () => {
       const sortedRooms = rooms.sort((a: UserChat, b: UserChat) => {
         if (a.updatedAt && b.updatedAt) {
           return (
-            new Date(b.updatedAt).getTime() -
-            new Date(a.updatedAt).getTime()
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
         }
 
@@ -285,6 +280,7 @@ const Chat = () => {
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       <ChatTemplate
+      setPosts={setPosts}
         fetchOffers={fetchOffers}
         offersPhase={offersPhase}
         fetchOfferPhase={fetchOfferPhase}
