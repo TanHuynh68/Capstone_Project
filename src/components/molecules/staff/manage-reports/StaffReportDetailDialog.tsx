@@ -22,6 +22,7 @@ import { formatFullDateWithDistance2 } from "@/utils/date";
 import { useState } from "react";
 import ImageGalleryModal from "../../customer/order-detail/ImageGalleryModal";
 import { getCustomerReportStatusBadge } from "@/components/atoms/customer-reports/CustomerReportBadges";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StaffReportDetailDialogProps {
   isOpen: boolean;
@@ -78,15 +79,8 @@ export default function StaffReportDetailDialog({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700">
-                        Tiêu đề
-                      </Label>
-                      <p className="text-sm bg-gray-100 p-2 rounded mt-1">
-                        {reportDetail.title}
-                      </p>
-                    </div>
                     <div>
                       <Label className="text-sm font-semibold text-gray-700">
                         Ngày tạo
@@ -96,43 +90,32 @@ export default function StaffReportDetailDialog({
                         {formatFullDateWithDistance2(reportDetail?.createdAt)}
                       </p>
                     </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-700">
+                        Người báo cáo
+                      </Label>
+                      <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                        {reportDetail.reporter}
+                      </p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Reporter Information */}
-              <Card className="shadow-sm border-gray-200">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <User className="h-5 w-5 text-purple-600" />
-                    Thông tin người báo cáo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
+                                    <div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-700">
+                        Tiêu đề
+                      </Label>
+                      <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                        {reportDetail.title}
+                      </p>
+                    </div>
+                  </div>
                   <div>
                     <Label className="text-sm font-semibold text-gray-700">
-                      Người báo cáo
+                      Nộ dung báo cáo
                     </Label>
-                    <p className="text-sm bg-gray-100 p-2 rounded mt-1">
-                      {reportDetail.reporter}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Content */}
-              <Card className="shadow-sm border-gray-200">
-                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-green-600" />
-                    Nội dung báo cáo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    <Textarea className="text-sm bg-gray-100 p-2 rounded mt-1">
                       {reportDetail.content}
-                    </p>
+                    </Textarea>
                   </div>
                 </CardContent>
               </Card>
@@ -324,11 +307,9 @@ export default function StaffReportDetailDialog({
                         <Label className="text-sm font-semibold text-gray-700">
                           Ghi chú xử lý
                         </Label>
-                        <div className="bg-gray-50 p-4 rounded-lg mt-1">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                         <Textarea className="text-sm leading-relaxed whitespace-pre-wrap">
                             {reportDetail.processNote}
-                          </p>
-                        </div>
+                          </Textarea>
                       </div>
                     )}
                   </CardContent>
