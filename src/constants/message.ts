@@ -72,6 +72,16 @@ export const MESSAGE = {
   DELETE_CANVAS_FAILED: "Xóa bản vẽ thất bại.",
   COPY_CANVAS_SUCCESSFULLY: "Sao chép canvas thành công.",
   COPY_CANVAS_FAILED: "Sao chép canvas thất bại.",
+  GET_FOLDER_CANVAS_SUCCESSFULLY: "Lấy thông tin thư mục thành công.",
+  GET_FOLDER_CANVAS_FAILED: "Lấy thông tin thư mục thất bại.",
+  PUT_FOLDER_CANVAS_SUCCESSFULLY: "Cập nhật thư mục thành công.",
+  PUT_FOLDER_CANVAS_FAILED: "Cập nhật thư mục thất bại.",
+  DELETE_FOLDER_CANVAS_SUCCESSFULLY: "Xóa thư mục thành công.",
+  DELETE_FOLDER_CANVAS_FAILED: "Xóa thư mục thất bại.",
+  POST_FOLDER_CANVAS_SUCCESSFULLY: "Tạo thư mục thành công.",
+  POST_FOLDER_CANVAS_FAILED: "Tạo thư mục thất bại.",
+  NEW_VERSION_CANVAS_SUCCESSFULLY: "Lưu version thành công.",
+  NEW_VERSION_CANVAS_FAILED: "Lưu version thất bại.",
   //POST
   CREATE_POST_SUCCESSFULLY: "Đăng bài thành công!",
   UPDATE_POST_SUCCESSFULLY: "Cập nhật bài đăng thành công!",
@@ -82,8 +92,9 @@ export const MESSAGE = {
   UPDATE_OFFER_PHASE_SUCCESSFULLY: "Cập nhật giai đoạn thành công!",
   //PROGRESS
   CREATE_PROGRESS_SUCCESSFULLY: "Gửi đánh giá quá trình thành công!",
-  CREATE_PROGRESS_STEP:"Tạo tiến độ thành công!",
+  CREATE_PROGRESS_STEP: "Tạo tiến độ thành công!",
   //CUSTOMER DEPOSIT FOR OFFERPHASE IN ORDER DETAIL
   DEPOSIT_SUCCESSFULLY: "Đặt cọc thành công!",
-  WITHDRAW_SUCCESSFULLY: "Đặt cọc thành công!",
+  //DESINGER WITHDRAW FOR OFFERPHASE IN ORDER DETAIL
+  WITHDRAW_SUCCESSFULLY: "Rút tiền cọc thành công!",
 };

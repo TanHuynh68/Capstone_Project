@@ -56,6 +56,7 @@ export const getCustomerReportStatusBadge = (status: string) => {
     label: status,
     variant: "outline" as const,
   };
+  
   return (
     <Badge variant={config.variant} className={config.className}>
       {config.label}

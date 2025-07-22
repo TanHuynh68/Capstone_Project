@@ -1,27 +1,33 @@
-
-import ReportsTable from "@/components/organisms/manage-reports/ReportsTable";
-import ProcessReportDialog from "@/components/molecules/manage-reports/ProcessReportDialog";
-import ReportsFilterBar from "@/components/molecules/manage-reports/ReportsFilterBar";
 import { useReportsLogic } from "@/hooks/useReportsLogic";
+import ReportsFilterBar from "@/components/molecules/staff/manage-reports/ReportsFilterBar";
+import ReportsTable from "@/components/organisms/staff/manage-reports/ReportsTable";
+import StaffReportDetailDialog from "@/components/molecules/staff/manage-reports/StaffReportDetailDialog";
+import ProcessReportDialog from "@/components/molecules/staff/manage-reports/ProcessReportDialog";
 
-const ManagerReportsByStaff = () => {
+export default function ManagerReportsByStaff() {
   const {
     reports,
     loading,
     totalPages,
     filters,
     selectedReport,
+    reportDetail,
     isProcessDialogOpen,
+    isDetailDialogOpen,
+    detailLoading,
+    handleViewDetail,
     handleProcessReport,
     handleUpdateReportStatus,
     handleProcessSubmit,
     handleSearch,
     handleFilterChange,
     handlePageChange,
-    handleCloseDialog,
+    handleCloseDetailDialog,
+    handleCloseProcessDialog,
   } = useReportsLogic();
 
-  const tableActions: TableActions = {
+  const tableActions = {
+    onViewDetail: handleViewDetail,
     onProcessReport: handleProcessReport,
     onUpdateStatus: handleUpdateReportStatus,
     onSearch: handleSearch,
@@ -30,13 +36,13 @@ const ManagerReportsByStaff = () => {
   };
 
   return (
-    <div className="px-4 space-y-4">
+    <div className=" p-6 space-y-6">
+      {/* Main Content */}
       <ReportsFilterBar
         filters={filters}
         onSearch={handleSearch}
         onFilterChange={handleFilterChange}
       />
-
       <ReportsTable
         reports={reports}
         loading={loading}
@@ -46,14 +52,21 @@ const ManagerReportsByStaff = () => {
         actions={tableActions}
       />
 
+      {/* Staff Report Detail Dialog */}
+      <StaffReportDetailDialog
+        isOpen={isDetailDialogOpen}
+        onClose={handleCloseDetailDialog}
+        reportDetail={reportDetail}
+        loading={detailLoading}
+      />
+
+      {/* Process Report Dialog */}
       <ProcessReportDialog
         isOpen={isProcessDialogOpen}
-        onClose={handleCloseDialog}
+        onClose={handleCloseProcessDialog}
         report={selectedReport}
         onSubmit={handleProcessSubmit}
       />
     </div>
   );
-};
-
-export default ManagerReportsByStaff;
+}

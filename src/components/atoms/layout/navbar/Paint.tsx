@@ -7,9 +7,9 @@ const Paint = () => {
   return (
     <div>
       <Button variant="ghost" size="icon" className="hidden md:flex">
-        <Link to={USER_ROUTES.PLUSHDOLL_DESIGN}>
+        <Link to={USER_ROUTES.CANVAS_PAGE}>
           <Paintbrush2 className="h-5 w-5" />
-          <span className="sr-only">Cart</span>
+          <span className="sr-only">Paint</span>
         </Link>
       </Button>
     </div>

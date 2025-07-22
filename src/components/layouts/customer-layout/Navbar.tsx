@@ -10,7 +10,7 @@ import Post from "@/components/atoms/layout/navbar/Post";
 import UserOption from "@/components/atoms/layout/navbar/UserOption";
 import UserAuth from "@/components/atoms/layout/navbar/UserAuth";
 import { isLoggedIn } from "@/utils";
-import { PATH} from "@/routes/path";
+import { PATH } from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
 import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
 import Balance from "@/components/atoms/layout/navbar/Balance";
@@ -74,20 +74,22 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background border-b">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-12">
         {/* Logo */}
         <div className="flex gap-2 items-center">
           <Link to={PATH.HOME} className="flex items-center space-x-2">
             <DualLogo />
           </Link>
           <div className="grid grid-cols-2 gap-20">
-            <div >
-             <Link to={PATH.MY_WALLET}>
-              {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
-             </Link>
+            <div>
+              <Link to={PATH.MY_WALLET}>
+                {isLoggedIn() && <Balance balance={wallet?.balance || 0} />}
+              </Link>
             </div>
             <div>
-              {isLoggedIn() && <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />}
+              {isLoggedIn() && (
+                <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />
+              )}
             </div>
           </div>
         </div>

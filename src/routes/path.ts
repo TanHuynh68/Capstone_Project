@@ -21,6 +21,7 @@ export enum USER_ROUTES {
   LOGIN_QR = "login-qr",
   CHAT = "/chat",
   PLUSHDOLL_DESIGN = "plushdoll-design",
+  CANVAS_PAGE = "canvas",
   ABOUT_PAGE = "about",
   CONTACT_PAGE = "contact",
   POST_PAGE = "post",

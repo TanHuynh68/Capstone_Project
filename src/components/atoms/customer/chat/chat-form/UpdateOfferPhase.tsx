@@ -75,12 +75,10 @@ const UpdateOfferPhase = ({ offer, fetchOfferPhase, onSuccess }: UpdateOfferPhas
         await fetchOfferPhase(offer.offerID)
         toast.success(MESSAGE.UPDATE_OFFER_PHASE_SUCCESSFULLY)
         onSuccess?.() // Gọi callback để đóng dialog
-      } else {
-        toast.error("Cập nhật giai đoạn thất bại. Vui lòng thử lại.")
-      }
+      } 
     } catch (error) {
       console.error("Error updating offer phase:", error)
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại.")
+      // toast.error("Có lỗi xảy ra. Vui lòng thử lại.")
     } finally {
       setIsSubmitting(false)
     }

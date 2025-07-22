@@ -81,7 +81,7 @@ export function Footer() {
         ></div>
       </div>
 
-      <div className="container px-4 py-12 md:px-10 md:py-12 relative">
+      <div className="container px-4 py-12 md:px-12 md:py-12 relative ">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-8">
           {/* Thông tin công ty */}
           <div

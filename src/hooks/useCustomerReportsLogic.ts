@@ -10,7 +10,7 @@ export const useCustomerReportsLogic = () => {
   const [loading, setLoading] = useState(false)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedReport, setSelectedReport] = useState<CustomerReport | null>(null)
-  const [reportDetail, setReportDetail] = useState<CustomerReportDetail | null>(null)
+  const [reportDetail, setReportDetail] = useState<ReportDetail | null>(null)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)

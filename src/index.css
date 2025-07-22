@@ -515,3 +515,8 @@ input[type="color"].circle-color-picker::-moz-color-swatch {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.8);
 }
+
+.radix-dropdown-menu-subcontent {
+  top: 0 !important;
+  margin-top: 0 !important;
+}
