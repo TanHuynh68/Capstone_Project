@@ -7,6 +7,7 @@ interface ChatPostCardsProps {
   offersPhase: any;
   fetchOffers: any;
 }
+
 const ChatPostCardList = ({
   data,
   fetchOfferPhase,

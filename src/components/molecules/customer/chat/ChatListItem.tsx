@@ -33,7 +33,7 @@ export default function ChatListItem({
       <ChatAvatar src={avatar} name={name} />
       <div className="flex-1 min-w-0">
         <div className={cn("font-medium truncate", isActive && "text-blue-600")}>{name}</div>
-        <div className="text-sm text-gray-400 truncate">
+        <div className="text-sm text-gray-400 truncate w-[250px]">
           {currentUser?.id === usersInChatSection.senderID
             ? `Bạn: ${renderLastMessage(usersInChatSection.lastMessage, usersInChatSection.messageType)}`
             : renderLastMessage(usersInChatSection.lastMessage, usersInChatSection.messageType)}

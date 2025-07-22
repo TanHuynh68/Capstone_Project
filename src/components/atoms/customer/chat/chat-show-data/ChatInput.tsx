@@ -22,9 +22,9 @@ export default function ChatInput({
   ...props
 }: ChatInputProps) {
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex items-end">
       {/* Plus Icon - Left Side */}
-      <div className="absolute left-3 z-10">
+      <div className="absolute left-3 bottom-3 z-10">
         <Popover>
           <PopoverTrigger asChild>
             <button type="button" className="p-1 hover:bg-gray-200 rounded-full transition-colors">
@@ -59,13 +59,13 @@ export default function ChatInput({
 
       {/* Textarea */}
       <Textarea
-        className="rounded-2xl border border-gray-300 bg-white min-h-[50px] max-h-[120px] w-full overflow-y-auto resize-none pl-12 pr-12 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="rounded-2xl border border-gray-300 bg-white min-h-[50px] max-h-[200px] w-full overflow-y-auto resize-none pl-12 pr-12 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 break-all"
         placeholder={placeholder}
         {...props}
       />
 
       {/* Send Button - Right Side */}
-      <div className="absolute right-3 z-10">
+      <div className="absolute right-3 bottom-3 z-10">
         <button
           type="button"
           onClick={onSendClick}

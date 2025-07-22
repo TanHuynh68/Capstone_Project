@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 // import type { TimelineItemData } from "../../../molecules/timeline/TimelineItem"
 // import TimelineTemplate from "@/components/templates/timeline/TimelineTemplate"
 import PostCard from "./PostCard"
+
 interface InfoAboutTheConversationTabProps {
   posts: OfferDetail[]
   value: string
@@ -29,16 +30,13 @@ const InfoAboutTheConversationTab = ({
   useEffect(() => {
     if (value !== currentValue) {
       setIsTransitioning(true)
-
       const timer = setTimeout(() => {
         setCurrentValue(value)
         setAnimationKey((prev) => prev + 1)
-
         setTimeout(() => {
           setIsTransitioning(false)
         }, 50)
       }, 200)
-
       return () => clearTimeout(timer)
     }
   }, [value, currentValue])
@@ -88,7 +86,6 @@ const InfoAboutTheConversationTab = ({
               <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg">
                 <div className="text-lg font-medium mb-2">Danh sách đề xuất</div>
                 <div className="text-sm mb-4">Nội dung đề xuất sẽ hiển thị ở đây</div>
-
                 {/* Mock content for testing scroll */}
                 <div className="space-y-3 text-left max-h-96 overflow-y-auto">
                   {Array.from({ length: 10 }, (_, i) => (
