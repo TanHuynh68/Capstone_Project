@@ -41,7 +41,7 @@ const CanvasService = () => {
     //   const navigate = useNavigate();
     //   const dispatch = useDispatch();
 
-    const getCanvas = useCallback(
+    const getCanvasHistory = useCallback(
         async (values: GetCanvasRequest) => {
             try {
                 const res = await callApi(
@@ -171,18 +171,6 @@ const CanvasService = () => {
         [callApi]
     );
 
-    // const deleteFolderCanvas = useCallback(
-    //     async (values: any) => {
-    //         try {
-    //             const res = await callApi(HTTP_METHOD.DELETE, API_ROUTES.DELETE_FOLDER_CANVAS, values);
-    //             return res;
-    //         } catch (err: any) {
-    //             toast.error(err?.response?.data || MESSAGE.DELETE_FOLDER_CANVAS_FAILED);
-    //         }
-    //     },
-    //     [callApi]
-    // );
-
     const deleteFolderCanvas = useCallback(
         async (values: any) => {
             try {
@@ -200,8 +188,20 @@ const CanvasService = () => {
         [callApi]
     );
 
+    const newVersionCanvas = useCallback(
+        async (values: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.POST, API_ROUTES.NEW_VERSION_CANVAS, values);
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || MESSAGE.NEW_VERSION_CANVAS_FAILED);
+            }
+        },
+        [callApi]
+    );
+
     return {
-        getCanvas,
+        getCanvasHistory,
         postCanvas,
         putCanvas,
         deleteCanvas,
@@ -211,7 +211,8 @@ const CanvasService = () => {
         putFolderCanvas,
         deleteFolderCanvas,
         loading,
-        setIsLoading
+        setIsLoading,
+        newVersionCanvas
     };
 };
 

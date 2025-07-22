@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/canvaslistinpage";
+import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/CanvasListInPage";
 import { USER_ROUTES } from "@/routes/path";
 import CanvasService from "@/services/CanvasService";
 import { toast } from "sonner";
@@ -50,6 +50,8 @@ export default function CanvasPage() {
   const [unit, setUnit] = useState<Unit>("px");
   const [dpi] = useState(300); // Standard print DPI
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [folderNameInput, setFolderNameInput] = useState("");
+  const { postFolderCanvas, postCanvas } = CanvasService();
 
   // Canvas selection state
   const [selectedCanvasId, setSelectedCanvasId] = useState<string>("");
@@ -189,12 +191,14 @@ export default function CanvasPage() {
     setImageHeight([1000]);
     setCanvasWidth(1200);
     setCanvasHeight(1200);
+    setFolderNameInput("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   const createCanvas = async () => {
+    console.log("createCanvas");
     const finalImageWidthPx =
       unit === "px"
         ? imageWidth[0]
@@ -208,18 +212,18 @@ export default function CanvasPage() {
         ? cmToPx(imageHeight[0])
         : mmToPx(imageHeight[0]);
 
-    console.log(
-      `Creating canvas: ${canvasWidth}×${canvasHeight}px with image: ${finalImageWidthPx}×${finalImageHeightPx}px`
-    );
-
     try {
-      // Create a new folder with default name
+      console.log("CanvasService", CanvasService);
+      // Create a new folder with input name or default name
       const defaultFolderName = `Thư mục thiết kế ${new Date().toLocaleDateString()}`;
-      const { postFolderCanvas } = CanvasService();
+      const folderName = folderNameInput.trim() || defaultFolderName;
+      console.log("Trước khi gọi CanvasService");
 
+      // 1. Tạo folder
       const response = await postFolderCanvas({
-        folderName: defaultFolderName,
+        folderName: folderName,
       });
+      console.log("response", response);
 
       if (
         response?.statusCode === 200 &&
@@ -227,64 +231,56 @@ export default function CanvasPage() {
       ) {
         const newFolderId = response.responseRequestModel.canvasFolderId;
 
-        // Navigate to plushdoll design with the new folder
-        navigate(USER_ROUTES.PLUSHDOLL_DESIGN, {
-          state: {
-            canvasWidth,
-            canvasHeight,
+        // 2. Tạo canvas đầu tiên trong folder
+        const canvasResponse = await postCanvas({
+          canvasFolderId: newFolderId,
+          canvasTitle: "Thiết kế 1",
+          canvasDescription: JSON.stringify({
+            version: "5.5.2",
+            objects: [],
+            background: "#ffffff",
+            width: canvasWidth,
+            height: canvasHeight,
             imageWidth: finalImageWidthPx,
             imageHeight: finalImageHeightPx,
-            canvasFolderId: newFolderId,
-            isNewFolder: true,
-          },
+          }),
         });
+        if (
+          canvasResponse?.isSuccess &&
+          canvasResponse?.responseRequestModel?.canvasInfoId
+        ) {
+          // Navigate to plushdoll design with the new folder
+          navigate(USER_ROUTES.PLUSHDOLL_DESIGN, {
+            state: {
+              canvasWidth,
+              canvasHeight,
+              imageWidth: finalImageWidthPx,
+              imageHeight: finalImageHeightPx,
+              canvasFolderId: newFolderId,
+              isNewFolder: true,
+              selectedCanvasId:
+                canvasResponse.responseRequestModel.canvasInfoId,
+              canvasTitle: "Thiết kế 1",
+              canvasDescription: JSON.stringify({
+                version: "5.5.2",
+                objects: [],
+                background: "#ffffff",
+                width: canvasWidth,
+                height: canvasHeight,
+                imageWidth: finalImageWidthPx,
+                imageHeight: finalImageHeightPx,
+              }),
+            },
+          });
+        } else {
+          toast.error("Tạo canvas đầu tiên thất bại!");
+        }
       } else {
         toast.error("Không thể tạo thư mục mới");
       }
     } catch (error) {
-      console.error("Error creating folder:", error);
-      toast.error("Có lỗi xảy ra khi tạo thư mục");
-    }
-  };
-
-  const createQuickCanvas = async (
-    type: string,
-    width: number,
-    height: number
-  ) => {
-    console.log(`Creating ${type} canvas: ${width}×${height}px`);
-
-    try {
-      // Create a new folder with default name based on type
-      const defaultFolderName = `Thư mục ${type}`;
-      const { postFolderCanvas } = CanvasService();
-
-      const response = await postFolderCanvas({
-        folderName: defaultFolderName,
-      });
-
-      if (
-        response?.statusCode === 200 &&
-        response?.responseRequestModel?.canvasFolderId
-      ) {
-        const newFolderId = response.responseRequestModel.canvasFolderId;
-
-        // Navigate to plushdoll design with the new folder
-        navigate(USER_ROUTES.PLUSHDOLL_DESIGN, {
-          state: {
-            canvasWidth: width,
-            canvasHeight: height,
-            canvasType: type,
-            canvasFolderId: newFolderId,
-            isNewFolder: true,
-          },
-        });
-      } else {
-        toast.error("Không thể tạo thư mục mới");
-      }
-    } catch (error) {
-      console.error("Error creating folder:", error);
-      toast.error("Có lỗi xảy ra khi tạo thư mục");
+      console.error("Error creating folder or canvas:", error);
+      toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
     }
   };
 
@@ -327,14 +323,33 @@ export default function CanvasPage() {
       : mmToPx(imageHeight[0]);
   };
 
+  // Định nghĩa giá trị tối đa theo cm, px, mm
+  const MAX_WIDTH_CM = 100;
+  const MAX_HEIGHT_CM = 150;
+  const MAX_WIDTH_PX = cmToPx(MAX_WIDTH_CM);
+  const MAX_HEIGHT_PX = cmToPx(MAX_HEIGHT_CM);
+  const MAX_WIDTH_MM = MAX_WIDTH_CM * 10;
+  const MAX_HEIGHT_MM = MAX_HEIGHT_CM * 10;
+
   const getSliderMax = () => {
     switch (unit) {
       case "cm":
-        return 200;
+        return MAX_WIDTH_CM;
       case "mm":
-        return 2000;
+        return MAX_WIDTH_MM;
       default:
-        return 5000;
+        return MAX_WIDTH_PX;
+    }
+  };
+
+  const getSliderMaxHeight = () => {
+    switch (unit) {
+      case "cm":
+        return MAX_HEIGHT_CM;
+      case "mm":
+        return MAX_HEIGHT_MM;
+      default:
+        return MAX_HEIGHT_PX;
     }
   };
 
@@ -386,6 +401,28 @@ export default function CanvasPage() {
     });
   };
 
+  const handlePresetSelect = ({
+    width,
+    height,
+    imageUrl,
+  }: {
+    width: number;
+    height: number;
+    imageUrl?: string;
+  }) => {
+    setUploadedImage(imageUrl || "_preset_");
+    setImageDimensions({
+      width,
+      height,
+      aspectRatio: calculateAspectRatio(width, height),
+      suggestedCanvas: { width: width + 200, height: height + 200 },
+    });
+    setImageWidth([width]);
+    setImageHeight([height]);
+    setCanvasWidth(width + 200);
+    setCanvasHeight(height + 200);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-purple-100 to-pink-100">
       {/* Header */}
@@ -420,17 +457,11 @@ export default function CanvasPage() {
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-orange-50 border-2 hover:border-orange-300"
                   onClick={() => {
-                    // Charm nhỏ - 600×600px + 200px padding (để chứa được Labubu cao 15-17cm)
-                    const imageSize = { width: 600, height: 600 };
-                    const canvasSize = { width: 800, height: 800 };
-                    console.log(
-                      `Creating Móc khóa Labubu canvas: ${canvasSize.width}×${canvasSize.height}px (image: ${imageSize.width}×${imageSize.height}px)`
-                    );
-                    createQuickCanvas(
-                      "Móc khóa Labubu",
-                      canvasSize.width,
-                      canvasSize.height
-                    );
+                    handlePresetSelect({
+                      width: 600,
+                      height: 600,
+                      imageUrl: "/images/labubu-moc-khoa.png",
+                    });
                   }}
                 >
                   <CardContent className="p-3 text-center">
@@ -453,17 +484,11 @@ export default function CanvasPage() {
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-purple-50 border-2 hover:border-purple-300"
                   onClick={() => {
-                    // Plush trung - 1400×1400px + 200px padding
-                    const imageSize = { width: 1400, height: 1400 };
-                    const canvasSize = { width: 1600, height: 1600 };
-                    console.log(
-                      `Creating Plush trung canvas: ${canvasSize.width}×${canvasSize.height}px (image: ${imageSize.width}×${imageSize.height}px)`
-                    );
-                    createQuickCanvas(
-                      "Labubu vừa",
-                      canvasSize.width,
-                      canvasSize.height
-                    );
+                    handlePresetSelect({
+                      width: 1400,
+                      height: 1400,
+                      imageUrl: "/images/labubu-vua.png",
+                    });
                   }}
                 >
                   <CardContent className="p-3 text-center">
@@ -488,17 +513,11 @@ export default function CanvasPage() {
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-blue-50 border-2 hover:border-blue-300"
                   onClick={() => {
-                    // Labubu 400% - 1008×1008px + 200px padding
-                    const imageSize = { width: 1008, height: 1008 };
-                    const canvasSize = { width: 1208, height: 1208 };
-                    console.log(
-                      `Creating Labubu 400% canvas: ${canvasSize.width}×${canvasSize.height}px (image: ${imageSize.width}×${imageSize.height}px)`
-                    );
-                    createQuickCanvas(
-                      "Labubu 400%",
-                      canvasSize.width,
-                      canvasSize.height
-                    );
+                    handlePresetSelect({
+                      width: 1008,
+                      height: 1008,
+                      imageUrl: "/images/labubu-400%.png",
+                    });
                   }}
                 >
                   <CardContent className="p-3 text-center">
@@ -523,17 +542,11 @@ export default function CanvasPage() {
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-pink-50 border-2 hover:border-pink-300"
                   onClick={() => {
-                    // Labubu 1000% - 2268×2268px + 200px padding (chiều cao thực tế ~79.2cm)
-                    const imageSize = { width: 2268, height: 2268 };
-                    const canvasSize = { width: 2468, height: 2468 };
-                    console.log(
-                      `Creating Labubu 1000% canvas: ${canvasSize.width}×${canvasSize.height}px (image: ${imageSize.width}×${imageSize.height}px)`
-                    );
-                    createQuickCanvas(
-                      "Labubu 1000%",
-                      canvasSize.width,
-                      canvasSize.height
-                    );
+                    handlePresetSelect({
+                      width: 2268,
+                      height: 2268,
+                      imageUrl: "/images/labubu-1000%.png",
+                    });
                   }}
                 >
                   <CardContent className="p-3 text-center">
@@ -611,7 +624,19 @@ export default function CanvasPage() {
 
                   <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-4">
                     <img
-                      src={uploadedImage || "/placeholder.svg"}
+                      src={
+                        uploadedImage && uploadedImage !== "_preset_"
+                          ? uploadedImage
+                          : imageDimensions && imageDimensions.width === 600
+                          ? "/images/labubu-moc-khoa.png"
+                          : imageDimensions && imageDimensions.width === 1400
+                          ? "/images/labubu-vua.png"
+                          : imageDimensions && imageDimensions.width === 1008
+                          ? "/images/labubu-400%.png"
+                          : imageDimensions && imageDimensions.width === 2268
+                          ? "/images/labubu-1000%.png"
+                          : "/placeholder.svg"
+                      }
                       alt="Uploaded Labubu"
                       className="w-full h-auto max-h-64 object-contain"
                     />
@@ -667,7 +692,8 @@ export default function CanvasPage() {
                             onChange={(e) => {
                               const value =
                                 Number.parseFloat(e.target.value) || 0;
-                              setImageWidth([value]);
+                              const max = getSliderMax();
+                              setImageWidth([value > max ? max : value]);
                             }}
                             min={getSliderMin()}
                             max={getSliderMax()}
@@ -681,7 +707,10 @@ export default function CanvasPage() {
                         <div className="flex-1">
                           <Slider
                             value={imageWidth}
-                            onValueChange={setImageWidth}
+                            onValueChange={(val) => {
+                              const max = getSliderMax();
+                              setImageWidth([val[0] > max ? max : val[0]]);
+                            }}
                             max={getSliderMax()}
                             min={getSliderMin()}
                             step={getSliderStep()}
@@ -709,10 +738,11 @@ export default function CanvasPage() {
                             onChange={(e) => {
                               const value =
                                 Number.parseFloat(e.target.value) || 0;
-                              setImageHeight([value]);
+                              const max = getSliderMaxHeight();
+                              setImageHeight([value > max ? max : value]);
                             }}
                             min={getSliderMin()}
-                            max={getSliderMax()}
+                            max={getSliderMaxHeight()}
                             step={getSliderStep()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                           />
@@ -723,8 +753,11 @@ export default function CanvasPage() {
                         <div className="flex-1">
                           <Slider
                             value={imageHeight}
-                            onValueChange={setImageHeight}
-                            max={getSliderMax()}
+                            onValueChange={(val) => {
+                              const max = getSliderMaxHeight();
+                              setImageHeight([val[0] > max ? max : val[0]]);
+                            }}
+                            max={getSliderMaxHeight()}
                             min={getSliderMin()}
                             step={getSliderStep()}
                             className="w-full"
@@ -839,16 +872,37 @@ export default function CanvasPage() {
                         </div>
                       </div>
 
+                      {/* Folder Name Input */}
+                      <div className="flex flex-col gap-2">
+                        <label
+                          className="text-sm font-medium text-gray-700"
+                          htmlFor="folderNameInput"
+                        >
+                          Tên thư mục thiết kế
+                        </label>
+                        <input
+                          id="folderNameInput"
+                          type="text"
+                          value={folderNameInput}
+                          onChange={(e) => setFolderNameInput(e.target.value)}
+                          placeholder="Nhập tên thư mục (tuỳ chọn)"
+                          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                      </div>
+
                       {/* Canvas Visual Preview */}
                       <div className="p-4 bg-gray-50 rounded-lg">
                         <h4 className="font-medium text-gray-800 mb-3">
                           👁️ Xem trước Canvas
                         </h4>
                         <div
-                          className="relative bg-white border-2 border-dashed border-gray-300 rounded-lg"
+                          className="relative bg-white border-2 border-dashed border-gray-300 rounded-lg mx-auto"
                           style={{
                             aspectRatio: `${canvasWidth}/${canvasHeight}`,
-                            height: "200px",
+                            maxWidth: "100%",
+                            width: "100%",
+                            height: "min(320px, 60vw)", // Giới hạn chiều cao, tự động co theo tỉ lệ
+                            display: "block",
                           }}
                         >
                           <div

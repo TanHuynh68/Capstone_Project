@@ -9,7 +9,7 @@ interface CanvasListSidebarProps {
   onClose: () => void;
   initialCanvasState?: {
     canvasId: string;
-    canvasTitle: string;
+    folderName: string;
     canvasDescription: string;
   };
   selectedCanvasId?: string;

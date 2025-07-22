@@ -41,7 +41,8 @@ interface CanvasListProps {
     canvasDescription: string,
     folderName: string,
     canvasId: string,
-    folderId?: string
+    folderId?: string,
+    hasExistingCanvas?: boolean
   ) => void;
   initialCanvasState?: {
     canvasId: string;
@@ -82,6 +83,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     postFolderCanvas,
     putFolderCanvas,
     deleteFolderCanvas,
+    postCanvas,
   } = CanvasService();
 
   // Function to generate canvas preview
@@ -178,9 +180,10 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     description: string,
     title: string,
     id: string,
-    folderId?: string
+    folderId?: string,
+    hasExistingCanvas?: boolean
   ) => {
-    onSelect(description, title, id, folderId);
+    onSelect(description, title, id, folderId, hasExistingCanvas);
   };
 
   const handleSearch = () => {
@@ -193,8 +196,30 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     try {
       setLoading(true);
       const response = await postFolderCanvas({ folderName: newFolderName });
-      if (response?.statusCode === 200) {
+      if (
+        response?.statusCode === 200 &&
+        response?.responseRequestModel?.canvasFolderId
+      ) {
         toast.success("Tạo thư mục thành công!");
+        // Sau khi tạo folder, tạo luôn canvas đầu tiên
+        const folderId = response.responseRequestModel.canvasFolderId;
+        const canvasResponse = await postCanvas({
+          canvasFolderId: folderId,
+          canvasTitle: "Thiết kế 1",
+          canvasDescription: JSON.stringify({
+            version: "5.5.2",
+            objects: [],
+            background: "#ffffff",
+          }),
+        });
+        if (
+          canvasResponse?.isSuccess &&
+          canvasResponse?.responseRequestModel?.canvasInfoId
+        ) {
+          // ĐÃ TẠO xong canvas đầu tiên, chỉ load lại danh sách, KHÔNG tự động chuyển trang
+        } else {
+          toast.error("Tạo canvas đầu tiên thất bại!");
+        }
         loadList(); // Refresh the list
       } else {
         // toast.error(response?.message || "Tạo thư mục thất bại!");
@@ -449,16 +474,13 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                       item.canvasFolderId
                     );
                   } else {
-                    // Folder is empty - create new canvas in this folder
-                    console.log("Creating new canvas in folder:", {
-                      folderName: item.folderName,
-                      folderId: item.canvasFolderId,
-                    });
-                    handleSelectCanvas(
-                      "", // No canvas description
-                      `Thiết kế mới - ${item.folderName}`, // Use folder name as title
-                      item.canvasFolderId, // Use folder ID as canvas ID
-                      item.canvasFolderId
+                    // Folder is empty - chuyển sang trang thiết kế, truyền state để tạo canvas ở trang thiết kế
+                    onSelect(
+                      "", // canvasDescription
+                      item.folderName,
+                      "", // canvasId (chưa có)
+                      item.canvasFolderId,
+                      false // hasExistingCanvas
                     );
                   }
                 }}

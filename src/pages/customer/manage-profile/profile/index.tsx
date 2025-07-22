@@ -47,6 +47,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import LoadingSpinner from "@/components/atoms/custom/loading-spinner/LoadingSpinner";
 import { AnimatePresence, motion } from "framer-motion";
 import { easeInOut } from "framer-motion";
+import ChatAIHomepage from "../../chat-ai-homepage";
 
 interface Profile {
   accountID: string;
@@ -781,7 +782,6 @@ const Profile = () => {
           )}
         </AnimatePresence>
       </Tabs>
-
       <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -910,6 +910,7 @@ const Profile = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ChatAIHomepage />
     </>
   );
 };

@@ -80,6 +80,8 @@ export const MESSAGE = {
   DELETE_FOLDER_CANVAS_FAILED: "Xóa thư mục thất bại.",
   POST_FOLDER_CANVAS_SUCCESSFULLY: "Tạo thư mục thành công.",
   POST_FOLDER_CANVAS_FAILED: "Tạo thư mục thất bại.",
+  NEW_VERSION_CANVAS_SUCCESSFULLY: "Lưu version thành công.",
+  NEW_VERSION_CANVAS_FAILED: "Lưu version thất bại.",
   //POST
   CREATE_POST_SUCCESSFULLY: "Đăng bài thành công!",
   UPDATE_POST_SUCCESSFULLY: "Cập nhật bài đăng thành công!",
