@@ -8,6 +8,8 @@ import { Minus, Send } from "lucide-react";
 import ChatAIService from "@/services/ChatAIService";
 import Lottie from "react-lottie-player";
 import robotAIAnimation from "@/../public/lottiefiles/RobotAI.json";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 export default function ChatAIHomePage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +23,12 @@ export default function ChatAIHomePage() {
   ]);
   const [loading, setLoading] = useState(false);
   const { postChatAI } = ChatAIService();
+
+  const userId = useSelector((state: RootState) => state.user.id);
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  if (!userId || !token) return null;
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
