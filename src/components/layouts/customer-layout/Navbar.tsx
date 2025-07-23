@@ -88,7 +88,12 @@ export function Navbar() {
             </div>
             <div>
               {isLoggedIn() && (
-                <Deposit deposits={depositMoney} amount={wallet?.locked || 0} />
+                <Deposit
+                  deposits={depositMoney.filter(
+                    (item) => item.type === "Deposit"
+                  )}
+                  amount={wallet?.locked || 0}
+                />
               )}
             </div>
           </div>

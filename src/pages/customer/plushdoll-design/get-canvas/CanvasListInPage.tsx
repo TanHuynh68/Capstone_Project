@@ -1,6 +1,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft, Plus, Edit, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Edit,
+  Trash2,
+  FolderOpen,
+  FolderX,
+  Loader2,
+} from "lucide-react";
 import SidebarSearchBar from "../SidebarSearchBar";
 import CanvasService from "@/services/CanvasService";
 import { toast } from "sonner";
@@ -9,19 +17,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface FabricObject {
-  scaleX?: number;
-  scaleY?: number;
-  left?: number;
-  top?: number;
-  fontSize?: number;
-}
+import { formatFullDateWithDistance3 } from "@/utils/date";
 
 interface CanvasFolder {
   canvasFolderId: string;
@@ -65,10 +65,8 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   // Dialog states
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingFolder, setEditingFolder] = useState<CanvasFolder | null>(null);
-  const [newFolderName, setNewFolderName] = useState("");
   const [editFolderName, setEditFolderName] = useState("");
 
   // Delete confirmation state
@@ -78,13 +76,8 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   );
   const [isEditDialogJustOpened, setIsEditDialogJustOpened] = useState(false);
   const size = 10;
-  const {
-    getFolderCanvas,
-    postFolderCanvas,
-    putFolderCanvas,
-    deleteFolderCanvas,
-    postCanvas,
-  } = CanvasService();
+  const { getFolderCanvas, putFolderCanvas, deleteFolderCanvas } =
+    CanvasService();
 
   // Function to generate canvas preview
   const generateCanvasPreview = async (item: CanvasFolder): Promise<string> => {
@@ -96,27 +89,31 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
 
       // If we have canvas description, generate preview from it
       if (item.latestCanvasInfo?.canvasDescription) {
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = 444;
-        tempCanvas.height = 250;
-        const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
-          backgroundColor: "#fff",
-        });
-
+        // Lấy kích thước gốc từ canvasDescription
+        let originalWidth = 960;
+        let originalHeight = 540;
+        let previewWidth = 444;
+        let previewHeight = 250;
         try {
           const parsedDesc = JSON.parse(
             item.latestCanvasInfo.canvasDescription
           );
-          const scaleX = tempCanvas.width / 960;
-          const scaleY = tempCanvas.height / 540;
-          const scale = Math.min(scaleX, scaleY);
-
-          parsedDesc.objects?.forEach((obj: FabricObject) => {
-            if (obj.scaleX) obj.scaleX *= scale;
-            if (obj.scaleY) obj.scaleY *= scale;
-            if (obj.left) obj.left *= scale;
-            if (obj.top) obj.top *= scale;
-            if (obj.fontSize) obj.fontSize *= scale;
+          if (parsedDesc.width && parsedDesc.height) {
+            originalWidth = parsedDesc.width;
+            originalHeight = parsedDesc.height;
+            // Tính preview giữ nguyên tỉ lệ
+            const scale = Math.min(
+              previewWidth / originalWidth,
+              previewHeight / originalHeight
+            );
+            previewWidth = Math.round(originalWidth * scale);
+            previewHeight = Math.round(originalHeight * scale);
+          }
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = originalWidth;
+          tempCanvas.height = originalHeight;
+          const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
+            backgroundColor: "#fff",
           });
 
           await new Promise((resolve) => {
@@ -128,7 +125,36 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             });
           });
 
-          return fabricCanvas.toDataURL({ format: "png" });
+          // Sau khi render xong, tạo preview nhỏ hơn bằng cách vẽ lên canvas nhỏ
+          const previewCanvas = document.createElement("canvas");
+          previewCanvas.width = previewWidth;
+          previewCanvas.height = previewHeight;
+          const ctx = previewCanvas.getContext("2d");
+          if (ctx) {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, previewWidth, previewHeight);
+            // fabric v5+ dùng getElement(), v4 dùng lowerCanvasEl
+            const canvasEl =
+              typeof fabricCanvas.getElement === "function"
+                ? (fabricCanvas.getElement() as HTMLCanvasElement)
+                : (
+                    fabricCanvas as unknown as {
+                      lowerCanvasEl: HTMLCanvasElement;
+                    }
+                  ).lowerCanvasEl;
+            ctx.drawImage(
+              canvasEl,
+              0,
+              0,
+              originalWidth,
+              originalHeight,
+              0,
+              0,
+              previewWidth,
+              previewHeight
+            );
+            return previewCanvas.toDataURL("image/png");
+          }
         } catch (parseError) {
           console.error("Error parsing canvas description:", parseError);
         }
@@ -191,47 +217,6 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     setPage(1);
   };
 
-  // Create new folder
-  const handleCreateFolder = async (newFolderName: string) => {
-    try {
-      setLoading(true);
-      const response = await postFolderCanvas({ folderName: newFolderName });
-      if (
-        response?.statusCode === 200 &&
-        response?.responseRequestModel?.canvasFolderId
-      ) {
-        toast.success("Tạo thư mục thành công!");
-        // Sau khi tạo folder, tạo luôn canvas đầu tiên
-        const folderId = response.responseRequestModel.canvasFolderId;
-        const canvasResponse = await postCanvas({
-          canvasFolderId: folderId,
-          canvasTitle: "Thiết kế 1",
-          canvasDescription: JSON.stringify({
-            version: "5.5.2",
-            objects: [],
-            background: "#ffffff",
-          }),
-        });
-        if (
-          canvasResponse?.isSuccess &&
-          canvasResponse?.responseRequestModel?.canvasInfoId
-        ) {
-          // ĐÃ TẠO xong canvas đầu tiên, chỉ load lại danh sách, KHÔNG tự động chuyển trang
-        } else {
-          toast.error("Tạo canvas đầu tiên thất bại!");
-        }
-        loadList(); // Refresh the list
-      } else {
-        // toast.error(response?.message || "Tạo thư mục thất bại!");
-      }
-    } catch (error) {
-      console.error("Error creating folder:", error);
-      //   toast.error("Tạo thư mục thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Update folder name
   const handleUpdateFolder = async (
     canvasFolderId: string,
@@ -277,16 +262,6 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   };
 
   // Dialog handlers
-  const handleCreateFolderSubmit = async () => {
-    if (!newFolderName.trim()) {
-      toast.error("Vui lòng nhập tên thư mục!");
-      return;
-    }
-    await handleCreateFolder(newFolderName.trim());
-    setIsCreateDialogOpen(false);
-    setNewFolderName("");
-  };
-
   const handleEditFolderSubmit = async () => {
     console.log("Submitting edit with:", { editingFolder, editFolderName });
     if (!editingFolder || !editFolderName.trim()) {
@@ -302,43 +277,12 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     setEditFolderName("");
   };
 
-  const openEditDialog = (folder: CanvasFolder) => {
-    console.log("Opening edit dialog for folder:", folder);
-    setEditingFolder(folder);
-    setEditFolderName(folder.folderName);
-    setIsEditDialogOpen(true);
-    setIsEditDialogJustOpened(true);
-  };
-
-  const openDeleteDialog = (folder: CanvasFolder) => {
-    setDeletingFolder(folder);
-    setIsDeleteDialogOpen(true);
-  };
-
   const handleDeleteConfirm = async () => {
     if (!deletingFolder) return;
 
     await handleDeleteFolder(deletingFolder.canvasFolderId);
     setIsDeleteDialogOpen(false);
     setDeletingFolder(null);
-  };
-
-  // Format date function
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    );
-
-    if (diffInHours < 1) {
-      return "Vừa tạo";
-    } else if (diffInHours < 24) {
-      return `Đã tạo ${diffInHours} giờ trước`;
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `Đã tạo ${diffInDays} ngày trước`;
-    }
   };
 
   useEffect(() => {
@@ -389,8 +333,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
 
   return (
     <div className="space-y-4 p-2">
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+      {/* Redesigned Search Bar UI */}
+      <div className="flex justify-center items-center py-4">
+        <div className="relative w-full max-w-4xl">
           <SidebarSearchBar
             value={folderName}
             onChange={(e) => setFolderName(e.target.value)}
@@ -402,57 +347,33 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             loading={loading}
           />
         </div>
-
-        {/* Create Folder Button */}
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Tạo thư mục
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Tạo thư mục mới</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="newFolderName">Tên thư mục</Label>
-                <Input
-                  id="newFolderName"
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="Nhập tên thư mục..."
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateFolderSubmit();
-                  }}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button onClick={handleCreateFolderSubmit} disabled={loading}>
-                  {loading ? "Đang tạo..." : "Tạo"}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
-            <div className="col-span-2 sm:col-span-3 md:col-span-4 text-center py-8 text-muted-foreground">
-              Đang tải...
+            <div className="col-span-full flex flex-col items-center justify-center py-16">
+              <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
+              <span className="text-lg font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Đang tải...
+              </span>
             </div>
           ) : canvasList.length === 0 ? (
-            <div className="col-span-2 sm:col-span-3 md:col-span-4 text-muted-foreground text-sm text-center py-8">
-              Không có thiết kế nào
+            <div className="col-span-full flex flex-col items-center justify-center py-16">
+              <FolderX className="w-16 h-16 text-pink-300 mb-4" />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Không có thiết kế nào
+              </span>
             </div>
           ) : (
             canvasList.map((item) => (
               <div
                 key={item.canvasFolderId}
-                className={`cursor-pointer group transition-all duration-200 ease-in-out transform `}
+                className={`relative group rounded-3xl shadow-xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 border-2 ${
+                  item.canvasFolderId === selectedCanvasId
+                    ? "border-pink-400 scale-105"
+                    : "border-transparent"
+                } transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden`}
                 onClick={() => {
                   console.log("Clicking on folder:", item);
                   // Check if folder has any canvas
@@ -485,62 +406,72 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                   }
                 }}
               >
-                <div className="aspect-video bg-white rounded-lg mb-2 relative border-2 border-primary/80 shadow-sm transition-transform duration-200">
+                {/* Edit & Delete Buttons - show on hover */}
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <button
+                    type="button"
+                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingFolder(item);
+                      setEditFolderName(item.folderName);
+                      setIsEditDialogOpen(true);
+                      setIsEditDialogJustOpened(true);
+                    }}
+                  >
+                    <Edit className="w-4 h-4 text-blue-500" />
+                  </button>
+                  <button
+                    type="button"
+                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletingFolder(item);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 text-pink-500" />
+                  </button>
+                </div>
+                <div className="w-full h-40 flex items-center justify-center py-4 bg-gray-200 rounded-lg">
                   <img
                     src={item.previewUrl}
                     alt={item.folderName}
-                    className="w-full h-full object-contain transition-all duration-200 group-hover:scale-105"
+                    className="max-h-full max-w-full object-contain transition-all duration-200 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-6 w-6 bg-white/90 hover:bg-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditDialog(item);
-                      }}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-6 w-6"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(item);
-                      }}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-between">
+                <div className="px-3 pb-3">
+                  {item.latestCanvasInfo?.canvasDescription ? (
+                    <div className="text-base font-bold truncate bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                      {item.latestCanvasInfo.canvasTitle || "Thiết kế mới nhất"}
+                    </div>
+                  ) : null}
+                  <div className="flex items-center justify-between mb-1">
                     <div
-                      className={`text-sm font-medium truncate transition-all duration-200 ${
+                      className={`text-xs font-semibold text-blue-600 mt-1 flex items-center gap-1 ${
                         item.canvasFolderId === selectedCanvasId
-                          ? "text-primary scale-105"
-                          : "text-muted-foreground scale-100"
+                          ? "drop-shadow-md"
+                          : ""
                       }`}
                     >
+                      <FolderOpen className="w-4 h-4 text-blue-400" />
                       {item.folderName}
                     </div>
-                    <div className="text-xs text-muted-foreground ml-2">
-                      {formatDate(item.createdAt)}
+                    <div className="text-xs text-gray-400 ml-2">
+                      {formatFullDateWithDistance3(item.createdAt)}
                     </div>
                   </div>
-                  {item.latestCanvasInfo?.canvasDescription ? (
-                    <div className="text-xs text-blue-600 mt-1">
+                  {/* {item.latestCanvasInfo?.canvasDescription ? (
+                    <div className="text-xs font-semibold text-blue-600 mt-1 flex items-center gap-1">
+                      <FolderOpen className="w-4 h-4 text-blue-400" />
                       {item.latestCanvasInfo.canvasTitle || "Thiết kế mới nhất"}
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                      <Folders className="w-4 h-4 text-gray-300" />
                       Thư mục trống
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))
@@ -548,42 +479,50 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex justify-center items-center pt-6 gap-4">
         <Button
-          size="sm"
+          size="icon"
           variant="outline"
           onClick={() => setPage((prev) => Math.max(1, prev - 1))}
           disabled={page === 1 || loading}
+          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-110 transition-transform border-none"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-6 h-6" />
         </Button>
-        <span className="text-sm text-muted-foreground">Trang {page}</span>
+        <span className="text-base font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          Trang {page}
+        </span>
         <Button
-          size="sm"
+          size="icon"
           variant="outline"
           onClick={() => setPage((prev) => prev + 1)}
           disabled={canvasList.length < size || loading}
+          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-110 transition-transform border-none"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-6 h-6" />
         </Button>
       </div>
 
       {/* Edit Folder Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl shadow-2xl p-8">
           <DialogHeader>
-            <DialogTitle>Chỉnh sửa thư mục</DialogTitle>
+            <DialogTitle className="text-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
+              Chỉnh sửa thư mục
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="editFolderName" className="text-sm mb-1">
+              <Label
+                htmlFor="editFolderName"
+                className="text-base font-semibold mb-1"
+              >
                 Tên thư mục
               </Label>
               <Input
                 id="editFolderName"
                 value={editFolderName}
                 onChange={(e) => {
-                  console.log("Input value changed:", e.target.value);
                   setEditFolderName(e.target.value);
                 }}
                 placeholder="Nhập tên thư mục..."
@@ -591,9 +530,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                   if (e.key === "Enter") handleEditFolderSubmit();
                 }}
                 autoFocus={isEditDialogJustOpened}
+                className="rounded-full px-4 py-2 border-2 border-gray-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-200 text-base"
                 onFocus={(e) => {
                   if (isEditDialogJustOpened) {
-                    // Đặt cursor ở cuối text thay vì select all
                     const input = e.target;
                     input.setSelectionRange(
                       input.value.length,
@@ -605,8 +544,16 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button onClick={handleEditFolderSubmit} disabled={loading}>
-                {loading ? "Đang cập nhật..." : "Cập nhật"}
+              <Button
+                onClick={handleEditFolderSubmit}
+                disabled={loading}
+                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-105 transition-transform"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin w-5 h-5" />
+                ) : (
+                  "Cập nhật"
+                )}
               </Button>
             </div>
           </div>
@@ -615,29 +562,33 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
 
       {/* Delete Folder Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl shadow-2xl p-8">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa thư mục?</DialogTitle>
+            <DialogTitle className="text-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-bold">
+              Xác nhận xóa thư mục?
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-muted-foreground">
-              Bạn có chắc chắn muốn xóa thư mục{" "}
-              <span className="font-bold text-primary">
+            <p className="text-base text-gray-600">
+              Bạn có chắc chắn muốn xóa thư mục
+              <span className="font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mx-1">
                 "{deletingFolder?.folderName}"
-              </span>{" "}
+              </span>
               không?
               <br />
-              Hành động này sẽ xóa tất cả các phiên bản thiết kế trong thư mục
-              này.
+              <span className="text-sm text-gray-400">
+                Hành động này sẽ xóa tất cả các phiên bản thiết kế trong thư mục
+                này.
+              </span>
             </p>
             <div className="flex justify-end gap-2">
               <Button
                 onClick={handleDeleteConfirm}
                 disabled={loading}
                 variant="destructive"
-                className="bg-red-600 text-white hover:bg-red-700"
+                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-105 transition-transform border-none"
               >
-                {loading ? "Đang xóa..." : "Xóa"}
+                {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Xóa"}
               </Button>
             </div>
           </div>
