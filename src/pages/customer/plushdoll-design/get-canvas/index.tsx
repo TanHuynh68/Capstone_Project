@@ -13,14 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface FabricObject {
-  scaleX?: number;
-  scaleY?: number;
-  left?: number;
-  top?: number;
-  fontSize?: number;
-}
+import { Loader2, FolderX, FolderOpen } from "lucide-react";
 
 interface CanvasFolder {
   canvasFolderId: string;
@@ -90,25 +83,31 @@ const CanvasList: React.FC<CanvasListProps> = ({
         return item.latestCanvasInfo.previewUrl;
       }
       if (item.latestCanvasInfo?.canvasDescription) {
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = 444;
-        tempCanvas.height = 250;
-        const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
-          backgroundColor: "#fff",
-        });
+        // Lấy kích thước gốc từ canvasDescription
+        let originalWidth = 960;
+        let originalHeight = 540;
+        let previewWidth = 444;
+        let previewHeight = 250;
         try {
           const parsedDesc = JSON.parse(
             item.latestCanvasInfo.canvasDescription
           );
-          const scaleX = tempCanvas.width / 960;
-          const scaleY = tempCanvas.height / 540;
-          const scale = Math.min(scaleX, scaleY);
-          parsedDesc.objects?.forEach((obj: FabricObject) => {
-            if (obj.scaleX) obj.scaleX *= scale;
-            if (obj.scaleY) obj.scaleY *= scale;
-            if (obj.left) obj.left *= scale;
-            if (obj.top) obj.top *= scale;
-            if (obj.fontSize) obj.fontSize *= scale;
+          if (parsedDesc.width && parsedDesc.height) {
+            originalWidth = parsedDesc.width;
+            originalHeight = parsedDesc.height;
+            // Tính preview giữ nguyên tỉ lệ
+            const scale = Math.min(
+              previewWidth / originalWidth,
+              previewHeight / originalHeight
+            );
+            previewWidth = Math.round(originalWidth * scale);
+            previewHeight = Math.round(originalHeight * scale);
+          }
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = originalWidth;
+          tempCanvas.height = originalHeight;
+          const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
+            backgroundColor: "#fff",
           });
           await new Promise((resolve) => {
             fabricCanvas.loadFromJSON(parsedDesc, () => {
@@ -118,7 +117,36 @@ const CanvasList: React.FC<CanvasListProps> = ({
               }, 100);
             });
           });
-          return fabricCanvas.toDataURL({ format: "png" });
+          // Sau khi render xong, tạo preview nhỏ hơn bằng cách vẽ lên canvas nhỏ
+          const previewCanvas = document.createElement("canvas");
+          previewCanvas.width = previewWidth;
+          previewCanvas.height = previewHeight;
+          const ctx = previewCanvas.getContext("2d");
+          if (ctx) {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, previewWidth, previewHeight);
+            // fabric v5+ dùng getElement(), v4 dùng lowerCanvasEl
+            const canvasEl =
+              typeof fabricCanvas.getElement === "function"
+                ? (fabricCanvas.getElement() as HTMLCanvasElement)
+                : (
+                    fabricCanvas as unknown as {
+                      lowerCanvasEl: HTMLCanvasElement;
+                    }
+                  ).lowerCanvasEl;
+            ctx.drawImage(
+              canvasEl,
+              0,
+              0,
+              originalWidth,
+              originalHeight,
+              0,
+              0,
+              previewWidth,
+              previewHeight
+            );
+            return previewCanvas.toDataURL("image/png");
+          }
         } catch (parseError) {
           console.error("Error parsing canvas description:", parseError);
         }
@@ -398,20 +426,31 @@ const CanvasList: React.FC<CanvasListProps> = ({
         </Dialog> */}
       </div>
       <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           {loading ? (
-            <div className="col-span-2 text-center py-8 text-muted-foreground">
-              Đang tải...
+            <div className="col-span-full flex flex-col items-center justify-center py-16">
+              <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
+              <span className="text-lg font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Đang tải...
+              </span>
             </div>
           ) : canvasList.length === 0 ? (
-            <div className="col-span-2 text-muted-foreground text-sm text-center py-8">
-              Không có thiết kế nào
+            <div className="col-span-full flex flex-col items-center justify-center py-16">
+              <FolderX className="w-16 h-16 text-pink-300 mb-4" />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Không có thiết kế nào
+              </span>
             </div>
           ) : (
             canvasList.map((item) => (
               <div
                 key={item.canvasFolderId}
-                className={`cursor-pointer group transition-all duration-200 ease-in-out transform`}
+                className={`relative group rounded-lg shadow bg-white border ${
+                  item.canvasFolderId === selectedCanvasId
+                    ? "border-pink-400 scale-105"
+                    : "border-gray-200"
+                } transition-all duration-200 hover:scale-105 cursor-pointer overflow-hidden`}
+                style={{ minHeight: 140 }}
                 onClick={() => {
                   if (item.latestCanvasInfo?.canvasDescription) {
                     handleSelectCanvas(
@@ -431,62 +470,49 @@ const CanvasList: React.FC<CanvasListProps> = ({
                   }
                 }}
               >
-                <div className="aspect-video bg-white rounded-lg mb-2 relative border-2 border-primary/80 shadow-sm transition-transform duration-200">
+                <div className="w-full h-24 flex items-center justify-center py-2 bg-gray-100 rounded-md">
                   <img
                     src={item.previewUrl}
                     alt={item.folderName}
-                    className="w-full h-full object-contain transition-all duration-200 group-hover:scale-105"
+                    className="max-h-full max-w-full object-contain"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-6 w-6 bg-white/90 hover:bg-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditDialog(item);
-                      }}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-6 w-6"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(item);
-                      }}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center">
-                    <div
-                      className={`text-sm font-medium truncate transition-all duration-200 ${
-                        item.canvasFolderId === selectedCanvasId
-                          ? "text-primary scale-105"
-                          : "text-muted-foreground scale-100"
-                      }`}
-                    >
+                <div className="px-2 pb-2">
+                  <div className="text-sm font-semibold truncate text-gray-800">
+                    {item.latestCanvasInfo?.canvasTitle || item.folderName}
+                  </div>
+                  <div className="mt-1">
+                    <div className="text-xs text-blue-500 flex items-center gap-1">
+                      <FolderOpen className="w-3 h-3" />
                       {item.folderName}
                     </div>
-                    {/* <div className="text-xs text-muted-foreground ml-2">
-                      {formatDate(item.createdAt)}
-                    </div> */}
+                    <div className="text-xs text-gray-400 mt-1">
+                      {item.createdAt?.slice(0, 10)}
+                    </div>
                   </div>
-                  {item.latestCanvasInfo?.canvasDescription ? (
-                    <div className="text-xs text-blue-600 mt-1">
-                      {item.latestCanvasInfo.canvasTitle || "Thiết kế mới nhất"}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-gray-500 mt-1">
-                      Thư mục trống
-                    </div>
-                  )}
+                </div>
+                {/* Nút edit/delete giữ lại, nhưng nhỏ hơn */}
+                <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <button
+                    className="p-1 rounded bg-white border"
+                    style={{ width: 24, height: 24 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditDialog(item);
+                    }}
+                  >
+                    <Edit className="w-3 h-3 text-blue-500" />
+                  </button>
+                  <button
+                    className="p-1 rounded bg-white border"
+                    style={{ width: 24, height: 24 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openDeleteDialog(item);
+                    }}
+                  >
+                    <Trash2 className="w-3 h-3 text-pink-500" />
+                  </button>
                 </div>
               </div>
             ))

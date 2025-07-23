@@ -8,7 +8,7 @@ import {
   Camera,
   Zap,
   Star,
-  Award,  
+  Award,
   Users,
   TrendingUp,
   Globe,
@@ -22,6 +22,7 @@ import {
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
 import { USER_ROUTES } from "@/routes/path";
 import { Link } from "react-router-dom";
+import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
 
 export default function AnimatedLandingPage() {
   const [visibleElements, setVisibleElements] = useState(new Set());
@@ -631,7 +632,7 @@ export default function AnimatedLandingPage() {
       {scrollBtnVisible && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className={`fixed bottom-8 right-8 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-2 hover:bg-primary/90 transition-all flex items-center justify-center cursor-pointer
+          className={`fixed bottom-40 right-8 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-2 hover:bg-primary/90 transition-all flex items-center justify-center cursor-pointer
             ${
               showScrollTop
                 ? "animate-fade-in opacity-100"
@@ -643,6 +644,8 @@ export default function AnimatedLandingPage() {
           <ArrowUp className="h-8 w-8" />
         </button>
       )}
+
+      <ChatAIHomePage />
     </div>
   );
 }

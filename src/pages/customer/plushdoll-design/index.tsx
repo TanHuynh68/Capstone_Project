@@ -78,7 +78,12 @@ import CanvasService from "@/services/CanvasService";
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
 
 // Add interface for canvas object
-interface CanvasObject {
+export interface CanvasObject {
+  latestCanvasInfo: {
+    canvasInfoId: string;
+    canvasTitle: string;
+    canvasDescription: string;
+  };
   canvasInfoId: string;
   canvasTitle: string;
   canvasDescription: string;
@@ -109,6 +114,7 @@ interface CustomFabricImage extends fabric.Image {
 }
 
 import CanvasVersionHistory from "@/pages/customer/plushdoll-design/canvas-history/CanvasVersionHistory";
+// import { Separator } from "@/components/ui/separator";
 
 const PlushDollDesign: React.FC = () => {
   // Image Cropping Feature:
@@ -198,8 +204,13 @@ const PlushDollDesign: React.FC = () => {
     index: -1,
   });
 
-  const { postCanvas, getCanvasHistory, putCanvas, newVersionCanvas } =
-    CanvasService();
+  const {
+    postCanvas,
+    getCanvasHistory,
+    putCanvas,
+    newVersionCanvas,
+    getFolderCanvas,
+  } = CanvasService();
 
   // Add this near other state declarations
   const [textProperties, setTextProperties] = useState({
@@ -2491,6 +2502,7 @@ const PlushDollDesign: React.FC = () => {
     // Nếu có location.state với selectedCanvasId hoặc canvasId, load canvas data
     const canvasId =
       location.state?.selectedCanvasId || location.state?.canvasId;
+
     if (canvasId) {
       console.log("Canvas đã khởi tạo, bắt đầu load data từ location.state", {
         canvasId,
@@ -2509,29 +2521,42 @@ const PlushDollDesign: React.FC = () => {
       }
 
       // Nếu không có canvasDescription và có hasExistingCanvas = false, tạo canvas mới
-      if (location.state?.hasExistingCanvas === false) {
-        console.log("Creating new canvas in folder");
-        setCurrentCanvasTitle(location.state?.canvasTitle || "Thiết kế mới");
-        setCurrentCanvasId(canvasId);
-        toast.success("Đã tạo canvas mới trong thư mục!");
-        return;
-      }
+      // if (location.state?.hasExistingCanvas === false) {
+      //   console.log("Creating new canvas in folder");
+      //   setCurrentCanvasTitle(location.state?.canvasTitle || "Thiết kế mới");
+      //   setCurrentCanvasId(canvasId);
+      //   toast.success("Đã tạo canvas mới trong thư mục!");
+      //   return;
+      // }
 
       // Nếu không có description, fetch từ API
       const fetchCanvasData = async () => {
         try {
-          const data = await getCanvasHistory({ page: 1, size: 100 });
+          const data = await getFolderCanvas({ page: 1, size: 100 });
+
           const canvasList =
             data?.responseRequestModel?.responseList?.items || [];
+
+          // console.log(canvasId, "canvasId");
+          // console.log(canvasList, "canvasList");
+          // So sánh với folder.latestCanvasInfo?.canvasInfoId
           const targetCanvas = canvasList.find(
-            (canvas: CanvasObject) => canvas.canvasInfoId === canvasId
+            (folder: {
+              latestCanvasInfo?: {
+                canvasInfoId: string;
+                canvasTitle: string;
+                canvasDescription: string;
+              };
+            }) => folder.latestCanvasInfo?.canvasInfoId === canvasId
           );
 
-          if (targetCanvas) {
+          // console.log(targetCanvas, "targetCanvas");
+
+          if (targetCanvas && targetCanvas.latestCanvasInfo) {
             loadCanvasFromDescription(
-              targetCanvas.canvasDescription,
-              targetCanvas.canvasTitle,
-              targetCanvas.canvasInfoId
+              targetCanvas.latestCanvasInfo.canvasDescription,
+              targetCanvas.latestCanvasInfo.canvasTitle,
+              targetCanvas.latestCanvasInfo.canvasInfoId
             );
           } else {
             console.log("Canvas not found in API, creating new canvas");
@@ -2550,7 +2575,7 @@ const PlushDollDesign: React.FC = () => {
 
       fetchCanvasData();
     }
-  }, [isCanvasInitialized, location.state, getCanvasHistory]);
+  }, [isCanvasInitialized, location.state, getFolderCanvas]);
 
   // Thêm useEffect để tắt scroll của trang chính
   // useEffect(() => {
@@ -3063,6 +3088,118 @@ const PlushDollDesign: React.FC = () => {
           <div className="font-bold text-xl text-primary flex items-center gap-2">
             <LogoCanvas />
           </div>
+
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button variant="outline" size="icon" aria-label="Menu">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-40" align="start" side="bottom">
+                <DropdownMenuSub
+                  onOpenChange={(open) => {
+                    if (open) {
+                      setCanvasWidthInput(
+                        canvasRef.current?.getWidth().toString() || ""
+                      );
+                      setCanvasHeightInput(
+                        canvasRef.current?.getHeight().toString() || ""
+                      );
+                    }
+                  }}
+                >
+                  <DropdownMenuSubTrigger>Đổi cỡ</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <div className="p-2 w-64">
+                      <div className="font-semibold text-sm mb-2">
+                        Đổi kích thước Canvas
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-medium">
+                          Chiều rộng
+                        </label>
+                        <Input
+                          type="number"
+                          value={canvasWidthInput}
+                          onChange={(e) => setCanvasWidthInput(e.target.value)}
+                          className="w-full"
+                        />
+                        <label className="text-xs font-medium">Chiều cao</label>
+                        <Input
+                          type="number"
+                          value={canvasHeightInput}
+                          onChange={(e) => setCanvasHeightInput(e.target.value)}
+                          className="w-full"
+                        />
+                        <label className="text-xs font-medium">Đơn vị</label>
+                        <select
+                          value={unit}
+                          onChange={(e) =>
+                            setUnit(e.target.value as "px" | "cm" | "mm")
+                          }
+                          className="border rounded px-2 h-8 text-xs"
+                        >
+                          <option value="px">px</option>
+                          <option value="cm">cm</option>
+                          <option value="mm">mm</option>
+                        </select>
+                        <Button
+                          className="mt-2"
+                          onClick={() => {
+                            let width = parseFloat(canvasWidthInput);
+                            let height = parseFloat(canvasHeightInput);
+                            // Convert về px nếu đang là cm hoặc mm
+                            if (unit === "cm") {
+                              width = width * 37.7952755906;
+                              height = height * 37.7952755906;
+                            } else if (unit === "mm") {
+                              width = width * 3.77952755906;
+                              height = height * 3.77952755906;
+                            }
+                            if (!canvasRef.current) return;
+                            canvasRef.current.setWidth(width);
+                            canvasRef.current.setHeight(height);
+                            if (htmlCanvasRef.current) {
+                              htmlCanvasRef.current.width = width;
+                              htmlCanvasRef.current.height = height;
+                            }
+                            canvasRef.current.requestRenderAll();
+                            saveCanvasAsJSON(); // Lưu thiết kế sau khi đổi kích thước
+                          }}
+                        >
+                          Xác nhận
+                        </Button>
+                      </div>
+                    </div>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    Lịch sử phiên bản
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {/* Replace hardcoded version list with CanvasVersionHistory */}
+                    <CanvasVersionHistory
+                      canvasFolderId={
+                        location.state?.folderId ||
+                        location.state?.canvasFolderId ||
+                        currentCanvasId ||
+                        "default-folder"
+                      }
+                      onRestore={(ver) => {
+                        loadCanvasFromDescription(
+                          ver.canvasDescription,
+                          ver.canvasTitle,
+                          ver.canvasInfoId
+                        );
+                      }}
+                    />
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div className="text-sm text-muted-foreground border-l border-border pl-6">
             {isEditingTitle ? (
               <div className="flex items-center gap-2 bg-muted p-1 rounded-lg border border-border">
@@ -3136,111 +3273,6 @@ const PlushDollDesign: React.FC = () => {
           </div>
         </div>
         {/* Menu Dropdown thay cho tạo thiết kế mới */}
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="outline" size="icon" aria-label="Menu">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-40" align="start" side="bottom">
-            <DropdownMenuSub
-              onOpenChange={(open) => {
-                if (open) {
-                  setCanvasWidthInput(
-                    canvasRef.current?.getWidth().toString() || ""
-                  );
-                  setCanvasHeightInput(
-                    canvasRef.current?.getHeight().toString() || ""
-                  );
-                }
-              }}
-            >
-              <DropdownMenuSubTrigger>Đổi cỡ</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <div className="p-2 w-64">
-                  <div className="font-semibold text-sm mb-2">
-                    Đổi kích thước Canvas
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-medium">Chiều rộng</label>
-                    <Input
-                      type="number"
-                      value={canvasWidthInput}
-                      onChange={(e) => setCanvasWidthInput(e.target.value)}
-                      className="w-full"
-                    />
-                    <label className="text-xs font-medium">Chiều cao</label>
-                    <Input
-                      type="number"
-                      value={canvasHeightInput}
-                      onChange={(e) => setCanvasHeightInput(e.target.value)}
-                      className="w-full"
-                    />
-                    <label className="text-xs font-medium">Đơn vị</label>
-                    <select
-                      value={unit}
-                      onChange={(e) =>
-                        setUnit(e.target.value as "px" | "cm" | "mm")
-                      }
-                      className="border rounded px-2 h-8 text-xs"
-                    >
-                      <option value="px">px</option>
-                      <option value="cm">cm</option>
-                      <option value="mm">mm</option>
-                    </select>
-                    <Button
-                      className="mt-2"
-                      onClick={() => {
-                        let width = parseFloat(canvasWidthInput);
-                        let height = parseFloat(canvasHeightInput);
-                        // Convert về px nếu đang là cm hoặc mm
-                        if (unit === "cm") {
-                          width = width * 37.7952755906;
-                          height = height * 37.7952755906;
-                        } else if (unit === "mm") {
-                          width = width * 3.77952755906;
-                          height = height * 3.77952755906;
-                        }
-                        if (!canvasRef.current) return;
-                        canvasRef.current.setWidth(width);
-                        canvasRef.current.setHeight(height);
-                        if (htmlCanvasRef.current) {
-                          htmlCanvasRef.current.width = width;
-                          htmlCanvasRef.current.height = height;
-                        }
-                        canvasRef.current.requestRenderAll();
-                        saveCanvasAsJSON(); // Lưu thiết kế sau khi đổi kích thước
-                      }}
-                    >
-                      Xác nhận
-                    </Button>
-                  </div>
-                </div>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Lịch sử phiên bản</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                {/* Replace hardcoded version list with CanvasVersionHistory */}
-                <CanvasVersionHistory
-                  canvasFolderId={
-                    location.state?.folderId ||
-                    location.state?.canvasFolderId ||
-                    currentCanvasId ||
-                    "default-folder"
-                  }
-                  onRestore={(ver) => {
-                    loadCanvasFromDescription(
-                      ver.canvasDescription,
-                      ver.canvasTitle,
-                      ver.canvasInfoId
-                    );
-                  }}
-                />
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={undo}>

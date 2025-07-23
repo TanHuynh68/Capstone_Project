@@ -9,7 +9,7 @@ import ChatAIService from "@/services/ChatAIService";
 import Lottie from "react-lottie-player";
 import robotAIAnimation from "@/../public/lottiefiles/RobotAI.json";
 
-export default function ChatAIHomepage() {
+export default function ChatAIHomePage() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
