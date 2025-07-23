@@ -18,31 +18,37 @@ export interface SidebarCollapseProps {
   title: string;
   subItem: { title: string; tabName: string; fetch?: () => Promise<any> }[];
   onClick?: (tabName: string) => void;
-
 }
 
-const SidebarCollapse = ({
-  title,
-  subItem,
-  onClick,
-}: SidebarCollapseProps) => {
+const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleFetch = async (fetchFn: () => Promise<any>) => {
     try {
-        setLoading(true);
-        const res = await fetchFn();
-        console.log("Fetch result: ", res);
-      } catch (error) {
-        console.error("Fetch error: ", error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      const res = await fetchFn();
+      console.log("Fetch result: ", res);
+    } catch (error) {
+      console.error("Fetch error: ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubItemClick = (tabName: string) => {
-    onClick?.(tabName);
+    // Only trigger onClick if the section is open
+    if (isOpen) {
+      onClick?.(tabName);
+    }
+  };
+
+  const handleToggle = (open: boolean) => {
+    setIsOpen(open);
+    // Clear the active tab when closing the section
+    if (!open && onClick) {
+      onClick("");
+    }
   };
 
   return (
@@ -50,7 +56,7 @@ const SidebarCollapse = ({
       <SidebarMenu>
         <Collapsible
           open={isOpen}
-          onOpenChange={setIsOpen}
+          onOpenChange={handleToggle}
           className="group/collapsible"
         >
           <SidebarMenuItem>
@@ -77,22 +83,25 @@ const SidebarCollapse = ({
                         {item.title}
                       </button>
                     </SidebarMenuSub>
-                    {item.tabName === "viewPost" && item.fetch && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={loading}
-                        onClick={() => handleFetch(item.fetch!)}
-                        className="shrink-0"
-                      >
-                        <RefreshCw
-                          className={`h-4 w-4 mr-1 ${
-                            loading ? "animate-spin" : ""
-                          }`}
-                        />
-                        Làm mới
-                      </Button>
-                    )}
+                    {(item.tabName === "viewPost" ||
+                      item.tabName === "images" ||
+                      item.tabName === "designs") &&
+                      item.fetch && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={loading}
+                          onClick={() => handleFetch(item.fetch!)}
+                          className="shrink-0"
+                        >
+                          <RefreshCw
+                            className={`h-4 w-4 mr-1 ${
+                              loading ? "animate-spin" : ""
+                            }`}
+                          />
+                          Làm mới
+                        </Button>
+                      )}
                   </div>
                 ))}
               </div>

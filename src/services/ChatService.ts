@@ -4,6 +4,16 @@ import { API_ROUTES, HTTP_METHOD } from "@/constants";
 
 const ChatService = () => {
   const { callApi } = useApiService();
+
+  const getFile = useCallback(async (data: any) => {
+    try {
+      const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_FILE}?chatRoomID=${data?.chatRoomID}&type=${data?.type}`);
+      return res;
+    } catch (err: any) {
+      console.error(err?.response?.data);
+    }
+  }, [callApi]);
+
   const getRoomList = useCallback(async () => {
     try {
       const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_ROOMLIST);
@@ -117,6 +127,7 @@ const ChatService = () => {
     updateMessage,
     deleteMessage,
     uploadImageMessage,
+    getFile
   };
 };
 
