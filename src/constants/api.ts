@@ -24,6 +24,7 @@ export const enum API_ENDPOINTS {
   PROGRESS = "progress",
   DELIVERY = "delivery",
   REPORT = "report",
+  CHAT_AI = "AI",
 }
 
 export enum API_ROUTES {
@@ -169,4 +170,6 @@ export enum API_ROUTES {
   CUSTOMER_CREATE_REPORT = `${API_ENDPOINTS.REPORT}`,
   CUSTOMER_GET_REPORT_DETAIL = `${API_ENDPOINTS.REPORT}/detail`,
   CUSTOMER_DELETE_REPORT_DETAIL = `${API_ENDPOINTS.REPORT}`,
+  // Chat AI
+  POST_CHAT_AI = `${API_ENDPOINTS.CHAT}/${API_ENDPOINTS.CHAT_AI}`,
 }

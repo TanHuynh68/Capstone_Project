@@ -6,7 +6,6 @@ import {
   Upload,
   Ruler,
   Zap,
-  HelpCircle,
   X,
   MoreHorizontal,
 } from "lucide-react";
@@ -23,7 +22,7 @@ import {
 import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/CanvasListInPage";
 import { USER_ROUTES } from "@/routes/path";
 import CanvasService from "@/services/CanvasService";
-import { toast } from "sonner";
+import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
 
 interface ImageDimensions {
   width: number;
@@ -273,14 +272,14 @@ export default function CanvasPage() {
             },
           });
         } else {
-          toast.error("Tạo canvas đầu tiên thất bại!");
+          // toast.error("Tạo canvas đầu tiên thất bại!");
         }
       } else {
-        toast.error("Không thể tạo thư mục mới");
+        // toast.error("Không thể tạo thư mục mới");
       }
     } catch (error) {
       console.error("Error creating folder or canvas:", error);
-      toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
+      // toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
     }
   };
 
@@ -966,14 +965,7 @@ export default function CanvasPage() {
           />
         </div>
       </main>
-
-      {/* Help Button */}
-      <Button
-        size="icon"
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
-      >
-        <HelpCircle className="w-6 h-6" />
-      </Button>
+      <ChatAIHomePage />
     </div>
   );
 }
