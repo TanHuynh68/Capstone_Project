@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,15 @@ export default function ChatAIHomePage() {
   const userId = useSelector((state: RootState) => state.user.id);
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  // Đặt hooks ở đây, trước mọi return
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, loading]);
 
   if (!userId || !token) return null;
 
@@ -107,7 +116,7 @@ export default function ChatAIHomePage() {
       <div
         className={`
           fixed bottom-4 right-4
-          w-full max-w-sm h-[calc(100vh-32px)] md:h-[60vh]
+          w-full max-w-sm h-[calc(100vh-32px)] md:h-[70vh]
           flex flex-col rounded-xl shadow-lg overflow-hidden
           bg-background text-foreground dark:bg-background dark:text-foreground
           transition-all duration-300 ease-in-out
@@ -133,7 +142,7 @@ export default function ChatAIHomePage() {
           <Button
             variant="ghost"
             size="icon"
-            className="text-primary-foreground hover:bg-primary/20 dark:text-primary-foreground dark:hover:bg-primary/20"
+            className="text-primary-foreground cursor-pointer hover:bg-primary/20 dark:text-primary-foreground dark:hover:bg-primary/20"
             onClick={toggleChat}
           >
             <Minus className="h-5 w-5" />
@@ -143,47 +152,53 @@ export default function ChatAIHomePage() {
         {/* Chat Content */}
         <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-card text-card-foreground dark:bg-card dark:text-primary-foreground">
           <div className="space-y-2">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={
-                  msg.role === "user"
-                    ? "flex justify-end"
-                    : "flex justify-start items-start"
-                }
-              >
-                {msg.role === "bot" && (
-                  <Avatar className="w-6 h-6 mr-2 mt-0.5">
-                    <AvatarImage src="/images/logo.png" alt="Bot" />
-                    <AvatarFallback>PD</AvatarFallback>
-                  </Avatar>
-                )}
+            {messages.map((msg, idx) => {
+              const isDifferentRole =
+                idx === 0 || messages[idx - 1].role !== msg.role;
+              return (
                 <div
+                  key={idx}
                   className={
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground dark:text-primary-foreground rounded-2xl px-4 py-2 max-w-[70%] text-base shadow-md dark:bg-primary"
-                      : "bg-muted text-muted-foreground dark:text-white rounded-xl px-3 py-1.5 max-w-[70%] text-base dark:bg-muted"
+                    (msg.role === "user"
+                      ? "flex justify-end"
+                      : "flex justify-start items-start") +
+                    (isDifferentRole ? " mt-4" : "")
                   }
                 >
-                  {msg.content}
+                  {msg.role === "bot" && (
+                    <Avatar className="w-6 h-6 mr-2 mt-0.5">
+                      <AvatarImage src="/images/logo.png" alt="Bot" />
+                      <AvatarFallback>PD</AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div
+                    className={
+                      msg.role === "user"
+                        ? "bg-primary  rounded-2xl px-4 py-2 max-w-[70%] text-base "
+                        : "bg-muted text-muted-foreground rounded-xl px-3 py-1.5 max-w-[70%] text-base"
+                    }
+                  >
+                    {msg.content}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground rounded-lg px-3 py-1.5 max-w-xs animate-pulse text-xs dark:bg-muted dark:text-primary-foreground">
+                <div className="bg-muted text-muted-foreground rounded-xl px-3 py-2 max-w-xs animate-pulse text-base">
                   Đang trả lời...
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
         {/* Input Area */}
-        <div className="flex items-center p-4 border-t border-border bg-card text-card-foreground dark:bg-card dark:text-primary-foreground">
+        <div className="flex items-center p-4 border-t border-border bg-card text-card-foreground">
           <Input
             placeholder="Bạn cần hỗ trợ gì ..."
-            className="flex-1 rounded-full px-3 py-1.5 bg-muted text-muted-foreground border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-xs dark:bg-muted dark:text-primary-foreground"
+            className="flex-1 rounded-full px-3 py-1.5 bg-muted text-muted-foreground border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-xs"
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -191,7 +206,7 @@ export default function ChatAIHomePage() {
           />
           <Button
             size="icon"
-            className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full dark:bg-primary dark:text-primary-foreground"
+            className="bg-primary cursor-pointer ml-2 hover:bg-primary/80 text-primary-foreground rounded-full dark:bg-primary dark:text-primary-foreground"
             onClick={handleSend}
             disabled={loading || !input.trim()}
           >
