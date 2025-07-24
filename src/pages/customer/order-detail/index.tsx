@@ -1,4 +1,3 @@
-"use client";
 
 import { useParams } from "react-router-dom";
 import OrderManagementTemplate from "@/components/templates/order-detail/OrderManagementTemplate";
