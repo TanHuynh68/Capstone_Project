@@ -25,6 +25,7 @@ export const enum API_ENDPOINTS {
   DELIVERY = "delivery",
   REPORT = "report",
   CHAT_AI = "AI",
+  FEEDBACK = "feedback",
 }
 
 export enum API_ROUTES {
@@ -121,6 +122,7 @@ export enum API_ROUTES {
   CHAT_UPLOAD_IMAGE = `${API_ENDPOINTS.CHAT}/upload-image`,
   UPDATE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
   DELETE_MESSAGE_CHAT = `${API_ENDPOINTS.CHAT}/message`,
+  GET_FILE = `${API_ENDPOINTS.CHAT}/file`,
   //Offer
   CREATE_OFFER = `${API_ENDPOINTS.OFFER}`,
   GET_OFFERS_IN_POST = "offer/all-offer-in-post",
@@ -172,4 +174,8 @@ export enum API_ROUTES {
   CUSTOMER_DELETE_REPORT_DETAIL = `${API_ENDPOINTS.REPORT}`,
   // Chat AI
   POST_CHAT_AI = `${API_ENDPOINTS.CHAT}/${API_ENDPOINTS.CHAT_AI}`,
+  // Customer / Designer Feedback
+  GET_FEEDBACK = `${API_ENDPOINTS.FEEDBACK}`,
+  CREATE_FEEDBACK = `${API_ENDPOINTS.FEEDBACK}`,
+  CREATE_FEEDBACK_RESPONSE = `${API_ENDPOINTS.FEEDBACK}/response`,
 }

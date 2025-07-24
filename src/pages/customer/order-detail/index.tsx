@@ -1,4 +1,3 @@
-"use client";
 
 import { useParams } from "react-router-dom";
 import OrderManagementTemplate from "@/components/templates/order-detail/OrderManagementTemplate";
@@ -53,7 +52,7 @@ export default function OrderManagementPage() {
   // withdraw by des
   const handleWithdrawByDesigner = async (phaseIds: string[]) => {
     if (phaseIds) {
-      console.log('phaseIds: ', phaseIds)
+      console.log("phaseIds: ", phaseIds);
       const response = await createWithdrawPhase(phaseIds);
       if (response) {
         toast.success(MESSAGE.WITHDRAW_SUCCESSFULLY);

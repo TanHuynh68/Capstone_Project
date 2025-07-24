@@ -280,7 +280,6 @@ const Chat = () => {
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       <ChatTemplate
-      setPosts={setPosts}
         fetchOffers={fetchOffers}
         offersPhase={offersPhase}
         fetchOfferPhase={fetchOfferPhase}

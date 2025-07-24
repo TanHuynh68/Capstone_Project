@@ -169,7 +169,7 @@ export default function FileUploadModal({
                   </div>
                 )}
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 max-w-[300px]">
                   <p className="font-medium text-gray-200 truncate">
                     {selectedFile.name}
                   </p>
