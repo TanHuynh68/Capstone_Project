@@ -2,13 +2,7 @@
 import type React from "react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Upload,
-  Ruler,
-  Zap,
-  X,
-  MoreHorizontal,
-} from "lucide-react";
+import { Upload, Ruler, Zap, X, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -251,24 +245,21 @@ export default function CanvasPage() {
           // Navigate to plushdoll design with the new folder
           navigate(USER_ROUTES.PLUSHDOLL_DESIGN, {
             state: {
-              canvasWidth,
-              canvasHeight,
-              imageWidth: finalImageWidthPx,
-              imageHeight: finalImageHeightPx,
-              canvasFolderId: newFolderId,
-              isNewFolder: true,
-              selectedCanvasId:
-                canvasResponse.responseRequestModel.canvasInfoId,
-              canvasTitle: "Thiết kế 1",
-              canvasDescription: JSON.stringify({
-                version: "5.5.2",
-                objects: [],
-                background: "#ffffff",
-                width: canvasWidth,
-                height: canvasHeight,
-                imageWidth: finalImageWidthPx,
-                imageHeight: finalImageHeightPx,
-              }),
+              canvasId: canvasResponse.responseRequestModel.canvasInfoId,
+              canvasTitle:
+                canvasResponse.responseRequestModel.canvasTitle || "Thiết kế 1",
+              canvasDescription:
+                canvasResponse.responseRequestModel.canvasDescription ||
+                JSON.stringify({
+                  version: "5.5.2",
+                  objects: [],
+                  background: "#ffffff",
+                  width: canvasWidth,
+                  height: canvasHeight,
+                  imageWidth: finalImageWidthPx,
+                  imageHeight: finalImageHeightPx,
+                }),
+              // Các trường khác nếu cần
             },
           });
         } else {

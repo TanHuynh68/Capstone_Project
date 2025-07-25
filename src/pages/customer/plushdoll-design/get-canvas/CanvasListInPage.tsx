@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatFullDateWithDistance3 } from "@/utils/date";
+import { useNavigate } from "react-router-dom";
 
 interface CanvasFolder {
   canvasFolderId: string;
@@ -34,6 +35,8 @@ interface CanvasFolder {
     previewUrl?: string;
   } | null;
   previewUrl?: string;
+  previewWidth?: number;
+  previewHeight?: number;
 }
 
 interface CanvasListProps {
@@ -78,22 +81,22 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const size = 10;
   const { getFolderCanvas, putFolderCanvas, deleteFolderCanvas } =
     CanvasService();
+  const navigate = useNavigate();
 
   // Function to generate canvas preview
-  const generateCanvasPreview = async (item: CanvasFolder): Promise<string> => {
+  const generateCanvasPreview = async (
+    item: CanvasFolder
+  ): Promise<{ url: string; width: number; height: number }> => {
     try {
       // If we have latestCanvasInfo with previewUrl, use it
       if (item.latestCanvasInfo?.previewUrl) {
-        return item.latestCanvasInfo.previewUrl;
+        return { url: item.latestCanvasInfo.previewUrl, width: 0, height: 0 };
       }
 
       // If we have canvas description, generate preview from it
       if (item.latestCanvasInfo?.canvasDescription) {
-        // Lấy kích thước gốc từ canvasDescription
         let originalWidth = 960;
         let originalHeight = 540;
-        let previewWidth = 444;
-        let previewHeight = 250;
         try {
           const parsedDesc = JSON.parse(
             item.latestCanvasInfo.canvasDescription
@@ -101,14 +104,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
           if (parsedDesc.width && parsedDesc.height) {
             originalWidth = parsedDesc.width;
             originalHeight = parsedDesc.height;
-            // Tính preview giữ nguyên tỉ lệ
-            const scale = Math.min(
-              previewWidth / originalWidth,
-              previewHeight / originalHeight
-            );
-            previewWidth = Math.round(originalWidth * scale);
-            previewHeight = Math.round(originalHeight * scale);
           }
+
+          // Tạo canvas gốc
           const tempCanvas = document.createElement("canvas");
           tempCanvas.width = originalWidth;
           tempCanvas.height = originalHeight;
@@ -125,15 +123,14 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             });
           });
 
-          // Sau khi render xong, tạo preview nhỏ hơn bằng cách vẽ lên canvas nhỏ
+          // Tạo preview đúng kích thước gốc
           const previewCanvas = document.createElement("canvas");
-          previewCanvas.width = previewWidth;
-          previewCanvas.height = previewHeight;
+          previewCanvas.width = originalWidth;
+          previewCanvas.height = originalHeight;
           const ctx = previewCanvas.getContext("2d");
           if (ctx) {
             ctx.fillStyle = "#fff";
-            ctx.fillRect(0, 0, previewWidth, previewHeight);
-            // fabric v5+ dùng getElement(), v4 dùng lowerCanvasEl
+            ctx.fillRect(0, 0, originalWidth, originalHeight);
             const canvasEl =
               typeof fabricCanvas.getElement === "function"
                 ? (fabricCanvas.getElement() as HTMLCanvasElement)
@@ -150,21 +147,24 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
               originalHeight,
               0,
               0,
-              previewWidth,
-              previewHeight
+              originalWidth,
+              originalHeight
             );
-            return previewCanvas.toDataURL("image/png");
+            return {
+              url: previewCanvas.toDataURL("image/png"),
+              width: originalWidth,
+              height: originalHeight,
+            };
           }
         } catch (parseError) {
           console.error("Error parsing canvas description:", parseError);
         }
       }
-
       // Return placeholder if no preview available
-      return "/images/canvas-placeholder.png";
+      return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
     } catch (error) {
       console.error("Error generating preview:", error);
-      return "/images/canvas-placeholder.png";
+      return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
     }
   };
 
@@ -181,8 +181,13 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       // Generate previews for all items
       const itemsWithPreviews = await Promise.all(
         items.map(async (item: CanvasFolder) => {
-          const previewUrl = await generateCanvasPreview(item);
-          return { ...item, previewUrl };
+          const preview = await generateCanvasPreview(item);
+          return {
+            ...item,
+            previewUrl: preview.url,
+            previewWidth: preview.width,
+            previewHeight: preview.height,
+          };
         })
       );
 
@@ -201,16 +206,6 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       setLoading(false);
     }
   }, [page, getFolderCanvas, searchTitle]);
-
-  const handleSelectCanvas = (
-    description: string,
-    title: string,
-    id: string,
-    folderId?: string,
-    hasExistingCanvas?: boolean
-  ) => {
-    onSelect(description, title, id, folderId, hasExistingCanvas);
-  };
 
   const handleSearch = () => {
     setSearchTitle(folderName);
@@ -349,7 +344,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         </div>
       </div>
 
-      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent">
+      <div className="h-[calc(100vh-200px)] overflow-y-auto scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
             <div className="col-span-full flex flex-col items-center justify-center py-16">
@@ -375,34 +370,30 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                     : "border-transparent"
                 } transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden`}
                 onClick={() => {
-                  console.log("Clicking on folder:", item);
-                  // Check if folder has any canvas
                   if (item.latestCanvasInfo?.canvasDescription) {
-                    // Folder has canvas - load the latest one
-                    console.log("Loading existing canvas from folder:", {
-                      description: item.latestCanvasInfo.canvasDescription,
-                      title:
-                        item.latestCanvasInfo.canvasTitle || item.folderName,
-                      canvasId:
-                        item.latestCanvasInfo.canvasInfoId ||
-                        item.canvasFolderId,
-                      folderId: item.canvasFolderId,
+                    navigate("/canvas/plushdoll-design", {
+                      state: {
+                        canvasId:
+                          item.latestCanvasInfo.canvasInfoId ||
+                          item.canvasFolderId,
+                        canvasDescription:
+                          item.latestCanvasInfo.canvasDescription,
+                        canvasTitle:
+                          item.latestCanvasInfo.canvasTitle || item.folderName,
+                        folderName: item.folderName,
+                        folderId: item.canvasFolderId,
+                      },
                     });
-                    handleSelectCanvas(
-                      item.latestCanvasInfo.canvasDescription,
-                      item.latestCanvasInfo.canvasTitle || item.folderName,
-                      item.latestCanvasInfo.canvasInfoId || item.canvasFolderId,
-                      item.canvasFolderId
-                    );
                   } else {
-                    // Folder is empty - chuyển sang trang thiết kế, truyền state để tạo canvas ở trang thiết kế
-                    onSelect(
-                      "", // canvasDescription
-                      item.folderName,
-                      "", // canvasId (chưa có)
-                      item.canvasFolderId,
-                      false // hasExistingCanvas
-                    );
+                    navigate("/canvas/plushdoll-design", {
+                      state: {
+                        canvasId: "",
+                        canvasDescription: "",
+                        canvasTitle: "",
+                        folderName: item.folderName,
+                        folderId: item.canvasFolderId,
+                      },
+                    });
                   }
                 }}
               >
@@ -433,11 +424,21 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                     <Trash2 className="w-4 h-4 text-pink-500" />
                   </button>
                 </div>
-                <div className="w-full h-40 flex items-center justify-center py-4 bg-gray-200 rounded-lg">
+                <div className="w-full h-40 flex items-center justify-center p-4 bg-gray-200 rounded-lg overflow-hidden">
                   <img
                     src={item.previewUrl}
                     alt={item.folderName}
-                    className="max-h-full max-w-full object-contain transition-all duration-200 group-hover:scale-105"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      display: "block",
+                      aspectRatio:
+                        item.previewWidth && item.previewHeight
+                          ? `${item.previewWidth} / ${item.previewHeight}`
+                          : undefined,
+                    }}
+                    className="transition-all duration-200 group-hover:scale-105"
                   />
                 </div>
                 <div className="px-3 pb-3">

@@ -108,8 +108,25 @@ const OrderService = () => {
     [callApi]
   );
 
+   const getOrderDeposited = useCallback(
+    async (id: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_ORDERS_DEPOSITED}?orderId=${id}`
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+
   return {
     getOrders,
+    getOrderDeposited,
     getOrderDetail,
     createOrder,
     getOrderActivity,

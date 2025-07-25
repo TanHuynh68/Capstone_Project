@@ -12,6 +12,7 @@ interface CopyCanvasProps {
   canvasId: string;
   canvasTitle: string;
   imageUrl: string;
+  canvasDescription?: string; // Thêm dòng này
   isCurrentUser?: boolean;
 }
 
@@ -30,6 +31,7 @@ export default function CopyCanvas({
   canvasId,
   canvasTitle,
   imageUrl,
+  canvasDescription, // Thêm dòng này
   isCurrentUser = false,
 }: CopyCanvasProps) {
   const [copyLoading, setCopyLoading] = useState(false);
@@ -132,7 +134,7 @@ export default function CopyCanvas({
       const data = {
         canvasId: canvasId,
         canvasTitle: canvasTitle,
-        canvasDescription: undefined, // Original canvas doesn't have description in this context
+        canvasDescription: canvasDescription, // Sử dụng props
         isCopied: false,
       };
       console.log("Using original canvas data for link:", data);

@@ -1,32 +1,21 @@
-interface Feedback {
+// Re-export types from the schema file to maintain consistency
+export type {
+    CreateFeedbackFormData,
+    CreateFeedbackResponseFormData,
+    FeedbackData,
+} from "@/schemas/feedbackSchema"
+
+// Additional types that might be needed for API responses
+interface CreateFeedbackResponse {
     feedbackID: string
-    orderID: string
     rating: number
     comment: string
-    image?: string
+    imageURL: string
     createdAt: string
-    customerName: string
-    customerAvatar?: string
-    response?: FeedbackResponse
 }
 
-interface FeedbackResponse {
-    responseID: string
+interface FeedbackResponseData {
     feedbackID: string
     response: string
-    createdAt: string
-    designerName: string
-    designerAvatar?: string
-}
-
-interface CreateFeedbackData {
-    orderID: string
-    rating: number
-    comment: string
-    image?: File
-}
-
-interface CreateFeedbackResponseData {
-    feedbackID: string
-    response: string
+    responseAt: string
 }

@@ -60,6 +60,7 @@ export default function MessageContent({
                 canvasId={data.id}
                 canvasTitle={data.title}
                 imageUrl={data.imageUrl}
+                canvasDescription={data.description} // truyền thêm dòng này
                 isCurrentUser={isCurrentUser}
               />
             );

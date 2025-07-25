@@ -3,7 +3,6 @@
 import { useState } from "react";
 import type {
   OrderDetail,
-  EvaluationCriteria,
   ProgressStepResponse,
 } from "@/types/orderManagement";
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
@@ -11,9 +10,14 @@ import LeftPanel from "@/components/organisms/customer/order-detail/LeftPanel";
 import RightTopPanel from "@/components/organisms/customer/order-detail/RightTopPanel";
 import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel";
 import ActivityLogDialog from "@/components/molecules/customer/order-detail/ActivityLogDialog";
+import FeedbackSection from "@/components/organisms/feedback/FeedbackSection";
 import type { TimelineItemData } from "@/components/molecules/timeline/TimelineItem";
 import OrderService from "@/services/OrderService";
 import { ACTIVITY_TYPE_VI } from "@/constants/order";
+import type {
+  CreateFeedbackFormData,
+  FeedbackData,
+} from "@/schemas/feedbackSchema";
 
 interface OrderManagementTemplateProps {
   orderDetail: OrderDetail;
@@ -24,6 +28,12 @@ interface OrderManagementTemplateProps {
   onSelectPhases?: (phaseIds: string[]) => Promise<void>;
   getProgressReviewDetail: any;
   onDesignerWithdraw: (phaseIds: string[]) => Promise<void>;
+  userRole: string;
+  onCreateFeedback: (data: CreateFeedbackFormData) => Promise<void>;
+  onCreateResponse: (feedbackID: string, response: string) => Promise<void>;
+  onGetFeedback: (orderID: string) => Promise<FeedbackData | null>;
+  ordersDeposited: DepositHistoryItem[];
+  fetchOrdersDeposited: any;
 }
 
 export default function OrderManagementTemplate({
@@ -34,7 +44,13 @@ export default function OrderManagementTemplate({
   onCreateProgressStep,
   onSelectPhases,
   getProgressReviewDetail,
-  onDesignerWithdraw
+  onDesignerWithdraw,
+  userRole,
+  onCreateFeedback,
+  onCreateResponse,
+  onGetFeedback,
+  ordersDeposited,
+  fetchOrdersDeposited,
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -44,6 +60,8 @@ export default function OrderManagementTemplate({
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [activityLog, setActivityLog] = useState<TimelineItemData[]>([]);
   const [activityLogLoading, setActivityLogLoading] = useState(false);
+  const [depositHistoryLoading, setDepositHistoryLoading] = useState(false);
+
   const orderService = OrderService();
 
   const fetchProgressReviewDetail = async (progressStepID: string) => {
@@ -66,9 +84,15 @@ export default function OrderManagementTemplate({
     // Implement view phases logic
   };
 
-  const handleViewDelivery = () => {
-    console.log("View delivery clicked");
-    // Implement view delivery logic
+  const handleViewDepositHistory = async () => {
+    setDepositHistoryLoading(true);
+    try {
+      await fetchOrdersDeposited();
+    } catch (error) {
+      console.error("Error fetching deposit history:", error);
+    } finally {
+      setDepositHistoryLoading(false);
+    }
   };
 
   // Map activityType to TimelineIconType
@@ -131,10 +155,7 @@ export default function OrderManagementTemplate({
     }
   };
 
-  const handleEvaluationSubmit = async (
-    stepId: string,
-    criteria: EvaluationCriteria
-  ) => {
+  const handleEvaluationSubmit = async (stepId: string, criteria: any) => {
     await handleCreateReview({
       progressStepID: stepId,
       ...criteria,
@@ -153,7 +174,6 @@ export default function OrderManagementTemplate({
     setEvaluatingStepId(null);
   };
 
-
   return (
     <div className="bg-gray-50 p-4 overflow-y-auto">
       <ActivityLogDialog
@@ -163,19 +183,22 @@ export default function OrderManagementTemplate({
         items={activityLog}
         onClose={() => setActivityLogOpen(false)}
       />
+
       {/* Main content */}
-      <div className="h-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 gap-6 h-full">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Existing grid layout */}
+        <div className="grid grid-cols-2 gap-6">
           {/* Left Panel - 50% width */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <LeftPanel
               orderDetail={orderDetail}
               onViewPhases={handleViewPhases}
-              onViewDelivery={handleViewDelivery}
+              onViewDepositHistory={handleViewDepositHistory}
               onViewActivityLog={handleViewActivityLog}
+              depositHistory={ordersDeposited}
+              depositHistoryLoading={depositHistoryLoading}
             />
           </div>
-
           {/* Right Panel - 50% width, conditional layout */}
           <div
             className={`${
@@ -225,6 +248,15 @@ export default function OrderManagementTemplate({
             </div>
           </div>
         </div>
+
+        {/* Feedback Section - Full width at bottom */}
+        <FeedbackSection
+          orderID={orderDetail.order.orderID}
+          userRole={userRole}
+          onCreateFeedback={onCreateFeedback}
+          onCreateResponse={onCreateResponse}
+          onGetFeedback={onGetFeedback}
+        />
       </div>
     </div>
   );
