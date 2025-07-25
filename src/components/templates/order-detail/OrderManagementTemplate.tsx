@@ -32,6 +32,8 @@ interface OrderManagementTemplateProps {
   onCreateFeedback: (data: CreateFeedbackFormData) => Promise<void>;
   onCreateResponse: (feedbackID: string, response: string) => Promise<void>;
   onGetFeedback: (orderID: string) => Promise<FeedbackData | null>;
+  ordersDeposited: DepositHistoryItem[];
+  fetchOrdersDeposited: any;
 }
 
 export default function OrderManagementTemplate({
@@ -47,6 +49,8 @@ export default function OrderManagementTemplate({
   onCreateFeedback,
   onCreateResponse,
   onGetFeedback,
+  ordersDeposited,
+  fetchOrdersDeposited,
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -56,6 +60,7 @@ export default function OrderManagementTemplate({
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [activityLog, setActivityLog] = useState<TimelineItemData[]>([]);
   const [activityLogLoading, setActivityLogLoading] = useState(false);
+  const [depositHistoryLoading, setDepositHistoryLoading] = useState(false);
 
   const orderService = OrderService();
 
@@ -79,9 +84,15 @@ export default function OrderManagementTemplate({
     // Implement view phases logic
   };
 
-  const handleViewDelivery = () => {
-    console.log("View delivery clicked");
-    // Implement view delivery logic
+  const handleViewDepositHistory = async () => {
+    setDepositHistoryLoading(true);
+    try {
+      await fetchOrdersDeposited();
+    } catch (error) {
+      console.error("Error fetching deposit history:", error);
+    } finally {
+      setDepositHistoryLoading(false);
+    }
   };
 
   // Map activityType to TimelineIconType
@@ -182,11 +193,12 @@ export default function OrderManagementTemplate({
             <LeftPanel
               orderDetail={orderDetail}
               onViewPhases={handleViewPhases}
-              onViewDelivery={handleViewDelivery}
+              onViewDepositHistory={handleViewDepositHistory}
               onViewActivityLog={handleViewActivityLog}
+              depositHistory={ordersDeposited}
+              depositHistoryLoading={depositHistoryLoading}
             />
           </div>
-
           {/* Right Panel - 50% width, conditional layout */}
           <div
             className={`${

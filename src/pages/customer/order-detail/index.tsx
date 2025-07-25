@@ -16,11 +16,16 @@ import { useCurrentUser } from "@/utils";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
-  const { getOrderDetail, createDepositListPhase, createWithdrawPhase } =
-    OrderService();
+  const {
+    getOrderDetail,
+    createDepositListPhase,
+    createWithdrawPhase,
+    getOrderDeposited,
+  } = OrderService();
   const { getProgress, createProgressStep, getProgressReviewDetail } =
     ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
+  const [ordersDeposited, setOrdersDeposited] = useState<DepositHistoryItem[]>([]);
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
   );
@@ -32,6 +37,15 @@ export default function OrderManagementPage() {
   useEffect(() => {
     fetchOrderDetail();
   }, []);
+
+  const fetchOrdersDeposited = async () => {
+    if (id) {
+      const response = await getOrderDeposited(id);
+      if (response) {
+        setOrdersDeposited(response?.responseRequestModel?.responseList||[]);
+      }
+    }
+  };
 
   const fetchOrderDetail = async () => {
     if (id) {
@@ -102,7 +116,7 @@ export default function OrderManagementPage() {
   };
   const handleCreateFeedback = async (data: CreateFeedbackFormData) => {
     const response = await createFeedback(data);
-    return response
+    return response;
   };
 
   const handleGetFeedback = async (orderID: string) => {
@@ -137,6 +151,8 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      fetchOrdersDeposited={fetchOrdersDeposited}
+      ordersDeposited={ordersDeposited}
       userRole={currentUser?.role}
       onCreateFeedback={handleCreateFeedback}
       onCreateResponse={handleCreateFeedbackResponse}

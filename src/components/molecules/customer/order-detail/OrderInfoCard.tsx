@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Order } from "@/types/orderManagement";
 import OrderStatusBadge from "@/components/atoms/customer/order-detail/OrderStatusBadge";
+import DepositHistoryDialog from "./DepositHistoryDialog";
 import {
   MoreHorizontal,
   User,
@@ -21,23 +22,28 @@ import {
 } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
-import { ReportFormData } from "@/schemas/report/reportSchema";
+import type { ReportFormData } from "@/schemas/report/reportSchema";
 import CustomerReportService from "@/services/CustomerReportService";
 
 interface OrderInfoCardProps {
   order: Order;
   onViewPhases: () => void;
-  onViewDelivery: () => void;
+  onViewDepositHistory: () => void;
   onViewActivityLog: () => void;
+  depositHistory?: DepositHistoryItem[];
+  depositHistoryLoading?: boolean;
 }
 
 export default function OrderInfoCard({
   order,
   onViewPhases,
-  onViewDelivery,
+  onViewDepositHistory,
   onViewActivityLog,
+  depositHistory = [],
+  depositHistoryLoading = false,
 }: OrderInfoCardProps) {
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
   const { createReport } = CustomerReportService();
 
   const formatDate = (dateString: string) => {
@@ -54,9 +60,14 @@ export default function OrderInfoCard({
     const response = await createReport({
       ...data,
       targetID: order.orderID,
-      reportType: 3, // Order report type (assuming 4 is for orders)
+      reportType: 3, // Order report type (assuming 3 is for orders)
     });
     return response;
+  };
+
+  const handleViewDepositHistory = () => {
+    setIsDepositHistoryOpen(true);
+    onViewDepositHistory(); // Call the parent function to fetch data if needed
   };
 
   return (
@@ -67,16 +78,14 @@ export default function OrderInfoCard({
             <CardTitle className="text-lg font-semibold">
               Thông tin đơn hàng
             </CardTitle>
-            {
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsReportDialogOpen(true)}
-                className="hover:bg-red-50 hover:text-red-600 h-8 w-8"
-              >
-                <Flag className="h-4 w-4" />
-              </Button>
-            }
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsReportDialogOpen(true)}
+              className="hover:bg-red-50 hover:text-red-600 h-8 w-8"
+            >
+              <Flag className="h-4 w-4" />
+            </Button>
           </div>
           <div>
             <DropdownMenu>
@@ -89,8 +98,8 @@ export default function OrderInfoCard({
                 <DropdownMenuItem onClick={onViewPhases}>
                   Giai đoạn
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={onViewDelivery}>
-                  Giao hàng
+                <DropdownMenuItem onClick={handleViewDepositHistory}>
+                  Lịch sử cọc
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onViewActivityLog}>
                   Hoạt động
@@ -155,6 +164,15 @@ export default function OrderInfoCard({
         targetID={order.orderID}
         defaultReportType={4} // Order report type
         onSubmit={handleReportSubmit}
+      />
+
+      {/* Deposit History Dialog */}
+      <DepositHistoryDialog
+        open={isDepositHistoryOpen}
+        onOpenChange={setIsDepositHistoryOpen}
+        deposits={depositHistory}
+        loading={depositHistoryLoading}
+        onClose={() => setIsDepositHistoryOpen(false)}
       />
     </>
   );

@@ -38,3 +38,17 @@ interface OrderSortState {
 }
 
 type OrderStatus = keyof typeof ORDER_STATUSES;
+
+interface DepositHistoryItem {
+  orderDepositID: string
+  fullname: string
+  title: string
+  amount: number
+  type: "Deposit" | "Withdraw"
+  depositAt: string
+}
+
+interface DepositHistoryProps {
+  orderID: string
+  deposits: DepositHistoryItem[]
+}
