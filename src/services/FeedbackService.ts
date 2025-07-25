@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import useApiService from "../hooks/useApi";
-import { API_ROUTES, HTTP_METHOD} from "@/constants";
+import { API_ROUTES, HTTP_METHOD } from "@/constants";
 
 const FeedbackService = () => {
     const { callApi } = useApiService();
@@ -9,8 +9,7 @@ const FeedbackService = () => {
             try {
                 const res = await callApi(
                     HTTP_METHOD.GET,
-                    API_ROUTES.GET_FEEDBACK,
-                    values
+                    `${API_ROUTES.GET_FEEDBACK}?orderID=${values}`,
                 );
                 return res;
             } catch (err: any) {
@@ -21,12 +20,19 @@ const FeedbackService = () => {
     );
 
     const createFeedback = useCallback(
+   
         async (values: any) => {
+                 console.log('createFeedback; ', values)
             try {
+                const formData = new FormData()
+                formData.append("OrderId", String(values.orderID));
+                formData.append("Rating", values.rating);
+                formData.append("Comment", String(values.comment));
+                formData.append("Image", values.image);
                 const res = await callApi(
                     HTTP_METHOD.POST,
                     API_ROUTES.CREATE_FEEDBACK,
-                    values
+                    formData
                 );
                 return res;
             } catch (err: any) {
