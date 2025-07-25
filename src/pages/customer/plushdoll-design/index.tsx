@@ -77,7 +77,6 @@ import CanvasService from "@/services/CanvasService";
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
 
-
 // Add interface for text properties
 interface TextProperties {
   fontFamily: string;
@@ -125,7 +124,7 @@ const PlushDollDesign: React.FC = () => {
   >(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   // Responsive initial size
@@ -226,7 +225,7 @@ const PlushDollDesign: React.FC = () => {
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
 
   // Thêm state cho right sidebar
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [propertyUnit, setPropertyUnit] = useState<"px" | "mm">("px");
 
   // Thêm state để track selected object properties cho right sidebar
@@ -3171,7 +3170,7 @@ const PlushDollDesign: React.FC = () => {
             className="flex items-center gap-2"
           >
             <Settings className="w-4 h-4" />
-            <span className="text-xs font-medium">Properties</span>
+            <span className="text-xs font-medium">Thông tin</span>
           </Button>
         </div>
       </header>
@@ -3802,7 +3801,7 @@ const PlushDollDesign: React.FC = () => {
 
           {/* Tabs for right sidebar */}
           {rightSidebarOpen && (
-            <div className="flex border-b border-border mb-4 px-4 flex-shrink-0">
+            <div className="flex border-b border-border px-4 flex-shrink-0">
               <button
                 onClick={() => setRightSidebarTab("adjust")}
                 className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
@@ -3831,36 +3830,42 @@ const PlushDollDesign: React.FC = () => {
             {/* Tab Content */}
             {rightSidebarOpen ? (
               rightSidebarTab === "adjust" ? (
-                <div className="flex flex-col gap-4 px-4 pb-4">
-                  <div className="text-sm font-semibold text-foreground mb-2">
-                    Properties Panel
-                  </div>
+                <div className="flex flex-col gap-4 px-4 pb-0">
+                  {/* <div className="text-sm font-semibold text-foreground mb-2">
+                    Thông tin
+                  </div> */}
                   {/* Canvas Properties */}
                   <div className="space-y-3">
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Canvas Info
+                      Thông tin Canvas
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Width:</span>
+                        <span className="text-muted-foreground">
+                          Chiều rộng:
+                        </span>
                         <span className="font-medium">
                           {actualCanvasWidth} {unit}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Height:</span>
+                        <span className="text-muted-foreground">
+                          Chiều cao:
+                        </span>
                         <span className="font-medium">
                           {actualCanvasHeight} {unit}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Objects:</span>
+                        <span className="text-muted-foreground">
+                          Số lượng vật thể:
+                        </span>
                         <span className="font-medium">
                           {canvasRef.current?.getObjects().length || 0}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Zoom:</span>
+                        <span className="text-muted-foreground">Tỷ lệ:</span>
                         <span className="font-medium">
                           {Math.round(zoom * 100)}%
                         </span>
@@ -3873,7 +3878,7 @@ const PlushDollDesign: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          TRANSFORM
+                          CHỈNH SỬA
                         </div>
                         {/* Unit switcher */}
                         <div className="flex items-center border rounded-md p-0.5 bg-muted">

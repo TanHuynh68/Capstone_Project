@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import CanvasService, { CanvasResponse } from "@/services/CanvasService";
 import { Button } from "@/components/ui/button";
 import { fabric } from "fabric";
+import { formatVietnamDateHours } from "@/utils/date";
 
 interface CanvasVersionHistoryProps {
   canvasFolderId: string;
@@ -121,7 +122,7 @@ const CanvasVersionHistory: React.FC<CanvasVersionHistoryProps> = ({
   }, [canvasFolderId, getCanvasHistory]);
 
   return (
-    <div className="p-2 w-100">
+    <div className="p-2 w-110">
       <div className="font-semibold text-sm mb-2">Các phiên bản gần đây</div>
       {loading ? (
         <div>Đang tải...</div>
@@ -154,7 +155,7 @@ const CanvasVersionHistory: React.FC<CanvasVersionHistoryProps> = ({
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {ver.updatedAt
-                      ? new Date(ver.updatedAt).toLocaleString()
+                      ? formatVietnamDateHours(ver.updatedAt)
                       : ""}
                   </div>
                 </div>
