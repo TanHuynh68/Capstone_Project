@@ -77,13 +77,6 @@ import CanvasService from "@/services/CanvasService";
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
 
-// Add interface for canvas object
-interface CanvasObject {
-  canvasInfoId: string;
-  canvasTitle: string;
-  canvasDescription: string;
-}
-
 // Add interface for text properties
 interface TextProperties {
   fontFamily: string;
@@ -131,7 +124,7 @@ const PlushDollDesign: React.FC = () => {
   >(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   // Responsive initial size
@@ -189,7 +182,8 @@ const PlushDollDesign: React.FC = () => {
     index: -1,
   });
 
-  const { postCanvas, getCanvasHistory, putCanvas } = CanvasService();
+  const { postCanvas, getCanvasHistory, putCanvas, newVersionCanvas } =
+    CanvasService();
 
   // Add this near other state declarations
   const [textProperties, setTextProperties] = useState({
@@ -231,7 +225,7 @@ const PlushDollDesign: React.FC = () => {
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
 
   // Thêm state cho right sidebar
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [propertyUnit, setPropertyUnit] = useState<"px" | "mm">("px");
 
   // Thêm state để track selected object properties cho right sidebar
@@ -1901,18 +1895,17 @@ const PlushDollDesign: React.FC = () => {
     try {
       // Luôn dùng putCanvas, nếu chưa có currentCanvasId thì tạo mới trước
       let canvasIdToUse = currentCanvasId;
+      const canvasFolderId =
+        location.state?.folderId || location.state?.canvasFolderId;
       if (!canvasIdToUse) {
         // Nếu chưa có ID, cần tạo mới trước (vẫn phải dùng postCanvas để lấy ID)
-        // Nếu API không cho phép put khi chưa có ID, giữ lại postCanvas cho lần đầu
-        const canvasFolderId =
-          location.state?.folderId ||
-          location.state?.canvasFolderId ||
-          "default-folder";
-        const response = await postCanvas({
-          canvasFolderId: canvasFolderId,
+        // Không truyền 'default-folder', chỉ truyền nếu có GUID thật
+        const postBody = {
           canvasTitle: currentCanvasTitle,
           canvasDescription,
-        });
+          canvasFolderId: canvasFolderId ?? undefined,
+        };
+        const response = await postCanvas(postBody);
         if (!response?.isSuccess) {
           throw new Error(response?.message || "Tạo mới thất bại");
         }
@@ -1924,12 +1917,14 @@ const PlushDollDesign: React.FC = () => {
         }
       }
       // Sau khi đã có ID, luôn dùng putCanvas để cập nhật
-      const putResponse = await putCanvas({
+      const putBody = {
         canvasInfoId: canvasIdToUse,
         canvasTitle: currentCanvasTitle,
         canvasDescription,
         isLatest: true,
-      });
+        canvasFolderId: canvasFolderId ?? undefined,
+      };
+      const putResponse = await putCanvas(putBody);
       if (!putResponse?.isSuccess) {
         throw new Error(putResponse?.message || "Cập nhật thất bại");
       }
@@ -2446,37 +2441,18 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     if (!isCanvasInitialized || !canvasRef.current) return;
 
-    // Nếu có location.state với canvasId, load canvas data
-    if (location.state?.canvasId) {
-      console.log("Canvas đã khởi tạo, bắt đầu load data từ location.state");
-      const fetchCanvasData = async () => {
-        try {
-          const data = await getCanvasHistory({ page: 1, size: 100 });
-          const canvasList =
-            data?.responseRequestModel?.responseList?.items || [];
-          const targetCanvas = canvasList.find(
-            (canvas: CanvasObject) =>
-              canvas.canvasInfoId === location.state.canvasId
-          );
-
-          if (targetCanvas) {
-            loadCanvasFromDescription(
-              targetCanvas.canvasDescription,
-              targetCanvas.canvasTitle,
-              targetCanvas.canvasInfoId
-            );
-          } else {
-            toast.error("Không tìm thấy thông tin thiết kế");
-          }
-        } catch (error) {
-          console.error("Error fetching canvas data:", error);
-          toast.error("Có lỗi xảy ra khi tải thiết kế");
-        }
-      };
-
-      fetchCanvasData();
+    if (location.state?.canvasDescription && location.state?.canvasId) {
+      loadCanvasFromDescription(
+        location.state.canvasDescription,
+        location.state.canvasTitle || "Thiết kế",
+        location.state.canvasId
+      );
+    } else {
+      // Nếu cần, fallback fetch từ API ở đây (ví dụ khi reload trang)
+      // Hoặc hiển thị thông báo "Không tìm thấy thiết kế"
+      // toast.error("Không tìm thấy thông tin thiết kế");
     }
-  }, [isCanvasInitialized, location.state?.canvasId, getCanvasHistory]);
+  }, [isCanvasInitialized, location.state?.canvasId]);
 
   // Thêm useEffect để tắt scroll của trang chính
   // useEffect(() => {
@@ -3033,7 +3009,11 @@ const PlushDollDesign: React.FC = () => {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <CanvasVersionHistory
-                      canvasFolderId={currentCanvasId || "default-folder"}
+                      canvasFolderId={
+                        location.state?.folderId ||
+                        location.state?.canvasFolderId ||
+                        "default-folder"
+                      }
                       onRestore={(ver) => {
                         loadCanvasFromDescription(
                           ver.canvasDescription,
@@ -3140,6 +3120,31 @@ const PlushDollDesign: React.FC = () => {
             <Save className="w-4 h-4 mr-1" />
             Lưu thiết kế
           </Button>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              if (!currentCanvasId) {
+                toast.error("Không có canvas để lưu version!");
+                return;
+              }
+              try {
+                const res = await newVersionCanvas({
+                  canvasInfoId: currentCanvasId,
+                });
+                if (res?.isSuccess) {
+                  toast.success("Đã lưu version mới thành công!");
+                } else {
+                  toast.error("Có lỗi xảy ra khi lưu version!");
+                }
+              } catch {
+                toast.error("Có lỗi xảy ra khi lưu version!");
+              }
+            }}
+            disabled={!currentCanvasId}
+          >
+            <Save className="w-4 h-4 mr-1" />
+            Lưu version
+          </Button>
 
           <Button
             variant={isAutoSaveEnabled ? "default" : "outline"}
@@ -3149,8 +3154,8 @@ const PlushDollDesign: React.FC = () => {
             <Save className="w-4 h-4" />
             {isAutoSaveEnabled ? (
               <span className="flex items-center gap-1">
-                <span className="text-xs font-medium">Tự động lưu</span>
-                <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                <span className="text-xs font-medium">Tự động lưu: </span>
+                <span className="text-xs font-medium">
                   {autoSaveCountdown}s
                 </span>
               </span>
@@ -3165,7 +3170,7 @@ const PlushDollDesign: React.FC = () => {
             className="flex items-center gap-2"
           >
             <Settings className="w-4 h-4" />
-            <span className="text-xs font-medium">Properties</span>
+            <span className="text-xs font-medium">Thông tin</span>
           </Button>
         </div>
       </header>
@@ -3796,7 +3801,7 @@ const PlushDollDesign: React.FC = () => {
 
           {/* Tabs for right sidebar */}
           {rightSidebarOpen && (
-            <div className="flex border-b border-border mb-4 px-4 flex-shrink-0">
+            <div className="flex border-b border-border px-4 flex-shrink-0">
               <button
                 onClick={() => setRightSidebarTab("adjust")}
                 className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
@@ -3825,36 +3830,42 @@ const PlushDollDesign: React.FC = () => {
             {/* Tab Content */}
             {rightSidebarOpen ? (
               rightSidebarTab === "adjust" ? (
-                <div className="flex flex-col gap-4 px-4 pb-4">
-                  <div className="text-sm font-semibold text-foreground mb-2">
-                    Properties Panel
-                  </div>
+                <div className="flex flex-col gap-4 px-4 pb-0">
+                  {/* <div className="text-sm font-semibold text-foreground mb-2">
+                    Thông tin
+                  </div> */}
                   {/* Canvas Properties */}
                   <div className="space-y-3">
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Canvas Info
+                      Thông tin Canvas
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Width:</span>
+                        <span className="text-muted-foreground">
+                          Chiều rộng:
+                        </span>
                         <span className="font-medium">
                           {actualCanvasWidth} {unit}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Height:</span>
+                        <span className="text-muted-foreground">
+                          Chiều cao:
+                        </span>
                         <span className="font-medium">
                           {actualCanvasHeight} {unit}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Objects:</span>
+                        <span className="text-muted-foreground">
+                          Số lượng vật thể:
+                        </span>
                         <span className="font-medium">
                           {canvasRef.current?.getObjects().length || 0}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Zoom:</span>
+                        <span className="text-muted-foreground">Tỷ lệ:</span>
                         <span className="font-medium">
                           {Math.round(zoom * 100)}%
                         </span>
@@ -3867,7 +3878,7 @@ const PlushDollDesign: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          TRANSFORM
+                          CHỈNH SỬA
                         </div>
                         {/* Unit switcher */}
                         <div className="flex items-center border rounded-md p-0.5 bg-muted">
