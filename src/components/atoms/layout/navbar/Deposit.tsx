@@ -7,6 +7,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LockKeyhole, Calendar, Hash, Banknote } from "lucide-react";
+import { Link } from "react-router-dom";
+import { PATH } from "@/routes/path";
 
 interface DepositProps {
   amount: number;
@@ -58,7 +60,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold text-lg text-gray-900">
-                Danh sách tiền cọc 
+                Danh sách tiền cọc
               </h4>
               <p className="text-sm text-gray-600 mt-1">
                 Quản lý các khoản tiền tạm khóa
@@ -89,58 +91,61 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                 {deposits.map((deposit) => {
                   // card
                   return (
-                    <div
-                      key={deposit.orderDepositID}
-                      className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
-                    >
-                      {/* Main content */}
-                      <div className="">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Banknote className="w-5 h-5 text-red-600" />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-gray-900 truncate">
-                              Đặt cọc {formatCurrencyVND(deposit.amount)} cho đơn hàng #{deposit.orderID.slice(0,8)}
+                    <Link to={`${PATH.ORDER_DETAIL}/${deposit?.orderID}`}>
+                      <div
+                        key={deposit.orderDepositID}
+                        className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
+                      >
+                        {/* Main content */}
+                        <div className="">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Banknote className="w-5 h-5 text-red-600" />
                             </div>
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                              {deposit.orderTitle}
-                            </p>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-gray-900 truncate">
+                                Đặt cọc {formatCurrencyVND(deposit.amount)} cho
+                                đơn hàng #{deposit.orderID.slice(0, 8)}
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {deposit.orderTitle}
+                              </p>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Amount */}
-                        <div className="mt-3 mb-3">
-                          <span className="text-xl font-bold text-gray-900">
-                            {formatCurrencyVND(deposit.amount)}
-                          </span>
-                        </div>
-
-                        <Separator className="my-3" />
-
-                        {/* Details */}
-                        <div className="flex justify-between gap-3 text-xs">
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <Hash className="w-3 h-3" />
-                            <span className="truncate">
-                              ID: {deposit.orderID.slice(0,8)}
+                          {/* Amount */}
+                          <div className="mt-3 mb-3">
+                            <span className="text-xl font-bold text-gray-900">
+                              {formatCurrencyVND(deposit.amount)}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-gray-600">
-                            {/* <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
+
+                          <Separator className="my-3" />
+
+                          {/* Details */}
+                          <div className="flex justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Hash className="w-3 h-3" />
+                              <span className="truncate">
+                                ID: {deposit.orderID.slice(0, 8)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                              {/* <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
                               {deposit.type === 'Deposit' ? 'Tiền cọc' : deposit.type}
                             </span> */}
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-600 ">
-                            <Calendar className="w-3 h-3" />
-                            <span>
-                              Tạo: {formatDate(deposit.depositAt + "")}
-                            </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600 ">
+                              <Calendar className="w-3 h-3" />
+                              <span>
+                                Tạo: {formatDate(deposit.depositAt + "")}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
