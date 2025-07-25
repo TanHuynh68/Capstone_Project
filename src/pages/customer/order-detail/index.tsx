@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import OrderManagementTemplate from "@/components/templates/order-detail/OrderManagementTemplate";
 import type {
@@ -11,6 +10,9 @@ import { useEffect, useState } from "react";
 import ProgressService from "@/services/ProgressService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
+import FeedbackService from "@/services/FeedbackService";
+import { CreateFeedbackFormData } from "@/schemas/feedbackSchema";
+import { useCurrentUser } from "@/utils";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,8 +24,11 @@ export default function OrderManagementPage() {
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
   );
+  const currentUser = useCurrentUser();
+  console.log("currentUser: ", currentUser);
   const { createProgressReview } = ProgressService();
-
+  const { createFeedback, createFeedbackResponse, getFeedbacks } =
+    FeedbackService();
   useEffect(() => {
     fetchOrderDetail();
   }, []);
@@ -95,6 +100,27 @@ export default function OrderManagementPage() {
       }
     }
   };
+  const handleCreateFeedback = async (data: CreateFeedbackFormData) => {
+    const response = await createFeedback(data);
+    return response
+  };
+
+  const handleGetFeedback = async (orderID: string) => {
+    const response = await getFeedbacks(orderID);
+    console.log("handleGetFeedback orderID: ", response);
+    return response?.responseRequestModel || null;
+  };
+
+  const handleCreateFeedbackResponse = async (
+    feedbackID: string,
+    response: string
+  ) => {
+    const result = await createFeedbackResponse({ feedbackID, response });
+    if (result) {
+      toast.success("Phản hồi đã được gửi thành công");
+    }
+    toast.success("Phản hồi đã được gửi thành công");
+  };
 
   if (!orderDetail) {
     return (
@@ -111,6 +137,10 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      userRole={currentUser?.role}
+      onCreateFeedback={handleCreateFeedback}
+      onCreateResponse={handleCreateFeedbackResponse}
+      onGetFeedback={handleGetFeedback}
       onDesignerWithdraw={handleWithdrawByDesigner}
       getProgressReviewDetail={getProgressReviewDetail}
       handleCreateReview={handleCreateReview}
