@@ -9,9 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Order } from "@/types/orderManagement";
 import OrderStatusBadge from "@/components/atoms/customer/order-detail/OrderStatusBadge";
-import DepositHistoryDialog from "./DepositHistoryDialog";
+import DepositDialogContainer from "./DepositDialogContainer";
 import {
   MoreHorizontal,
   User,
@@ -22,16 +21,16 @@ import {
 } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
-import type { ReportFormData } from "@/schemas/report/reportSchema";
 import CustomerReportService from "@/services/CustomerReportService";
 
 interface OrderInfoCardProps {
-  order: Order;
+  order: any;
   onViewPhases: () => void;
   onViewDepositHistory: () => void;
   onViewActivityLog: () => void;
   depositHistory?: DepositHistoryItem[];
   depositHistoryLoading?: boolean;
+  fetchDepositTransaction: any;
 }
 
 export default function OrderInfoCard({
@@ -41,6 +40,7 @@ export default function OrderInfoCard({
   onViewActivityLog,
   depositHistory = [],
   depositHistoryLoading = false,
+  fetchDepositTransaction,
 }: OrderInfoCardProps) {
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
@@ -56,18 +56,18 @@ export default function OrderInfoCard({
     });
   };
 
-  const handleReportSubmit = async (data: ReportFormData): Promise<boolean> => {
+  const handleReportSubmit = async (data: any): Promise<boolean> => {
     const response = await createReport({
       ...data,
       targetID: order.orderID,
-      reportType: 3, // Order report type (assuming 3 is for orders)
+      reportType: 3,
     });
     return response;
   };
 
   const handleViewDepositHistory = () => {
     setIsDepositHistoryOpen(true);
-    onViewDepositHistory(); // Call the parent function to fetch data if needed
+    onViewDepositHistory();
   };
 
   return (
@@ -162,12 +162,13 @@ export default function OrderInfoCard({
         isOpen={isReportDialogOpen}
         onClose={() => setIsReportDialogOpen(false)}
         targetID={order.orderID}
-        defaultReportType={4} // Order report type
+        defaultReportType={4}
         onSubmit={handleReportSubmit}
       />
 
-      {/* Deposit History Dialog */}
-      <DepositHistoryDialog
+      {/* Deposit History Container */}
+      <DepositDialogContainer
+        fetchDepositTransaction={fetchDepositTransaction}
         open={isDepositHistoryOpen}
         onOpenChange={setIsDepositHistoryOpen}
         deposits={depositHistory}

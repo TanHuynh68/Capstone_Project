@@ -10,7 +10,6 @@ import DeleteMessageModal from "@/components/molecules/customer/chat/DeleteMessa
 import EditMessageModal from "@/components/molecules/customer/chat/EditMessageModal";
 import { useCurrentUser } from "@/utils";
 
-
 interface ChatMessageProps {
   id: string; // Message ID
   content: string;
@@ -38,7 +37,7 @@ export default function ChatMessage({
   // State for modals
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  console.log('users[0: ', users[0])
+  console.log("users[0: ", users[0]);
   // Lấy thông tin người gửi
   const getSenderInfo = () => {
     if (users[0]?.account1.accountID === senderID) {
@@ -55,7 +54,7 @@ export default function ChatMessage({
   };
 
   const senderInfo = getSenderInfo();
-  console.log('senderInfo: ', senderInfo.avatar)
+  console.log("senderInfo: ", senderInfo.avatar);
   // Handlers for message actions
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -98,7 +97,7 @@ export default function ChatMessage({
         {/* Nội dung tin nhắn */}
         <div className="relative">
           <MessageActions
-          messageType={messageType}
+            messageType={messageType}
             className="pt-2"
             messageId={id}
             content={content}
@@ -140,13 +139,12 @@ export default function ChatMessage({
           <ChatTime
             className={cn(
               "mt-1 text-xs",
-              isCurrentUser ? "text-gray-400" : "text-gray-500 flex",
+              isCurrentUser ? "text-gray-400" : "text-gray-500 flex"
             )}
             time={timestamp}
             isCurrentUser={isCurrentUser}
           />
         </div>
-
       </div>
 
       {/* Delete Message Modal */}

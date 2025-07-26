@@ -1,10 +1,6 @@
+"use client";
+
 import { useState, useMemo } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -22,28 +18,26 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, ArrowUp, ArrowDown, Filter, X } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Filter, X, Eye } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 
-interface DepositHistoryDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface DepositHistoryMainDialogProps {
   deposits: DepositHistoryItem[];
   loading?: boolean;
   onClose: () => void;
+  onViewDetail: (deposit: any) => void;
 }
 
 type SortField = "depositAt" | "amount" | "type";
 type SortOrder = "asc" | "desc";
 type FilterType = "all" | "Deposit" | "Withdraw";
 
-export default function DepositHistoryDialog({
-  open,
-  onOpenChange,
+export default function DepositHistoryMainDialog({
   deposits,
   loading = false,
   onClose,
-}: DepositHistoryDialogProps) {
+  onViewDetail,
+}: DepositHistoryMainDialogProps) {
   const [sortField, setSortField] = useState<SortField>("depositAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [filterType, setFilterType] = useState<FilterType>("all");
@@ -152,17 +146,24 @@ export default function DepositHistoryDialog({
     .reduce((sum, d) => sum + d.amount, 0);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-[900px] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Lịch sử cọc</span>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          </DialogTitle>
-        </DialogHeader>
+    <div className="bg-white rounded-lg shadow-2xl border flex flex-col w-[900px] max-h-[90vh]">
+      {/* Header */}
+      <div className="border-b p-6 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Lịch sử cọc</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
 
+      {/* Content */}
+      <div className="flex-1 overflow-hidden p-6">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
@@ -171,12 +172,12 @@ export default function DepositHistoryDialog({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4 flex-1 min-h-0">
+          <div className="flex flex-col gap-4 h-full">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-4 text-center">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="text-sm text-green-600 font-medium">
-                  Tổng đặt cọc
+                  Tổng đặt cọc của nhà thiết kế
                 </div>
                 <div className="text-lg font-bold text-green-700">
                   {formatCurrencyVND(totalDeposits)}
@@ -184,18 +185,12 @@ export default function DepositHistoryDialog({
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <div className="text-sm text-blue-600 font-medium">
-                  Tổng tiền rút
+                  Tổng tiền rút của khách hàng
                 </div>
                 <div className="text-lg font-bold text-blue-700">
                   {formatCurrencyVND(totalWithdraws)}
                 </div>
               </div>
-              {/* <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <div className="text-sm text-gray-600 font-medium">Số dư</div>
-                <div className="text-lg font-bold text-gray-700">
-                  {formatCurrencyVND(totalDeposits - totalWithdraws)}
-                </div>
-              </div> */}
             </div>
 
             {/* Filters and Controls */}
@@ -272,6 +267,7 @@ export default function DepositHistoryDialog({
                         Thời gian {getSortIcon("depositAt")}
                       </Button>
                     </TableHead>
+                    <TableHead className="w-[100px]">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -322,6 +318,16 @@ export default function DepositHistoryDialog({
                         <TableCell className="text-sm text-gray-600">
                           {formatDate(deposit.depositAt)}
                         </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onViewDetail(deposit)}
+                            className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -330,7 +336,7 @@ export default function DepositHistoryDialog({
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

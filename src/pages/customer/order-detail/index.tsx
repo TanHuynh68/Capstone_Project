@@ -13,6 +13,7 @@ import { MESSAGE } from "@/constants";
 import FeedbackService from "@/services/FeedbackService";
 import { CreateFeedbackFormData } from "@/schemas/feedbackSchema";
 import { useCurrentUser } from "@/utils";
+import WalletService from "@/services/WalletService";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,24 +26,38 @@ export default function OrderManagementPage() {
   const { getProgress, createProgressStep, getProgressReviewDetail } =
     ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
-  const [ordersDeposited, setOrdersDeposited] = useState<DepositHistoryItem[]>([]);
+  const [ordersDeposited, setOrdersDeposited] = useState<DepositHistoryItem[]>(
+    []
+  );
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
   );
   const currentUser = useCurrentUser();
   console.log("currentUser: ", currentUser);
   const { createProgressReview } = ProgressService();
+  const { getDepositTransaction } = WalletService();
   const { createFeedback, createFeedbackResponse, getFeedbacks } =
     FeedbackService();
+
   useEffect(() => {
     fetchOrderDetail();
   }, []);
 
+  // fetch deposited history
   const fetchOrdersDeposited = async () => {
     if (id) {
       const response = await getOrderDeposited(id);
       if (response) {
-        setOrdersDeposited(response?.responseRequestModel?.responseList||[]);
+        setOrdersDeposited(response?.responseRequestModel?.responseList || []);
+      }
+    }
+  };
+
+  const fetchDepositTransaction = async (id: string) => {
+    if (id) {
+      const response = await getDepositTransaction(id);
+      if (response) {
+        return response?.responseRequestModel?.depositTransactions || [];
       }
     }
   };
@@ -151,6 +166,7 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      fetchDepositTransaction={fetchDepositTransaction}
       fetchOrdersDeposited={fetchOrdersDeposited}
       ordersDeposited={ordersDeposited}
       userRole={currentUser?.role}

@@ -59,6 +59,7 @@ export enum API_ROUTES {
   // Test API
   TEST = `/test`,
   //Wallet
+   GET_DEPOSIT_TRANSACTION = `${API_ENDPOINTS.WALLET}/deposit-transaction`,
   GET_DEPOSIT_ORDER = `${API_ENDPOINTS.WALLET}/deposit-order`,
   GET_WALLET = `${API_ENDPOINTS.WALLET}`,
   UPDATE_WALLET = `${API_ENDPOINTS.WALLET}`,
