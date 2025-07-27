@@ -34,6 +34,7 @@ interface OrderManagementTemplateProps {
   onGetFeedback: (orderID: string) => Promise<FeedbackData | null>;
   ordersDeposited: DepositHistoryItem[];
   fetchOrdersDeposited: any;
+  fetchDepositTransaction: any;
 }
 
 export default function OrderManagementTemplate({
@@ -51,6 +52,7 @@ export default function OrderManagementTemplate({
   onGetFeedback,
   ordersDeposited,
   fetchOrdersDeposited,
+  fetchDepositTransaction,
 }: OrderManagementTemplateProps) {
   console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -191,6 +193,7 @@ export default function OrderManagementTemplate({
           {/* Left Panel - 50% width */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <LeftPanel
+              fetchDepositTransaction={fetchDepositTransaction}
               orderDetail={orderDetail}
               onViewPhases={handleViewPhases}
               onViewDepositHistory={handleViewDepositHistory}

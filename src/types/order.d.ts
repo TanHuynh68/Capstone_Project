@@ -52,3 +52,12 @@ interface DepositHistoryProps {
   orderID: string
   deposits: DepositHistoryItem[]
 }
+
+interface OrderDepositTransaction {
+  depositTransactionID: string;
+  type: "Withdraw" | "Deposit"; // nếu bạn có thêm loại, bổ sung vào đây
+  amount: number;
+  description: string;
+  transactionAt: string; // ISO date string
+}
+

@@ -255,16 +255,28 @@ const WalletService = () => {
         );
         return res;
       } catch (err: any) {
-        return {
-          isSuccess: false,
-          message: err?.response?.data || "Rút tiền thất bại",
-        };
+         console.log(err?.response?.data)
       }
     },
     [callApi]
   );
 
+  const getDepositTransaction = useCallback(
+    async (id: string) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_DEPOSIT_TRANSACTION}?orderDepositId=${id}`,
+        );
+        return res;
+      } catch (err: any) {
+        console.log(err?.response?.data)
+      }
+    },
+    [callApi]
+  );
   return {
+    getDepositTransaction,
     getWallet,
     getStaffWalletTransaction,
     getWalletTransaction,

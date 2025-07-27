@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import { DeliveryCard } from "@/components/molecules/getdelivery/delivery-card";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
 import { Package } from "lucide-react";
@@ -26,15 +26,17 @@ export const DeliveryGrid: React.FC<DeliveryGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {deliveries.map((delivery) => (
-        <DeliveryCard
-          key={delivery.deliveryID}
-          delivery={delivery}
-          onViewDetails={onViewDetails}
-          searchTerm={searchTerm}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {deliveries.map((delivery) => (
+          <DeliveryCard
+            key={delivery.deliveryID}
+            delivery={delivery}
+            onViewDetails={onViewDetails}
+            searchTerm={searchTerm}
+          />
+        ))}
+      </div>
+    </>
   );
 };

@@ -9,6 +9,7 @@ interface LeftPanelProps {
   onViewActivityLog: () => void;
   depositHistory?: DepositHistoryItem[];
   depositHistoryLoading?: boolean;
+  fetchDepositTransaction: any;
 }
 
 export default function LeftPanel({
@@ -18,10 +19,12 @@ export default function LeftPanel({
   onViewActivityLog,
   depositHistory = [],
   depositHistoryLoading = false,
+  fetchDepositTransaction,
 }: LeftPanelProps) {
   return (
     <div className="h-full flex flex-col gap-6 overflow-y-auto">
       <OrderInfoCard
+        fetchDepositTransaction={fetchDepositTransaction}
         order={orderDetail.order}
         onViewPhases={onViewPhases}
         onViewDepositHistory={onViewDepositHistory}
