@@ -21,8 +21,6 @@ import {
 import DeliveryService from "@/services/DeliveryService";
 import { formatVietnamDateHours } from "@/utils/date";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
-import UploadDeliveryImageDialog from "./UploadDeliveryImageDialog";
-import { useCurrentUser } from "@/utils/helpers/helpers";
 
 interface DeliveryImage {
   deliveryImageID: string;
@@ -58,19 +56,22 @@ interface DeliveryDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   deliveryID: string;
+  // onOpenUploadDialog?: (deliveryDetail: DeliveryDetailData) => void; // Removed, not used
 }
+
+export type { DeliveryDetailData };
 
 export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
   isOpen,
   onClose,
   deliveryID,
+  // onOpenUploadDialog, // Removed, not used
 }) => {
   const [deliveryDetail, setDeliveryDetail] =
     useState<DeliveryDetailData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const { getDeliveryDetail, uploadDeliveryImage } = DeliveryService();
-  const user = useCurrentUser();
+  const { getDeliveryDetail } = DeliveryService();
+  // const user = useCurrentUser(); // Removed, not used
 
   const fetchDeliveryDetail = async () => {
     if (!deliveryID) return;
@@ -102,27 +103,6 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
       imageType: image.uploadType as "Original" | "Requested",
       createdBy: image.uploadType,
     }));
-  };
-
-  // Thêm hàm xử lý upload ảnh
-  const handleUploadDeliveryImage = async (
-    files: File[],
-    descriptions: string[],
-    isConfirm: boolean
-  ) => {
-    if (!deliveryDetail) return;
-    const formData = new FormData();
-    formData.append("deliveryID", deliveryDetail.deliveryID);
-    formData.append("isConfirm", String(isConfirm));
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-    descriptions.forEach((desc) => {
-      formData.append("fileDescriptions", desc);
-    });
-    await uploadDeliveryImage(formData);
-    setShowUploadDialog(false);
-    fetchDeliveryDetail(); // reload lại chi tiết đơn hàng
   };
 
   return (
@@ -335,6 +315,7 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
                 </p>
               </div>
             )}
+            {/* Upload Button removed: now only in DeliveryCard */}
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
@@ -342,23 +323,10 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
           </div>
         )}
         {/* Cuối cùng của DialogContent, sau phần hiển thị chi tiết */}
-        {deliveryDetail && user?.id === deliveryDetail.receiverID && (
-          <div className="flex justify-center mt-2">
-            <button
-              className="w-full px-6 py-3 rounded-xl bg-primary text-white dark:text-foreground font-bold text-base transition hover:bg-primary/90"
-              onClick={() => setShowUploadDialog(true)}
-            >
-              Tải ảnh minh chứng
-            </button>
-          </div>
-        )}
+        {/* Upload button moved inside main content */}
       </DialogContent>
       {/* Dialog upload ảnh giao hàng */}
-      <UploadDeliveryImageDialog
-        open={showUploadDialog}
-        onClose={() => setShowUploadDialog(false)}
-        onSubmit={handleUploadDeliveryImage}
-      />
+      {/* UploadDeliveryImageDialog removed, now handled by parent */}
     </Dialog>
   );
 };
