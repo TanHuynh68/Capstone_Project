@@ -78,7 +78,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     null
   );
   const [isEditDialogJustOpened, setIsEditDialogJustOpened] = useState(false);
-  const size = 10;
+  const size = 8;
   const { getFolderCanvas, putFolderCanvas, deleteFolderCanvas } =
     CanvasService();
   const navigate = useNavigate();

@@ -1,244 +1,228 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import SingleImageGallerySmall from "@/components/molecules/post/post-detail/SingleImageGallerySmall";
+import { Label } from "@/components/ui/label";
+import { Loader2, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { Player } from "@lottiefiles/react-lottie-player";
+import ImageUploadWithDescriptions, {
+  MediaUploadData,
+} from "@/components/molecules/getdelivery/ImageUploadWithDescriptions";
 
 interface UploadDeliveryImageDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (files: File[], descriptions: string[], isConfirm: boolean) => void;
+  onSubmit: (
+    files: File[],
+    descriptions: string[],
+    isConfirm: boolean
+  ) => Promise<{ statusCode: number }>;
 }
-
-const MAX_FILES = 3;
 
 const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
   open,
   onClose,
   onSubmit,
 }) => {
-  const [files, setFiles] = useState<(File | undefined)[]>([undefined]);
-  const [previews, setPreviews] = useState<string[]>([""]);
-  const [descriptions, setDescriptions] = useState<string[]>([""]);
-  const [errors, setErrors] = useState<string[]>([""]);
+  const [images, setImages] = useState<MediaUploadData[]>([]);
   const [isConfirm, setIsConfirm] = useState(false);
-  const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const lottieRef = useRef<Player>(null);
 
-  const handleFileChange = (idx: number, file: File | null) => {
-    const newFiles = [...files];
-    const newPreviews = [...previews];
-    if (file) {
-      newFiles[idx] = file;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        newPreviews[idx] = ev.target?.result as string;
-        setPreviews([...newPreviews]);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      newFiles[idx] = undefined;
-      newPreviews[idx] = "";
-      setPreviews([...newPreviews]);
-    }
-    setFiles(newFiles);
-    setErrors((prev) => {
-      const arr = [...prev];
-      arr[idx] = "";
-      return arr;
-    });
-  };
-
-  const handleDescriptionChange = (idx: number, value: string) => {
-    const newDescriptions = [...descriptions];
-    newDescriptions[idx] = value;
-    setDescriptions(newDescriptions);
-    setErrors((prev) => {
-      const arr = [...prev];
-      arr[idx] = "";
-      return arr;
-    });
-  };
-
-  const handleRemove = (idx: number) => {
-    if (files.length === 1) {
-      // Nếu chỉ còn 1 ô thì reset về rỗng
-      setFiles([undefined]);
-      setPreviews([""]);
-      setDescriptions([""]);
-      setErrors([""]);
-      return;
-    }
-    setFiles(files.filter((_, i) => i !== idx));
-    setPreviews(previews.filter((_, i) => i !== idx));
-    setDescriptions(descriptions.filter((_, i) => i !== idx));
-    setErrors(errors.filter((_, i) => i !== idx));
-  };
-
-  const handleAdd = () => {
-    if (files.length < MAX_FILES) {
-      setFiles([...files, undefined]);
-      setPreviews([...previews, ""]);
-      setDescriptions([...descriptions, ""]);
-      setErrors([...errors, ""]);
-    }
-  };
-
-  const validate = () => {
-    let valid = true;
-    const newErrors = files.map((file, i) => {
-      if (!file) {
-        valid = false;
-        return "Vui lòng chọn ảnh!";
-      } else if (!descriptions[i]?.trim()) {
-        valid = false;
-        return "Vui lòng nhập mô tả!";
+  useEffect(() => {
+    if (lottieRef.current) {
+      if (isConfirm) {
+        lottieRef.current.play();
+      } else {
+        lottieRef.current.stop();
+        lottieRef.current.setSeeker(0, false);
       }
-      return "";
-    });
-    setErrors(newErrors);
-    return valid;
+    }
+  }, [isConfirm]);
+
+  const handleImagesChange = (newImages: MediaUploadData[]) => {
+    setImages(newImages);
+  };
+
+  const handleLottieClick = () => {
+    if (!isConfirm) {
+      setIsConfirm(true);
+      lottieRef.current?.play();
+      // Khi tick checkbox, kiểm tra validation
+      if (images.length > 0) {
+        setShowValidation(true);
+      }
+    } else {
+      setIsConfirm(false);
+      lottieRef.current?.stop();
+      lottieRef.current?.setSeeker(0, false);
+    }
+  };
+
+  const handleLottieEvent = (event: string) => {
+    if (event === "complete") {
+      // setShowChecked(true); // This line was removed as per the edit hint
+    }
+  };
+
+  const validateForm = (): boolean => {
+    if (images.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 ảnh hoặc video", {
+        description: "Ảnh/video minh chứng là bắt buộc",
+      });
+      return false;
+    }
+
+    const hasEmptyDescription = images.some((img) => !img.description.trim());
+    if (hasEmptyDescription) {
+      toast.error("Vui lòng nhập mô tả cho tất cả ảnh/video", {
+        description: "Mô tả ảnh/video là bắt buộc",
+      });
+      return false;
+    }
+
+    if (!isConfirm) {
+      toast.error("Vui lòng xác nhận đã nhận hàng", {
+        description: "Bạn phải xác nhận đã nhận hàng trước khi submit",
+      });
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async () => {
-    if (!validate()) return;
+    // Trigger validation khi nhấn submit
+    setShowValidation(true);
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsUploading(true);
-    await onSubmit(files as File[], descriptions, isConfirm);
-    setIsUploading(false);
-    setFiles([undefined]);
-    setPreviews([""]);
-    setDescriptions([""]);
-    setErrors([""]);
-    setIsConfirm(false);
+    try {
+      const files = images.map((img) => img.file);
+      const descriptions = images.map((img) => img.description);
+
+      const result = await onSubmit(files, descriptions, isConfirm);
+      if (result?.statusCode === 200) {
+        toast.success("Tải minh chứng giao hàng thành công!");
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Error uploading delivery images:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleClose = () => {
-    setFiles([undefined]);
-    setPreviews([""]);
-    setDescriptions([""]);
-    setErrors([""]);
+    setImages([]);
     setIsConfirm(false);
-    setError("");
+    setShowValidation(false);
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[800px] rounded-2xl p-6 border border-border bg-background">
-        <DialogHeader>
-          <DialogTitle className="text-center text-lg font-bold mb-2">
-            Tải ảnh minh chứng
+      <DialogContent className="min-w-[1000px] max-h-[95vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-0">
+          <DialogTitle className="text-lg font-bold flex items-center gap-2 text-foreground">
+            <Upload className="h-6 w-6 text-primary" />
+            Tải lên minh chứng giao hàng
           </DialogTitle>
         </DialogHeader>
-        <form
-          className="space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">
-              Ảnh minh chứng <span className="text-red-500">*</span> (Tối thiểu
-              1 ảnh, tối đa 3 ảnh)
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-              {files.map((_, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col gap-2 p-3 border rounded-lg bg-card w-full min-h-[300px] items-center"
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      handleFileChange(idx, e.target.files?.[0] || null)
-                    }
-                    className="w-full cursor-pointer border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-muted"
-                  />
 
-                  {previews[idx] && (
-                    <div className="relative mx-auto my-2 justify-center items-center p-2">
-                      <SingleImageGallerySmall
-                        imageUrl={previews[idx]}
-                        alt={`Preview ${idx + 1}`}
-                        className="w-full h-full object-cover rounded-lg justify-center items-center"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-3 right-3 bg-white/80 hover:bg-red-100 rounded-full p-1 shadow cursor-pointer"
-                        onClick={() => handleRemove(idx)}
-                        tabIndex={-1}
-                        aria-label="Xóa ảnh"
-                      >
-                        <X className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                  )}
+        <div className="space-y-6 py-2 pt-0">
+          {/* Images Upload */}
+          <ImageUploadWithDescriptions
+            title=""
+            subtitle="Tải lên minh chứng giao hàng (tối thiểu 1 ảnh/video, tối đa 3 ảnh/video)"
+            maxFiles={3}
+            minFiles={1}
+            required={true}
+            onImagesChange={handleImagesChange}
+            disabled={isUploading}
+            showValidation={showValidation}
+            validationErrors={
+              showValidation
+                ? images.map((img, index) =>
+                    !img.description.trim()
+                      ? `Vui lòng nhập mô tả cho ${
+                          img.type === "video" ? "video" : "ảnh"
+                        } ${index + 1}`
+                      : ""
+                  )
+                : []
+            }
+          />
 
-                  <textarea
-                    className="w-full border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 bg-muted resize-none"
-                    placeholder="Nhập mô tả cho ảnh này..."
-                    value={descriptions[idx]}
-                    onChange={(e) =>
-                      handleDescriptionChange(idx, e.target.value)
-                    }
-                    rows={2}
-                  />
-                  {errors[idx] && (
-                    <div className="text-red-500 text-xs text-center w-full">
-                      {errors[idx]}
-                    </div>
-                  )}
-                </div>
-              ))}
-              {files.length < MAX_FILES && (
-                <button
-                  type="button"
-                  onClick={handleAdd}
-                  className="flex flex-col cursor-pointer items-center justify-center border-2 border-dashed border-primary rounded-lg min-h-[300px] w-full text-primary hover:bg-primary/10 transition-colors"
-                  style={{ fontSize: 48, fontWeight: "bold" }}
-                  aria-label="Thêm ảnh"
+          {/* Confirmation Checkbox and Submit Button */}
+          <div className="flex items-center justify-between pt-4 border-t">
+            {/* Confirmation Checkbox */}
+            <div className="flex items-center gap-4">
+              <div
+                className="relative flex items-center justify-center w-8 h-8 cursor-pointer transition-transform hover:scale-110"
+                onClick={handleLottieClick}
+              >
+                <Player
+                  ref={lottieRef}
+                  src="/lottiefiles/checkbox.json"
+                  className="w-10 h-10"
+                  loop={false}
+                  autoplay={false}
+                  keepLastFrame={true}
+                  onEvent={handleLottieEvent}
+                />
+              </div>
+              <div className="flex flex-col">
+                <Label
+                  onClick={handleLottieClick}
+                  className="text-base font-semibold text-gray-800 cursor-pointer hover:text-blue-700 transition-colors"
                 >
-                  +<span className="text-base font-medium mt-2">Thêm ảnh</span>
-                </button>
-              )}
+                  Xác nhận đã nhận đúng hàng
+                </Label>
+                <span className="text-sm text-gray-600">
+                  Tôi xác nhận đã nhận đúng hàng
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 justify-end">
-            <input
-              id="is-confirm"
-              type="checkbox"
-              checked={isConfirm}
-              onChange={(e) => setIsConfirm(e.target.checked)}
-              className="accent-primary cursor-pointer"
-            />
-            <label
-              htmlFor="is-confirm"
-              className="text-sm font-medium text-foreground cursor-pointer"
-            >
-              Xác nhận đã nhận hàng
-            </label>
-          </div>
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-          <DialogFooter className="flex flex-col gap-2 mt-4">
+
+            {/* Submit Button */}
             <Button
-              type="submit"
-              className="w-full font-bold cursor-pointer"
-              disabled={isUploading}
+              onClick={handleSubmit}
+              disabled={
+                isUploading ||
+                !isConfirm ||
+                images.length < 1 ||
+                !images.every((img) => img.description.trim() !== "")
+              }
+              className={`min-w-[120px] transition-all duration-200 ${
+                isUploading ||
+                !isConfirm ||
+                images.length < 1 ||
+                !images.every((img) => img.description.trim() !== "")
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:scale-105 bg-blue-600 hover:bg-blue-700"
+              }`}
             >
-              {isUploading ? "Đang tải lên..." : "Tải lên"}
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang tải...
+                </>
+              ) : (
+                `Tải lên minh chứng (${images.length} file)`
+              )}
             </Button>
-          </DialogFooter>
-        </form>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

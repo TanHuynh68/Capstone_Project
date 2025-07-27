@@ -270,7 +270,7 @@ export default function ReportDialog({
               {/* First upload or when no images */}
               {uploadedImages.length === 0 && (
                 <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <div className="text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                       <div className="text-sm text-gray-600 mb-4">
