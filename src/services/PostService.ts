@@ -112,12 +112,12 @@ const PostService = () => {
   );
 
   const disablePost = useCallback(
-    async (projectPostID: any) => {
+    async (data: any) => {
       try {
         const res = await callApi(
           HTTP_METHOD.PUT,
           `${API_ROUTES.DISABLE_POST}`,
-          projectPostID
+          data
         );
         return res;
       } catch (err: any) {
@@ -128,12 +128,12 @@ const PostService = () => {
   );
 
   const enablePost = useCallback(
-    async (projectPostID: any) => {
+    async (data: any) => {
       try {
         const res = await callApi(
           HTTP_METHOD.PUT,
           `${API_ROUTES.ENABLE_POST}`,
-          projectPostID
+          data
         );
         return res;
       } catch (err: any) {
@@ -142,7 +142,14 @@ const PostService = () => {
     },
     [callApi]
   );
-
+const staffGetAllPosts = useCallback(async () => {
+    try {
+      const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_POSTS_ALL}`);
+      return res;
+    } catch (err: any) {
+      console.error(err?.response?.data);
+    }
+  }, [callApi]);
   return {
     enablePost,
     createPost,
@@ -152,6 +159,7 @@ const PostService = () => {
     getPostDetail,
     updatePost,
     disablePost,
+    staffGetAllPosts
   };
 };
 

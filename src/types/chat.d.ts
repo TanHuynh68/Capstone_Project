@@ -30,21 +30,21 @@ interface ProjectImage {
 }
 
 interface Post {
-  projectPostID: string;
-  accountID: string;
-  fullName: string;
-  avatar: string;
-  title: string;
-  description: string;
-  postStatus: number;
-  itemValue: number;
-  suggestedPrice: number;
-  createdAt: string;
-  endAt: string;
-  finishDate: string;
-  isActive: boolean;
-  originalImages: ProjectImage[];
-  requestedImages: ProjectImage[];
+  projectPostID: string
+  accountID: string
+  fullName: string
+  avatar: string | null
+  title: string
+  description: string
+  postStatus: number
+  itemValue: number
+  suggestedPrice: number
+  createdAt: string
+  endAt: string
+  finishDate: string
+  isActive: boolean
+  originalImages: ProjectImage[]
+  requestedImages: ProjectImage[]
 }
 
 type OfferStatus = "Pending" | "Dealing" | "Accepted" | "Rejected";

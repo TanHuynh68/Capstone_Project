@@ -188,7 +188,7 @@ export default function RightBottomPanel({
           // Layout bình thường
           <div className="h-">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Quá trình thực hiện 2</h3>
+              <h3 className="text-lg font-semibold">Quá trình thực hiện</h3>
               {progressSteps.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {progressSteps.length} bước
