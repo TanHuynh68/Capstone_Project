@@ -87,13 +87,6 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
       return false;
     }
 
-    if (!isConfirm) {
-      toast.error("Vui lòng xác nhận đã nhận hàng", {
-        description: "Bạn phải xác nhận đã nhận hàng trước khi submit",
-      });
-      return false;
-    }
-
     return true;
   };
 
@@ -186,11 +179,11 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
                   onClick={handleLottieClick}
                   className="text-base font-semibold text-gray-800 cursor-pointer hover:text-blue-700 transition-colors"
                 >
-                  Xác nhận đã nhận đúng hàng
+                  Xác nhận rằng người gửi đã gửi đúng hàng
                 </Label>
-                <span className="text-sm text-gray-600">
-                  Tôi xác nhận đã nhận đúng hàng
-                </span>
+                {/* <span className="text-sm text-gray-600">
+                  Không đúng hàng/ Đúng hàng?
+                </span> */}
               </div>
             </div>
 
@@ -199,13 +192,11 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
               onClick={handleSubmit}
               disabled={
                 isUploading ||
-                !isConfirm ||
                 images.length < 1 ||
                 !images.every((img) => img.description.trim() !== "")
               }
               className={`min-w-[120px] transition-all duration-200 ${
                 isUploading ||
-                !isConfirm ||
                 images.length < 1 ||
                 !images.every((img) => img.description.trim() !== "")
                   ? "opacity-50 cursor-not-allowed"

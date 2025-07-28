@@ -42,6 +42,103 @@ export function ShippingForm({
       receiverAccountId = order.designerID;
   }
 
+  // Kiểm tra xem form có đầy đủ thông tin cần thiết không
+  const isFormValid = () => {
+    // Kiểm tra thông tin người gửi
+    const hasSenderAddress =
+      sender.fromAddress &&
+      typeof sender.fromAddress === "string" &&
+      sender.fromAddress.trim() !== "";
+
+    // Kiểm tra thông tin người nhận
+    const hasReceiverAddress =
+      receiver.toAddress &&
+      typeof receiver.toAddress === "string" &&
+      receiver.toAddress.trim() !== "";
+
+    // Kiểm tra thông tin sản phẩm
+    const hasProductInfo =
+      product.content &&
+      typeof product.content === "string" &&
+      product.content.trim() !== "";
+
+    // Kiểm tra ghi chú
+    const hasNote =
+      product.note &&
+      typeof product.note === "string" &&
+      product.note.trim() !== "";
+
+    // Kiểm tra hình ảnh
+    const hasImages =
+      product.images &&
+      Array.isArray(product.images) &&
+      product.images.length > 0;
+
+    // Kiểm tra kích thước và khối lượng
+    const hasWeight =
+      product.weight &&
+      typeof product.weight === "string" &&
+      product.weight.trim() !== "" &&
+      product.weight !== "0";
+
+    const hasLength =
+      product.length &&
+      typeof product.length === "string" &&
+      product.length.trim() !== "" &&
+      product.length !== "0";
+
+    const hasWidth =
+      product.width &&
+      typeof product.width === "string" &&
+      product.width.trim() !== "" &&
+      product.width !== "0";
+
+    const hasHeight =
+      product.height &&
+      typeof product.height === "string" &&
+      product.height.trim() !== "" &&
+      product.height !== "0";
+
+    // Kiểm tra pick shift
+    const hasPickShift = pickShift.pickShiftId && pickShift.pickShiftId > 0;
+
+    console.log("Form validation:", {
+      hasSenderAddress,
+      hasReceiverAddress,
+      hasProductInfo,
+      hasNote,
+      hasImages,
+      hasWeight,
+      hasLength,
+      hasWidth,
+      hasHeight,
+      hasPickShift,
+      sender: sender.fromAddress,
+      receiver: receiver.toAddress,
+      product: product.content,
+      note: product.note,
+      images: product.images,
+      weight: product.weight,
+      length: product.length,
+      width: product.width,
+      height: product.height,
+      pickShift: pickShift.pickShiftId,
+    });
+
+    return (
+      hasSenderAddress &&
+      hasReceiverAddress &&
+      hasProductInfo &&
+      hasNote &&
+      hasImages &&
+      hasWeight &&
+      hasLength &&
+      hasWidth &&
+      hasHeight &&
+      hasPickShift
+    );
+  };
+
   // Validate dữ liệu form using Zod schema
   const validate = () => {
     const formData = {
@@ -127,6 +224,12 @@ export function ShippingForm({
 
   // Hàm tạo đơn hàng
   const handleCreateOrder = async () => {
+    // Kiểm tra form có hợp lệ không trước khi thực hiện
+    if (!isFormValid()) {
+      console.log("Form chưa hợp lệ, không thể tạo đơn hàng");
+      return;
+    }
+
     console.log("sender", sender);
     console.log("receiver", receiver);
     console.log("product", product);
@@ -209,9 +312,9 @@ export function ShippingForm({
             <div className="flex justify-end bottom-0">
               <button
                 type="button"
-                disabled={isLoading}
-                className={`w-full px-6 py-3 rounded-lg font-semibold transition ${
-                  isLoading
+                disabled={isLoading || !isFormValid()}
+                className={`w-full px-6 py-3 rounded-lg font-semibold transition cursor-pointer ${
+                  isLoading || !isFormValid()
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                     : "bg-primary text-primary-foreground hover:bg-primary/80"
                 }`}
