@@ -219,8 +219,8 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {delivery.isConfirm ? (
-                // Show report button only if isConfirm is true
+              {delivery.isConfirm != null ? (
+                // Show report button only if isConfirm is != null
                 <button
                   className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-red-500/20 shadow-md"
                   onClick={handleReportClick}
@@ -231,7 +231,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                   <Flag className="h-4 w-4" />
                   <span>Báo cáo vi phạm</span>
                 </button>
-              ) : delivery.deliveredAt === null ? (
+              ) :
                 // Show upload button if delivery date exists and isConfirm is not true
                 // delivery.deliveryStatus === "Delivered" &&
                 delivery.receiverName === user.name ? (
@@ -255,8 +255,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                       onSubmit={handleUploadDeliveryImage}
                     />
                   </>
-                ) : null
-              ) : null}
+                ) : null}
             </div>
           </div>
         </CardContent>

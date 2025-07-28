@@ -432,10 +432,10 @@ const ImageUploadWithDescriptions: React.FC<
           </div>
         )}
         {subtitle && (
-          <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+          <p className="text-sm text-muted-foreground mt-0">{subtitle}</p>
         )}
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="pt-2">
         <div className="grid grid-cols-3 gap-6">
           {files.map((_, idx) => (
             <div key={idx} className="space-y-3">
