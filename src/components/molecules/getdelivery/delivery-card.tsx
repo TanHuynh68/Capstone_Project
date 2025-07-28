@@ -219,9 +219,21 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {delivery.deliveredAt ? (
-                // Show upload button if delivery date exists
-                delivery.deliveryStatus === "Delivered" &&
+              {delivery.isConfirm ? (
+                // Show report button only if isConfirm is true
+                <button
+                  className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-red-500/20 shadow-md"
+                  onClick={handleReportClick}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onMouseUp={(e) => e.preventDefault()}
+                  onPointerDown={(e) => e.preventDefault()}
+                >
+                  <Flag className="h-4 w-4" />
+                  <span>Báo cáo vi phạm</span>
+                </button>
+              ) : delivery.deliveredAt === null ? (
+                // Show upload button if delivery date exists and isConfirm is not true
+                // delivery.deliveryStatus === "Delivered" &&
                 delivery.receiverName === user.name ? (
                   <>
                     <button
@@ -244,19 +256,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                     />
                   </>
                 ) : null
-              ) : (
-                // Show report button if no delivery date
-                <button
-                  className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-red-500/20 shadow-md"
-                  onClick={handleReportClick}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onMouseUp={(e) => e.preventDefault()}
-                  onPointerDown={(e) => e.preventDefault()}
-                >
-                  <Flag className="h-4 w-4" />
-                  <span>Báo cáo vi phạm</span>
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </CardContent>
