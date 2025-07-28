@@ -19,6 +19,36 @@ const FeedbackService = () => {
         [callApi]
     );
 
+    const getMyFeedbacks = useCallback(
+        async () => {
+            try {
+                const res = await callApi(
+                    HTTP_METHOD.GET,
+                    API_ROUTES.GET_MY_FEEDBACKS
+                );
+                return res;
+            } catch (err: any) {
+                console.log(err?.response?.data)
+            }
+        },
+        [callApi]
+    );
+
+    const getFeedbacksDesigner = useCallback(
+        async () => {
+            try {
+                const res = await callApi(
+                    HTTP_METHOD.GET,
+                    API_ROUTES.GET_FEEDBACKS_DESIGNER
+                );
+                return res;
+            } catch (err: any) {
+                console.log(err?.response?.data)
+            }
+        },
+        [callApi]
+    );
+
     const createFeedback = useCallback(
    
         async (values: any) => {
@@ -58,7 +88,7 @@ const FeedbackService = () => {
         [callApi]
     );
 
-    return { getFeedbacks, createFeedback, createFeedbackResponse };
+    return { getFeedbacks, getMyFeedbacks, getFeedbacksDesigner, createFeedback, createFeedbackResponse };
 };
 
 export default FeedbackService;

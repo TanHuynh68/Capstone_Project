@@ -9,16 +9,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   PlusCircle,
   AlertCircle,
-  UserCircle2,
-  Briefcase,
-  Award,
+  Upload,
+  X,
+  Loader2,
+  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import PortfolioService from "@/services/PortfolioService";
-import SingleImageGallerySmall from "@/components/molecules/post/post-detail/SingleImageGallerySmall";
 
 interface CreatePortfolioProps {
   onSuccess: () => void;
@@ -56,13 +58,32 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState(initialFormErrors);
+  const [imagePreviews, setImagePreviews] = useState<{
+    sectionOne: (string | null)[];
+    sectionTwo: (string | null)[];
+  }>({
+    sectionOne: [null, null, null],
+    sectionTwo: [null, null, null],
+  });
+  const [showValidationSummary, setShowValidationSummary] = useState(false);
 
   const resetForm = () => {
+    // Revoke all preview URLs
+    imagePreviews.sectionOne.forEach((url) => {
+      if (url) URL.revokeObjectURL(url);
+    });
+    imagePreviews.sectionTwo.forEach((url) => {
+      if (url) URL.revokeObjectURL(url);
+    });
+
     setFormData(initialFormData);
-    setError("");
     setFormErrors(initialFormErrors);
+    setImagePreviews({
+      sectionOne: [null, null, null],
+      sectionTwo: [null, null, null],
+    });
+    setShowValidationSummary(false);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -125,8 +146,21 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
       return { ...prev, [field]: value };
     });
 
-    // Validate only current field
-    handleInputBlur(field, typeof index === "number" ? [value] : value, index);
+    // Clear errors when user starts typing
+    if (formErrors[field as keyof typeof formErrors]) {
+      setFormErrors((prev) => {
+        if (typeof index === "number") {
+          const newErrors = [...prev[field as keyof typeof formErrors]];
+          newErrors[index] = "";
+          return { ...prev, [field]: newErrors };
+        }
+        return { ...prev, [field]: "" };
+      });
+    }
+
+    if (showValidationSummary) {
+      setShowValidationSummary(false);
+    }
   };
 
   const handleBlur = (
@@ -216,44 +250,119 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
     return null;
   };
 
+  const isFormComplete = (): boolean => {
+    // Check required text fields
+    if (
+      !formData.yearOfExperience.trim() ||
+      !formData.content.trim() ||
+      !formData.expertIn.trim()
+    ) {
+      return false;
+    }
+
+    // Check section one images and descriptions
+    for (let i = 0; i < 3; i++) {
+      if (
+        !imagePreviews.sectionOne[i] ||
+        !formData.sectionOneDescriptions[i].trim()
+      ) {
+        return false;
+      }
+    }
+
+    // Check section two images and descriptions
+    for (let i = 0; i < 3; i++) {
+      if (
+        !imagePreviews.sectionTwo[i] ||
+        !formData.sectionTwoDescriptions[i].trim()
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string | string[]> = {};
+
+    // Validate required fields
+    if (!formData.yearOfExperience.trim()) {
+      newErrors.yearOfExperience = "Vui lòng nhập kinh nghiệm";
+    }
+
+    if (!formData.content.trim()) {
+      newErrors.content = "Vui lòng nhập mô tả dự án";
+    }
+
+    if (!formData.expertIn.trim()) {
+      newErrors.expertIn = "Vui lòng nhập kỹ năng chuyên môn";
+    }
+
+    // Validate section one images and descriptions
+    const sectionOneErrors = [];
+    const sectionOneDescErrors = [];
+    for (let i = 0; i < 3; i++) {
+      if (!imagePreviews.sectionOne[i]) {
+        sectionOneErrors.push(`Ảnh ${i + 1} của phần 1 là bắt buộc`);
+      } else {
+        if (!formData.sectionOneDescriptions[i].trim()) {
+          sectionOneDescErrors.push(
+            `Mô tả ảnh ${i + 1} của phần 1 là bắt buộc`
+          );
+        }
+      }
+    }
+    if (sectionOneErrors.length > 0) {
+      newErrors.sectionOneImages = sectionOneErrors;
+    }
+    if (sectionOneDescErrors.length > 0) {
+      newErrors.sectionOneDescriptions = sectionOneDescErrors;
+    }
+
+    // Validate section two images and descriptions
+    const sectionTwoErrors = [];
+    const sectionTwoDescErrors = [];
+    for (let i = 0; i < 3; i++) {
+      if (!imagePreviews.sectionTwo[i]) {
+        sectionTwoErrors.push(`Ảnh ${i + 1} của phần 2 là bắt buộc`);
+      } else {
+        if (!formData.sectionTwoDescriptions[i].trim()) {
+          sectionTwoDescErrors.push(
+            `Mô tả ảnh ${i + 1} của phần 2 là bắt buộc`
+          );
+        }
+      }
+    }
+    if (sectionTwoErrors.length > 0) {
+      newErrors.sectionTwoImages = sectionTwoErrors;
+    }
+    if (sectionTwoDescErrors.length > 0) {
+      newErrors.sectionTwoDescriptions = sectionTwoDescErrors;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors as typeof initialFormErrors);
+      setShowValidationSummary(true);
+      return false;
+    }
+
+    setFormErrors(initialFormErrors);
+    setShowValidationSummary(false);
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    let hasError = false;
 
-    // Validate all fields
-    const errors = {
-      yearOfExperience: validateField(
-        "yearOfExperience",
-        formData.yearOfExperience
-      ) as string,
-      content: validateField("content", formData.content) as string,
-      expertIn: validateField("expertIn", formData.expertIn) as string,
-      sectionOneDescriptions: validateField(
-        "sectionOneDescriptions",
-        formData.sectionOneDescriptions
-      ) as string[],
-      sectionTwoDescriptions: validateField(
-        "sectionTwoDescriptions",
-        formData.sectionTwoDescriptions
-      ) as string[],
-      sectionOneImages: validateField(
-        "sectionOneImages",
-        formData.sectionOneAttachmentFiles
-      ) as string[],
-      sectionTwoImages: validateField(
-        "sectionTwoImages",
-        formData.sectionTwoAttachmentFiles
-      ) as string[],
-    };
-
-    // Check if any field has error
-    hasError = Object.values(errors).some((error) =>
-      Array.isArray(error) ? error.some((e) => e !== "") : error !== ""
-    );
-
-    setFormErrors(errors);
-    if (hasError) {
+    if (!validateForm()) {
+      // Scroll to top to show validation summary
+      const dialogContent = document.querySelector(
+        '[role="dialog"] .overflow-y-auto'
+      );
+      if (dialogContent) {
+        dialogContent.scrollTo({ top: 0, behavior: "smooth" });
+      }
       toast.error("Vui lòng điền đầy đủ thông tin");
       return;
     }
@@ -291,8 +400,7 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
       await createPortfolio(formDataToSend);
 
       // Reset form and close dialog on success
-      setFormData(initialFormData);
-      setFormErrors(initialFormErrors);
+      resetForm();
       setIsOpen(false);
 
       // Show success message
@@ -302,37 +410,31 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
       onSuccess();
     } catch (err) {
       console.error("Error creating portfolio:", err);
-      setError("Có lỗi xảy ra khi tạo dự án. Vui lòng thử lại sau.");
-      toast.error("Có lỗi xảy ra khi tạo dự án");
+      // toast.error("Có lỗi xảy ra khi tạo dự án");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFileFocus = (
-    field: "sectionOneImages" | "sectionTwoImages",
-    idx: number
+  const triggerFileInput = (
+    section: "sectionOne" | "sectionTwo",
+    index: number
   ) => {
-    handleFocus(field, idx);
-  };
-
-  const handleFileBlur = (
-    field: "sectionOneImages" | "sectionTwoImages",
-    idx: number
-  ) => {
-    const fileField =
-      field === "sectionOneImages"
-        ? "sectionOneAttachmentFiles"
-        : "sectionTwoAttachmentFiles";
-
-    // Always validate on blur
-    const files = [...formData[fileField]];
-    handleBlur(field, files, idx);
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileChange(section, index, file);
+      }
+    };
+    input.click();
   };
 
   const handleFileChange = (
-    fileField: "sectionOneAttachmentFiles" | "sectionTwoAttachmentFiles",
-    idx: number,
+    section: "sectionOne" | "sectionTwo",
+    index: number,
     file: File | null
   ) => {
     if (file) {
@@ -343,20 +445,88 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
       }
     }
 
+    const fileField =
+      section === "sectionOne"
+        ? "sectionOneAttachmentFiles"
+        : "sectionTwoAttachmentFiles";
+    const previewField = section === "sectionOne" ? "sectionOne" : "sectionTwo";
+
     setFormData((prev) => {
       const arr = [...prev[fileField]];
-      arr[idx] = file as File;
+      arr[index] = file as File;
       return { ...prev, [fileField]: arr };
     });
 
-    // Always validate after change
-    const newFiles = [...formData[fileField]];
-    newFiles[idx] = file as File;
+    // Update previews
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev[previewField]];
+      if (file) {
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        newPreviews[index] = previewUrl;
+      } else {
+        // Revoke old preview URL to prevent memory leaks
+        if (newPreviews[index]) {
+          URL.revokeObjectURL(newPreviews[index]!);
+          newPreviews[index] = null;
+        }
+      }
+      return { ...prev, [previewField]: newPreviews };
+    });
+
+    // Clear errors
     const validationField =
-      fileField === "sectionOneAttachmentFiles"
-        ? "sectionOneImages"
-        : "sectionTwoImages";
-    handleBlur(validationField, newFiles, idx);
+      section === "sectionOne" ? "sectionOneImages" : "sectionTwoImages";
+    setFormErrors((prev) => {
+      const newErrors = [...prev[validationField]];
+      newErrors[index] = "";
+      return { ...prev, [validationField]: newErrors };
+    });
+
+    if (showValidationSummary) {
+      setShowValidationSummary(false);
+    }
+  };
+
+  const removeImage = (section: "sectionOne" | "sectionTwo", index: number) => {
+    handleFileChange(section, index, null);
+    // Also clear the description
+    const descField =
+      section === "sectionOne"
+        ? "sectionOneDescriptions"
+        : "sectionTwoDescriptions";
+    const newDescriptions = [...formData[descField]];
+    newDescriptions[index] = "";
+    setFormData((prev) => ({ ...prev, [descField]: newDescriptions }));
+  };
+
+  const handleDescriptionChange = (
+    section: "sectionOne" | "sectionTwo",
+    index: number,
+    value: string
+  ) => {
+    const descField =
+      section === "sectionOne"
+        ? "sectionOneDescriptions"
+        : "sectionTwoDescriptions";
+    const newDescriptions = [...formData[descField]];
+    newDescriptions[index] = value;
+    setFormData((prev) => ({ ...prev, [descField]: newDescriptions }));
+
+    // Clear description errors
+    const validationField =
+      section === "sectionOne"
+        ? "sectionOneDescriptions"
+        : "sectionTwoDescriptions";
+    setFormErrors((prev) => {
+      const newErrors = [...prev[validationField]];
+      newErrors[index] = "";
+      return { ...prev, [validationField]: newErrors };
+    });
+
+    if (showValidationSummary) {
+      setShowValidationSummary(false);
+    }
   };
 
   return (
@@ -371,36 +541,35 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent className="w-full min-w-[1100px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-6 bg-background">
-        <DialogHeader>
-          <DialogTitle className="text-2xl text-foreground">
+      <DialogContent className="min-w-[1200px] max-h-[95vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-foreground">
+            <ImageIcon className="h-6 w-6 text-primary" />
             Đăng thiết kế cá nhân
           </DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            Tạo thiết kế cá nhân phô diễn tài năng thiết kế của bạn
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Cột 1: Thông tin chung */}
-            <div className="space-y-4">
-              <div className="bg-gradient-to-r text-center from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20">
-                <h3 className="text-lg font-semibold text-primary mb-1">
-                  Thiết kế cá nhân
-                </h3>
-                <p className="text-sm text-primary/80">
-                  Vui lòng điền đầy đủ thông tin bên dưới
-                </p>
-              </div>
 
-              <div className="bg-card p-4 rounded-lg border border-border space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <UserCircle2 className="w-4 h-4 text-primary" />
-                    <Label
-                      htmlFor="yearOfExperience"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      Kinh nghiệm
-                    </Label>
-                  </div>
+        <div className="space-y-8  grid grid-cols-12 gap-6">
+          {/* Portfolio Details */}
+          <Card className="shadow-sm border-border col-span-4 h-full">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+              <CardTitle className="text-lg flex items-center gap-2 text-foreground">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                Thông tin thiết kế cá nhân
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <Label
+                    htmlFor="yearOfExperience"
+                    className="text-sm font-semibold text-foreground"
+                  >
+                    Kinh nghiệm <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="yearOfExperience"
                     value={formData.yearOfExperience}
@@ -412,26 +581,28 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                       handleInputBlur("yearOfExperience", e.target.value)
                     }
                     placeholder="Ví dụ: 3 năm"
-                    className="bg-background"
+                    className={`mt-2 ${
+                      formErrors.yearOfExperience
+                        ? "border-red-500 focus:border-red-500 bg-red-50"
+                        : "focus:border-blue-500"
+                    }`}
                   />
                   {formErrors.yearOfExperience && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                      <X className="h-3 w-3" />
                       {formErrors.yearOfExperience}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-primary" />
-                    <Label
-                      htmlFor="content"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      Mô tả dự án
-                    </Label>
-                  </div>
-                  <Input
+                <div>
+                  <Label
+                    htmlFor="content"
+                    className="text-sm font-semibold text-foreground"
+                  >
+                    Mô tả dự án <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
                     id="content"
                     value={formData.content}
                     onChange={(e) =>
@@ -440,25 +611,29 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                     onFocus={() => handleFocus("content")}
                     onBlur={(e) => handleInputBlur("content", e.target.value)}
                     placeholder="Ví dụ: Từng thiết kế hơn 10 sản phẩm,..."
-                    className="bg-background"
+                    rows={3}
+                    className={`mt-2 resize-none ${
+                      formErrors.content
+                        ? "border-red-500 focus:border-red-500 bg-red-50"
+                        : "focus:border-blue-500"
+                    }`}
                   />
                   {formErrors.content && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                      <X className="h-3 w-3" />
                       {formErrors.content}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-primary" />
-                    <Label
-                      htmlFor="expertIn"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      Kỹ năng chuyên môn
-                    </Label>
-                  </div>
+                <div>
+                  <Label
+                    htmlFor="expertIn"
+                    className="text-sm font-semibold text-foreground"
+                  >
+                    Kỹ năng chuyên môn{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="expertIn"
                     value={formData.expertIn}
@@ -468,10 +643,15 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                     onFocus={() => handleFocus("expertIn")}
                     onBlur={(e) => handleInputBlur("expertIn", e.target.value)}
                     placeholder="Ví dụ: Chuyên thiết kế nón, váy, phụ kiện,.."
-                    className="bg-background"
+                    className={`mt-2 ${
+                      formErrors.expertIn
+                        ? "border-red-500 focus:border-red-500 bg-red-50"
+                        : "focus:border-blue-500"
+                    }`}
                   />
                   {formErrors.expertIn && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                      <X className="h-3 w-3" />
                       {formErrors.expertIn}
                     </p>
                   )}
@@ -485,7 +665,7 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                     <h4 className="text-sm font-medium text-primary">
                       Lưu ý khi tải ảnh lên
                     </h4>
-                    <ul className="text-xs text-primary/80 space-y-1 list-disc list-inside">
+                    <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
                       <li>
                         Chỉ chấp nhận định dạng:{" "}
                         <span className="font-medium">.jpg, .jpeg, .png</span>
@@ -502,81 +682,114 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Cột 2 và 3: Phần 1, Phần 2 và nút submit */}
-            <div className="col-span-2 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                {/* Cột 2: Phần 1 */}
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold text-foreground">
-                    Phần 1
-                  </Label>
+          {/* Images Upload */}
+          <Card className="shadow-sm border-border col-span-8">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+              <CardTitle className="text-lg flex items-center gap-2 text-foreground">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                Hình ảnh thiết kế cá nhân
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 gap-8">
+                {/* Section One */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-destructive rounded-full"></span>
+                    Phần 1 (3 ảnh bắt buộc)
+                  </h4>
                   <div className="grid gap-4">
-                    {formData.sectionOneAttachmentFiles.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col gap-2 p-3 border rounded-lg bg-card"
-                      >
-                        <div className="space-y-2">
-                          <Input
-                            type="file"
-                            onChange={(e) =>
-                              handleFileChange(
-                                "sectionOneAttachmentFiles",
-                                idx,
-                                e.target.files?.[0] || null
-                              )
-                            }
-                            onFocus={() =>
-                              handleFileFocus("sectionOneImages", idx)
-                            }
-                            onBlur={() =>
-                              handleFileBlur("sectionOneImages", idx)
-                            }
-                            accept=".jpg,.jpeg,.png"
-                            className="bg-background"
-                          />
-                          {formErrors.sectionOneImages[idx] && (
-                            <p className="text-destructive text-sm">
-                              {formErrors.sectionOneImages[idx]}
-                            </p>
-                          )}
+                    {[0, 1, 2].map((index) => (
+                      <div key={index} className="space-y-3">
+                        <div className="relative group">
+                          <div
+                            className={`border-2 border-dashed rounded-xl p-4 transition-all duration-200 ${
+                              imagePreviews.sectionOne[index]
+                                ? "border-primary bg-primary/10"
+                                : formErrors.sectionOneImages[index]
+                                ? "border-destructive bg-destructive/10"
+                                : "border-border hover:border-primary hover:bg-primary/5"
+                            }`}
+                          >
+                            {imagePreviews.sectionOne[index] ? (
+                              <div className="relative">
+                                <img
+                                  src={imagePreviews.sectionOne[index]!}
+                                  alt={`Preview ${index + 1}`}
+                                  className="w-full h-32 object-contain rounded-lg shadow-sm bg-muted"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() =>
+                                    removeImage("sectionOne", index)
+                                  }
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                                <div className="absolute bottom-2 left-2 right-2">
+                                  <div className="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded truncate">
+                                    {formData.sectionOneAttachmentFiles[index]
+                                      ?.name || `Ảnh ${index + 1}`}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="flex flex-col items-center justify-center h-32 cursor-pointer group-hover:scale-105 transition-transform"
+                                onClick={() =>
+                                  triggerFileInput("sectionOne", index)
+                                }
+                              >
+                                <Upload className="h-8 w-8 text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
+                                <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors font-medium">
+                                  Chọn ảnh {index + 1}{" "}
+                                  <span className="text-destructive">*</span>
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  PNG, JPG, JPEG
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {file && (
-                          <SingleImageGallerySmall
-                            imageUrl={URL.createObjectURL(file)}
-                            title={`Hình ảnh ${idx + 1} - Phần 1`}
-                            alt={`Hình ảnh ${idx + 1} của phần 1`}
-                            className="w-full"
-                          />
-                        )}
-                        <div className="space-y-2">
+
+                        {/* Description input below each image */}
+                        <div>
+                          <Label
+                            htmlFor={`sectionOne-description-${index}`}
+                            className="text-xs font-medium text-muted-foreground"
+                          >
+                            Mô tả ảnh {index + 1}{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
                           <Input
-                            placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
-                            value={formData.sectionOneDescriptions[idx]}
+                            id={`sectionOne-description-${index}`}
+                            value={formData.sectionOneDescriptions[index]}
                             onChange={(e) =>
-                              handleInputChange(
-                                "sectionOneDescriptions",
-                                e.target.value,
-                                idx
+                              handleDescriptionChange(
+                                "sectionOne",
+                                index,
+                                e.target.value
                               )
                             }
-                            onFocus={() =>
-                              handleFocus("sectionOneDescriptions", idx)
-                            }
-                            onBlur={(e) =>
-                              handleInputBlur(
-                                "sectionOneDescriptions",
-                                e.target.value,
-                                idx
-                              )
-                            }
-                            className="bg-background"
+                            placeholder={`Mô tả cho ảnh ${index + 1}...`}
+                            className={`mt-1 text-sm ${
+                              formErrors.sectionOneDescriptions[index]
+                                ? "border-destructive focus:border-destructive bg-destructive/10"
+                                : ""
+                            }`}
+                            disabled={!imagePreviews.sectionOne[index]}
                           />
-                          {formErrors.sectionOneDescriptions[idx] && (
-                            <p className="text-destructive text-sm">
-                              {formErrors.sectionOneDescriptions[idx]}
+                          {formErrors.sectionOneDescriptions[index] && (
+                            <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                              <X className="h-3 w-3" />
+                              {formErrors.sectionOneDescriptions[index]}
                             </p>
                           )}
                         </div>
@@ -585,76 +798,101 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                   </div>
                 </div>
 
-                {/* Cột 3: Phần 2 */}
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold text-foreground">
-                    Phần 2
-                  </Label>
+                {/* Section Two */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-destructive rounded-full"></span>
+                    Phần 2 (3 ảnh bắt buộc)
+                  </h4>
                   <div className="grid gap-4">
-                    {formData.sectionTwoAttachmentFiles.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col gap-2 p-3 border rounded-lg bg-card"
-                      >
-                        <div className="space-y-2">
-                          <Input
-                            type="file"
-                            onChange={(e) =>
-                              handleFileChange(
-                                "sectionTwoAttachmentFiles",
-                                idx,
-                                e.target.files?.[0] || null
-                              )
-                            }
-                            onFocus={() =>
-                              handleFileFocus("sectionTwoImages", idx)
-                            }
-                            onBlur={() =>
-                              handleFileBlur("sectionTwoImages", idx)
-                            }
-                            accept=".jpg,.jpeg,.png"
-                            className="bg-background"
-                          />
-                          {formErrors.sectionTwoImages[idx] && (
-                            <p className="text-destructive text-sm">
-                              {formErrors.sectionTwoImages[idx]}
-                            </p>
-                          )}
+                    {[0, 1, 2].map((index) => (
+                      <div key={index} className="space-y-3">
+                        <div className="relative group">
+                          <div
+                            className={`border-2 border-dashed rounded-xl p-4 transition-all duration-200 ${
+                              imagePreviews.sectionTwo[index]
+                                ? "border-primary bg-primary/10"
+                                : formErrors.sectionTwoImages[index]
+                                ? "border-destructive bg-destructive/10"
+                                : "border-border hover:border-primary hover:bg-primary/5"
+                            }`}
+                          >
+                            {imagePreviews.sectionTwo[index] ? (
+                              <div className="relative">
+                                <img
+                                  src={imagePreviews.sectionTwo[index]!}
+                                  alt={`Preview ${index + 1}`}
+                                  className="w-full h-32 object-contain rounded-lg shadow-sm bg-muted"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() =>
+                                    removeImage("sectionTwo", index)
+                                  }
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                                <div className="absolute bottom-2 left-2 right-2">
+                                  <div className="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded truncate">
+                                    {formData.sectionTwoAttachmentFiles[index]
+                                      ?.name || `Ảnh ${index + 1}`}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="flex flex-col items-center justify-center h-32 cursor-pointer group-hover:scale-105 transition-transform"
+                                onClick={() =>
+                                  triggerFileInput("sectionTwo", index)
+                                }
+                              >
+                                <Upload className="h-8 w-8 text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
+                                <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors font-medium">
+                                  Chọn ảnh {index + 1}{" "}
+                                  <span className="text-destructive">*</span>
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  PNG, JPG, JPEG
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {file && (
-                          <SingleImageGallerySmall
-                            imageUrl={URL.createObjectURL(file)}
-                            title={`Hình ảnh ${idx + 1} - Phần 2`}
-                            alt={`Hình ảnh ${idx + 1} của phần 2`}
-                            className="w-full"
-                          />
-                        )}
-                        <div className="space-y-2">
+
+                        {/* Description input below each image */}
+                        <div>
+                          <Label
+                            htmlFor={`sectionTwo-description-${index}`}
+                            className="text-xs font-medium text-muted-foreground"
+                          >
+                            Mô tả ảnh {index + 1}{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
                           <Input
-                            placeholder={`Nhập mô tả cho hình ảnh ${idx + 1}`}
-                            value={formData.sectionTwoDescriptions[idx]}
+                            id={`sectionTwo-description-${index}`}
+                            value={formData.sectionTwoDescriptions[index]}
                             onChange={(e) =>
-                              handleInputChange(
-                                "sectionTwoDescriptions",
-                                e.target.value,
-                                idx
+                              handleDescriptionChange(
+                                "sectionTwo",
+                                index,
+                                e.target.value
                               )
                             }
-                            onFocus={() =>
-                              handleFocus("sectionTwoDescriptions", idx)
-                            }
-                            onBlur={(e) =>
-                              handleInputBlur(
-                                "sectionTwoDescriptions",
-                                e.target.value,
-                                idx
-                              )
-                            }
-                            className="bg-background"
+                            placeholder={`Mô tả cho ảnh ${index + 1}...`}
+                            className={`mt-1 text-sm ${
+                              formErrors.sectionTwoDescriptions[index]
+                                ? "border-destructive focus:border-destructive bg-destructive/10"
+                                : ""
+                            }`}
+                            disabled={!imagePreviews.sectionTwo[index]}
                           />
-                          {formErrors.sectionTwoDescriptions[idx] && (
-                            <p className="text-destructive text-sm">
-                              {formErrors.sectionTwoDescriptions[idx]}
+                          {formErrors.sectionTwoDescriptions[index] && (
+                            <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                              <X className="h-3 w-3" />
+                              {formErrors.sectionTwoDescriptions[index]}
                             </p>
                           )}
                         </div>
@@ -663,32 +901,43 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              {error && (
-                <p className="text-destructive font-medium text-sm text-center">
-                  {error}
-                </p>
-              )}
-              <div className="flex justify-end gap-3 mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="w-[150px]"
-                >
-                  Hủy
-                </Button>
-                <Button
-                  type="submit"
-                  className="w-[200px]"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Đang xử lý..." : "Đăng thiết kế cá nhân"}
-                </Button>
-              </div>
-            </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center pt-6 border-t bg-muted/50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium">Lưu ý:</span> Tất cả ảnh và mô tả là
+            bắt buộc
           </div>
-        </form>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading || !isFormComplete()}
+              className={`px-8 transition-all duration-200 ${
+                isFormComplete()
+                  ? "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transform hover:scale-105"
+                  : "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-60"
+              }`}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Đang tạo...
+                </>
+              ) : (
+                <>
+                  {isFormComplete() ? (
+                    <>Đăng thiết kế cá nhân</>
+                  ) : (
+                    "Đăng thiết kế cá nhân"
+                  )}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
