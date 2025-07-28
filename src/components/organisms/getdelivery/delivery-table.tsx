@@ -68,8 +68,8 @@ export const DeliveryTable: React.FC<DeliveryTableProps> = ({
     if (aValue === null) return 1;
     if (bValue === null) return -1;
 
-    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    // if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    // if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
     return 0;
   });
 
