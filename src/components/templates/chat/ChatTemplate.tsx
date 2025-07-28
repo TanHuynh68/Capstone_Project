@@ -52,7 +52,6 @@ export default function ChatTemplate({
   const handleSetIsOpen = () => {
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
-
     // Reset state when hiding the info panel
     if (!newIsOpen) {
       setValue("");
@@ -74,7 +73,7 @@ export default function ChatTemplate({
 
   const fetchChatImages = async () => {
     try {
-      const response = await getFile({chatRoomID, type: 1}); // type 1 for images
+      const response = await getFile({ chatRoomID, type: 1 }); // type 1 for images
       if (response?.responseRequestModel?.responseList) {
         setImages(response.responseRequestModel.responseList);
       }
@@ -86,7 +85,7 @@ export default function ChatTemplate({
 
   const fetchChatDesigns = async () => {
     try {
-      const response = await getFile({chatRoomID, type: 2}); // type 2 for designs
+      const response = await getFile({ chatRoomID, type: 2 }); // type 2 for designs
       if (response?.responseRequestModel?.responseList) {
         setDesigns(response.responseRequestModel.responseList);
       }
@@ -106,12 +105,15 @@ export default function ChatTemplate({
     if (valueItem === "offerPhase" && posts.length === 0) {
       fetchOffers();
     }
+
     if (valueItem === "images" && images.length === 0) {
       fetchChatImages();
     }
+
     if (valueItem === "designs" && designs.length === 0) {
       fetchChatDesigns();
     }
+
     setValue(valueItem);
   };
 
@@ -120,11 +122,6 @@ export default function ChatTemplate({
       title: "Thông tin đoạn chat",
       subItem: [
         { title: "Xem đề xuất", tabName: "viewPost", fetch: fetchOffers },
-      ],
-    },
-    {
-      title: "Ảnh và thiết kế",
-      subItem: [
         { title: "Ảnh", tabName: "images", fetch: fetchChatImages },
         { title: "Thiết kế", tabName: "designs", fetch: fetchChatDesigns },
       ],
@@ -164,6 +161,7 @@ export default function ChatTemplate({
               />
             )}
           </div>
+
           {currentChatUser && (
             <div className="flex-1 overflow-y-auto">
               <MessageList
@@ -174,6 +172,7 @@ export default function ChatTemplate({
               />
             </div>
           )}
+
           {currentChatUser ? (
             <div className="sticky bottom-0 z-10 rounded-b-xl overflow-hidden">
               <MessageComposer onSendMessage={onSendMessage} />

@@ -123,6 +123,7 @@ export default function OrderManagementPage() {
 
   //fetch progress steps by offer phase ID
   const fetchProgressSteps = async (offerPhaseId: string) => {
+    console.log('fetchProgressSteps: ', offerPhaseId)
     const response = await getProgress(id + "", offerPhaseId);
     if (response) {
       setProgressSteps(response?.responseRequestModel?.responseList);
