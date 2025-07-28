@@ -10,9 +10,9 @@ import {
   Newspaper,
   ShoppingBag,
   Truck,
-  Flag
+  Flag,
 } from "lucide-react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   DropdownMenu,
@@ -26,7 +26,7 @@ import { ROLE } from "@/constants";
 import { useImageCurrentUser } from "@/utils/helpers/helpers";
 
 const menuItemClass =
-  "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition w-full text-foreground";
+  "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition w-full text-foreground cursor-pointer";
 
 const iconClass = "h-4 w-4 text-muted-foreground flex-shrink-0";
 
@@ -47,7 +47,7 @@ const UserOption = () => {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-10 w-10 cursor-pointer">
             <AvatarImage src={avatar} alt="User" />
             <AvatarFallback>
               <User className="h-4 w-4" />

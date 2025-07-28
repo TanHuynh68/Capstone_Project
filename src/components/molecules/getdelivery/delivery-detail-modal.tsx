@@ -16,7 +16,6 @@ import {
   // DollarSign,
   FileText,
   User,
-  ImageIcon,
 } from "lucide-react";
 import DeliveryService from "@/services/DeliveryService";
 import { formatVietnamDateHours } from "@/utils/date";
@@ -103,6 +102,21 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
       imageType: image.uploadType as "Original" | "Requested",
       createdBy: image.uploadType,
     }));
+  };
+
+  // Group images by uploadType
+  const groupImagesByType = (deliveryImages: DeliveryImage[]) => {
+    const senderImages = deliveryImages.filter(
+      (img) => img.uploadType === "Sender"
+    );
+    const receiverImages = deliveryImages.filter(
+      (img) => img.uploadType === "Receiver"
+    );
+
+    return {
+      senderImages: transformImages(senderImages),
+      receiverImages: transformImages(receiverImages),
+    };
   };
 
   return (
@@ -289,17 +303,42 @@ export const DeliveryDetailModal: React.FC<DeliveryDetailModalProps> = ({
 
             {/* Images */}
             {deliveryDetail.images && deliveryDetail.images.length > 0 && (
-              <div className="bg-muted p-4 rounded-lg">
-                <div className="flex items-center gap-1 mb-3">
-                  <ImageIcon className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground">
-                    Hình ảnh gói hàng
-                  </span>
-                </div>
-                <ImageGallery
-                  images={transformImages(deliveryDetail.images)}
-                  title=""
-                />
+              <div className="space-y-4">
+                {/* Sender Images */}
+                {(() => {
+                  const { senderImages } = groupImagesByType(
+                    deliveryDetail.images
+                  );
+                  return senderImages.length > 0 ? (
+                    <div className="bg-muted p-4 rounded-lg">
+                      <div className="flex items-center gap-1 mb-3">
+                        <User className="h-4 w-4 text-destructive" />
+                        <span className="font-semibold text-foreground">
+                          Hình ảnh từ người gửi
+                        </span>
+                      </div>
+                      <ImageGallery images={senderImages} title="" />
+                    </div>
+                  ) : null;
+                })()}
+
+                {/* Receiver Images */}
+                {(() => {
+                  const { receiverImages } = groupImagesByType(
+                    deliveryDetail.images
+                  );
+                  return receiverImages.length > 0 ? (
+                    <div className="bg-muted p-4 rounded-lg">
+                      <div className="flex items-center gap-1 mb-3">
+                        <User className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <span className="font-semibold text-foreground">
+                          Hình ảnh từ người nhận
+                        </span>
+                      </div>
+                      <ImageGallery images={receiverImages} title="" />
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
 

@@ -68,6 +68,7 @@ export interface DeliveryItem {
   deliveryStatus: string;
   createdAt: string;
   deliveredAt: string | null;
+  isConfirm?: boolean | null;
 }
 
 const DeliveryByToken: React.FC = () => {

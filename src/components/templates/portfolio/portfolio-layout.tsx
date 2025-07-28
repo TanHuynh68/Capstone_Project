@@ -2,6 +2,8 @@ import { useState } from "react";
 import { HeaderBanner } from "@/components/organisms/portfolio/header-banner";
 import { ProfileSidebar } from "@/components/organisms/portfolio/profile-sidebar";
 import { ProjectsGrid } from "@/components/organisms/portfolio/projects-grid";
+import { MyFeedback } from "@/components/organisms/feedback/MyFeedback";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PortfolioImage {
   portfolioImageID: string;
@@ -42,13 +44,27 @@ export function MyPortfolioLayout() {
 
           <div className="md:col-span-3">
             <div className="bg-card rounded-lg p-3 sm:p-4 md:p-6 shadow-sm border border-border transition-all duration-200">
-              <h2 className="text-base font-semibold mb-2">Thiết kế cá nhân</h2>
-              <div className="mt-3 sm:mt-4 md:mt-6">
-                <ProjectsGrid
-                  onPortfolioData={setPortfolioData}
-                  key={refreshTrigger}
-                />
-              </div>
+              <Tabs defaultValue="portfolio" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="portfolio">Thiết kế cá nhân</TabsTrigger>
+                  <TabsTrigger value="feedback">Đánh giá</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="portfolio" className="space-y-4">
+                  <div className="mt-3 sm:mt-4 md:mt-6">
+                    <ProjectsGrid
+                      onPortfolioData={setPortfolioData}
+                      key={refreshTrigger}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="feedback" className="space-y-4">
+                  <div className="mt-3 sm:mt-4 md:mt-6">
+                    <MyFeedback />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>
