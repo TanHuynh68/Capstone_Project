@@ -85,7 +85,7 @@ const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     if (portfolioData) {

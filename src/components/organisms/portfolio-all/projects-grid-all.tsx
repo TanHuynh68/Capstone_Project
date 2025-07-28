@@ -56,7 +56,7 @@ export function ProjectsGridAll({ onPortfolioData }: ProjectsGridProps) {
 
   useEffect(() => {
     refreshProjects();
-  }, [getPortfolioDesignerForAll, onPortfolioData]);
+  }, [id, getPortfolioDesignerForAll, onPortfolioData]);
 
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 px-1 sm:px-2 md:p-4">
