@@ -2,7 +2,7 @@
 import type React from "react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Ruler, Zap, X, MoreHorizontal } from "lucide-react";
+import { Upload, Ruler, Zap, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -942,13 +942,10 @@ export default function CanvasPage() {
 
         {/* Recent Designs Section */}
         <div className="mt-8 mb-4 px-10">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-start mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               Thiết kế gần đây
             </h2>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
           </div>
           <CanvasListInPage
             onSelect={handleCanvasSelect}
