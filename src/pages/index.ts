@@ -27,4 +27,5 @@ export { default as OrderDetailPage } from "./customer/order-detail";
 export { default as StaffManageReportsPage } from "./staff/manage-reports";
 export { default as CustomerManageReportsPage } from "./customer/manage-reports";
 export { default as ImageUploadWithDescriptions } from "../components/molecules/getdelivery/ImageUploadWithDescriptions";
+export { default as StaffManagePostsPage } from "./staff/manage-post";
 // export type { ImageUploadData } from "../components/molecules/common/ImageUploadWithDescriptions";

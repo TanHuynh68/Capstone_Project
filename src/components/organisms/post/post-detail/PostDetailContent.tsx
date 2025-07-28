@@ -30,7 +30,7 @@ export default function PostDetailContent({
             <PriceDisplay value={post.itemValue} label="Giá trị sản phẩm" />
           </div>
           <div className="bg-primary/10 text-priceHighlight-foreground rounded-lg p-4">
-            <PriceDisplay value={post.suggestedPrice} label="Giá đề xuất" />
+            <PriceDisplay value={post.suggestedPrice} label="Ngân sách" />
           </div>
         </div>
       </div>

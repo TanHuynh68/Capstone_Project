@@ -7,8 +7,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LockKeyhole, Calendar, Hash, Banknote } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PATH } from "@/routes/path";
+import { useState } from "react";
 
 interface DepositProps {
   amount: number;
@@ -33,9 +34,15 @@ const formatDate = (dateString: string) => {
 };
 
 const Deposit = ({ amount, deposits }: DepositProps) => {
+  const [open, setOpen] = useState(false); // for popover
   const totalDeposits = deposits.length;
+  const navigate = useNavigate();
+  const handleNavigateToOrderDetail = (id: string) => {
+    setOpen(false);
+    navigate(`${PATH.ORDER_DETAIL}/${id}`);
+  };
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
         <Button
           variant="ghost"
@@ -91,11 +98,13 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                 {deposits.map((deposit) => {
                   // card
                   return (
-                    <Link to={`${PATH.ORDER_DETAIL}/${deposit?.orderID}`}>
-                      <div
-                        key={deposit.orderDepositID}
-                        className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300"
-                      >
+                    <div
+                      onClick={() =>
+                        handleNavigateToOrderDetail(deposit.orderID)
+                      }
+                      key={deposit.orderDepositID}
+                    >
+                      <div className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300">
                         {/* Main content */}
                         <div className="">
                           <div className="flex items-start gap-3">
@@ -145,7 +154,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                           </div>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>

@@ -31,6 +31,7 @@ export enum USER_ROUTES {
   DESIGNER_PORTFOLIO_PAGE = "portfolio/:id",
   CUSTOMER_UPLOAD_PAGE = "post/upload-post",
   CUSTOMER_MANAGE_REPORTS = "manage-reports",
+
 }
 
 export enum AUTH_ROUTES {
@@ -59,10 +60,12 @@ export enum STAFF_ROUTES {
   STAFF_MANAGE_REPORT = "manage-report",
   STAFF_MANAGER_WITHDRAWAL = "manager-withdrawal",
   STAFF_MANAGER_WALLET_TRANSACTION = "manager-wallet-transaction",
+  STAFF_MANAGE_POSTS = "manager-posts",
 }
 
 export enum PATH {
   MY_WALLET = "my-wallet",
+  MY_POST = "my-post",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
   CUSTOMER_ORDER_HISTORY_PAGE = `${USER_ROUTES.ORDER}/history`,
   CHAT_PAGE = `${USER_ROUTES.CHAT}`,
@@ -113,4 +116,5 @@ export enum PATH {
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
+  STAFF_MANAGE_POSTS = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_MANAGE_POSTS,
 }

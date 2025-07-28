@@ -11,6 +11,7 @@ import {
     SettingsIcon,
     UsersIcon,
     Wallet,
+    BookOpen
 } from "lucide-react";
 import { PATH } from "@/routes/path";
 
@@ -20,6 +21,11 @@ export const staffSidebarData = {
             title: "Dashboard",
             url: `${PATH.STAFF_DASHBOARD}`,
             icon: LayoutDashboardIcon,
+        },
+         {
+            title: "Quản lý bài đăng",
+            url: `${PATH.STAFF_MANAGE_POSTS}`,
+            icon: BookOpen,
         },
         {
             title: "Quản lý người dùng",
@@ -41,6 +47,7 @@ export const staffSidebarData = {
             url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
             icon: ClipboardListIcon,
         },
+        
     ],
     navClouds: [
         {
