@@ -2,7 +2,7 @@
 import type React from "react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Ruler, Zap, X, MoreHorizontal } from "lucide-react";
+import { Upload, Ruler, Zap, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -430,11 +430,11 @@ export default function CanvasPage() {
       <main className="container mx-auto px-4 pb-8 pt-8">
         {/* Hero Section */}
         <div className="text-center mb-0">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
-            Upload ảnh Labubu để tạo canvas
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-0 leading-normal">
+            PlushDollDesign
           </h1>
           <p className="text-lg text-gray-600 mb-4">
-            Điều chỉnh kích thước ảnh, canvas sẽ tự động thay đổi theo
+            Tạo canvas từ ảnh Labubu của bạn
           </p>
         </div>
 
@@ -942,13 +942,10 @@ export default function CanvasPage() {
 
         {/* Recent Designs Section */}
         <div className="mt-8 mb-4 px-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-start mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Thiết kế gần đây
             </h2>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
           </div>
           <CanvasListInPage
             onSelect={handleCanvasSelect}

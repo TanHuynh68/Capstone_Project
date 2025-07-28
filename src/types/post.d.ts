@@ -16,22 +16,6 @@ interface Post {
   requestedImages: ProjectImage[];
 }
 
-// interface Post {
-//   accountID: string;
-//   projectPostID: string;
-//   title: string;
-//   description: string;
-//   fullName: string | null;
-//   avatar: string | null;
-//   itemValue: number;
-//   suggestedPrice: number;
-//   createdAt: string;
-//   endAt: string;
-//   postStatus: string;
-//   originalImage: ProjectImage;
-//   requestedImages: ProjectImage[];
-// }
-
 interface ProjectImage {
   projectImageID: string;
   imageUrl: string;
@@ -74,4 +58,35 @@ interface PaginationState {
 interface SortState {
   column: string | null;
   direction: "asc" | "desc";
+}
+
+// for staff manage post
+interface PostsTableFilters {
+  searchTerm: string
+  isActive: string // "all" | "true" | "false"
+  sortBy: string // "createdAt" | "title" | "fullName"
+  sortOrder: "asc" | "desc"
+  page: number
+}
+// for staff manage post
+interface PostsApiQuery {
+  search?: string
+  isActive?: boolean
+  sortBy?: string
+  sortOrder?: string
+  page: number
+  size: number
+}
+// for staff manage post
+interface PostActionData {
+  projectPostID: string
+  reason: string
+}
+// for staff manage post
+interface PostsTableActions {
+  onViewDetail: (post: ProjectPost) => void
+  onToggleStatus: (post: ProjectPost) => void
+  onSearch: (searchTerm: string) => void
+  onFilterChange: (filters: Partial<PostsTableFilters>) => void
+  onPageChange: (page: number) => void
 }

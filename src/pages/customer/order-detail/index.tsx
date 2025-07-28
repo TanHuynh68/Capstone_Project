@@ -14,6 +14,7 @@ import FeedbackService from "@/services/FeedbackService";
 import { CreateFeedbackFormData } from "@/schemas/feedbackSchema";
 import { useCurrentUser } from "@/utils";
 import WalletService from "@/services/WalletService";
+import LoadingSpinner from "@/components/atoms/custom/loading-spinner/LoadingSpinner";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,10 @@ export default function OrderManagementPage() {
   const [progressSteps, setProgressSteps] = useState<ProgressStepResponse[]>(
     []
   );
+
+  // Loading states
+  const [isLoadingOrder, setIsLoadingOrder] = useState(true);
+
   const currentUser = useCurrentUser();
   console.log("currentUser: ", currentUser);
   const { createProgressReview } = ProgressService();
@@ -41,7 +46,12 @@ export default function OrderManagementPage() {
 
   useEffect(() => {
     fetchOrderDetail();
-  }, []);
+  }, [id]);
+
+  // Reset progress steps when order changes
+  useEffect(() => {
+    setProgressSteps([]);
+  }, [id]);
 
   // fetch deposited history
   const fetchOrdersDeposited = async () => {
@@ -64,9 +74,17 @@ export default function OrderManagementPage() {
 
   const fetchOrderDetail = async () => {
     if (id) {
-      const response = await getOrderDetail(id);
-      if (response) {
-        setOrderDetail(response?.responseRequestModel);
+      setIsLoadingOrder(true);
+      try {
+        const response = await getOrderDetail(id);
+        if (response) {
+          setOrderDetail(response?.responseRequestModel);
+        }
+      } catch (error) {
+        console.error("Error fetching order detail:", error);
+        toast.error("Không thể tải thông tin đơn hàng");
+      } finally {
+        setIsLoadingOrder(false);
       }
     }
   };
@@ -129,6 +147,7 @@ export default function OrderManagementPage() {
       }
     }
   };
+
   const handleCreateFeedback = async (data: CreateFeedbackFormData) => {
     const response = await createFeedback(data);
     return response;
@@ -150,6 +169,11 @@ export default function OrderManagementPage() {
     }
     toast.success("Phản hồi đã được gửi thành công");
   };
+
+  // Show loading spinner while initial order data is loading
+  if (isLoadingOrder) {
+    return <LoadingSpinner />;
+  }
 
   if (!orderDetail) {
     return (

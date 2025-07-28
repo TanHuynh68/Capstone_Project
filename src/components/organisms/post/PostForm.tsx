@@ -27,6 +27,8 @@ import { CalendarIcon } from "lucide-react";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { formatDate, formatDateToSubmit } from "@/utils";
+import { useNavigate } from "react-router-dom";
+import { PATH } from "@/routes/path";
 
 export default function PostForm() {
   const [OriginalAttachmentFiles, setOriginalAttachmentFiles] = useState<
@@ -41,6 +43,7 @@ export default function PostForm() {
     OriginalAttachmentFiles: "",
     RequestedAttachmentFiles: "",
   });
+  const navigate = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(uploadPostSchema),
@@ -84,8 +87,6 @@ export default function PostForm() {
       OriginalAttachmentFiles: OriginalAttachmentFiles,
       RequestedAttachmentFiles: RequestedAttachmentFiles,
     };
-    console.log("valuesSubmit: ", valuesSubmit);
-
     const response = await createPost(valuesSubmit);
 
     if (response) {
@@ -94,6 +95,7 @@ export default function PostForm() {
       form.reset();
       setOriginalAttachmentFiles([]);
       setRequestedAttachmentFiles([]);
+      navigate('/'+PATH.MY_POST)
     }
     setSubmitting(false);
   };

@@ -1,8 +1,4 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/IcZyb9fQCyd
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+
 import { Separator } from "@/components/ui/separator"
 import { formatCurrencyVND } from "@/utils";
 import { PATH } from "@/routes/path";
@@ -18,29 +14,29 @@ export default function PaymentSuccess() {
       <div className="bg-background rounded-lg shadow-lg p-8 w-full max-w-md">
         <div className="flex flex-col items-center justify-center gap-4">
           <CircleCheckIcon className="text-green-500 w-12 h-12" />
-          <h1 className="text-2xl font-bold">Payment Successful</h1>
-          <p className="text-muted-foreground">Thank you for your purchase! Your order is being processed.</p>
+          <h1 className="text-2xl font-bold">Thanh toán thành công</h1>
+          <p className="text-muted-foreground">Cảm ơn bạn đã thanh toán! Đơn hàng của bạn đang được xử lý.</p>
         </div>
         <Separator className="my-6" />
         <div className="grid gap-4">
           {
             vnp_TransactionNo ? <div>
               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Transaction No #</p>
+                <p className="text-muted-foreground">Mã giao dịch #</p>
                 <p>{vnp_TransactionNo}</p>
               </div>
               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Total</p>
+                <p className="text-muted-foreground">Tổng tiền</p>
                 <p>{formatCurrencyVND(parseInt(depositMoney + '') || 0)}</p>
               </div>
               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Payment Method</p>
+                <p className="text-muted-foreground">Phương thức thanh toán</p>
                 <p>VNPay</p>
               </div>
             </div> :
             <div>
                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Payment Method</p>
+                <p className="text-muted-foreground">Phương thức thanh toán</p>
                 <p>PayOs</p>
               </div>
             </div>
@@ -49,10 +45,10 @@ export default function PaymentSuccess() {
         <Separator className="my-6" />
         <div className="flex justify-center">
           <Link
-            to={PATH.HOME}
+            to={PATH.MY_WALLET}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
-            Back to Homepage
+            Quay về ví
           </Link>
         </div>
       </div>

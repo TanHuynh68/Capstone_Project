@@ -8,8 +8,8 @@ import {
   FolderOpen,
   FolderX,
   Loader2,
+  Search,
 } from "lucide-react";
-import SidebarSearchBar from "../SidebarSearchBar";
 import CanvasService from "@/services/CanvasService";
 import { toast } from "sonner";
 import {
@@ -327,34 +327,48 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   }, [isEditDialogOpen]);
 
   return (
-    <div className="space-y-4 p-2">
-      {/* Redesigned Search Bar UI */}
-      <div className="flex justify-center items-center py-4">
+    <div className="space-y-4 p-0">
+      {/* Custom Search Bar UI */}
+      <div className="flex justify-center items-center py-2">
         <div className="relative w-full max-w-4xl">
-          <SidebarSearchBar
-            value={folderName}
-            onChange={(e) => setFolderName(e.target.value)}
-            onSearch={handleSearch}
-            placeholder="Tìm thiết kế..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSearch();
-            }}
-            loading={loading}
-          />
+          <div className="relative group">
+            <input
+              type="text"
+              value={folderName}
+              onChange={(e) => setFolderName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+              placeholder="Tìm thiết kế..."
+              className="w-full px-4 py-3 pr-14 text-base font-medium rounded-2xl border-2 border-transparent bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 shadow-lg focus:border-pink-400 focus:ring-4 focus:ring-pink-200 transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:shadow-2xl"
+            />
+            <button
+              type="button"
+              onClick={handleSearch}
+              disabled={loading}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Search className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="h-[calc(100vh-200px)] overflow-y-auto scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent">
+      <div className="scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16">
-              <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
+            <div className="col-span-full flex flex-col items-center justify-center py-14">
+              <Loader2 className="w-12 h-12 text-pink-500 animate-spin mb-4" />
               <span className="text-lg font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 Đang tải...
               </span>
             </div>
           ) : canvasList.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16">
+            <div className="col-span-full flex flex-col items-center justify-center py-14">
               <FolderX className="w-16 h-16 text-pink-300 mb-4" />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 Không có thiết kế nào
@@ -368,7 +382,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                   item.canvasFolderId === selectedCanvasId
                     ? "border-pink-400 scale-105"
                     : "border-transparent"
-                } transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden`}
+                } transition-transform duration-200 hover:scale-[1.02] hover:shadow-2xl cursor-pointer overflow-hidden`}
                 onClick={() => {
                   if (item.latestCanvasInfo?.canvasDescription) {
                     navigate("/canvas/plushdoll-design", {
@@ -398,10 +412,10 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                 }}
               >
                 {/* Edit & Delete Buttons - show on hover */}
-                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
                   <button
                     type="button"
-                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200"
+                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200 transition-colors duration-150 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingFolder(item);
@@ -414,7 +428,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                   </button>
                   <button
                     type="button"
-                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200"
+                    className="p-1 rounded-full bg-white shadow hover:bg-pink-100 border border-gray-200 transition-colors duration-150 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       setDeletingFolder(item);
@@ -438,7 +452,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                           ? `${item.previewWidth} / ${item.previewHeight}`
                           : undefined,
                     }}
-                    className="transition-all duration-200 group-hover:scale-105"
+                    className="transition-transform duration-200 group-hover:scale-[1.05]"
                   />
                 </div>
                 <div className="px-3 pb-3">
@@ -486,7 +500,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
           variant="outline"
           onClick={() => setPage((prev) => Math.max(1, prev - 1))}
           disabled={page === 1 || loading}
-          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-110 transition-transform border-none"
+          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-[1.05] transition-transform duration-150 border-none"
         >
           <ChevronLeft className="w-6 h-6" />
         </Button>
@@ -498,7 +512,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
           variant="outline"
           onClick={() => setPage((prev) => prev + 1)}
           disabled={canvasList.length < size || loading}
-          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-110 transition-transform border-none"
+          className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 text-pink-600 shadow hover:scale-[1.05] transition-transform duration-150 border-none"
         >
           <ChevronRight className="w-6 h-6" />
         </Button>
@@ -548,7 +562,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
               <Button
                 onClick={handleEditFolderSubmit}
                 disabled={loading}
-                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-105 transition-transform"
+                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-[1.02] transition-transform duration-150"
               >
                 {loading ? (
                   <Loader2 className="animate-spin w-5 h-5" />
@@ -587,7 +601,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                 onClick={handleDeleteConfirm}
                 disabled={loading}
                 variant="destructive"
-                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-105 transition-transform border-none"
+                className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-6 py-2 font-semibold shadow-md hover:scale-[1.02] transition-transform duration-150 border-none"
               >
                 {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Xóa"}
               </Button>
