@@ -41,13 +41,13 @@ export default function ProgressStepCard({
   };
 
   const getApprovalStatus = () => {
-    if (step.progressStep.isApprovedByCustomer === null) {
+    if (step?.progressStep.isApprovedByCustomer === null) {
       return {
         icon: Clock,
         label: "Chờ xem xét",
         color: "bg-gray-100 text-gray-800",
       };
-    } else if (step.progressStep.isApprovedByCustomer === true) {
+    } else if (step?.progressStep.isApprovedByCustomer === true) {
       return {
         icon: CheckCircle,
         label: "Đã duyệt",
@@ -73,20 +73,20 @@ export default function ProgressStepCard({
     setIsImageModalOpen(true);
   };
 
-  const stepTypeConfig = getStepTypeConfig(step.progressStep.progressStepType);
+  const stepTypeConfig = getStepTypeConfig(step?.progressStep.progressStepType);
   const approvalStatus = getApprovalStatus();
   const ApprovalIcon = approvalStatus.icon;
 
   // Check if step has been evaluated (has approval data)
-  const hasEvaluation = step.progressStep.isApprovedByCustomer !== null;
-  console.log('step: ', step)
+  const hasEvaluation = step?.progressStep?.isApprovedByCustomer !== null;
+
   return (
     <>
       <Card className="h-full">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg mb-2">{step.progressStep.stepTitle}</CardTitle>
+              <CardTitle className="text-lg mb-2">{step?.progressStep.stepTitle}</CardTitle>
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={stepTypeConfig.color}>
                   {stepTypeConfig.label}
@@ -98,7 +98,7 @@ export default function ProgressStepCard({
               </div>
             </div>
             <div className="text-right text-sm text-gray-500">
-              Bước {step.progressStep.stepNumber}
+              Bước {step?.progressStep.stepNumber}
             </div>
           </div>
         </CardHeader>
@@ -108,20 +108,20 @@ export default function ProgressStepCard({
           <div>
             <h4 className="font-medium mb-2">Mô tả:</h4>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {step.progressStep.description}
+              {step?.progressStep.description}
             </p>
           </div>
 
           {/* Progress Images - Enhanced Gallery */}
-          {step.progressImages && step.progressImages.length > 0 && (
+          {step?.progressImages && step?.progressImages.length > 0 && (
             <div>
               <h4 className="font-medium mb-2">
-                Hình ảnh tiến độ ({step.progressImages.length}):
+                Hình ảnh tiến độ ({step?.progressImages.length}):
               </h4>
 
               {/* First row - 3 images */}
               <div className="grid grid-cols-3 gap-2 mb-2">
-                {step.progressImages.slice(0, 3).map((image, index) => (
+                {step?.progressImages.slice(0, 3).map((image, index) => (
                   <div
                     key={image.progressImageID}
                     className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group cursor-pointer"
@@ -143,9 +143,9 @@ export default function ProgressStepCard({
               </div>
 
               {/* Second row - 3 images (4-6) */}
-              {step.progressImages.length > 3 && (
+              {step?.progressImages.length > 3 && (
                 <div className="grid grid-cols-3 gap-2">
-                  {step.progressImages.slice(3, 6).map((image, index) => (
+                  {step?.progressImages.slice(3, 6).map((image, index) => (
                     <div
                       key={image.progressImageID}
                       className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group cursor-pointer"
@@ -168,9 +168,9 @@ export default function ProgressStepCard({
               )}
 
               {/* Show remaining images count */}
-              {step.progressImages.length > 6 && (
+              {step?.progressImages.length > 6 && (
                 <p className="text-xs text-gray-500 mt-2">
-                  +{step.progressImages.length - 6} ảnh khác
+                  +{step?.progressImages.length - 6} ảnh khác
                 </p>
               )}
             </div>
@@ -182,14 +182,14 @@ export default function ProgressStepCard({
               <Calendar className="h-4 w-4" />
               <div>
                 <div className="font-medium">Tạo lúc:</div>
-                <div>{formatDate(step.progressStep.createdAt)}</div>
+                <div>{formatDate(step?.progressStep.createdAt)}</div>
               </div>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Clock className="h-4 w-4" />
               <div>
                 <div className="font-medium">Cập nhật:</div>
-                <div>{formatDate(step.progressStep.updateAt)}</div>
+                <div>{formatDate(step?.progressStep.updateAt)}</div>
               </div>
             </div>
           </div>
@@ -207,8 +207,8 @@ export default function ProgressStepCard({
             {hasEvaluation && onViewEvaluationDetail && (
               <Button
                 onClick={() => {
-                  onViewEvaluationDetail(step.progressStep.progressStepID);
-                  console.log("step.progressStepID: ", step.progressStep.progressStepID);
+                  onViewEvaluationDetail(step?.progressStep.progressStepID);
+                  console.log("step?.progressStepID: ", step?.progressStep.progressStepID);
                 }}
                 className="w-full"
                 variant="ghost"
@@ -223,11 +223,11 @@ export default function ProgressStepCard({
       </Card>
 
       {/* Image Gallery Modal */}
-      {step.progressImages && step.progressImages.length > 0 && (
+      {step?.progressImages && step?.progressImages.length > 0 && (
         <ImageGalleryModal
           isOpen={isImageModalOpen}
           onClose={() => setIsImageModalOpen(false)}
-          images={step.progressImages.map((img) => ({
+          images={step?.progressImages.map((img) => ({
             url: img.imageUrl || "/placeholder.svg",
             alt: img.imageName,
             description:

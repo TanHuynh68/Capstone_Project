@@ -11,7 +11,7 @@ import EvaluationForm from "@/components/molecules/customer/order-detail/Evaluat
 import EvaluationDetailDialog from "@/components/molecules/customer/order-detail/EvaluationDetailDialog";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface RightBottomPanelProps {
   progressSteps: ProgressStepResponse[];
@@ -47,7 +47,10 @@ export default function RightBottomPanel({
     evaluation: null,
     stepTitle: "",
   });
-
+  
+  useEffect(() => {
+    setCurrentStepIndex(0);
+  }, [selectedPhaseId]);
   console.log("progressSteps: ", progressSteps);
 
   const handleEvaluate = (stepId: string) => {
@@ -108,7 +111,7 @@ export default function RightBottomPanel({
       </div>
     );
   }
-
+  console.log("currentStepIndex:", currentStepIndex);
   return (
     <>
       <div className="h-full flex flex-col">
@@ -142,7 +145,7 @@ export default function RightBottomPanel({
                         Bước {currentStepIndex + 1}/{progressSteps.length}
                       </span>
                     </div>
-                    
+
                     {/* Current Step Content */}
                     <div className="flex-1 overflow-hidden">
                       <div className="h-full overflow-y-auto">

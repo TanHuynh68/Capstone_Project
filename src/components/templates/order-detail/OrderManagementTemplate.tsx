@@ -11,6 +11,7 @@ import RightTopPanel from "@/components/organisms/customer/order-detail/RightTop
 import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel";
 import ActivityLogDialog from "@/components/molecules/customer/order-detail/ActivityLogDialog";
 import FeedbackSection from "@/components/organisms/feedback/FeedbackSection";
+
 import type { TimelineItemData } from "@/components/molecules/timeline/TimelineItem";
 import OrderService from "@/services/OrderService";
 import { ACTIVITY_TYPE_VI } from "@/constants/order";
@@ -18,6 +19,7 @@ import type {
   CreateFeedbackFormData,
   FeedbackData,
 } from "@/schemas/feedbackSchema";
+import OrderStatusTimeline from "@/components/molecules/customer/order-detail/OrderStatusTimeline";
 
 interface OrderManagementTemplateProps {
   orderDetail: OrderDetail;
@@ -188,6 +190,13 @@ export default function OrderManagementTemplate({
 
       {/* Main content */}
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Order Status Timeline */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <OrderStatusTimeline
+            currentStatus={orderDetail.order.orderStatus as any}
+          />
+        </div>
+
         {/* Existing grid layout */}
         <div className="grid grid-cols-2 gap-6">
           {/* Left Panel - 50% width */}
@@ -210,28 +219,31 @@ export default function OrderManagementTemplate({
           >
             {/* Top Right Panel - Giai đoạn thực hiện (ẩn khi đánh giá) */}
             <div
-              className={`bg-white rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform ${
+              className={`bg-white rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform max-h-[292px] ${
                 isEvaluating
                   ? "opacity-0 scale-95 -translate-y-4 h-0 overflow-hidden p-0 border-0"
                   : "opacity-100 scale-100 translate-y-0 flex-1 p-6"
               }`}
             >
               {!isEvaluating && (
-                <RightTopPanel
-                  onWithdrawDeposit={onDesignerWithdraw}
-                  phases={orderDetail.offerPhases}
-                  selectedPhaseId={selectedPhaseId}
-                  orderID={orderDetail?.order?.orderID || ""}
-                  onPhaseSelect={handlePhaseSelect}
-                  onCreateProgressStep={onCreateProgressStep}
-                  onSelectPhases={onSelectPhases}
-                />
+                <div className="">
+                  <RightTopPanel
+                    orderDetail={orderDetail}
+                    onWithdrawDeposit={onDesignerWithdraw}
+                    phases={orderDetail.offerPhases}
+                    selectedPhaseId={selectedPhaseId}
+                    orderID={orderDetail?.order?.orderID || ""}
+                    onPhaseSelect={handlePhaseSelect}
+                    onCreateProgressStep={onCreateProgressStep}
+                    onSelectPhases={onSelectPhases}
+                  />
+                </div>
               )}
             </div>
 
             {/* Bottom Right Panel - Tiến độ thực hiện (mở rộng khi đánh giá) */}
             <div
-              className={`bg-white rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform ${
+              className={`bg-white rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform   ${
                 isEvaluating
                   ? "flex-1 opacity-100 scale-100 translate-y-0"
                   : "flex-1 opacity-100 scale-100 translate-y-0"
@@ -253,13 +265,15 @@ export default function OrderManagementTemplate({
         </div>
 
         {/* Feedback Section - Full width at bottom */}
-        <FeedbackSection
-          orderID={orderDetail.order.orderID}
-          userRole={userRole}
-          onCreateFeedback={onCreateFeedback}
-          onCreateResponse={onCreateResponse}
-          onGetFeedback={onGetFeedback}
-        />
+        {orderDetail.order.orderStatus === "Done" && (
+          <FeedbackSection
+            orderID={orderDetail.order.orderID}
+            userRole={userRole}
+            onCreateFeedback={onCreateFeedback}
+            onCreateResponse={onCreateResponse}
+            onGetFeedback={onGetFeedback}
+          />
+        )}
       </div>
     </div>
   );
