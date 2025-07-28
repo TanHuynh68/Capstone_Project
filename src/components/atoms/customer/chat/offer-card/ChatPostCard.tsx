@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Info } from "lucide-react";
 import { useState } from "react";
 import ChatCreateOfferPhase from "../chat-form/ChatCreateOfferPhase";
 import OfferPhasesDialog from "./offerPhasesDialog";
@@ -28,6 +28,12 @@ import {
 import { ROLE } from "@/constants";
 import OfferService from "@/services/OfferService";
 import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface ChatPostCardProps {
   post: OfferDetail;
@@ -151,7 +157,8 @@ export function ChatPostCard({
             {/* Action Buttons */}
             <div className="space-y-3">
               {currentUser?.role === ROLE.CUSTOMER &&
-                post.offer?.isAcceptedByCus === false && (
+                post.offer?.isAcceptedByCus === false &&
+                post.offer?.offerStatus !== "Rejected" && (
                   <Button
                     onClick={handleConfirm}
                     disabled={isConfirming}
@@ -161,7 +168,8 @@ export function ChatPostCard({
                   </Button>
                 )}
               {currentUser?.role === ROLE.DESIGNER &&
-                post.offer?.isAcceptedByDes === false && (
+                post.offer?.isAcceptedByDes === false &&
+                post.offer?.offerStatus !== "Rejected" && (
                   <Button
                     onClick={handleConfirm}
                     disabled={isConfirming}
@@ -247,7 +255,7 @@ export function ChatPostCard({
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Giá đề xuất</div>
+                    <div className="text-sm text-gray-600">Ngân sách</div>
                     <div className="font-semibold text-green-600">
                       {formatCurrencyVND(post.post.suggestedPrice)}
                     </div>
@@ -317,7 +325,22 @@ export function ChatPostCard({
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Tiền cọc</div>
+                    <div className="text-sm text-gray-600 flex items-center gap-1">
+                      Tiền cọc
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {/* <p>Số tiền cọc mà nhà thiết kế yêu cầu</p> */}
+                            <p>
+                              Tiền cọc = (Giá cuối cùng + Giá trị vật phẩm ) / 2
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="font-semibold text-green-600">
                       {post?.offer?.designerDepositPrice
                         ? formatCurrencyVND(post.offer.designerDepositPrice)

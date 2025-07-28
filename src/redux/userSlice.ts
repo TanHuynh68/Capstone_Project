@@ -18,6 +18,9 @@ export const userSlice = createSlice({
     logout: () => {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
       return initialState;
     },
   },
