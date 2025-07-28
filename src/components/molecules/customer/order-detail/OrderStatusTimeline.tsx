@@ -128,17 +128,17 @@ export default function OrderStatusTimeline({
 
     if (isCurrent) {
       return {
-        container: "bg-blue-500 border-blue-500",
+        container: "bg-primary border-primary",
         icon: "text-white",
-        text: "text-blue-600",
+        text: "text-primary",
       };
     }
 
     if (isCompleted) {
       return {
-        container: "bg-white border-blue-500",
-        icon: "text-blue-500",
-        text: "text-blue-600",
+        container: "bg-white border-primary",
+        icon: "text-primary",
+        text: "text-primary",
       };
     }
 
@@ -159,7 +159,7 @@ export default function OrderStatusTimeline({
     }
 
     if (isCompleted) {
-      return "bg-blue-400";
+      return "bg-primary";
     }
 
     return "bg-gray-200";
@@ -185,17 +185,18 @@ export default function OrderStatusTimeline({
           return (
             <div
               key={step.key}
-              className="flex flex-col items-center relative flex-1"
+              className="flex flex-col items-center relative flex-1 min-h-[120px]"
             >
               {/* Connector Line */}
               {index < mainStatuses.length - 1 && (
                 <div
-                  className={`absolute top-6 left-1/2 w-full h-0.5 ${getConnectorStyle(
+                  className={`absolute top-6 h-0.5 ${getConnectorStyle(
                     index
                   )} z-0`}
                   style={{
-                    transform: "translateX(50%)",
-                    width: "calc(100% - 24px)",
+                    left: "50%",
+                    right: "-50%",
+                    transform: "translateX(0)",
                   }}
                 />
               )}
@@ -213,17 +214,19 @@ export default function OrderStatusTimeline({
 
               {/* Step Label */}
               <div
-                className={`mt-2 text-sm font-medium text-center ${stepStyle.text}`}
+                className={`mt-2 text-sm font-medium text-center ${stepStyle.text} h-5`}
               >
                 {step.label}
               </div>
 
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="mt-1 text-xs text-red-600 text-center max-w-20">
-                  {errorMessage}
-                </div>
-              )}
+              {/* Error Message - Fixed height container */}
+              <div className="mt-1 h-8 flex items-start justify-center">
+                {errorMessage && (
+                  <div className="text-xs text-red-600 text-center max-w-20 leading-tight">
+                    {errorMessage}
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
