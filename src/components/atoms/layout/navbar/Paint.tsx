@@ -4,12 +4,19 @@ import { Paintbrush2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PaintSplashScreen from "./PaintSplashScreen";
+import { useCanvasPreload } from "@/context/CanvasPreloadContext";
 
 const Paint = () => {
   const navigate = useNavigate();
   const [showSplash, setShowSplash] = useState(false);
+  const { startPreload, hasPreloadedData } = useCanvasPreload();
 
   const handlePaintClick = () => {
+    // Start preload if not already done
+    if (!hasPreloadedData) {
+      startPreload();
+    }
+
     setShowSplash(true);
 
     // Sau 3 giây, chuyển đến canvas page

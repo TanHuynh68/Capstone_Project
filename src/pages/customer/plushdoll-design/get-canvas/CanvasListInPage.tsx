@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatFullDateWithDistance3 } from "@/utils/date";
 import { useNavigate } from "react-router-dom";
+import { useCanvasPreload } from "@/context/CanvasPreloadContext";
 
 interface CanvasFolder {
   canvasFolderId: string;
@@ -66,6 +67,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const [page, setPage] = useState(1);
   const [searchTitle, setSearchTitle] = useState("");
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  const [hasUsedPreloadedData, setHasUsedPreloadedData] = useState(false);
 
   // Dialog states
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -82,6 +84,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const { getFolderCanvas, putFolderCanvas, deleteFolderCanvas } =
     CanvasService();
   const navigate = useNavigate();
+
+  // Get preloaded data from context
+  const { preloadedCanvasList, hasPreloadedData } = useCanvasPreload();
 
   // Function to generate canvas preview
   const generateCanvasPreview = async (
@@ -207,6 +212,80 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     }
   }, [page, getFolderCanvas, searchTitle]);
 
+  // Use preloaded data if available
+  useEffect(() => {
+    if (
+      hasPreloadedData &&
+      preloadedCanvasList.length > 0 &&
+      !hasUsedPreloadedData
+    ) {
+      setCanvasList(preloadedCanvasList);
+      setHasUsedPreloadedData(true);
+      setLoading(false);
+
+      // Dispatch canvas count event
+      window.dispatchEvent(
+        new CustomEvent("canvasCountUpdated", {
+          detail: { totalCount: preloadedCanvasList.length },
+        })
+      );
+    }
+  }, [hasPreloadedData, preloadedCanvasList, hasUsedPreloadedData]);
+
+  // Use preloaded data when component mounts and preloaded data is available
+  useEffect(() => {
+    if (
+      hasPreloadedData &&
+      preloadedCanvasList.length > 0 &&
+      canvasList.length === 0
+    ) {
+      console.log("CanvasListInPage: Using preloaded data on mount", {
+        preloadedCanvasListLength: preloadedCanvasList.length,
+        canvasListLength: canvasList.length,
+      });
+      setCanvasList(preloadedCanvasList);
+      setHasUsedPreloadedData(true);
+      setLoading(false);
+
+      // Dispatch canvas count event
+      window.dispatchEvent(
+        new CustomEvent("canvasCountUpdated", {
+          detail: { totalCount: preloadedCanvasList.length },
+        })
+      );
+    }
+  }, [hasPreloadedData, preloadedCanvasList, canvasList.length]);
+
+  // Listen for preload complete events
+  useEffect(() => {
+    const handlePreloadComplete = (event: CustomEvent) => {
+      if (event.detail?.canvasList && canvasList.length === 0) {
+        setCanvasList(event.detail.canvasList);
+        setHasUsedPreloadedData(true);
+        setLoading(false);
+
+        // Dispatch canvas count event
+        window.dispatchEvent(
+          new CustomEvent("canvasCountUpdated", {
+            detail: { totalCount: event.detail.canvasList.length },
+          })
+        );
+      }
+    };
+
+    window.addEventListener(
+      "canvasPreloadComplete",
+      handlePreloadComplete as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "canvasPreloadComplete",
+        handlePreloadComplete as EventListener
+      );
+    };
+  }, [canvasList.length]);
+
   const handleSearch = () => {
     setSearchTitle(folderName);
     setPage(1);
@@ -281,8 +360,33 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   };
 
   useEffect(() => {
-    loadList();
-  }, [searchTitle, page, loadList]);
+    // Only load if we haven't used preloaded data and we're not on the first page
+    // Also check if we have preloaded data available
+    const shouldLoad =
+      (!hasUsedPreloadedData && !hasPreloadedData) || page > 1 || searchTitle;
+    console.log("CanvasListInPage: Checking if should load API", {
+      hasUsedPreloadedData,
+      hasPreloadedData,
+      preloadedCanvasListLength: preloadedCanvasList.length,
+      page,
+      searchTitle,
+      shouldLoad,
+    });
+
+    if (shouldLoad) {
+      console.log("CanvasListInPage: Loading from API");
+      loadList();
+    } else {
+      console.log("CanvasListInPage: Skipping API call, using preloaded data");
+    }
+  }, [
+    searchTitle,
+    page,
+    loadList,
+    hasUsedPreloadedData,
+    hasPreloadedData,
+    preloadedCanvasList.length,
+  ]);
 
   useEffect(() => {
     const handleCanvasSaved = () => {

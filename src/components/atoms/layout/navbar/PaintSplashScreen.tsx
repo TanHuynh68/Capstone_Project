@@ -1,10 +1,11 @@
-import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import "./PaintSplashScreen.css";
+import { useCanvasPreload } from "@/context/CanvasPreloadContext";
 
 const PaintSplashScreen = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const { isPreloading, hasPreloadedData, startPreload } = useCanvasPreload();
 
   const steps = [
     "Đang tải các thiết kế gần đây",
@@ -13,14 +14,20 @@ const PaintSplashScreen = () => {
     "Hoàn tất!",
   ];
 
+  // Start preloading when splash screen appears
+  useEffect(() => {
+    startPreload();
+  }, [startPreload]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
+        const newProgress = prev + 3.33; // 100% / 30 steps = 3.33% per step
+        if (newProgress >= 100) {
           clearInterval(interval);
           return 100;
         }
-        return prev + 3.33; // 100% / 30 steps = 3.33% per step
+        return newProgress;
       });
     }, 100);
 
@@ -38,6 +45,26 @@ const PaintSplashScreen = () => {
       clearInterval(interval);
       clearInterval(stepInterval);
     };
+  }, []);
+
+  // Update progress based on preload status
+  useEffect(() => {
+    if (!isPreloading && hasPreloadedData) {
+      // If preload is complete, speed up the progress but don't jump to 100%
+      setProgress((prev) => {
+        const newProgress = prev + 15; // Speed up by 15%
+        return Math.min(newProgress, 95); // Cap at 95% to let normal progress finish
+      });
+    }
+  }, [isPreloading, hasPreloadedData]);
+
+  // Ensure progress reaches 100% at the end of splash screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProgress(100);
+    }, 2800); // Set to 100% 200ms before splash screen ends
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -71,15 +98,6 @@ const PaintSplashScreen = () => {
       </div> */}
 
       <div className="text-center relative z-10">
-        {/* Animated Logo */}
-        {/* <div className="w-32 h-32 mx-auto mb-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full animate-pulse"></div>
-          <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <Paintbrush2 className="w-16 h-16 text-purple-600 animate-bounce" />
-          </div>
-          <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-500 animate-pulse" />
-        </div> */}
-
         {/* Animated Logo GIF */}
         <div className="mb-6 animate-scale-in">
           <img
@@ -89,18 +107,13 @@ const PaintSplashScreen = () => {
           />
         </div>
 
-        {/* Subtitle */}
-        {/* <p className="text-xl text-gray-600 mb-8 animate-fade-in-delay">
-          Đang chuẩn bị không gian thiết kế...
-        </p> */}
-
         {/* Loading Indicator */}
-        <div className="flex items-center justify-center gap-3 mb-8 animate-fade-in-delay-2">
+        {/* <div className="flex items-center justify-center gap-3 mb-8 animate-fade-in-delay-2">
           <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
           <span className="text-purple-600 font-medium text-lg">
             Đang tải...
           </span>
-        </div>
+        </div> */}
 
         {/* Current Step Display */}
         <div className="mb-6 animate-fade-in-delay-3">
@@ -117,42 +130,54 @@ const PaintSplashScreen = () => {
           <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
             <div
               className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300 ease-out shadow-lg"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${Math.min(progress, 100)}%` }}
             ></div>
           </div>
           <div className="text-center mt-2 text-sm text-gray-500">
-            {Math.round(progress)}%
+            {Math.min(Math.round(progress), 100)}%
           </div>
         </div>
 
         {/* Loading Steps */}
-        <div className="text-sm text-gray-500 space-y-2 max-w-md mx-auto">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className={`flex items-center gap-2 transition-all duration-300 ${
-                index <= currentStep ? "opacity-100" : "opacity-40"
-              }`}
-            >
+        <div className="flex flex-col items-center">
+          <div className="text-sm text-gray-500 space-y-2 max-w-md mx-auto flex flex-col items-start">
+            {steps.map((step, index) => (
               <div
-                className={`w-2 h-2 rounded-full ${
-                  index < currentStep
-                    ? "bg-green-500 animate-pulse-green"
-                    : index === currentStep
-                    ? "bg-blue-500 animate-pulse-blue"
-                    : "bg-gray-300"
+                key={index}
+                className={`flex gap-2 transition-all duration-300 items-start ${
+                  index <= currentStep ? "opacity-100" : "opacity-40"
                 }`}
-              ></div>
-              <span
-                className={
-                  index <= currentStep ? "text-gray-700" : "text-gray-400"
-                }
               >
-                {step}
-              </span>
-            </div>
-          ))}
+                <div
+                  className={`w-2 h-2 rounded-full flex items-start ${
+                    index < currentStep
+                      ? "bg-green-500 animate-pulse-green"
+                      : index === currentStep
+                      ? "bg-blue-500 animate-pulse-blue"
+                      : "bg-gray-300"
+                  }`}
+                ></div>
+                <span
+                  className={
+                    index <= currentStep ? "text-gray-700" : "text-gray-400"
+                  }
+                >
+                  {step}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Preload Status */}
+        {isPreloading && (
+          <div className="mt-4 text-xs text-gray-500 animate-fade-in-delay-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span>Đang tải danh sách thiết kế...</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
