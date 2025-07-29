@@ -1,4 +1,4 @@
-import DesignerTimelinePage from "@/pages/designer/DesignerTimelinePage";
+import DesignerTimelinePage from "@/pages/designer/timeline-designer/DesignerTimelinePage";
 
 const TimelineLayout = () => {
   return <DesignerTimelinePage />;
