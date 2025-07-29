@@ -4,7 +4,7 @@ import { CustomerLayout } from "../components/layouts";
 import { ROLE } from "@/constants";
 import { ProtectedRouteByRole } from "./protect";
 import { MyPortfolioLayout } from "@/components/templates/portfolio/portfolio-layout";
-
+import TimelineLayout from "@/components/templates/timeline/TimelineLayout";
 
 export const designerRoutes = [
   {
@@ -17,7 +17,11 @@ export const designerRoutes = [
     children: [
       {
         path: DESIGNER_ROUTES.PORTFOLIO,
-        element: <MyPortfolioLayout  />,
+        element: <MyPortfolioLayout />,
+      },
+      {
+        path: DESIGNER_ROUTES.TIMELINE,
+        element: <TimelineLayout />,
       },
     ],
   },

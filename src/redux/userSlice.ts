@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "sonner";
 
 const initialState = {
   role: '',
@@ -21,6 +22,7 @@ export const userSlice = createSlice({
       localStorage.setItem("theme", "light");
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
+      toast.success("Hẹn gặp lại lần sau! Cảm ơn bạn thật nhiều 🐻✨");
       return initialState;
     },
   },
