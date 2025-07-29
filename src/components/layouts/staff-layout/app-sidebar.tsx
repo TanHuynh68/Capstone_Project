@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 import { staffSidebarData } from "./sidebar-data";
+import { ThemeToggle } from "@/components/themes/ThemeToggle";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const dispatch = useDispatch();
@@ -73,13 +74,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser
-          user={{
-            name: user.name || "Chưa cập nhật",
-            email: user.role || "",
-            avatar: user.avatar || "/public/images/animation_favicon.gif",
-          }}
-        />
+        <div className="flex items-center justify-between">
+          <NavUser
+            user={{
+              name: user.name || "Chưa cập nhật",
+              email: user.role || "",
+              avatar: user.avatar || "/public/images/animation_favicon.gif",
+            }}
+          />
+
+          <ThemeToggle />
+        </div>
+
         <div className="border-t mt-2 pt-2">
           <SidebarMenu>
             <SidebarMenuItem>
