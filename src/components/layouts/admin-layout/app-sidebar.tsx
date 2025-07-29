@@ -24,6 +24,7 @@ import { logout } from "@/redux/userSlice";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 import { appSidebarData } from "./sidebar-data";
 import { RootState } from "@/redux/store";
+import { ThemeToggle } from "@/components/themes/ThemeToggle";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const dispatch = useDispatch();
@@ -60,13 +61,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={appSidebarData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser
-          user={{
-            name: user.name || "Chưa cập nhật",
-            email: user.role || "",
-            avatar: user.avatar || "/public/images/animation_favicon.gif",
-          }}
-        />
+        <div className="flex items-center justify-between">
+          <NavUser
+            user={{
+              name: user.name || "Chưa cập nhật",
+              email: user.role || "",
+              avatar: user.avatar || "/public/images/animation_favicon.gif",
+            }}
+          />
+
+          <ThemeToggle />
+        </div>
         <div className="border-t mt-2 pt-2">
           <SidebarMenu>
             <SidebarMenuItem>
