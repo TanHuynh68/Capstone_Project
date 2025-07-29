@@ -18,7 +18,7 @@ export default function TimelineDate({
   };
 
   return (
-    <div className={`text-sm text-gray-400 font-mono ${className}`}>
+    <div className={`text-sm text-muted-foreground font-mono ${className}`}>
       {formatDate(date)}
     </div>
   );

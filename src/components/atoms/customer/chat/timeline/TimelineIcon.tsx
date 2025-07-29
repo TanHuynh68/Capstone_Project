@@ -8,7 +8,6 @@ export type TimelineIconType =
   | "progress"
   | "check"
   | "calendar";
-  
 
 interface TimelineIconProps {
   type: TimelineIconType;
@@ -36,26 +35,26 @@ export default function TimelineIcon({ type, className }: TimelineIconProps) {
   const getBackgroundColor = () => {
     switch (type) {
       case "info":
-        return "bg-blue-600";
+        return "bg-primary";
       case "banknote":
-        return "bg-blue-600";
+        return "bg-primary";
       case "ship":
-        return "bg-blue-600";
+        return "bg-primary";
       case "progress":
-        return "bg-blue-600";
+        return "bg-primary";
       case "check":
-        return "bg-blue-600";
+        return "bg-primary";
       case "calendar":
-        return "bg-blue-600";
+        return "bg-primary";
       default:
-        return "bg-blue-600";
+        return "bg-primary";
     }
   };
 
   return (
     <div
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full text-white",
+        "flex h-8 w-8 items-center justify-center rounded-full text-primary-foreground",
         getBackgroundColor(),
         className
       )}
