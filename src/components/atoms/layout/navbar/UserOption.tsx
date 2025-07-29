@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Truck,
   Flag,
+  Calendar,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -90,6 +91,16 @@ const UserOption = () => {
           >
             <Palette className={iconClass} />
             <span>Thiết kế</span>
+          </DropdownMenuItem>
+        )}
+
+        {user.role === ROLE.DESIGNER && (
+          <DropdownMenuItem
+            onClick={() => navigate(DESIGNER_ROUTES.TIMELINE)}
+            className={menuItemClass}
+          >
+            <Calendar className={iconClass} />
+            <span>Lịch trình</span>
           </DropdownMenuItem>
         )}
 

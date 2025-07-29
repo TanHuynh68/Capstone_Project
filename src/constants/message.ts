@@ -97,4 +97,6 @@ export const MESSAGE = {
   DEPOSIT_SUCCESSFULLY: "Đặt cọc thành công!",
   //DESINGER WITHDRAW FOR OFFERPHASE IN ORDER DETAIL
   WITHDRAW_SUCCESSFULLY: "Rút tiền cọc thành công!",
+  //DESIGNER
+  GET_TIMELINE_FAILED: "Lấy lịch trình thất bại.",
 };
