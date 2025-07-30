@@ -150,6 +150,7 @@ export default function RightBottomPanel({
                     <div className="flex-1 overflow-hidden">
                       <div className="h-full overflow-y-auto">
                         <ProgressStepCard
+                        isTop={true}
                           step={progressSteps[currentStepIndex]}
                           onEvaluate={() =>
                             handleEvaluate(

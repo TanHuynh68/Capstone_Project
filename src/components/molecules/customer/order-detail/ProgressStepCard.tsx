@@ -1,5 +1,3 @@
-
-
 import type { ProgressStepResponse } from "@/types/orderManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,17 +12,19 @@ interface ProgressStepCardProps {
   step: ProgressStepResponse;
   onEvaluate: () => void;
   onViewEvaluationDetail?: (stepId: string) => void;
+  isTop?: boolean;
 }
 
 export default function ProgressStepCard({
   step,
   onViewEvaluationDetail,
   onEvaluate,
+  isTop = false,
 }: ProgressStepCardProps) {
   const currentUser = useCurrentUser();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  console.log('step: ', step)
+  console.log("step: ", step);
   const getStepTypeConfig = (type: string) => {
     switch (type) {
       case "NewDesign":
@@ -86,7 +86,9 @@ export default function ProgressStepCard({
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg mb-2">{step?.progressStep.stepTitle}</CardTitle>
+              <CardTitle className="text-lg mb-2">
+                {step?.progressStep.stepTitle}
+              </CardTitle>
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={stepTypeConfig.color}>
                   {stepTypeConfig.label}
@@ -194,7 +196,7 @@ export default function ProgressStepCard({
             </div>
           </div>
 
-          {!hasEvaluation && currentUser.role === ROLE.CUSTOMER && (
+          {!isTop && !hasEvaluation && currentUser.role === ROLE.CUSTOMER && (
             <Button onClick={onEvaluate} className="w-full" size="sm">
               <Star className="h-4 w-4 mr-2" />
               Đánh giá bước này
@@ -208,7 +210,10 @@ export default function ProgressStepCard({
               <Button
                 onClick={() => {
                   onViewEvaluationDetail(step?.progressStep.progressStepID);
-                  console.log("step?.progressStepID: ", step?.progressStep.progressStepID);
+                  console.log(
+                    "step?.progressStepID: ",
+                    step?.progressStep.progressStepID
+                  );
                 }}
                 className="w-full"
                 variant="ghost"

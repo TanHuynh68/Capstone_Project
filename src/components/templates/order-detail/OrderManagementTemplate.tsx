@@ -20,6 +20,7 @@ import type {
   FeedbackData,
 } from "@/schemas/feedbackSchema";
 import OrderStatusTimeline from "@/components/molecules/customer/order-detail/OrderStatusTimeline";
+import { useCurrentUser } from "@/utils";
 
 interface OrderManagementTemplateProps {
   orderDetail: OrderDetail;
@@ -67,7 +68,7 @@ export default function OrderManagementTemplate({
   const [depositHistoryLoading, setDepositHistoryLoading] = useState(false);
 
   const orderService = OrderService();
-
+  const currentUser = useCurrentUser();
   const fetchProgressReviewDetail = async (progressStepID: string) => {
     const response = await getProgressReviewDetail(progressStepID);
     if (response && response.responseRequestModel) {
@@ -193,6 +194,7 @@ export default function OrderManagementTemplate({
         {/* Order Status Timeline */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <OrderStatusTimeline
+            userRole={currentUser.role}
             currentStatus={orderDetail.order.orderStatus as any}
           />
         </div>

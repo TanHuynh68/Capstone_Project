@@ -220,7 +220,7 @@ export default function WithdrawDepositDialog({
                   key={phase.offerPhaseID}
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                     isSelected
-                      ? "ring-2 ring-blue-500 bg-blue-50 m-1"
+                      ? "ring-2 ring-blue-500 bg-blue-50 m-3"
                       : "hover:bg-gray-50"
                   }`}
                   onClick={() => handlePhaseToggle(phase.offerPhaseID)}
