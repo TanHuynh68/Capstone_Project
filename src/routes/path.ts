@@ -45,6 +45,8 @@ export enum AUTH_ROUTES {
 export enum DESIGNER_ROUTES {
   DESIGNER = "/designer",
   PORTFOLIO = "portfolio",
+  PROGRESS = "progress",
+  TIMELINE = "timeline",
 }
 
 export enum ADMIN_ROUTES {
@@ -117,4 +119,7 @@ export enum PATH {
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
   STAFF_MANAGE_POSTS = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_MANAGE_POSTS,
+
+  //Designer
+  DESIGNER_TIMELINE = DESIGNER_ROUTES.PROGRESS + "/" + DESIGNER_ROUTES.TIMELINE,
 }

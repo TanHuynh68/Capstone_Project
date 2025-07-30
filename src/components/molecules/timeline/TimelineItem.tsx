@@ -32,13 +32,19 @@ export default function TimelineItem({
       {/* Icon and Line */}
       <div className="flex flex-col items-center">
         <TimelineIcon type={item.type} />
-        {!isLast && <div className="w-px h-20 bg-gray-700 mt-0" />}
+        {!isLast && (
+          <div className="w-px h-20 bg-gray-700 dark:bg-gray-300 mt-0" />
+        )}
       </div>
 
       {/* Content */}
       <div className="flex-1 pb-8">
-        <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
-        <p className="text-sm leading-relaxed">{item.description}</p>
+        <h3 className="text-lg font-semibold mb-1 text-foreground">
+          {item.title}
+        </h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {item.description}
+        </p>
       </div>
     </div>
   );

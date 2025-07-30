@@ -29,7 +29,9 @@ const ActivityLogDialog: React.FC<ActivityLogDialogProps> = ({
           <DialogTitle>Hoạt động</DialogTitle>
         </DialogHeader>
         {loading ? (
-          <div className="py-8 text-center text-gray-500">Đang tải...</div>
+          <div className="py-8 text-center text-muted-foreground">
+            Đang tải...
+          </div>
         ) : (
           <div className="max-h-[60vh] overflow-y-auto pr-2">
             {/* Add scrollable wrapper */}
