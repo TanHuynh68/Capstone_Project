@@ -31,7 +31,7 @@ export default function RightTopPanel({
   onCreateProgressStep,
   onSelectPhases,
   onWithdrawDeposit,
-  orderDetail
+  orderDetail,
 }: RightTopPanelProps) {
   const [isSelectPhasesDialogOpen, setIsSelectPhasesDialogOpen] =
     useState(false);
@@ -80,21 +80,22 @@ export default function RightTopPanel({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Giai đoạn thực hiện</h3>
           <div className="flex items-center gap-2">
-            {currentUser?.role === ROLE.CUSTOMER && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsSelectPhasesDialogOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <CheckSquare className="h-4 w-4" />
-                Đặt cọc
-              </Button>
-            )}
+            {currentUser?.role === ROLE.CUSTOMER &&
+              orderDetail.order.orderStatus === "InProgress" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsSelectPhasesDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <CheckSquare className="h-4 w-4" />
+                  Đặt cọc
+                </Button>
+              )}
 
             {currentUser?.role === ROLE.DESIGNER &&
               withdrawablePhases.length > 0 &&
-              orderDetail.order.orderStatus === 'InProgress' && (
+              orderDetail.order.orderStatus === "InProgress" && (
                 <Button
                   variant="outline"
                   size="sm"
