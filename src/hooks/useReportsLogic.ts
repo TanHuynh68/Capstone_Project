@@ -41,7 +41,6 @@ export const useReportsLogic = () => {
         const res = await getReportsByStaff(query)
         const items = res?.responseRequestModel?.responseList?.items || []
         const total = res?.responseRequestModel?.responseList?.totalPages || 1
-
         setReports(items)
         setTotalPages(total)
 
