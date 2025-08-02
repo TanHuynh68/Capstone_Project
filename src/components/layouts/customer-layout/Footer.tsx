@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "../../ui/button";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
+import { PATH } from "@/routes/path";
 
 export function Footer() {
   const [visibleElements, setVisibleElements] = useState(new Set());
@@ -94,7 +95,7 @@ export function Footer() {
             id="footer-company"
           >
             <div className="transform hover:scale-105 transition-transform duration-300">
-              <LogoWeb />
+              <LogoWeb path={PATH.HOME}/>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               <span className="font-bold text-primary">PlushDollCustom</span>{" "}
