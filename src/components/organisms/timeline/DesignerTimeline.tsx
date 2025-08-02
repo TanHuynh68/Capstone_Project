@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { CheckCircle, Settings, RefreshCw } from "lucide-react";
+import { CheckCircle, Settings, RefreshCw, Package } from "lucide-react";
 import { formatVietnamDateHours } from "@/utils/date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -81,21 +81,199 @@ const calendarStyles = `
   .fc-toolbar-title {
     font-size: 1.25rem;
     font-weight: 600;
+    color: hsl(var(--primary));
   }
   
+  /* Custom button styles */
   .fc-button {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
+    background: var(--primary) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 8px 16px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  
+  /* Hide days from other months */
+  .fc-day-other {
+    display: none !important;
+  }
+  
+  /* Show only one day from next month if needed */
+  .fc-day-other.fc-day-next-month {
+    display: table-cell !important;
+  }
+  
+  /* Hide all other month days except the first one */
+  .fc-day-other.fc-day-next-month:not(:first-of-type) {
+    display: none !important;
+  }
+  
+  /* Hide previous month days completely */
+  .fc-day-other.fc-day-prev-month {
+    display: none !important;
+  }
+  
+  /* Ensure proper grid layout */
+  .fc-daygrid-body {
+    min-height: 400px !important;
+  }
+  
+  /* Adjust day grid to show only current month + 1 day next month */
+  .fc-daygrid-day-frame {
+    min-height: 120px !important;
+  }
+  
+  /* Custom grid layout for current month only */
+  .fc-daygrid-day.fc-day-current {
+    display: table-cell !important;
+  }
+  
+  /* Ensure calendar takes full height */
+  .fc-view-harness {
+    height: 100% !important;
+  }
+  
+  .fc-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
   }
   
   .fc-button:hover {
-    background-color: #2563eb;
-    border-color: #2563eb;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    background: var(--primary-foreground) !important;
+  }
+  
+  .fc-button:hover::before {
+    left: 100%;
+  }
+  
+  .fc-button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
   }
   
   .fc-button-active {
-    background-color: #1d4ed8;
-    border-color: #1d4ed8;
+    background: var(--primary) !important;
+    transform: scale(0.95) !important;
+  }
+  
+  /* Disabled button styles */
+  .fc-button:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+  }
+  
+  .fc-button:disabled:hover {
+    transform: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  /* Toolbar container */
+  .fc-toolbar {
+    padding: 16px 0 !important;
+    margin-bottom: 20px !important;
+  }
+  
+  /* Button group styling */
+  .fc-button-group {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .fc-button-group .fc-button {
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .fc-button-group .fc-button:first-child {
+    border-top-left-radius: 12px !important;
+    border-bottom-left-radius: 12px !important;
+  }
+  
+  .fc-button-group .fc-button:last-child {
+    border-top-right-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+  }
+  
+  /* Today button basic styling */
+  .fc-today-button {
+    background: var(--primary) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: var(--primary-foreground) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  .fc-today-button:hover {
+    background: var(--primary) !important;
+    opacity: 0.8 !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  /* Prev/Next buttons basic styling */
+  .fc-prev-button,
+  .fc-next-button {
+    min-width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--primary) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: var(--primary-foreground) !important;
+    font-weight: 600 !important;
+  }
+  
+  .fc-prev-button:hover,
+  .fc-next-button:hover {
+    background: var(--primary) !important;
+    opacity: 0.8 !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  /* Header toolbar layout */
+  .fc-header-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .fc-header-toolbar {
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+    
+    .fc-toolbar-title {
+      font-size: 1.1rem !important;
+      text-align: center !important;
+    }
+    
+    .fc-button {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+    }
   }
 `;
 
@@ -177,239 +355,241 @@ export default function DesignerTimeline({
     setLoading(true);
     try {
       // Mock data for testing
-      const response = {
-        isSuccess: true,
-        message: "Phản hồi thành công",
-        statusCode: 200,
-        responseRequestModel: {
-          progressTimelineItems: [
-            {
-              order: {
-                orderID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                orderStatus: "InProgress",
-                note: "uia ",
-                deadlineAt: "2025-07-31T16:59:59.999",
-                startDate: "2025-07-19T11:01:05.7052882",
-                endDate: null,
-                createdAt: "2025-07-19T11:01:05.7052883",
-                updatedAt: "2025-07-19T11:01:05.7052884",
-              },
-              offer: {
-                offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                note: "sinh 3",
-                offerStatus: "Accepted",
-              },
-              offerPhases: [
-                {
-                  offerPhaseID: "b7de8a54-66de-4878-9689-ff6707812656",
-                  offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                  phase: 1,
-                  phaseName: "Giai đoạn 1",
-                  phaseDescription: "1",
-                  offerPhaseStatus: "Done",
-                  progressCount: 1,
-                  startDate: "2025-07-20T00:00:00",
-                  endDate: "2025-07-24T00:00:00",
-                  modifyDate: "2025-07-19T11:00:47.3930968",
-                },
-                {
-                  offerPhaseID: "11111111-2222-3333-4444-555555555555",
-                  offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                  phase: 2,
-                  phaseName: "Tạo áo cho labubu sử dụng da Nappa cao cấcấp",
-                  phaseDescription: "Thiết kế mẫu",
-                  offerPhaseStatus: "InProgress",
-                  progressCount: 0,
-                  startDate: "2025-07-25T00:00:00",
-                  endDate: "2025-07-26T00:00:00",
-                  modifyDate: "2025-07-25T10:00:00",
-                },
-                {
-                  offerPhaseID: "66666666-7777-8888-9999-000000000000",
-                  offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                  phase: 3,
-                  phaseName:
-                    "Giai đoạn hoàn thành những công đoạn cuối cùng để test",
-                  phaseDescription: "Xác nhận mẫu",
-                  offerPhaseStatus: "Rework",
-                  progressCount: 0,
-                  startDate: "2025-07-27T00:00:00",
-                  endDate: "2025-07-28T00:00:00",
-                  modifyDate: "2025-07-26T14:00:00",
-                },
-                {
-                  offerPhaseID: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-                  offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-                  phase: 4,
-                  phaseName: "Giai đoạn 4",
-                  phaseDescription: "Hoàn thiện",
-                  offerPhaseStatus: "Withdrawed",
-                  progressCount: 0,
-                  startDate: "2025-07-29T00:00:00",
-                  endDate: "2025-07-30T00:00:00",
-                  modifyDate: "2025-07-28T09:00:00",
-                },
-              ],
-            },
-            {
-              order: {
-                orderID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                orderStatus: "Completed",
-                note: "Đơn số 2 test ",
-                deadlineAt: "2025-08-10T00:00:00",
-                startDate: "2025-07-10T08:00:00",
-                endDate: "2025-08-01T10:00:00",
-                createdAt: "2025-07-10T08:00:00",
-                updatedAt: "2025-08-01T10:00:00",
-              },
-              offer: {
-                offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                note: "Đơn mẫu 2",
-                offerStatus: "Completed",
-              },
-              offerPhases: [
-                {
-                  offerPhaseID: "99999999-8888-7777-6666-555555555555",
-                  offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-                  phase: 1,
-                  phaseName: "Giai đoạn đầu",
-                  phaseDescription: "Chuẩn bị",
-                  offerPhaseStatus: "Done",
-                  progressCount: 2,
-                  startDate: "2025-07-11T00:00:00",
-                  endDate: "2025-07-13T00:00:00",
-                  modifyDate: "2025-07-13T10:00:00",
-                },
-                {
-                  offerPhaseID: "88888888-7777-6666-5555-444444444444",
-                  offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-                  phase: 2,
-                  phaseName: "Thiết kế chính",
-                  phaseDescription: "Thi công mẫu",
-                  offerPhaseStatus: "Done",
-                  progressCount: 3,
-                  startDate: "2025-07-11T00:00:00",
-                  endDate: "2025-07-18T00:00:00",
-                  modifyDate: "2025-07-18T10:00:00",
-                },
-                {
-                  offerPhaseID: "77777777-6666-5555-4444-333333333333",
-                  offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-                  phase: 3,
-                  phaseName: "Bàn giao",
-                  phaseDescription: "Giao hàng",
-                  offerPhaseStatus: "Done",
-                  progressCount: 1,
-                  startDate: "2025-07-20T00:00:00",
-                  endDate: "2025-07-21T00:00:00",
-                  modifyDate: "2025-07-21T09:00:00",
-                },
-              ],
-            },
-            {
-              order: {
-                orderID: "12345678-90ab-cdef-1234-567890abcdef",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                orderStatus: "Canceled",
-                note: "Đơn số 3 test lun hehehehehe",
-                deadlineAt: "2025-08-15T00:00:00",
-                startDate: "2025-07-22T10:00:00",
-                endDate: null,
-                createdAt: "2025-07-22T10:00:00",
-                updatedAt: "2025-07-28T15:00:00",
-              },
-              offer: {
-                offerID: "12345678-90ab-cdef-1234-567890abcdef",
-                designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-                note: "Đơn huỷ do KH thay đổi",
-                offerStatus: "Withdrawed",
-              },
-              offerPhases: [
-                {
-                  offerPhaseID: "11223344-5566-7788-99aa-bbccddeeff00",
-                  offerID: "12345678-90ab-cdef-1234-567890abcdef",
-                  phase: 1,
-                  phaseName: "Tiếp nhận",
-                  phaseDescription: "Làm việc với khách hàng",
-                  offerPhaseStatus: "Done",
-                  progressCount: 1,
-                  startDate: "2025-07-23T00:00:00",
-                  endDate: "2025-07-24T00:00:00",
-                  modifyDate: "2025-07-24T12:00:00",
-                },
-                {
-                  offerPhaseID: "22334455-6677-8899-aabb-ccddeeff0011",
-                  offerID: "12345678-90ab-cdef-1234-567890abcdef",
-                  phase: 2,
-                  phaseName: "Demo",
-                  phaseDescription: "Demo ban đầu",
-                  offerPhaseStatus: "Rework",
-                  progressCount: 0,
-                  startDate: "2025-07-25T00:00:00",
-                  endDate: "2025-07-26T00:00:00",
-                  modifyDate: "2025-07-26T13:00:00",
-                },
-                {
-                  offerPhaseID: "33445566-7788-99aa-bbcc-ddeeff001122",
-                  offerID: "12345678-90ab-cdef-1234-567890abcdef",
-                  phase: 3,
-                  phaseName: "Huỷ đơn",
-                  phaseDescription: "Khách huỷ đơn",
-                  offerPhaseStatus: "Withdrawed",
-                  progressCount: 0,
-                  startDate: "2025-07-27T00:00:00",
-                  endDate: "2025-07-28T00:00:00",
-                  modifyDate: "2025-07-28T15:00:00",
-                },
-              ],
-            },
-          ],
-        },
-      };
+      // const response = {
+      //   isSuccess: true,
+      //   message: "Phản hồi thành công",
+      //   statusCode: 200,
+      //   responseRequestModel: {
+      //     progressTimelineItems: [
+      //       {
+      //         order: {
+      //           orderID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           orderStatus: "InProgress",
+      //           note: "uia ",
+      //           deadlineAt: "2025-07-31T16:59:59.999",
+      //           startDate: "2025-07-19T11:01:05.7052882",
+      //           endDate: null,
+      //           createdAt: "2025-07-19T11:01:05.7052883",
+      //           updatedAt: "2025-07-19T11:01:05.7052884",
+      //         },
+      //         offer: {
+      //           offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           note: "sinh 3",
+      //           offerStatus: "Accepted",
+      //         },
+      //         offerPhases: [
+      //           {
+      //             offerPhaseID: "b7de8a54-66de-4878-9689-ff6707812656",
+      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //             phase: 1,
+      //             phaseName: "Giai đoạn 1",
+      //             phaseDescription: "1",
+      //             offerPhaseStatus: "Done",
+      //             progressCount: 1,
+      //             startDate: "2025-07-20T00:00:00",
+      //             endDate: "2025-07-24T00:00:00",
+      //             modifyDate: "2025-07-19T11:00:47.3930968",
+      //           },
+      //           {
+      //             offerPhaseID: "11111111-2222-3333-4444-555555555555",
+      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //             phase: 2,
+      //             phaseName: "Tạo áo cho labubu sử dụng da Nappa cao cấcấp",
+      //             phaseDescription: "Thiết kế mẫu",
+      //             offerPhaseStatus: "InProgress",
+      //             progressCount: 0,
+      //             startDate: "2025-07-25T00:00:00",
+      //             endDate: "2025-07-26T00:00:00",
+      //             modifyDate: "2025-07-25T10:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "66666666-7777-8888-9999-000000000000",
+      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //             phase: 3,
+      //             phaseName:
+      //               "Giai đoạn hoàn thành những công đoạn cuối cùng để test",
+      //             phaseDescription: "Xác nhận mẫu",
+      //             offerPhaseStatus: "Rework",
+      //             progressCount: 0,
+      //             startDate: "2025-07-27T00:00:00",
+      //             endDate: "2025-07-28T00:00:00",
+      //             modifyDate: "2025-07-26T14:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
+      //             phase: 4,
+      //             phaseName: "Giai đoạn 4",
+      //             phaseDescription: "Hoàn thiện",
+      //             offerPhaseStatus: "Withdrawed",
+      //             progressCount: 0,
+      //             startDate: "2025-07-29T00:00:00",
+      //             endDate: "2025-07-30T00:00:00",
+      //             modifyDate: "2025-07-28T09:00:00",
+      //           },
+      //         ],
+      //       },
+      //       {
+      //         order: {
+      //           orderID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           orderStatus: "Completed",
+      //           note: "Đơn số 2 test ",
+      //           deadlineAt: "2025-08-10T00:00:00",
+      //           startDate: "2025-07-10T08:00:00",
+      //           endDate: "2025-08-01T10:00:00",
+      //           createdAt: "2025-07-10T08:00:00",
+      //           updatedAt: "2025-08-01T10:00:00",
+      //         },
+      //         offer: {
+      //           offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           note: "Đơn mẫu 2",
+      //           offerStatus: "Completed",
+      //         },
+      //         offerPhases: [
+      //           {
+      //             offerPhaseID: "99999999-8888-7777-6666-555555555555",
+      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
+      //             phase: 1,
+      //             phaseName: "Giai đoạn đầu",
+      //             phaseDescription: "Chuẩn bị",
+      //             offerPhaseStatus: "Done",
+      //             progressCount: 2,
+      //             startDate: "2025-07-11T00:00:00",
+      //             endDate: "2025-07-13T00:00:00",
+      //             modifyDate: "2025-07-13T10:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "88888888-7777-6666-5555-444444444444",
+      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
+      //             phase: 2,
+      //             phaseName: "Thiết kế chính",
+      //             phaseDescription: "Thi công mẫu",
+      //             offerPhaseStatus: "Done",
+      //             progressCount: 3,
+      //             startDate: "2025-07-11T00:00:00",
+      //             endDate: "2025-07-18T00:00:00",
+      //             modifyDate: "2025-07-18T10:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "77777777-6666-5555-4444-333333333333",
+      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
+      //             phase: 3,
+      //             phaseName: "Bàn giao",
+      //             phaseDescription: "Giao hàng",
+      //             offerPhaseStatus: "Done",
+      //             progressCount: 1,
+      //             startDate: "2025-07-20T00:00:00",
+      //             endDate: "2025-07-21T00:00:00",
+      //             modifyDate: "2025-07-21T09:00:00",
+      //           },
+      //         ],
+      //       },
+      //       {
+      //         order: {
+      //           orderID: "12345678-90ab-cdef-1234-567890abcdef",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           orderStatus: "Canceled",
+      //           note: "Đơn số 3 test lun hehehehehe",
+      //           deadlineAt: "2025-08-15T00:00:00",
+      //           startDate: "2025-07-22T10:00:00",
+      //           endDate: null,
+      //           createdAt: "2025-07-22T10:00:00",
+      //           updatedAt: "2025-07-28T15:00:00",
+      //         },
+      //         offer: {
+      //           offerID: "12345678-90ab-cdef-1234-567890abcdef",
+      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
+      //           note: "Đơn huỷ do KH thay đổi",
+      //           offerStatus: "Withdrawed",
+      //         },
+      //         offerPhases: [
+      //           {
+      //             offerPhaseID: "11223344-5566-7788-99aa-bbccddeeff00",
+      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
+      //             phase: 1,
+      //             phaseName: "Tiếp nhận",
+      //             phaseDescription: "Làm việc với khách hàng",
+      //             offerPhaseStatus: "Done",
+      //             progressCount: 1,
+      //             startDate: "2025-07-23T00:00:00",
+      //             endDate: "2025-07-24T00:00:00",
+      //             modifyDate: "2025-07-24T12:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "22334455-6677-8899-aabb-ccddeeff0011",
+      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
+      //             phase: 2,
+      //             phaseName: "Demo",
+      //             phaseDescription: "Demo ban đầu",
+      //             offerPhaseStatus: "Rework",
+      //             progressCount: 0,
+      //             startDate: "2025-07-25T00:00:00",
+      //             endDate: "2025-07-26T00:00:00",
+      //             modifyDate: "2025-07-26T13:00:00",
+      //           },
+      //           {
+      //             offerPhaseID: "33445566-7788-99aa-bbcc-ddeeff001122",
+      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
+      //             phase: 3,
+      //             phaseName: "Huỷ đơn",
+      //             phaseDescription: "Khách huỷ đơn",
+      //             offerPhaseStatus: "Withdrawed",
+      //             progressCount: 0,
+      //             startDate: "2025-07-27T00:00:00",
+      //             endDate: "2025-07-28T00:00:00",
+      //             modifyDate: "2025-07-28T15:00:00",
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //   },
+      // };
 
-      // const timelineResponse = await designerService.getTimeline({
-      //   designerID,
-      // });
+      const timelineResponse = await designerService.getTimeline({
+        designerID,
+      });
 
-      if (response?.responseRequestModel?.progressTimelineItems) {
+      if (timelineResponse?.responseRequestModel?.progressTimelineItems) {
         const timelineEvents: TimelineEvent[] = [];
         const orderColorMap = new Map<string, string>();
 
         // Tạo map màu sắc cho từng đơn hàng
-        response.responseRequestModel.progressTimelineItems.forEach(
+        timelineResponse.responseRequestModel.progressTimelineItems.forEach(
           (item, index) => {
             const colorIndex = index % ORDER_COLORS.length;
             orderColorMap.set(item.order.orderID, ORDER_COLORS[colorIndex]);
           }
         );
 
-        response.responseRequestModel.progressTimelineItems.forEach((item) => {
-          item.offerPhases.forEach((phase) => {
-            const status = phase.offerPhaseStatus as
-              | "Done"
-              | "InProgress"
-              | "Rework"
-              | "Withdrawed";
+        timelineResponse.responseRequestModel.progressTimelineItems.forEach(
+          (item) => {
+            item.offerPhases.forEach((phase) => {
+              const status = phase.offerPhaseStatus as
+                | "Done"
+                | "InProgress"
+                | "Rework"
+                | "Withdrawed";
 
-            timelineEvents.push({
-              id: phase.offerPhaseID,
-              title: `${item.order.note}`,
-              startDate: new Date(phase.startDate),
-              endDate: new Date(phase.endDate),
-              status: status,
-              orderID: item.order.orderID,
-              phaseName: phase.phaseName,
-              note: item.order.note,
-              color: STATUS_COLORS[status], // Giữ lại cho status badge
-              orderColor:
-                orderColorMap.get(item.order.orderID) || ORDER_COLORS[0], // Màu theo đơn hàng
+              timelineEvents.push({
+                id: phase.offerPhaseID,
+                title: `${item.order.note}`,
+                startDate: new Date(phase.startDate),
+                endDate: new Date(phase.endDate),
+                status: status,
+                orderID: item.order.orderID,
+                phaseName: phase.phaseName,
+                note: item.order.note,
+                color: STATUS_COLORS[status], // Giữ lại cho status badge
+                orderColor:
+                  orderColorMap.get(item.order.orderID) || ORDER_COLORS[0], // Màu theo đơn hàng
+              });
             });
-          });
-        });
+          }
+        );
 
         setEvents(timelineEvents);
       }
@@ -528,24 +708,71 @@ export default function DesignerTimeline({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Panel - Data and Legend */}
         <div className="lg:col-span-1 space-y-4">
+          {/* Thống kê tổng quan */}
+
+          <Card className="flex items-center justify-center mb-4">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Lịch trình của nhà thiết kế
+              </h2>
+              <p className="text-sm text-gray-600">
+                Xem lịch trình và tiến độ các đơn hàng của bạn
+              </p>
+            </div>
+          </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Trạng thái</CardTitle>
+              <CardTitle className="text-lg">Thống kê tổng quan</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="space-y-2">
-                  {Object.entries(STATUS_LABELS)
-                    .filter(([status]) => status !== "Withdrawed")
-                    .map(([status, label]) => (
-                      <div
-                        key={status}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        {getStatusIcon(status as TimelineEvent["status"])}
-                        <span>{label}</span>
-                      </div>
-                    ))}
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm text-gray-600">
+                      Tổng đơn hàng:
+                    </span>
+                  </div>
+                  <Badge variant="secondary" className="font-semibold">
+                    {
+                      Array.from(new Set(events.map((event) => event.orderID)))
+                        .length
+                    }
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-gray-600">
+                      Giai đoạn hoàn thành:
+                    </span>
+                  </div>
+                  <Badge className="bg-green-500 text-white font-semibold">
+                    {events.filter((event) => event.status === "Done").length}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm text-gray-600">
+                      Đang thực hiện:
+                    </span>
+                  </div>
+                  <Badge className="bg-yellow-500 text-white font-semibold">
+                    {
+                      events.filter((event) => event.status === "InProgress")
+                        .length
+                    }
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 text-red-500" />
+                    <span className="text-sm text-gray-600">Cần làm lại:</span>
+                  </div>
+                  <Badge className="bg-red-500 text-white font-semibold">
+                    {events.filter((event) => event.status === "Rework").length}
+                  </Badge>
                 </div>
               </div>
             </CardContent>
@@ -588,23 +815,10 @@ export default function DesignerTimeline({
         </div>
 
         {/* Right Panel - FullCalendar */}
-        <div className="lg:col-span-3">
-          <Card>
-            {/* <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    Lịch trình của nhà thiết kế
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    Xem lịch trình và tiến độ các đơn hàng của bạn
-                  </p>
-                </div>
-              </div>
-            </CardHeader> */}
-
+        <div className="lg:col-span-3 ">
+          <Card className="mt-0">
             <CardContent>
-              <div className="h-[700px]">
+              <div className="h-[700px] uppercase-title mt-0">
                 <FullCalendar
                   plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
                   initialView="dayGridMonth"
@@ -616,9 +830,8 @@ export default function DesignerTimeline({
                     week: "Tuần",
                   }}
                   headerToolbar={{
-                    left: "prev,next",
-                    center: "title",
-                    right: "today",
+                    left: "title",
+                    right: "today prev,next",
                   }}
                   events={fullCalendarEvents}
                   eventClick={handleEventClick}
@@ -633,6 +846,8 @@ export default function DesignerTimeline({
                   height="100%"
                   dayMaxEvents={false}
                   moreLinkClick="popover"
+                  fixedWeekCount={false}
+                  showNonCurrentDates={false}
                   eventClassNames={(arg) => {
                     const classes = [
                       "cursor-pointer",
