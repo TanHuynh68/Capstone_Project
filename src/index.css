@@ -520,3 +520,9 @@ input[type="color"].circle-color-picker::-moz-color-swatch {
   top: 0 !important;
   margin-top: 0 !important;
 }
+
+/* FullCalendar title uppercase styling */
+.uppercase-title .fc-toolbar-title {
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}
