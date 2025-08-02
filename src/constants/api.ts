@@ -26,6 +26,7 @@ export const enum API_ENDPOINTS {
   REPORT = "report",
   CHAT_AI = "AI",
   FEEDBACK = "feedback",
+   DASHBOARD = "dashboard",
 }
 
 export enum API_ROUTES {
@@ -185,4 +186,6 @@ export enum API_ROUTES {
   GET_FEEDBACKS_DESIGNER = `${API_ENDPOINTS.FEEDBACK}/designer`,
   // Designer
   GET_TIMELINE = `${API_ENDPOINTS.PROGRESS}/timeline`,
+   // Dashboard
+  GET_DASHBOARD = `${API_ENDPOINTS.DASHBOARD}`,
 }

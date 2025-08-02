@@ -6,7 +6,6 @@ import {
     FileIcon,
     FileTextIcon,
     HelpCircleIcon,
-    LayoutDashboardIcon,
     SearchIcon,
     SettingsIcon,
     UsersIcon,
@@ -17,11 +16,11 @@ import { PATH } from "@/routes/path";
 
 export const staffSidebarData = {
     navMain: [
-        {
-            title: "Dashboard",
-            url: `${PATH.STAFF_DASHBOARD}`,
-            icon: LayoutDashboardIcon,
-        },
+        // {
+        //     title: "Dashboard",
+        //     url: `${PATH.STAFF_DASHBOARD}`,
+        //     icon: LayoutDashboardIcon,
+        // },
          {
             title: "Quản lý bài đăng",
             url: `${PATH.STAFF_MANAGE_POSTS}`,

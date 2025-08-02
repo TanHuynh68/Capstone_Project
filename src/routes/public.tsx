@@ -20,7 +20,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
       case ROLE.CUSTOMER:
         return <Navigate to={PATH.HOME} replace />;
       case ROLE.STAFF:
-        return <Navigate to={PATH.STAFF_DASHBOARD} replace />;
+        return <Navigate to={PATH.STAFF_DASHBOARD_MANAGER_USERS} replace />;
       case ROLE.DESIGNER:
         return <Navigate to={PATH.HOME} replace />;
       case ROLE.ADMIN:

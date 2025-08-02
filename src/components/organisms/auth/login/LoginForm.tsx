@@ -90,23 +90,6 @@ export function LoginForm({
               <div className="flex flex-col gap-6 pt-12 pb-12">
                 <div className="flex flex-col items-center text-center">
                   <LogoWeb logoSize={{ width: 260, height: 50 }} />
-                  {/* <div className="inline-flex items-center text-2xl font-bold gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-[800px]">
-                    <AnimatedText
-                      texts={[
-                        "Rất vui khi gặp lại bạn! 😊",
-                        "Cùng tạo điều đáng yêu! 🧸",
-                        "Chúc bạn luôn vui vẻ! 🌞",
-                        // "Labubu lên đồ – bạn là stylist pro! 😎",
-                      ]}
-                      speed={80}
-                      eraseSpeed={40}
-                      delayBetweenTexts={1000}
-                      delayBetweenLoops={1500}
-                    />
-
-                    <span className="cursor">|</span>
-                  </div> */}
-
                   <p className="text-balance text-muted-foreground mt-2">
                     Đăng nhập tài khoản PlushDollCustom
                   </p>
