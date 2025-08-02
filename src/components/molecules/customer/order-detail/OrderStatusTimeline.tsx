@@ -273,9 +273,9 @@ export default function OrderStatusTimeline({
 
       {/* Status Description */}
       <div className="mt-4 text-center">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm ">
           Trạng thái hiện tại:{" "}
-          <span className="font-semibold text-gray-900">
+          <span className="font-bold  text-green-600 ">
             {mainStatuses.find((s) => s.key === currentStatus)?.label ||
               (currentStatus === "DesignerRejected"
                 ? "Nhà thiết kế từ chối"

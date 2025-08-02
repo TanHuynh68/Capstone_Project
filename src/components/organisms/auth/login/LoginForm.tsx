@@ -89,7 +89,7 @@ export function LoginForm({
             >
               <div className="flex flex-col gap-6 pt-12 pb-12">
                 <div className="flex flex-col items-center text-center">
-                  <LogoWeb logoSize={{ width: 260, height: 50 }} />
+                  <LogoWeb path={PATH.HOME} logoSize={{ width: 260, height: 50 }} />
                   <p className="text-balance text-muted-foreground mt-2">
                     Đăng nhập tài khoản PlushDollCustom
                   </p>

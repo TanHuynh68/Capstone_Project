@@ -57,7 +57,6 @@ export default function OrderManagementTemplate({
   fetchOrdersDeposited,
   fetchDepositTransaction,
 }: OrderManagementTemplateProps) {
-  console.log("OrderManagementTemplate: ", progressStep);
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluatingStepId, setEvaluatingStepId] = useState<string | null>(null);
@@ -180,7 +179,7 @@ export default function OrderManagementTemplate({
   };
 
   return (
-    <div className="bg-gray-50 p-4 overflow-y-auto">
+    <div className=" p-4 overflow-y-auto">
       <ActivityLogDialog
         open={activityLogOpen}
         onOpenChange={setActivityLogOpen}
@@ -192,7 +191,7 @@ export default function OrderManagementTemplate({
       {/* Main content */}
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Order Status Timeline */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className=" rounded-lg shadow-sm border p-6">
           <OrderStatusTimeline
             userRole={currentUser.role}
             currentStatus={orderDetail.order.orderStatus as any}
@@ -202,7 +201,7 @@ export default function OrderManagementTemplate({
         {/* Existing grid layout */}
         <div className="grid grid-cols-2 gap-6">
           {/* Left Panel - 50% width */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className=" rounded-lg shadow-sm border p-6">
             <LeftPanel
               fetchDepositTransaction={fetchDepositTransaction}
               orderDetail={orderDetail}
@@ -221,7 +220,7 @@ export default function OrderManagementTemplate({
           >
             {/* Top Right Panel - Giai đoạn thực hiện (ẩn khi đánh giá) */}
             <div
-              className={`bg-white rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform max-h-[292px] ${
+              className={` rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform max-h-[292px] ${
                 isEvaluating
                   ? "opacity-0 scale-95 -translate-y-4 h-0 overflow-hidden p-0 border-0"
                   : "opacity-100 scale-100 translate-y-0 flex-1 p-6"
@@ -245,7 +244,7 @@ export default function OrderManagementTemplate({
 
             {/* Bottom Right Panel - Tiến độ thực hiện (mở rộng khi đánh giá) */}
             <div
-              className={`bg-white rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform   ${
+              className={` rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform   ${
                 isEvaluating
                   ? "flex-1 opacity-100 scale-100 translate-y-0"
                   : "flex-1 opacity-100 scale-100 translate-y-0"

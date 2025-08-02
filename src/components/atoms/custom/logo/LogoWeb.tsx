@@ -4,17 +4,20 @@ import { useNavigate } from "react-router-dom";
 interface LogoProps {
   logoSize?: { width: number; height: number };
   className?: string;
+  path: string;
 }
 
 const Logo: React.FC<LogoProps> = ({
   logoSize = { width: 280, height: 70 },
   className = "",
+  path
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate("/");
+  const handleClick = (path: string) => {
+    console.log('navigate: ', path)
+    navigate(path);
   };
 
   return (
@@ -22,7 +25,7 @@ const Logo: React.FC<LogoProps> = ({
       className={`flex items-center cursor-pointer ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
+      onClick={()=>handleClick(path)}
       style={{
         width: `${logoSize.width}px`,
         height: `${logoSize.height}px`,
