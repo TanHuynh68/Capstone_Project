@@ -80,7 +80,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
               >
                 <div className="flex flex-col gap-4 pt-4 pb-4">
                   <div className="flex flex-col items-center text-center">
-                    <LogoWeb logoSize={{ width: 260, height: 50 }} />
+                    <LogoWeb path={PATH.HOME} logoSize={{ width: 260, height: 50 }} />
                     <p className="text-balance text-muted-foreground mt-2">
                       Đăng ký tài khoản PlushDollCustom
                     </p>

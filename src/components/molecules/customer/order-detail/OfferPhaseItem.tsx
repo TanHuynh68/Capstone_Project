@@ -40,7 +40,7 @@ export default function OfferPhaseItem({
   };
 
   const handleCreateClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
+    e.stopPropagation();
     setIsCreateDialogOpen(true);
   };
 
@@ -55,22 +55,20 @@ export default function OfferPhaseItem({
     <div className="p-1">
       <Card
         className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-          isSelected ? "ring-2 ring-blue-500 bg-blue-50" : "hover:bg-gray-50"
+          isSelected ? "ring-2 ring-blue-500 " : ""
         }`}
         onClick={onClick}
       >
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-2">
             <div className="flex gap-2 flex-1 items-center">
-              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-blue-500 text-gray-800">
+              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-primary">
                 {phase.phase}
               </span>
-              <p className="text-sm text-gray-600">{phase.phaseName}</p>
+              <p className="text-sm">{phase.phaseName}</p>
             </div>
             <div className="flex items-center gap-2">
-              {/* display phase status */}
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
-              {/* create new progress step button by designer */}
               {currentUser?.role === ROLE.DESIGNER &&
                 (phase.offerPhaseStatus === "Withdrawed" ||
                   phase.offerPhaseStatus === "InProgress" ||
@@ -91,25 +89,23 @@ export default function OfferPhaseItem({
           {phase.phaseDescription && (
             <div className="mb-3">
               <div className="flex items-center gap-1 mb-1">
-                <FileText className="h-3 w-3 text-gray-500" />
-                <span className="text-xs text-gray-500">Mô tả:</span>
+                <FileText className="h-3 w-3" />
+                <span className="text-xs">Mô tả:</span>
               </div>
-              <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                {phase.phaseDescription}
-              </p>
+              <p className="text-xs p-2 rounded">{phase.phaseDescription}</p>
             </div>
           )}
 
           <div className="flex justify-between">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs">
               <Calendar className="h-3 w-3" />
               <span>
                 {formatDate(phase.startDate)} - {formatDate(phase.endDate)}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-3 w-3 text-gray-500" />
-              <span className="text-sm font-medium text-green-600">
+              <DollarSign className="h-3 w-3" />
+              <span className="text-sm font-medium">
                 {formatCurrencyVND(phase.offerPhasePrice)}
               </span>
             </div>
@@ -117,7 +113,6 @@ export default function OfferPhaseItem({
         </CardContent>
       </Card>
 
-      {/* Create Progress Step Dialog */}
       <CreateProgressStepDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}

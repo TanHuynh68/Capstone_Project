@@ -138,7 +138,7 @@ const InfoAboutTheConversationTab = ({
       default:
         return (
           <div key={`default-${animationKey}`} className={baseClasses}>
-            <div className="p-8 text-center text-gray-400 bg-gray-50 rounded-lg">
+            <div className="p-8 text-center text-gray-400 rounded-lg">
               <div className="text-lg font-medium mb-2">Chọn một mục</div>
               <div className="text-sm">
                 Vui lòng chọn một mục từ menu bên trái

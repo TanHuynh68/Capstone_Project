@@ -118,7 +118,7 @@ export default function ChatMessage({
             className={cn(
               "rounded-lg px-3 py-2",
               isCurrentUser
-                ? "bg-blue-500 text-white rounded-br-sm"
+                ? "bg-primary text-white rounded-br-sm"
                 : "bg-gray-200 text-gray-900 rounded-bl-sm",
               // Điều chỉnh padding cho các loại tin nhắn khác nhau
               messageType?.toLowerCase() === "image" ? "p-1" : "px-3 py-2",

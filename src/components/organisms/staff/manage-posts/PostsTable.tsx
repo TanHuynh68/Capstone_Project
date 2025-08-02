@@ -160,45 +160,47 @@ const PostsTable: React.FC<PostsTableProps> = ({
       accessorKey: "projectPostID",
       className: "text-center",
       cell: (row) => (
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => actions.onViewDetail(row)}
-            className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
-            title="Xem chi tiết"
-          >
-            <Eye className="h-3 w-3" />
-            Chi tiết
-          </button>
-          {/* Chỉ hiển thị nút toggle khi postStatus là 0 hoặc 1 */}
-          {(row.postStatus === 0 || row.postStatus === 1) && (
+        <div className="flex justify-center">
+          <div className="flex gap-1 w-[180px]">
             <button
-              onClick={() => actions.onToggleStatus(row)}
-              className={`px-3 py-1 rounded text-sm flex items-center gap-1 transition-colors ${
-                row.postStatus === 1
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-green-500 text-white hover:bg-green-600"
-              }`}
-              title={row.postStatus === 1 ? "Vô hiệu hóa" : "Kích hoạt"}
+              onClick={() => actions.onViewDetail(row)}
+              className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
+              title="Xem chi tiết"
             >
-              {row.postStatus === 1 ? (
-                <>
-                  <PowerOff className="h-3 w-3" />
-                  Vô hiệu hóa
-                </>
-              ) : (
-                <>
-                  <Power className="h-3 w-3" />
-                  Kích hoạt
-                </>
-              )}
+              <Eye className="h-3 w-3" />
+              Chi tiết
             </button>
-          )}
+            {/* Chỉ hiển thị nút toggle khi postStatus là 0 hoặc 1 */}
+            {(row.postStatus === 0 || row.postStatus === 1) && (
+              <button
+                onClick={() => actions.onToggleStatus(row)}
+                className={`px-3 py-1 rounded text-sm flex items-center gap-1 transition-colors ${
+                  row.postStatus === 1
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+                title={row.postStatus === 1 ? "Vô hiệu hóa" : "Kích hoạt"}
+              >
+                {row.postStatus === 1 ? (
+                  <>
+                    <PowerOff className="h-3 w-3" />
+                    Vô hiệu hóa
+                  </>
+                ) : (
+                  <>
+                    <Power className="h-3 w-3" />
+                    Kích hoạt
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       ),
     },
   ];
-  console.log('currentPage: ', currentPage)
-  console.log('totalPages: ', totalPages)
+  console.log("currentPage: ", currentPage);
+  console.log("totalPages: ", totalPages);
   return (
     <div className="space-y-4">
       {/* Thông tin tổng quan */}
