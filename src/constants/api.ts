@@ -26,6 +26,7 @@ export const enum API_ENDPOINTS {
   REPORT = "report",
   CHAT_AI = "AI",
   FEEDBACK = "feedback",
+   DASHBOARD = "dashboard",
 }
 
 export enum API_ROUTES {
@@ -115,7 +116,7 @@ export enum API_ROUTES {
   DELETE_POST = `${API_ENDPOINTS.PROJECT_POST}`,
   DISABLE_POST = `${API_ENDPOINTS.PROJECT_POST}/disable`,
   ENABLE_POST = `${API_ENDPOINTS.PROJECT_POST}/enable`,
-  STAFF_GET_POSTS_ALL = `${API_ENDPOINTS.PROJECT_POST}/all?page=1&size=100`,
+  STAFF_GET_POSTS_ALL = `${API_ENDPOINTS.PROJECT_POST}/all?page=1&size=10`,
   //Chat
   CREATE_CHAT = `${API_ENDPOINTS.CHAT}`,
   CREATE_CHAT_ROOM = `${API_ENDPOINTS.CHAT}/room`,
@@ -185,4 +186,6 @@ export enum API_ROUTES {
   GET_FEEDBACKS_DESIGNER = `${API_ENDPOINTS.FEEDBACK}/designer`,
   // Designer
   GET_TIMELINE = `${API_ENDPOINTS.PROGRESS}/timeline`,
+   // Dashboard
+  GET_DASHBOARD = `${API_ENDPOINTS.DASHBOARD}`,
 }

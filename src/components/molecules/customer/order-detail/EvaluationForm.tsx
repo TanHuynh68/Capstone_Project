@@ -1,18 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Star, Send, X } from "lucide-react"
-import type { EvaluationCriteria } from "@/types/orderManagement"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Star, Send, X } from "lucide-react";
+import type { EvaluationCriteria } from "@/types/orderManagement";
 
 interface EvaluationFormProps {
-  onSubmit: (criteria: EvaluationCriteria) => void
-  onCancel: () => void
+  onSubmit: (criteria: EvaluationCriteria) => void;
+  onCancel: () => void;
 }
 
-export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
+export default function EvaluationForm({
+  onSubmit,
+  onCancel,
+}: EvaluationFormProps) {
   const [criteria, setCriteria] = useState<EvaluationCriteria>({
     qualityScore: 0,
     isDesignAccurate: false,
@@ -20,15 +23,18 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
     isColorCorrect: false,
     isFunctionalityMet: false,
     customerComment: "",
-  })
+  });
 
   const handleStarClick = (rating: number) => {
-    setCriteria((prev) => ({ ...prev, qualityScore: rating }))
-  }
+    setCriteria((prev) => ({ ...prev, qualityScore: rating }));
+  };
 
-  const handleCriteriaChange = (key: keyof EvaluationCriteria, value: boolean) => {
-    setCriteria((prev) => ({ ...prev, [key]: value }))
-  }
+  const handleCriteriaChange = (
+    key: keyof EvaluationCriteria,
+    value: boolean
+  ) => {
+    setCriteria((prev) => ({ ...prev, [key]: value }));
+  };
 
   const calculateTotalScore = () => {
     const booleanCriteria = [
@@ -36,28 +42,30 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
       criteria.isMaterialCorrect,
       criteria.isColorCorrect,
       criteria.isFunctionalityMet,
-    ]
-    const booleanScore = booleanCriteria.filter(Boolean).length * 5 // Each boolean criterion is worth 5 points
-    const qualityScore = criteria.qualityScore * 2 // 5 stars * 2 = 10 points
-    return Math.min(booleanScore + qualityScore, 30) // Total score capped at 30
-  }
+    ];
+    const booleanScore = booleanCriteria.filter(Boolean).length * 5; // Each boolean criterion is worth 5 points
+    const qualityScore = criteria.qualityScore * 2; // 5 stars * 2 = 10 points
+    return Math.min(booleanScore + qualityScore, 30); // Total score capped at 30
+  };
 
   const handleSubmit = () => {
-    onSubmit(criteria)
-  }
+    onSubmit(criteria);
+  };
 
   const criteriaItems = [
     { key: "isDesignAccurate" as const, label: "Thiết kế chính xác" },
     { key: "isMaterialCorrect" as const, label: "Chất liệu đúng yêu cầu" },
     { key: "isColorCorrect" as const, label: "Màu sắc chính xác" },
     { key: "isFunctionalityMet" as const, label: "Đáp ứng chức năng" },
-  ]
+  ];
 
   return (
-    <Card className="h-full">
+    <Card className="h-full pb-0">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Tiêu chí đánh giá</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Tiêu chí đánh giá
+          </CardTitle>
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <X className="h-4 w-4" />
           </Button>
@@ -65,8 +73,10 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Quality Score */}
-        <div>
-          <label className="text-sm font-medium mb-2 block">Chất lượng tổng thể</label>
+        <div className="flex justify-between items-center">
+          <label className="text-sm font-medium mb- ">
+            Chất lượng tổng thể
+          </label>
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -76,12 +86,16 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
               >
                 <Star
                   className={`h-6 w-6 ${
-                    star <= criteria.qualityScore ? "text-yellow-500 fill-current" : "text-gray-300"
+                    star <= criteria.qualityScore
+                      ? "text-yellow-500 fill-current"
+                      : "text-gray-300"
                   }`}
                 />
               </button>
             ))}
-            <span className="ml-2 text-sm text-gray-600">({criteria.qualityScore}/5)</span>
+            <span className="ml-2 text-sm text-gray-600">
+              ({criteria.qualityScore}/5)
+            </span>
           </div>
         </div>
 
@@ -118,25 +132,40 @@ export default function EvaluationForm({ onSubmit, onCancel }: EvaluationFormPro
           <Textarea
             placeholder="Nhập nhận xét của bạn..."
             value={criteria.customerComment}
-            onChange={(e) => setCriteria((prev) => ({ ...prev, customerComment: e.target.value }))}
+            onChange={(e) =>
+              setCriteria((prev) => ({
+                ...prev,
+                customerComment: e.target.value,
+              }))
+            }
             rows={3}
           />
         </div>
 
-        {/* Total Score */}
-        <div className="bg-blue-50 rounded-lg p-3">
-          <div className="flex items-center justify-between">
+        <div className="grid grid-cols-2 gap-2">
+          {/* Total Score */}
+          <div className="bg-blue-50 rounded-lg px-3 py-3 flex items-center justify-between">
             <span className="font-medium">Tổng điểm:</span>
-            <span className="text-xl font-bold text-blue-600">{calculateTotalScore()}/30</span>
+            <span
+              className={`text-xl font-bold  ${
+                calculateTotalScore() >= 25 ? "text-blue-600" : "text-red-600"
+              }`}
+            >
+              {calculateTotalScore()}/30
+            </span>
           </div>
-        </div>
 
-        {/* Submit Button */}
-        <Button className="w-full" onClick={handleSubmit} disabled={criteria.qualityScore === 0}>
-          <Send className="h-4 w-4 mr-2" />
-          Gửi đánh giá
-        </Button>
+          {/* Submit Button */}
+          <Button
+            className="w-full h-full flex items-center justify-center"
+            onClick={handleSubmit}
+            disabled={criteria.qualityScore === 0}
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Gửi đánh giá
+          </Button>
+        </div>
       </CardContent>
     </Card>
-  )
+  );
 }

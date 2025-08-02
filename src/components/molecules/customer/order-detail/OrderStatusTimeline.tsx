@@ -9,6 +9,10 @@ import {
   ArrowLeft,
   Flag,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ROLE } from "@/constants";
+import { useNavigate } from "react-router-dom";
+import { USER_ROUTES } from "@/routes/path";
 
 type OrderStatus =
   | "Created"
@@ -23,6 +27,7 @@ type OrderStatus =
 
 interface OrderStatusTimelineProps {
   currentStatus: OrderStatus;
+  userRole: any;
 }
 
 interface StatusStep {
@@ -67,7 +72,9 @@ const mainStatuses: StatusStep[] = [
 
 export default function OrderStatusTimeline({
   currentStatus,
+  userRole,
 }: OrderStatusTimelineProps) {
+  const navigate = useNavigate()
   const getStatusInfo = (status: OrderStatus) => {
     const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
     const isMainStatus = mainStatusIndex !== -1;
@@ -175,6 +182,38 @@ export default function OrderStatusTimeline({
     return null;
   };
 
+  const getDeliveryButtonText = () => {
+    // Khi status là "Created" và role là CUSTOMER
+    if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
+      return "Giao hàng cho NTK";
+    }
+
+    // Khi status là "Completed" và role là DESIGNER
+    if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
+      return "Giao hàng cho KH";
+    }
+
+    return "";
+  };
+  const handleNavigateToProfile = (tab?: string) => {
+    navigate(`/${USER_ROUTES.PROFILE}`, {
+      state: { activeTab: tab },
+    });
+  };
+  const handleDeliveryClick = () => {
+    // Khi status là "Created" và role là CUSTOMER → giao hàng cho designer
+    if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
+      handleNavigateToProfile('delivery')
+      return;
+    }
+
+    // Khi status là "Completed" và role là DESIGNER → giao hàng cho customer
+    if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
+     handleNavigateToProfile('delivery')
+      return;
+    }
+  };
+
   return (
     <div className="w-full py-6">
       <div className="flex items-center justify-between relative">
@@ -234,9 +273,9 @@ export default function OrderStatusTimeline({
 
       {/* Status Description */}
       <div className="mt-4 text-center">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm ">
           Trạng thái hiện tại:{" "}
-          <span className="font-semibold text-gray-900">
+          <span className="font-bold  text-green-600 ">
             {mainStatuses.find((s) => s.key === currentStatus)?.label ||
               (currentStatus === "DesignerRejected"
                 ? "Nhà thiết kế từ chối"
@@ -248,6 +287,20 @@ export default function OrderStatusTimeline({
           </span>
         </div>
       </div>
+
+      {/* Delivery Button - Hiển thị phía dưới status description */}
+      {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
+        (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
+        <div className="mt-4 text-center">
+          <Button
+            size="sm"
+            onClick={handleDeliveryClick}
+            className="text-sm px-4 py-2 h-9 bg-green-600 hover:bg-green-700 text-white"
+          >
+            {getDeliveryButtonText()}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

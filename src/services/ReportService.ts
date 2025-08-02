@@ -7,7 +7,6 @@ const ReportService = () => {
   const getReportsByStaff = async (query: ReportsApiQuery) => {
     try {
       const params = new URLSearchParams()
-
       if (query.search) params.append("search", query.search)
       if (query.reportType !== undefined) params.append("reportType", query.reportType.toString())
       if (query.reportStatus !== undefined) params.append("reportStatus", query.reportStatus.toString())

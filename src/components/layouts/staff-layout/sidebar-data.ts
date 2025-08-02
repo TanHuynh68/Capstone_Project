@@ -6,7 +6,6 @@ import {
     FileIcon,
     FileTextIcon,
     HelpCircleIcon,
-    LayoutDashboardIcon,
     SearchIcon,
     SettingsIcon,
     UsersIcon,
@@ -17,20 +16,20 @@ import { PATH } from "@/routes/path";
 
 export const staffSidebarData = {
     navMain: [
-        {
-            title: "Dashboard",
-            url: `${PATH.STAFF_DASHBOARD}`,
-            icon: LayoutDashboardIcon,
-        },
-         {
-            title: "Quản lý bài đăng",
-            url: `${PATH.STAFF_MANAGE_POSTS}`,
-            icon: BookOpen,
-        },
+        // {
+        //     title: "Dashboard",
+        //     url: `${PATH.STAFF_DASHBOARD}`,
+        //     icon: LayoutDashboardIcon,
+        // },
         {
             title: "Quản lý người dùng",
             url: `${PATH.STAFF_DASHBOARD_MANAGER_USERS}`,
             icon: UsersIcon,
+        },
+        {
+            title: "Quản lý bài đăng",
+            url: `${PATH.STAFF_MANAGE_POSTS}`,
+            icon: BookOpen,
         },
         {
             title: "Quản lý tố cáo",
@@ -47,7 +46,7 @@ export const staffSidebarData = {
             url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
             icon: ClipboardListIcon,
         },
-        
+
     ],
     navClouds: [
         {

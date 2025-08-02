@@ -38,6 +38,7 @@ import { MESSAGE } from "@/constants";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 import { staffSidebarData } from "./sidebar-data";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
+import { PATH } from "@/routes/path";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const dispatch = useDispatch();
@@ -55,16 +56,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
-            </SidebarMenuButton> */}
-            <LogoWeb logoSize={{ width: 220, height: 50 }} />
+            <LogoWeb
+              path={PATH.STAFF_DASHBOARD_MANAGER_USERS}
+              logoSize={{ width: 220, height: 50 }}
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

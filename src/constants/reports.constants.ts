@@ -19,7 +19,7 @@ export const REPORT_STATUSES = [
   { value: "3", label: "Đã từ chối" },
 ];
 
-export const PAGE_SIZE = 1000;
+export const PAGE_SIZE = 10;
 
 export const STATUS_MAPPING = {
   pending: 0,

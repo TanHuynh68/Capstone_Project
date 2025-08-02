@@ -78,7 +78,7 @@ export function Navbar() {
         {/* Logo */}
         <div className="flex gap-2 items-center">
           <Link to={PATH.HOME} className="flex items-center space-x-2">
-            <DualLogo />
+            <DualLogo path={PATH.HOME} />
           </Link>
           <div className="grid grid-cols-2 gap-20">
             <div>

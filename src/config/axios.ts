@@ -35,7 +35,6 @@ axiosInstance.interceptors.response.use(
       }
 
       if (isAuthError && !isLoginRequest && token) {
-
         if (!isTokenExpired) {
           isTokenExpired = true;
           toast.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!');

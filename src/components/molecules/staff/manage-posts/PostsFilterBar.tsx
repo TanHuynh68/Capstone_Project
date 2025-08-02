@@ -36,9 +36,7 @@ const PostsFilterBar: React.FC<PostsFilterBarProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-      <h1 className="text-2xl font-bold text-gray-900">Quản lý bài đăng</h1>
-
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
       <div className="flex flex-col sm:flex-row gap-2 items-center">
         <div className="relative w-full max-w-xs">
           <Input

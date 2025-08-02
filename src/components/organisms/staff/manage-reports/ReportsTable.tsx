@@ -1,20 +1,26 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { DataTable, type Column } from "@/components/organisms/manager-withdrawal-by-staff"
-import { getReportStatusBadge, getReportTypeBadge } from "@/components/atoms/manage-reports/BadgeUtils"
-import { formatFullDateWithDistance2 } from "@/utils/date"
-import { PAGE_SIZE } from "@/constants/reports.constants"
-import { highlightMatch } from "@/utils/reports.utils"
-import { Eye, Settings } from "lucide-react"
+import type React from "react";
+import {
+  DataTable,
+  type Column,
+} from "@/components/organisms/manager-withdrawal-by-staff";
+import {
+  getReportStatusBadge,
+  getReportTypeBadge,
+} from "@/components/atoms/manage-reports/BadgeUtils";
+import { formatFullDateWithDistance2 } from "@/utils/date";
+import { PAGE_SIZE } from "@/constants/reports.constants";
+import { highlightMatch } from "@/utils/reports.utils";
+import { Eye, Settings } from "lucide-react";
 
 interface ReportsTableProps {
-  reports: Report[]
-  loading: boolean
-  totalPages: number
-  currentPage: number
-  searchTerm: string
-  actions: TableActions
+  reports: Report[];
+  loading: boolean;
+  totalPages: number;
+  currentPage: number;
+  searchTerm: string;
+  actions: TableActions;
 }
 
 const ReportsTable: React.FC<ReportsTableProps> = ({
@@ -31,7 +37,9 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       header: "STT",
       className: "text-center w-12",
       cell: (_row: Report, index?: number) => (
-        <span>{index !== undefined ? index + 1 + (currentPage - 1) * PAGE_SIZE : ""}</span>
+        <span>
+          {index !== undefined ? index + 1 + (currentPage - 1) * PAGE_SIZE : ""}
+        </span>
       ),
     },
     {
@@ -40,7 +48,9 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       sortable: true,
       className: "text-center",
       cell: (row) => (
-        <span className="font-mono text-sm">{highlightMatch(row.reportID.slice(0, 8) + "...", searchTerm)}</span>
+        <span className="font-mono text-sm">
+          {highlightMatch(row.reportID.slice(0, 8) + "...", searchTerm)}
+        </span>
       ),
     },
     {
@@ -72,7 +82,9 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       accessorKey: "targetID",
       className: "text-center",
       cell: (row) => (
-        <span className="font-mono text-sm">{row.targetID ? row.targetID.slice(0, 8) + "..." : "N/A"}</span>
+        <span className="font-mono text-sm">
+          {row.targetID ? row.targetID.slice(0, 8) + "..." : "N/A"}
+        </span>
       ),
     },
     {
@@ -93,29 +105,30 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       accessorKey: "reportID",
       className: "text-center",
       cell: (row) => (
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => actions.onViewDetail(row)}
-            className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
-            title="Xem chi tiết"
-          >
-            <Eye className="h-3 w-3" />
-            Chi tiết
-          </button>
-          {
-           row.reportStatus != "Approved" && <button
-            onClick={() => actions.onProcessReport(row)}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm flex items-center gap-1 transition-colors"
-            title="Giải quyết báo cáo"
-          >
-            <Settings className="h-3 w-3" />
-            Giải quyết
-          </button>
-          }
+        <div className="flex justify-center">
+          <div className="flex gap-1 w-[180px]">
+            <button
+              onClick={() => actions.onViewDetail(row)}
+              className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
+            >
+              <Eye className="h-3 w-3" />
+              Chi tiết
+            </button>
+
+            {row.reportStatus !== "Approved" && (
+              <button
+                onClick={() => actions.onProcessReport(row)}
+                className="ml-auto px-3 py-1 bg-primary text-white rounded hover:bg-blue-600 text-sm flex items-center gap-1 transition-colors"
+              >
+                <Settings className="h-3 w-3" />
+                Giải quyết
+              </button>
+            )}
+          </div>
         </div>
       ),
     },
-  ]
+  ];
 
   return (
     <DataTable
@@ -130,7 +143,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       }}
       getRowId={(row) => row.reportID}
     />
-  )
-}
+  );
+};
 
-export default ReportsTable
+export default ReportsTable;

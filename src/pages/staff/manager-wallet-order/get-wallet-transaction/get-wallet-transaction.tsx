@@ -186,7 +186,8 @@ const GetWalletTransaction = () => {
   useEffect(() => {
     fetchData();
   }, [currentPage, transactionType]);
-
+ console.log('currentPage: ', currentPage)
+  console.log('totalPages: ', totalPages)
   return (
     <div className="px-4 space-y-4">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
