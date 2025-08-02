@@ -27,7 +27,7 @@ export const usePostsLogic = () => {
             const response = await staffGetAllPosts()
             if (response) {
                 setPosts(response.responseRequestModel.responseList.items || [])
-                setTotalPages(1)
+                setTotalPages(response.responseRequestModel.responseList.totalPages||1)
             }
         } catch (error) {
             console.error("Fetch posts error:", error)

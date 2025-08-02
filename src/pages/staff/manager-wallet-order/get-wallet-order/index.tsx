@@ -78,20 +78,6 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
 
   const { getWalletOrderByStaff, getQRWithdrawByStaff } = StaffService();
 
-  // const statusLabelMap: Record<string, string> = {
-  //   Pending: "Chờ duyệt",
-  //   Completed: "Hoàn tất",
-  //   Canceled: "Đã hủy",
-  // };
-
-  // const statusColorMap: Record<string, string> = {
-  //   Pending: "text-yellow-600",
-  //   Completed: "text-green-600",
-  //   Failed: "text-red-600",
-  //   Canceled: "text-gray-600",
-  //   InProcess: "text-blue-600",
-  // };
-
   const highlightMatch = (text: string, keyword: string) => {
     if (!text || !keyword) return text;
     const parts = text.split(new RegExp(`(${keyword})`, "gi"));
@@ -176,76 +162,6 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
       sortable: true,
       className: "text-center",
     },
-    // {
-    //   header: "Thao tác",
-    //   accessorKey: "walletOrderID",
-    //   className: "text-center",
-    //   cell: (row) => {
-    //     const isWithdraw = row.description?.toLowerCase().includes("rút");
-    //     const isPending = row.orderStatusDisplay === "Pending";
-
-    //     return isWithdraw && isPending ? (
-    //       <Button
-    //         variant="destructive"
-    //         size="sm"
-    //         onClick={() => handleShowWithdraw(row.walletOrderID)}
-    //       >
-    //         Hoàn tiền
-    //       </Button>
-    //     ) : null;
-    //   },
-    // },
-    // {
-    //   header: "Ghi chú",
-    //   className: "text-center",
-    //   cell: (row) => {
-    //     const hasImage = row.walletOrderImage || row.imageUrl;
-    //     const hasNote = row.walletOrderNote || row.note;
-
-    //     return hasImage || hasNote ? (
-    //       <Button
-    //         variant="outline"
-    //         size="sm"
-    //         onClick={() => {
-    //           toast.custom(
-    //             (t) => (
-    //               <div className="space-y-2 text-sm max-w-[280px] bg-white p-4 rounded-lg shadow-lg">
-    //                 {(row.walletOrderImage || row.imageUrl) && (
-    //                   <img
-    //                     src={row.walletOrderImage || row.imageUrl}
-    //                     alt="Ảnh minh chứng"
-    //                     className="w-full h-auto rounded-md border"
-    //                   />
-    //                 )}
-    //                 {(row.walletOrderNote || row.note) && (
-    //                   <div>
-    //                     <strong>Ghi chú:</strong>{" "}
-    //                     <p>{row.walletOrderNote || row.note}</p>
-    //                   </div>
-    //                 )}
-    //                 <div className="flex justify-end pt-1">
-    //                   <Button
-    //                     size="sm"
-    //                     onClick={() => toast.dismiss(t)}
-    //                     className="text-xs"
-    //                   >
-    //                     Đóng
-    //                   </Button>
-    //                 </div>
-    //               </div>
-    //             ),
-    //             {
-    //               duration: 10000,
-    //               position: "top-center",
-    //             }
-    //           );
-    //         }}
-    //       >
-    //         Xem
-    //       </Button>
-    //     ) : null;
-    //   },
-    // },
     {
       header: "Thao tác",
       accessorKey: "walletOrderID",

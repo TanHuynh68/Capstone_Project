@@ -19,6 +19,7 @@ interface PostsTableProps {
   currentPage: number;
   searchTerm: string;
   actions: PostsTableActions;
+  totalItems?: number; // Thêm tổng số items để tính toán chính xác hơn
 }
 
 const PostsTable: React.FC<PostsTableProps> = ({
@@ -28,6 +29,7 @@ const PostsTable: React.FC<PostsTableProps> = ({
   currentPage,
   searchTerm,
   actions,
+  totalItems,
 }) => {
   const highlightMatch = (text: string, search: string) => {
     if (!search) return text;
@@ -77,14 +79,17 @@ const PostsTable: React.FC<PostsTableProps> = ({
     }
   };
 
+  // Tính toán STT chính xác cho phân trang
+  const getRowNumber = (index: number) => {
+    return (currentPage - 1) * PAGE_SIZE + index + 1;
+  };
+
   const columns: Column<Post>[] = [
     {
       header: "STT",
       className: "text-center w-12",
       cell: (_row: Post, index?: number) => (
-        <span>
-          {index !== undefined ? index + 1 + (currentPage - 1) * PAGE_SIZE : ""}
-        </span>
+        <span>{index !== undefined ? getRowNumber(index) : ""}</span>
       ),
     },
     {
@@ -155,7 +160,7 @@ const PostsTable: React.FC<PostsTableProps> = ({
       accessorKey: "projectPostID",
       className: "text-center",
       cell: (row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center">
           <button
             onClick={() => actions.onViewDetail(row)}
             className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
@@ -164,47 +169,67 @@ const PostsTable: React.FC<PostsTableProps> = ({
             <Eye className="h-3 w-3" />
             Chi tiết
           </button>
-          <button
-            onClick={() => actions.onToggleStatus(row)}
-            className={`px-3 py-1 rounded text-sm flex items-center gap-1 transition-colors ${
-              row.postStatus === 1
-                ? "bg-red-500 text-white hover:bg-red-600"
-                :  row.postStatus === 0 &&"bg-green-500 text-white hover:bg-green-600"
-            }`}
-            title={row.postStatus === 1 ? "Vô hiệu hóa" : "Kích hoạt"}
-          >
-            {row.postStatus === 1 ? (
-              <>
-                <PowerOff className="h-3 w-3" />
-                Vô hiệu hóa
-              </>
-            ) : (
-              row.postStatus === 0 && (
+          {/* Chỉ hiển thị nút toggle khi postStatus là 0 hoặc 1 */}
+          {(row.postStatus === 0 || row.postStatus === 1) && (
+            <button
+              onClick={() => actions.onToggleStatus(row)}
+              className={`px-3 py-1 rounded text-sm flex items-center gap-1 transition-colors ${
+                row.postStatus === 1
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-green-500 text-white hover:bg-green-600"
+              }`}
+              title={row.postStatus === 1 ? "Vô hiệu hóa" : "Kích hoạt"}
+            >
+              {row.postStatus === 1 ? (
+                <>
+                  <PowerOff className="h-3 w-3" />
+                  Vô hiệu hóa
+                </>
+              ) : (
                 <>
                   <Power className="h-3 w-3" />
                   Kích hoạt
                 </>
-              )
-            )}
-          </button>
+              )}
+            </button>
+          )}
         </div>
       ),
     },
   ];
-
+  console.log('currentPage: ', currentPage)
+  console.log('totalPages: ', totalPages)
   return (
-    <DataTable
-      columns={columns}
-      data={posts}
-      loading={loading}
-      emptyMessage="Không có bài đăng nào."
-      pagination={{
-        currentPage,
-        totalPages,
-        onPageChange: actions.onPageChange,
-      }}
-      getRowId={(row) => row.projectPostID}
-    />
+    <div className="space-y-4">
+      {/* Thông tin tổng quan */}
+      <div className="flex justify-between items-center text-sm text-gray-600">
+        <div>
+          Hiển thị {posts.length > 0 ? getRowNumber(0) : 0} -{" "}
+          {posts.length > 0 ? getRowNumber(posts.length - 1) : 0} của{" "}
+          {totalItems || posts.length} bài đăng
+        </div>
+        <div>
+          Trang {currentPage} / {totalPages}
+        </div>
+      </div>
+
+      {/* Bảng dữ liệu */}
+      <DataTable
+        columns={columns}
+        data={posts}
+        loading={loading}
+        emptyMessage="Không có bài đăng nào."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: (page: number) => {
+            console.log("Changing to page:", page);
+            actions.onPageChange(page);
+          },
+        }}
+        getRowId={(row) => row.projectPostID}
+      />
+    </div>
   );
 };
 

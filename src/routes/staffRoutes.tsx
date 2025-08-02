@@ -1,6 +1,5 @@
 import StaffLayout from "@/components/layouts/staff-layout";
 import { PATH, STAFF_ROUTES } from "./path";
-import StaffDashboard from "@/pages/staff";
 import ManagerUsersByStaff from "@/pages/staff/manage-users/get-users";
 import ManagerWalletOrderByStaff from "@/pages/staff/manager-wallet-order/get-wallet-order";
 import { ProtectedRouteByRole } from "./protect";
@@ -17,10 +16,6 @@ export const staffRoutes = [
       </ProtectedRouteByRole>
     ),
     children: [
-      {
-        path: STAFF_ROUTES.STAFF_DASHBOARD,
-        element: <StaffDashboard />,
-      },
       {
         path: PATH.STAFF_DASHBOARD_MANAGER_USERS,
         element: <ManagerUsersByStaff />,
