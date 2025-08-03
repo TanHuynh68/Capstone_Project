@@ -13,10 +13,16 @@ import {
   type RegisterFormValues,
   registerSchema,
 } from "@/schemas/registerSchema";
-import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
-import { Card, CardContent } from "@/components/ui/card";
-import RegisterVideo from "@/components/atoms/auth/register/RegisterVideo";
-import { PATH } from "@/routes/path";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+// import { PATH } from "@/routes/path";
+import { UserPlus } from "lucide-react";
+// import { ArrowLeft } from "lucide-react";
 
 interface CreateStaffFormProps {
   onSubmit: (data: RegisterFormValues) => Promise<void>;
@@ -57,37 +63,56 @@ export default function CreateStaffForm({ onSubmit }: CreateStaffFormProps) {
     { value: "2", label: "Khác" },
   ];
 
-  const roleOptions = [
-    // { value: "0", label: "Khách hàng" },
-    // { value: "1", label: "Nhà thiết kế" },
-    { value: "3", label: "Nhân viên" },
-  ];
+  const roleOptions = [{ value: "3", label: "Nhân viên" }];
 
   return (
-    <Form {...form}>
-      <div className="flex flex-col gap-6 justify-center items-center">
-        <div className="w-full max-w-xl md:max-w-5xl">
-          <Card className="overflow-hidden w-full max-w-[1200px] mx-auto py-0">
-            <CardContent className="grid h-full p-0 md:grid-cols-2">
-              {/* Cột trái: Video */}
-              <div className="relative hidden h-full bg-muted md:block">
-                <RegisterVideo />
-              </div>
-              {/* Cột phải: Form tạo tài khoản staff */}
+    <div className="container mx-auto px-4 lg:px-6 py-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        {/* <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <a
+              href={PATH.ADMIN_DASHBOARD}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại Dashboard
+            </a>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-lg">
+              <UserPlus className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold">
+                Tạo tài khoản nhân viên
+              </h1>
+              <p className="text-muted-foreground">
+                Thêm nhân viên mới vào hệ thống PlushDollCustom
+              </p>
+            </div>
+          </div>
+        </div> */}
+
+        {/* Form Card */}
+        <Card className="shadow-sm border-0 bg-gradient-to-t from-primary/5 to-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Thông tin nhân viên</CardTitle>
+            <CardDescription>
+              Điền đầy đủ thông tin để tạo tài khoản nhân viên mới
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSubmit)}
-                className="flex h-full flex-col justify-center p-6 md:p-8"
+                className="space-y-6"
               >
-                <div className="flex flex-col gap-4 pt-4 pb-4">
-                  <div className="flex flex-col items-center text-center">
-                    <LogoWeb
-                      path={PATH.HOME}
-                      logoSize={{ width: 260, height: 50 }}
-                    />
-                    <p className="text-balance text-muted-foreground mt-2">
-                      Tạo tài khoản nhân viên PlushDollCustom
-                    </p>
-                  </div>
+                {/* Personal Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Thông tin cá nhân
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormFieldController
                       control={form.control}
@@ -96,7 +121,7 @@ export default function CreateStaffForm({ onSubmit }: CreateStaffFormProps) {
                         <RegisterFormField
                           field={field}
                           label="Họ và tên"
-                          placeholder="Họ và tên"
+                          placeholder="Nhập họ và tên đầy đủ"
                           required
                         />
                       )}
@@ -109,34 +134,7 @@ export default function CreateStaffForm({ onSubmit }: CreateStaffFormProps) {
                           field={field}
                           label="Số điện thoại"
                           type="tel"
-                          placeholder="Số điện thoại"
-                          required
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormFieldController
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <PasswordInput
-                          field={field}
-                          label="Mật khẩu"
-                          placeholder="Mật khẩu"
-                          showStrengthMeter
-                          required
-                        />
-                      )}
-                    />
-                    <FormFieldController
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <PasswordInput
-                          field={field}
-                          label="Xác nhận mật khẩu"
-                          placeholder="Xác nhận mật khẩu"
+                          placeholder="Nhập số điện thoại"
                           required
                         />
                       )}
@@ -151,73 +149,109 @@ export default function CreateStaffForm({ onSubmit }: CreateStaffFormProps) {
                           field={field}
                           label="Email"
                           type="email"
-                          placeholder="Địa chỉ email"
+                          placeholder="Nhập địa chỉ email"
                           required
                         />
                       )}
                     />
-                    <div className="flex flex-row w-full gap-4">
-                      <div className="w-full">
-                        <FormFieldController
-                          control={form.control}
-                          name="gender"
-                          render={({ field }) => (
-                            <SelectField
-                              field={field}
-                              label="Giới tính"
-                              options={genderOptions}
-                              placeholder="Chọn giới tính"
-                              required
-                            />
-                          )}
+                    <FormFieldController
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <SelectField
+                          field={field}
+                          label="Giới tính"
+                          options={genderOptions}
+                          placeholder="Chọn giới tính"
+                          required
                         />
-                      </div>
-                      <div className="w-full">
-                        <FormFieldController
-                          control={form.control}
-                          name="role"
-                          render={({ field }) => (
-                            <SelectField
-                              field={field}
-                              label="Vai trò"
-                              options={roleOptions}
-                              placeholder="Chọn vai trò"
-                              required
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Nút tạo tài khoản staff full width */}
-                  <div>
-                    <Button
-                      className="w-full mt-2"
-                      type="submit"
-                      disabled={isLoading}
-                    >
-                      {isLoading
-                        ? "Đang tạo tài khoản..."
-                        : "Tạo tài khoản nhân viên"}
-                    </Button>
-                  </div>
-                  <div className="mt-0 text-center text-sm">
-                    <p className="text-gray-600">
-                      Quay lại{" "}
-                      <a
-                        href={PATH.ADMIN_DASHBOARD}
-                        className="font-medium text-blue-600 hover:text-blue-500"
-                      >
-                        Dashboard
-                      </a>
-                    </p>
+                      )}
+                    />
                   </div>
                 </div>
+
+                {/* Account Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Thông tin tài khoản
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormFieldController
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <PasswordInput
+                          field={field}
+                          label="Mật khẩu"
+                          placeholder="Tạo mật khẩu mạnh"
+                          showStrengthMeter
+                          required
+                        />
+                      )}
+                    />
+                    <FormFieldController
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <PasswordInput
+                          field={field}
+                          label="Xác nhận mật khẩu"
+                          placeholder="Nhập lại mật khẩu"
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="w-full md:w-1/2">
+                    <FormFieldController
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <SelectField
+                          field={field}
+                          label="Vai trò"
+                          options={roleOptions}
+                          placeholder="Chọn vai trò"
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 sm:flex-none"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                        Đang tạo tài khoản...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Tạo tài khoản nhân viên
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => form.reset()}
+                    className="flex-1 sm:flex-none"
+                  >
+                    Làm mới form
+                  </Button>
+                </div>
               </form>
-            </CardContent>
-          </Card>
-        </div>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-    </Form>
+    </div>
   );
 }
