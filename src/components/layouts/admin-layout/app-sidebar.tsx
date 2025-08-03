@@ -4,7 +4,6 @@ import type * as React from "react";
 import { LogOutIcon } from "lucide-react";
 
 import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import {
   Sidebar,
@@ -15,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavDocuments } from "./nav-documents";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -49,8 +48,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={appSidebarData.navMain} />
-        <NavDocuments items={appSidebarData.documents} />
-        <NavSecondary items={appSidebarData.navSecondary} className="mt-auto" />
+
+
       </SidebarContent>
       <SidebarFooter>
         <div className="flex items-center justify-between">
