@@ -12,7 +12,7 @@ export const PdcWalletCard = ({ balance, holdAmount, cardNumber, cardholderName 
       holdAmount={holdAmount}
       cardNumber={cardNumber}
       cardholderName={cardholderName}
-      className={cn("bg-blue-500 text-white h-56 ")}
+      className={cn("bg-primary text-white h-56 ")}
     >
       {/* Gold chip icon */}
       <GoldChipIcon/>

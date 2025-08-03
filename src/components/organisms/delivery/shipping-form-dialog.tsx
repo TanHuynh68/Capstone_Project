@@ -15,6 +15,7 @@ interface ShippingFormDialogProps {
   order?: Order;
   onSuccess?: () => void;
   onOrderCreated?: () => void;
+  text: string;
 }
 
 export function ShippingFormDialog({
@@ -22,6 +23,7 @@ export function ShippingFormDialog({
   order,
   onSuccess,
   onOrderCreated,
+  text,
 }: ShippingFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [currentOrderID, setCurrentOrderID] = useState<string | undefined>(
@@ -30,7 +32,7 @@ export function ShippingFormDialog({
   const [currentOrder, setCurrentOrder] = useState<Order | undefined>(
     undefined
   );
-  
+
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen) {
@@ -53,9 +55,17 @@ export function ShippingFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full">
+        <Button
+          variant={
+            text === "Giao hàng cho NTK" || text === "Giao hàng cho KH"
+              ? "default"
+              : "outline"
+          }
+          size="sm"
+          className="w-full"
+        >
           <PackagePlus className="h-4 w-4 mr-2" />
-          Giao hàng
+          {text}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[98vw] w-[98vw] min-w-[1400px] max-h-[95vh] overflow-y-auto">

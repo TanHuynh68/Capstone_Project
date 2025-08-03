@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layouts/customer-layout/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
 import { Footer } from "./Footer";
-import { USER_ROUTES } from "@/routes/path";
+import { DESIGNER_ROUTES, USER_ROUTES } from "@/routes/path";
 
 // CustomerLayout.tsx
 const CustomerLayout = () => {
@@ -12,6 +12,7 @@ const CustomerLayout = () => {
   const HIDE_FOOTER_ROUTES = [
     USER_ROUTES.CHAT,
     `/${USER_ROUTES.CANVAS_PAGE}/${USER_ROUTES.PLUSHDOLL_DESIGN}`,
+     `/${DESIGNER_ROUTES.TIMELINE}`,
   ];
   const HIDE_HEADER_ROUTES = [
     `/${USER_ROUTES.CANVAS_PAGE}/${USER_ROUTES.PLUSHDOLL_DESIGN}`,

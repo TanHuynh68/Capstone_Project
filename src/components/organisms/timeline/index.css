@@ -1,0 +1,250 @@
+.fc-event {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  margin: 1px 0;
+}
+
+.fc-event:hover {
+  opacity: 0.8;
+}
+
+.fc-event-main {
+  padding: 2px 4px;
+}
+
+.fc-daygrid-event {
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.fc-daygrid-day-events {
+  margin: 0;
+}
+
+.fc-daygrid-day-frame {
+  min-height: 110px;
+}
+
+.fc-daygrid-day-events {
+  margin: 0;
+  min-height: 80px;
+}
+
+.fc-daygrid-event {
+  margin: 1px 0;
+  border-radius: 4px;
+  height: auto !important;
+  min-height: 20px;
+}
+
+.fc-daygrid-event-dot {
+  display: none;
+}
+
+.fc-daygrid-event-main {
+  padding: 2px 4px;
+  height: auto;
+  min-height: 18px;
+}
+
+.fc-daygrid-day-number {
+  font-weight: 500;
+}
+
+.fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+
+/* Custom button styles */
+.fc-button {
+  background: var(--primary) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Hide days from other months */
+.fc-day-other {
+  display: none !important;
+}
+
+/* Show only one day from next month if needed */
+.fc-day-other.fc-day-next-month {
+  display: table-cell !important;
+}
+
+/* Hide all other month days except the first one */
+.fc-day-other.fc-day-next-month:not(:first-of-type) {
+  display: none !important;
+}
+
+/* Hide previous month days completely */
+.fc-day-other.fc-day-prev-month {
+  display: none !important;
+}
+
+/* Ensure proper grid layout */
+.fc-daygrid-body {
+  min-height: 400px !important;
+}
+
+/* Adjust day grid to show only current month + 1 day next month */
+.fc-daygrid-day-frame {
+  min-height: 110px !important;
+}
+
+/* Custom grid layout for current month only */
+.fc-daygrid-day.fc-day-current {
+  display: table-cell !important;
+}
+
+/* Ensure calendar takes full height */
+.fc-view-harness {
+  height: 100% !important;
+}
+
+.fc-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.fc-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  background: var(--primary-foreground) !important;
+}
+
+.fc-button:hover::before {
+  left: 100%;
+}
+
+.fc-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.fc-button-active {
+  background: var(--primary) !important;
+  transform: scale(0.95) !important;
+}
+
+/* Disabled button styles */
+.fc-button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.fc-button:disabled:hover {
+  transform: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Toolbar container */
+.fc-toolbar {
+  padding: 16px 0 !important;
+  margin-bottom: 20px !important;
+}
+
+/* Button group styling */
+.fc-button-group {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.fc-button-group .fc-button {
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.fc-button-group .fc-button:first-child {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+}
+
+.fc-button-group .fc-button:last-child {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+/* Today button basic styling */
+.fc-today-button {
+  background: var(--primary) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: var(--primary-foreground) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.fc-today-button:hover {
+  background: var(--primary) !important;
+  opacity: 0.8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Prev/Next buttons basic styling */
+
+.fc-prev-button:hover,
+.fc-next-button:hover {
+  background: var(--primary) !important;
+  opacity: 0.8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Header toolbar layout */
+.fc-header-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .fc-header-toolbar {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    text-align: center !important;
+  }
+
+  .fc-button {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+.fc-header-toolbar fc-toolbar fc-toolbar-ltr{
+    padding: 0;
+}

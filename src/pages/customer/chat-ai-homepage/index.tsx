@@ -136,7 +136,7 @@ export default function ChatAIHomePage() {
               <AvatarFallback>AC</AvatarFallback>
             </Avatar>
             <h2 className="text-base font-semibold dark:text-primary-foreground">
-              Chat cùng PlushDollCustom
+              Plush Doll Custom
             </h2>
           </div>
           <Button
