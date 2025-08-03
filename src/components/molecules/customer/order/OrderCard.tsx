@@ -106,7 +106,14 @@ export default function OrderCard({
         </div>
 
         {/* Actions */}
-        <div className="grid grid-cols-2 gap-2">
+        <div
+          className={`grid gap-2 ${
+            order?.orderStatus === "Created" ||
+            order?.orderStatus === "Completed"
+              ? "grid-cols-2"
+              : "grid-cols-1"
+          }`}
+        >
           <Link
             className="w-full"
             to={`${PATH.ORDER_DETAIL}/${order?.orderID}`}
@@ -121,12 +128,15 @@ export default function OrderCard({
               Chi tiết
             </Button>
           </Link>
-          <ShippingFormDialog
-          text="Giao hàng"
-            orderID={order?.orderID}
-            order={order}
-            onOrderCreated={onOrderCreated}
-          />
+          {(order?.orderStatus === "Created" ||
+            order?.orderStatus === "Completed") && (
+            <ShippingFormDialog
+              text="Giao hàng"
+              orderID={order?.orderID}
+              order={order}
+              onOrderCreated={onOrderCreated}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
