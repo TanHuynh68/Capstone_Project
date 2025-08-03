@@ -354,7 +354,7 @@ export function ChartAreaInteractive() {
         <div className="absolute right-4 top-4 flex gap-2">
           {/* Custom Date Range Picker */}
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger>
               <Button
                 variant="outline"
                 size="sm"

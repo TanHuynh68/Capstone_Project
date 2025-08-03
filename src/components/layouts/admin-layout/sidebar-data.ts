@@ -1,21 +1,17 @@
 import {
-    BarChartIcon,
     CameraIcon,
     ClipboardListIcon,
     DatabaseIcon,
     FileCodeIcon,
     FileIcon,
     FileTextIcon,
-    FolderIcon,
     GavelIcon,
     HelpCircleIcon,
     LayoutDashboardIcon,
-    ListIcon,
     SettingsIcon,
-    UsersIcon,
     SearchIcon,
 } from "lucide-react";
-import { ADMIN_ROUTES } from "@/routes/path";
+import { ADMIN_ROUTES, PATH } from "@/routes/path";
 
 export const appSidebarData = {
     user: {
@@ -25,8 +21,8 @@ export const appSidebarData = {
     },
     navMain: [
         {
-            title: "Dashboard",
-            url: "#",
+            title: "Tổng quan",
+            url: PATH.ADMIN_DASHBOARD,
             icon: LayoutDashboardIcon,
         },
         {
@@ -34,26 +30,26 @@ export const appSidebarData = {
             url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
             icon: GavelIcon,
         },
-        {
-            title: "Lifecycle",
-            url: "#",
-            icon: ListIcon,
-        },
-        {
-            title: "Analytics",
-            url: "#",
-            icon: BarChartIcon,
-        },
-        {
-            title: "Projects",
-            url: "#",
-            icon: FolderIcon,
-        },
-        {
-            title: "Team",
-            url: "#",
-            icon: UsersIcon,
-        },
+        // {
+        //     title: "Lifecycle",
+        //     url: "#",
+        //     icon: ListIcon,
+        // },
+        // {
+        //     title: "Analytics",
+        //     url: "#",
+        //     icon: BarChartIcon,
+        // },
+        // {
+        //     title: "Projects",
+        //     url: "#",
+        //     icon: FolderIcon,
+        // },
+        // {
+        //     title: "Team",
+        //     url: "#",
+        //     icon: UsersIcon,
+        // },
     ],
     navClouds: [
         {
@@ -110,7 +106,7 @@ export const appSidebarData = {
             icon: SettingsIcon,
         },
         {
-            title: "Get Help",
+            title: "Get Help 2",
             url: "#",
             icon: HelpCircleIcon,
         },

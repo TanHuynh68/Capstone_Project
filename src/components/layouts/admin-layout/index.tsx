@@ -3,10 +3,6 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
 import { appSidebarData } from "./sidebar-data";
 import { SiteHeader } from "./site-header";
-// import { ADMIN_ROUTES } from "@/routes/path"; // Remove unused import
-
-// Xóa biến data cục bộ, dùng appSidebarData thay thế
-// const data = { ... } // <-- XÓA
 
 export default function AdminLayout() {
   const location = useLocation();

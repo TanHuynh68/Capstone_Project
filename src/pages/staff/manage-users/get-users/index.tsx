@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import type React from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,18 +13,19 @@ import {
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants/message";
 import StaffService from "@/services/StaffService";
-import ChangeActiveUserButton from "../change-active-user";
 import { Search } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import {
   DataTable,
-  Column,
+  type Column,
 } from "@/components/organisms/manager-withdrawal-by-staff";
 import {
   getGenderBadge,
   getRoleBadge,
   getUserStatusBadge,
 } from "@/utils/badge-utils";
+import NotificationService from "@/services/NotificaitionService";
+import UserActionsDropdown from "@/components/molecules/staff/notifications/UserActionsDropdown";
 
 interface User {
   accountID: string;
@@ -54,6 +56,7 @@ const ManagerUsersByStaff: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { getUserByStaff } = StaffService();
+  const { postNotification } = NotificationService();
 
   const fetchUsers = useCallback(
     async (params?: {
@@ -69,14 +72,11 @@ const ManagerUsersByStaff: React.FC = () => {
           page: params?.currentPage || page,
           size: PAGE_SIZE,
         };
-
         const res = await getUserByStaff(query);
         const items = res?.responseRequestModel?.responseList?.items || [];
         const total = res?.responseRequestModel?.responseList?.totalPages || 1;
-
         setUsers(items);
         setTotalPages(total);
-
         // if (params?.showToast) toast.success(MESSAGE.GET_USERS_SUCCESSFULLY);
       } catch {
         toast.error(MESSAGE.GET_USERS_FAILED);
@@ -90,6 +90,21 @@ const ManagerUsersByStaff: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, [page, role]);
+
+  const handleCreateNotification = async (data: any): Promise<boolean> => {
+    try {
+      const response = await postNotification(data);
+      if (response && response.responseRequestModel) {
+        return true;
+      } else {
+        toast.error(response.message || "Tạo thông báo thất bại");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      return false;
+    }
+  };
 
   const highlightMatch = (text: string, keyword: string) => {
     if (!text || !keyword) return text;
@@ -183,10 +198,15 @@ const ManagerUsersByStaff: React.FC = () => {
       accessorKey: "accountID",
       className: "text-center",
       cell: (row) => (
-        <ChangeActiveUserButton
-          accountID={row.accountID}
-          isActive={row.isActive}
+        <UserActionsDropdown
+          user={{
+            accountID: row.accountID,
+            fullName: row.fullName,
+            email: row.email,
+            isActive: row.isActive,
+          }}
           onSuccess={fetchUsers}
+          onCreateNotification={handleCreateNotification}
         />
       ),
     },
@@ -194,7 +214,9 @@ const ManagerUsersByStaff: React.FC = () => {
 
   return (
     <div className="px-4 space-y-4">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
+
         <div className="flex flex-col sm:flex-row gap-2 items-center">
           <div className="relative w-full max-w-xs">
             <Input
@@ -218,7 +240,6 @@ const ManagerUsersByStaff: React.FC = () => {
               }}
             />
           </div>
-
           <Select
             value={role}
             onValueChange={(val) => {
