@@ -78,14 +78,16 @@ export default function OrderInfoCard({
             <CardTitle className="text-lg font-semibold">
               Thông tin đơn hàng
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsReportDialogOpen(true)}
-              className="hover:bg-red-50 hover:text-red-600 h-8 w-8"
-            >
-              <Flag className="h-4 w-4" />
-            </Button>
+            {order.orderStatus === "InProgress" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsReportDialogOpen(true)}
+                className="hover:bg-red-50 hover:text-red-600 h-8 w-8"
+              >
+                <Flag className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <div>
             <DropdownMenu>

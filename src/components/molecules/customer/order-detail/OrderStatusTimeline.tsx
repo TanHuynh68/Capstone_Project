@@ -9,10 +9,8 @@ import {
   ArrowLeft,
   Flag,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ROLE } from "@/constants";
-import { useNavigate } from "react-router-dom";
-import { USER_ROUTES } from "@/routes/path";
+import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
 
 type OrderStatus =
   | "Created"
@@ -28,6 +26,7 @@ type OrderStatus =
 interface OrderStatusTimelineProps {
   currentStatus: OrderStatus;
   userRole: any;
+  order: any;
 }
 
 interface StatusStep {
@@ -73,8 +72,8 @@ const mainStatuses: StatusStep[] = [
 export default function OrderStatusTimeline({
   currentStatus,
   userRole,
+  order,
 }: OrderStatusTimelineProps) {
-  const navigate = useNavigate()
   const getStatusInfo = (status: OrderStatus) => {
     const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
     const isMainStatus = mainStatusIndex !== -1;
@@ -195,24 +194,6 @@ export default function OrderStatusTimeline({
 
     return "";
   };
-  const handleNavigateToProfile = (tab?: string) => {
-    navigate(`/${USER_ROUTES.PROFILE}`, {
-      state: { activeTab: tab },
-    });
-  };
-  const handleDeliveryClick = () => {
-    // Khi status là "Created" và role là CUSTOMER → giao hàng cho designer
-    if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
-      handleNavigateToProfile('delivery')
-      return;
-    }
-
-    // Khi status là "Completed" và role là DESIGNER → giao hàng cho customer
-    if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
-     handleNavigateToProfile('delivery')
-      return;
-    }
-  };
 
   return (
     <div className="w-full py-6">
@@ -291,15 +272,15 @@ export default function OrderStatusTimeline({
       {/* Delivery Button - Hiển thị phía dưới status description */}
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
-        <div className="mt-4 text-center">
-          <Button
-            size="sm"
-            onClick={handleDeliveryClick}
-            className="text-sm px-4 py-2 h-9 bg-green-600 hover:bg-green-700 text-white"
-          >
-            {getDeliveryButtonText()}
-          </Button>
+       <div className="flex justify-center items-center">
+         <div className="mt-4 text-center w-[200px] ">
+          <ShippingFormDialog
+              text={getDeliveryButtonText()}
+              orderID={order?.orderID}
+              order={order}
+            />
         </div>
+       </div>
       )}
     </div>
   );

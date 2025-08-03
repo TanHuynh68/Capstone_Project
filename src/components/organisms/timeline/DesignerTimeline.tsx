@@ -1,9 +1,20 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { CheckCircle, Settings, RefreshCw, Package } from "lucide-react";
+import {
+  CheckCircle,
+  Settings,
+  RefreshCw,
+  Package,
+  Calendar,
+  Clock,
+  FileText,
+  StickyNote,
+} from "lucide-react";
 import { formatVietnamDateHours } from "@/utils/date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,262 +31,7 @@ import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import ProgressService from "@/services/ProgressService";
 import { toast } from "sonner";
 import DesignerService from "@/services/DesignerService";
-import { useCallback } from "react";
-
-// CSS styles for FullCalendar customization
-const calendarStyles = `
-  .fc-event {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 4px;
-    margin: 1px 0;
-  }
-  
-  .fc-event:hover {
-    opacity: 0.8;
-  }
-  
-  .fc-event-main {
-    padding: 2px 4px;
-  }
-  
-  .fc-daygrid-event {
-    white-space: nowrap;
-    border-radius: 4px;
-  }
-  
-  .fc-daygrid-day-events {
-    margin: 0;
-  }
-  
-  .fc-daygrid-day-frame {
-    min-height: 120px;
-  }
-  
-  .fc-daygrid-day-events {
-    margin: 0;
-    min-height: 80px;
-  }
-  
-  .fc-daygrid-event {
-    margin: 1px 0;
-    border-radius: 4px;
-    height: auto !important;
-    min-height: 20px;
-  }
-  
-  .fc-daygrid-event-dot {
-    display: none;
-  }
-  
-  .fc-daygrid-event-main {
-    padding: 2px 4px;
-    height: auto;
-    min-height: 18px;
-  }
-  
-  .fc-daygrid-day-number {
-    font-weight: 500;
-  }
-  
-  .fc-toolbar-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: hsl(var(--primary));
-  }
-  
-  /* Custom button styles */
-  .fc-button {
-    background: var(--primary) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 8px 16px !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    color: white !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-    position: relative !important;
-    overflow: hidden !important;
-  }
-  
-  /* Hide days from other months */
-  .fc-day-other {
-    display: none !important;
-  }
-  
-  /* Show only one day from next month if needed */
-  .fc-day-other.fc-day-next-month {
-    display: table-cell !important;
-  }
-  
-  /* Hide all other month days except the first one */
-  .fc-day-other.fc-day-next-month:not(:first-of-type) {
-    display: none !important;
-  }
-  
-  /* Hide previous month days completely */
-  .fc-day-other.fc-day-prev-month {
-    display: none !important;
-  }
-  
-  /* Ensure proper grid layout */
-  .fc-daygrid-body {
-    min-height: 400px !important;
-  }
-  
-  /* Adjust day grid to show only current month + 1 day next month */
-  .fc-daygrid-day-frame {
-    min-height: 120px !important;
-  }
-  
-  /* Custom grid layout for current month only */
-  .fc-daygrid-day.fc-day-current {
-    display: table-cell !important;
-  }
-  
-  /* Ensure calendar takes full height */
-  .fc-view-harness {
-    height: 100% !important;
-  }
-  
-  .fc-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-  
-  .fc-button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-    background: var(--primary-foreground) !important;
-  }
-  
-  .fc-button:hover::before {
-    left: 100%;
-  }
-  
-  .fc-button:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .fc-button-active {
-    background: var(--primary) !important;
-    transform: scale(0.95) !important;
-  }
-  
-  /* Disabled button styles */
-  .fc-button:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-  }
-  
-  .fc-button:disabled:hover {
-    transform: none !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-  }
-  
-  /* Toolbar container */
-  .fc-toolbar {
-    padding: 16px 0 !important;
-    margin-bottom: 20px !important;
-  }
-  
-  /* Button group styling */
-  .fc-button-group {
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .fc-button-group .fc-button {
-    border-radius: 0 !important;
-    margin: 0 !important;
-  }
-  
-  .fc-button-group .fc-button:first-child {
-    border-top-left-radius: 12px !important;
-    border-bottom-left-radius: 12px !important;
-  }
-  
-  .fc-button-group .fc-button:last-child {
-    border-top-right-radius: 12px !important;
-    border-bottom-right-radius: 12px !important;
-  }
-  
-  /* Today button basic styling */
-  .fc-today-button {
-    background: var(--primary) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    color: var(--primary-foreground) !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-  }
-  
-  .fc-today-button:hover {
-    background: var(--primary) !important;
-    opacity: 0.8 !important;
-    transform: translateY(-1px) !important;
-  }
-  
-  /* Prev/Next buttons basic styling */
-  .fc-prev-button,
-  .fc-next-button {
-    min-width: 40px !important;
-    height: 40px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: var(--primary) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    color: var(--primary-foreground) !important;
-    font-weight: 600 !important;
-  }
-  
-  .fc-prev-button:hover,
-  .fc-next-button:hover {
-    background: var(--primary) !important;
-    opacity: 0.8 !important;
-    transform: translateY(-1px) !important;
-  }
-  
-  /* Header toolbar layout */
-  .fc-header-toolbar {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex-wrap: wrap !important;
-    gap: 16px !important;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .fc-header-toolbar {
-      flex-direction: column !important;
-      gap: 12px !important;
-    }
-    
-    .fc-toolbar-title {
-      font-size: 1.1rem !important;
-      text-align: center !important;
-    }
-    
-    .fc-button {
-      padding: 6px 12px !important;
-      font-size: 12px !important;
-    }
-  }
-`;
+import "./index.css";
 
 interface TimelineEvent {
   id: string;
@@ -310,24 +66,39 @@ const STATUS_LABELS = {
 } as const;
 
 const STATUS_COLORS = {
-  Done: "bg-green-500",
-  InProgress: "bg-yellow-500",
-  Rework: "bg-red-500",
-  Withdrawed: "bg-gray-500",
+  Done: "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
+  InProgress:
+    "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
+  Rework: "bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700",
+  Withdrawed:
+    "bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700",
 } as const;
 
-// Màu sắc cho từng đơn hàng
+// Tailwind color classes cho từng đơn hàng
 const ORDER_COLORS = [
-  "#3B82F6", // blue-500
-  "#8B5CF6", // purple-500
-  "#EC4899", // pink-500
-  "#6366F1", // indigo-500
-  "#14B8A6", // teal-500
-  "#F97316", // orange-500
-  "#06B6D4", // cyan-500
-  "#10B981", // emerald-500
-  "#F43F5E", // rose-500
-  "#8B5CF6", // violet-500
+  "rgb(59 130 246)", // blue-500
+  "rgb(139 92 246)", // purple-500
+  "rgb(236 72 153)", // pink-500
+  "rgb(99 102 241)", // indigo-500
+  "rgb(20 184 166)", // teal-500
+  "rgb(249 115 22)", // orange-500
+  "rgb(6 182 212)", // cyan-500
+  "rgb(16 185 129)", // emerald-500
+  "rgb(244 63 94)", // rose-500
+  "rgb(139 92 246)", // violet-500
+] as const;
+
+const ORDER_COLOR_CLASSES = [
+  "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
+  "bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700",
+  "bg-pink-500 hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-700",
+  "bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700",
+  "bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700",
+  "bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700",
+  "bg-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-700",
+  "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
+  "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700",
+  "bg-violet-500 hover:bg-violet-600 dark:bg-violet-600 dark:hover:bg-violet-700",
 ] as const;
 
 export default function DesignerTimeline({
@@ -351,217 +122,25 @@ export default function DesignerTimeline({
 
   const fetchTimelineData = useCallback(async () => {
     if (!designerID) return;
-
     setLoading(true);
     try {
-      // Mock data for testing
-      // const response = {
-      //   isSuccess: true,
-      //   message: "Phản hồi thành công",
-      //   statusCode: 200,
-      //   responseRequestModel: {
-      //     progressTimelineItems: [
-      //       {
-      //         order: {
-      //           orderID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           orderStatus: "InProgress",
-      //           note: "uia ",
-      //           deadlineAt: "2025-07-31T16:59:59.999",
-      //           startDate: "2025-07-19T11:01:05.7052882",
-      //           endDate: null,
-      //           createdAt: "2025-07-19T11:01:05.7052883",
-      //           updatedAt: "2025-07-19T11:01:05.7052884",
-      //         },
-      //         offer: {
-      //           offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           note: "sinh 3",
-      //           offerStatus: "Accepted",
-      //         },
-      //         offerPhases: [
-      //           {
-      //             offerPhaseID: "b7de8a54-66de-4878-9689-ff6707812656",
-      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //             phase: 1,
-      //             phaseName: "Giai đoạn 1",
-      //             phaseDescription: "1",
-      //             offerPhaseStatus: "Done",
-      //             progressCount: 1,
-      //             startDate: "2025-07-20T00:00:00",
-      //             endDate: "2025-07-24T00:00:00",
-      //             modifyDate: "2025-07-19T11:00:47.3930968",
-      //           },
-      //           {
-      //             offerPhaseID: "11111111-2222-3333-4444-555555555555",
-      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //             phase: 2,
-      //             phaseName: "Tạo áo cho labubu sử dụng da Nappa cao cấcấp",
-      //             phaseDescription: "Thiết kế mẫu",
-      //             offerPhaseStatus: "InProgress",
-      //             progressCount: 0,
-      //             startDate: "2025-07-25T00:00:00",
-      //             endDate: "2025-07-26T00:00:00",
-      //             modifyDate: "2025-07-25T10:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "66666666-7777-8888-9999-000000000000",
-      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //             phase: 3,
-      //             phaseName:
-      //               "Giai đoạn hoàn thành những công đoạn cuối cùng để test",
-      //             phaseDescription: "Xác nhận mẫu",
-      //             offerPhaseStatus: "Rework",
-      //             progressCount: 0,
-      //             startDate: "2025-07-27T00:00:00",
-      //             endDate: "2025-07-28T00:00:00",
-      //             modifyDate: "2025-07-26T14:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      //             offerID: "d19e8b9f-52c1-4352-b08d-5ad8fba4a71b",
-      //             phase: 4,
-      //             phaseName: "Giai đoạn 4",
-      //             phaseDescription: "Hoàn thiện",
-      //             offerPhaseStatus: "Withdrawed",
-      //             progressCount: 0,
-      //             startDate: "2025-07-29T00:00:00",
-      //             endDate: "2025-07-30T00:00:00",
-      //             modifyDate: "2025-07-28T09:00:00",
-      //           },
-      //         ],
-      //       },
-      //       {
-      //         order: {
-      //           orderID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           orderStatus: "Completed",
-      //           note: "Đơn số 2 test ",
-      //           deadlineAt: "2025-08-10T00:00:00",
-      //           startDate: "2025-07-10T08:00:00",
-      //           endDate: "2025-08-01T10:00:00",
-      //           createdAt: "2025-07-10T08:00:00",
-      //           updatedAt: "2025-08-01T10:00:00",
-      //         },
-      //         offer: {
-      //           offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           note: "Đơn mẫu 2",
-      //           offerStatus: "Completed",
-      //         },
-      //         offerPhases: [
-      //           {
-      //             offerPhaseID: "99999999-8888-7777-6666-555555555555",
-      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-      //             phase: 1,
-      //             phaseName: "Giai đoạn đầu",
-      //             phaseDescription: "Chuẩn bị",
-      //             offerPhaseStatus: "Done",
-      //             progressCount: 2,
-      //             startDate: "2025-07-11T00:00:00",
-      //             endDate: "2025-07-13T00:00:00",
-      //             modifyDate: "2025-07-13T10:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "88888888-7777-6666-5555-444444444444",
-      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-      //             phase: 2,
-      //             phaseName: "Thiết kế chính",
-      //             phaseDescription: "Thi công mẫu",
-      //             offerPhaseStatus: "Done",
-      //             progressCount: 3,
-      //             startDate: "2025-07-11T00:00:00",
-      //             endDate: "2025-07-18T00:00:00",
-      //             modifyDate: "2025-07-18T10:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "77777777-6666-5555-4444-333333333333",
-      //             offerID: "a1b2c3d4-e5f6-7890-aaaa-bbbbccccdddd",
-      //             phase: 3,
-      //             phaseName: "Bàn giao",
-      //             phaseDescription: "Giao hàng",
-      //             offerPhaseStatus: "Done",
-      //             progressCount: 1,
-      //             startDate: "2025-07-20T00:00:00",
-      //             endDate: "2025-07-21T00:00:00",
-      //             modifyDate: "2025-07-21T09:00:00",
-      //           },
-      //         ],
-      //       },
-      //       {
-      //         order: {
-      //           orderID: "12345678-90ab-cdef-1234-567890abcdef",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           orderStatus: "Canceled",
-      //           note: "Đơn số 3 test lun hehehehehe",
-      //           deadlineAt: "2025-08-15T00:00:00",
-      //           startDate: "2025-07-22T10:00:00",
-      //           endDate: null,
-      //           createdAt: "2025-07-22T10:00:00",
-      //           updatedAt: "2025-07-28T15:00:00",
-      //         },
-      //         offer: {
-      //           offerID: "12345678-90ab-cdef-1234-567890abcdef",
-      //           designerID: "e27f1786-ffa5-4d60-be23-359da537241b",
-      //           note: "Đơn huỷ do KH thay đổi",
-      //           offerStatus: "Withdrawed",
-      //         },
-      //         offerPhases: [
-      //           {
-      //             offerPhaseID: "11223344-5566-7788-99aa-bbccddeeff00",
-      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
-      //             phase: 1,
-      //             phaseName: "Tiếp nhận",
-      //             phaseDescription: "Làm việc với khách hàng",
-      //             offerPhaseStatus: "Done",
-      //             progressCount: 1,
-      //             startDate: "2025-07-23T00:00:00",
-      //             endDate: "2025-07-24T00:00:00",
-      //             modifyDate: "2025-07-24T12:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "22334455-6677-8899-aabb-ccddeeff0011",
-      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
-      //             phase: 2,
-      //             phaseName: "Demo",
-      //             phaseDescription: "Demo ban đầu",
-      //             offerPhaseStatus: "Rework",
-      //             progressCount: 0,
-      //             startDate: "2025-07-25T00:00:00",
-      //             endDate: "2025-07-26T00:00:00",
-      //             modifyDate: "2025-07-26T13:00:00",
-      //           },
-      //           {
-      //             offerPhaseID: "33445566-7788-99aa-bbcc-ddeeff001122",
-      //             offerID: "12345678-90ab-cdef-1234-567890abcdef",
-      //             phase: 3,
-      //             phaseName: "Huỷ đơn",
-      //             phaseDescription: "Khách huỷ đơn",
-      //             offerPhaseStatus: "Withdrawed",
-      //             progressCount: 0,
-      //             startDate: "2025-07-27T00:00:00",
-      //             endDate: "2025-07-28T00:00:00",
-      //             modifyDate: "2025-07-28T15:00:00",
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //   },
-      // };
-
       const timelineResponse = await designerService.getTimeline({
         designerID,
       });
-
       if (timelineResponse?.responseRequestModel?.progressTimelineItems) {
         const timelineEvents: TimelineEvent[] = [];
         const orderColorMap = new Map<string, string>();
+        const orderColorClassMap = new Map<string, string>();
 
         // Tạo map màu sắc cho từng đơn hàng
         timelineResponse.responseRequestModel.progressTimelineItems.forEach(
           (item, index) => {
             const colorIndex = index % ORDER_COLORS.length;
             orderColorMap.set(item.order.orderID, ORDER_COLORS[colorIndex]);
+            orderColorClassMap.set(
+              item.order.orderID,
+              ORDER_COLOR_CLASSES[colorIndex]
+            );
           }
         );
 
@@ -573,7 +152,6 @@ export default function DesignerTimeline({
                 | "InProgress"
                 | "Rework"
                 | "Withdrawed";
-
               timelineEvents.push({
                 id: phase.offerPhaseID,
                 title: `${item.order.note}`,
@@ -583,14 +161,13 @@ export default function DesignerTimeline({
                 orderID: item.order.orderID,
                 phaseName: phase.phaseName,
                 note: item.order.note,
-                color: STATUS_COLORS[status], // Giữ lại cho status badge
+                color: STATUS_COLORS[status],
                 orderColor:
-                  orderColorMap.get(item.order.orderID) || ORDER_COLORS[0], // Màu theo đơn hàng
+                  orderColorMap.get(item.order.orderID) || ORDER_COLORS[0],
               });
             });
           }
         );
-
         setEvents(timelineEvents);
       }
     } catch (error) {
@@ -611,10 +188,8 @@ export default function DesignerTimeline({
 
   // Chuyển đổi events sang format FullCalendar
   const fullCalendarEvents = events.map((event) => {
-    // Đảm bảo endDate bao gồm cả ngày cuối cùng
     const adjustedEndDate = new Date(event.endDate);
     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
-
     return {
       id: event.id,
       title: event.phaseName,
@@ -634,7 +209,6 @@ export default function DesignerTimeline({
 
   const handleEventClick = (clickInfo: any) => {
     const originalEvent = clickInfo.event.extendedProps.originalEvent;
-
     if (originalEvent.status === "Done") {
       setSelectedEvent(originalEvent);
     } else {
@@ -660,117 +234,122 @@ export default function DesignerTimeline({
   ) => {
     try {
       const response = await progressService.createProgressStep(data);
-
-      // console.log("response", response);
-
       if (response?.statusCode === 200) {
         toast.success("Tạo tiến độ thành công!", {
           description: "Tiến độ đã được thêm vào giai đoạn này",
         });
-
-        // Close the dialog after successful submission
         setShowCreateProgressDialog(false);
         setSelectedPhaseForProgress(null);
-
-        // Optionally refresh the timeline data
         await fetchTimelineData();
-      } else {
-        // toast.error("Có lỗi xảy ra khi tạo tiến độ", {
-        //   description: response?.message || "Vui lòng thử lại sau",
-        // });
       }
     } catch (error) {
       console.error("Error creating progress step:", error);
-      // toast.error("Có lỗi xảy ra khi tạo tiến độ", {
-      //   description: "Vui lòng thử lại sau",
-      // });
     }
   };
 
   if (loading) {
     return (
       <div className={className}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <Skeleton className="h-64 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1 space-y-4">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-48 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
           </div>
-          <div className="lg:col-span-2">
-            <Skeleton className="h-64 w-full" />
+          <div className="lg:col-span-3">
+            <Skeleton className="h-[700px] w-full rounded-xl" />
           </div>
         </div>
       </div>
     );
   }
 
+  const uniqueOrders = Array.from(
+    new Set(events.map((event) => event.orderID))
+  );
+  const orderColorClassMap = new Map<string, string>();
+  uniqueOrders.forEach((orderID, index) => {
+    const colorIndex = index % ORDER_COLOR_CLASSES.length;
+    orderColorClassMap.set(orderID, ORDER_COLOR_CLASSES[colorIndex]);
+  });
+
   return (
     <div className={className}>
-      <style>{calendarStyles}</style>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Panel - Data and Legend */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* Thống kê tổng quan */}
-
-          <Card className="flex items-center justify-center mb-4">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Lịch trình của nhà thiết kế
-              </h2>
-              <p className="text-sm text-gray-600">
-                Xem lịch trình và tiến độ các đơn hàng của bạn
-              </p>
-            </div>
+        <div className="lg:col-span-1 space-y-6">
+          {/* Header */}
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold  mb-2">Lịch trình thiết kế</h2>
+                <p className="text-sm ">
+                  Quản lý tiến độ và lịch trình các dự án của bạn
+                </p>
+              </div>
+            </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Thống kê tổng quan</CardTitle>
+
+          {/* Thống kê tổng quan */}
+          <Card className="border-0 shadow-xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-500" />
+                Thống kê tổng quan
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600">
-                      Tổng đơn hàng:
-                    </span>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                      <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <span className="text-sm font-medium ">Tổng đơn hàng</span>
                   </div>
-                  <Badge variant="secondary" className="font-semibold">
-                    {
-                      Array.from(new Set(events.map((event) => event.orderID)))
-                        .length
-                    }
+                  <Badge
+                    variant="secondary"
+                    className="font-bold text-base px-3 py-1"
+                  >
+                    {uniqueOrders.length}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-gray-600">
-                      Giai đoạn hoàn thành:
-                    </span>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <span className="text-sm font-medium ">Hoàn thành</span>
                   </div>
-                  <Badge className="bg-green-500 text-white font-semibold">
+                  <Badge className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 font-bold text-base px-3 py-1">
                     {events.filter((event) => event.status === "Done").length}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Settings className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm text-gray-600">
-                      Đang thực hiện:
-                    </span>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
+                      <Settings className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <span className="text-sm font-medium ">Đang thực hiện</span>
                   </div>
-                  <Badge className="bg-yellow-500 text-white font-semibold">
+                  <Badge className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 font-bold text-base px-3 py-1">
                     {
                       events.filter((event) => event.status === "InProgress")
                         .length
                     }
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 text-red-500" />
-                    <span className="text-sm text-gray-600">Cần làm lại:</span>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 dark:bg-red-900/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
+                      <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    <span className="text-sm font-medium ">Cần làm lại</span>
                   </div>
-                  <Badge className="bg-red-500 text-white font-semibold">
+                  <Badge className="bg-red-500 hover:bg-red-600 dark:bg-red-600 font-bold text-base px-3 py-1">
                     {events.filter((event) => event.status === "Rework").length}
                   </Badge>
                 </div>
@@ -779,35 +358,58 @@ export default function DesignerTimeline({
           </Card>
 
           {/* Danh sách đơn hàng */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Danh sách đơn hàng</CardTitle>
+          <Card className="border-0 shadow-xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="w-5 h-5 text-purple-500" />
+                Danh sách đơn hàng
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {Array.from(new Set(events.map((event) => event.orderID))).map(
-                  (orderID) => {
-                    const orderEvent = events.find(
-                      (event) => event.orderID === orderID
-                    );
-                    if (orderEvent) {
-                      return (
-                        <div
-                          key={orderID}
-                          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => handleOrderClick(orderID)}
-                        >
-                          <Badge
-                            className="text-white"
-                            style={{ backgroundColor: orderEvent.orderColor }}
-                          >
-                            {orderEvent.title}
-                          </Badge>
+              <div className="space-y-3">
+                {uniqueOrders.map((orderID) => {
+                  const orderEvent = events.find(
+                    (event) => event.orderID === orderID
+                  );
+                  const colorClass = orderColorClassMap.get(orderID);
+                  if (orderEvent) {
+                    return (
+                      <div
+                        key={orderID}
+                        className="group cursor-pointer transition-all duration-200 hover:scale-[1.02]"
+                        onClick={() => handleOrderClick(orderID)}
+                      >
+                        <div className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              colorClass?.split(" ")[0]
+                            }`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {orderEvent.title}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {
+                                events.filter((e) => e.orderID === orderID)
+                                  .length
+                              }{" "}
+                              giai đoạn
+                            </p>
+                          </div>
                         </div>
-                      );
-                    }
-                    return null;
+                      </div>
+                    );
                   }
+                  return null;
+                })}
+                {uniqueOrders.length === 0 && (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Chưa có đơn hàng nào
+                    </p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -815,10 +417,10 @@ export default function DesignerTimeline({
         </div>
 
         {/* Right Panel - FullCalendar */}
-        <div className="lg:col-span-3 ">
-          <Card className="mt-0">
-            <CardContent>
-              <div className="h-[700px] uppercase-title mt-0">
+        <div className="lg:col-span-3">
+          <Card className="border-0 shadow-lg">
+            <CardContent className="">
+              <div className="h-[700px] designer-calendar">
                 <FullCalendar
                   plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
                   initialView="dayGridMonth"
@@ -851,11 +453,12 @@ export default function DesignerTimeline({
                   eventClassNames={(arg) => {
                     const classes = [
                       "cursor-pointer",
-                      "transition-opacity",
+                      "transition-all",
                       "duration-200",
+                      "hover:scale-105",
                     ];
                     if (hoveredEvent === arg.event.id) {
-                      classes.push("opacity-80");
+                      classes.push("shadow-lg", "z-10");
                     }
                     return classes;
                   }}
@@ -863,10 +466,9 @@ export default function DesignerTimeline({
                     const status = arg.event.extendedProps
                       .status as TimelineEvent["status"];
                     const IconComponent = STATUS_ICONS[status];
-
                     return (
-                      <div className="flex items-center gap-1 p-1">
-                        <IconComponent className="w-3 h-3" />
+                      <div className="flex items-center gap-2 p-1 rounded">
+                        <IconComponent className="w-3 h-3 flex-shrink-0" />
                         <span className="text-xs font-medium truncate">
                           {arg.event.title}
                         </span>
@@ -886,61 +488,93 @@ export default function DesignerTimeline({
           open={!!selectedEvent}
           onOpenChange={(open) => !open && setSelectedEvent(null)}
         >
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <div className="flex items-center justify-between mr-5">
-                <DialogTitle className="text-lg font-semibold">
+          <DialogContent className="max-w-lg rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl">
+            <DialogHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
+                  <Calendar className="w-5 h-5 text-blue-500" />
                   Chi tiết giai đoạn
                 </DialogTitle>
                 {selectedEvent && (
-                  <Badge className={STATUS_COLORS[selectedEvent.status]}>
-                    <div className="flex items-center gap-1">
+                  <Badge
+                    className={`text-xs px-3 py-1 rounded-full ${
+                      STATUS_COLORS[selectedEvent.status]
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
                       {getStatusIcon(selectedEvent.status)}
-                      {STATUS_LABELS[selectedEvent.status]}
+                      <span className="font-medium">
+                        {STATUS_LABELS[selectedEvent.status]}
+                      </span>
                     </div>
                   </Badge>
                 )}
               </div>
             </DialogHeader>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Thời gian:
-                  </label>
-                  <p className="text-sm mt-1 p-2 bg-gray-50 rounded-md">
-                    {selectedEvent &&
-                      `${formatVietnamDateHours(
-                        selectedEvent.startDate
-                      )} - ${formatVietnamDateHours(selectedEvent.endDate)}`}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Tên giai đoạn:
-                  </label>
-                  <p className="text-sm mt-1 p-2 bg-gray-50 rounded-md">
-                    {selectedEvent?.phaseName}
-                  </p>
+            <div className="space-y-6 mt-4">
+              <div className="grid grid-cols-1 gap-6">
+                {/* Thời gian thực hiện */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Thời gian thực hiện
+                    </label>
+                  </div>
+                  <div className="p-4 bg-white dark:bg-blue-950/50 rounded-xl border border-blue-100 dark:border-blue-800 shadow-sm">
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                      {selectedEvent &&
+                        `${formatVietnamDateHours(
+                          selectedEvent.startDate
+                        )} - ${formatVietnamDateHours(selectedEvent.endDate)}`}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Mô tả:
-                  </label>
-                  <p className="text-sm mt-1 p-2 bg-gray-50 rounded-md">
-                    {selectedEvent?.title}
-                  </p>
+                {/* Tên giai đoạn */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-gray-500" />
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Tên giai đoạn
+                    </label>
+                  </div>
+                  <div className="p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                      {selectedEvent?.phaseName}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Ghi chú:
-                  </label>
-                  <p className="text-sm mt-1 p-2 bg-gray-50 rounded-md">
-                    {selectedEvent?.note}
-                  </p>
+                {/* Mô tả dự án */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Mô tả dự án
+                    </label>
+                  </div>
+                  <div className="p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {selectedEvent?.title}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Ghi chú */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <StickyNote className="w-4 h-4 text-gray-500" />
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Ghi chú
+                    </label>
+                  </div>
+                  <div className="p-4 bg-yellow-50 dark:bg-amber-950/20 rounded-xl border border-yellow-100 dark:border-amber-800 shadow-sm">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {selectedEvent?.note}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

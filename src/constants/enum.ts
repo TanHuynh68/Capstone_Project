@@ -63,9 +63,16 @@ export enum NotificationType {
 }
 
 export const ORDER_STATUSES = {
-  InProgress: "Đang thực hiện",
-  Completed: "Hoàn thành",
-  Cancelled: "Đã hủy",
+  Created: "Đã tạo mới",                        // 1
+  ShippingToDesigner: "Đang giao cho designer",// 2
+  DesignerRejected: "NTK từ chối",        // 2.1
+  InProgress: "Đang thực hiện",                // 3
+  Completed: "Đã hoàn thành",                  // 4
+  ShippingToCustomer: "Đang giao cho khách",   // 5
+  CustomerRejected: "Khách từ chối",           // 5.1
+  Done: "Hoàn tất",                            // 6
+  PendingConflict: "Đang xử lý tranh chấp",    // 7
+  Rejected: "Bị từ chối",
 };
 export enum MESSAGE_TYPE {
   Text = 0,
