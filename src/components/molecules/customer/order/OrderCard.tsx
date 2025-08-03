@@ -105,16 +105,6 @@ export default function OrderCard({
           </div>
         </div>
 
-        {/* Note */}
-        {/* {order?.note && (
-          <div className="mb-4 p-3 bg-muted rounded-lg">
-            <div className="text-xs text-muted-foreground mb-1">Ghi chú:</div>
-            <p className="text-sm text-foreground line-clamp-2">
-              {order?.note}
-            </p>
-          </div>
-        )} */}
-
         {/* Actions */}
         <div className="grid grid-cols-2 gap-2">
           <Link
@@ -132,6 +122,7 @@ export default function OrderCard({
             </Button>
           </Link>
           <ShippingFormDialog
+          text="Giao hàng"
             orderID={order?.orderID}
             order={order}
             onOrderCreated={onOrderCreated}

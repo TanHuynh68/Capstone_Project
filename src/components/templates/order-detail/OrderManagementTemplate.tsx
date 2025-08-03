@@ -193,6 +193,7 @@ export default function OrderManagementTemplate({
         {/* Order Status Timeline */}
         <div className=" rounded-lg shadow-sm border p-6">
           <OrderStatusTimeline
+            order={orderDetail.order}
             userRole={currentUser.role}
             currentStatus={orderDetail.order.orderStatus as any}
           />

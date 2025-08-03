@@ -46,7 +46,7 @@ export enum DESIGNER_ROUTES {
   DESIGNER = "/designer",
   PORTFOLIO = "portfolio",
   PROGRESS = "progress",
-  TIMELINE = "timeline",
+  TIMELINE = "schedule",
 }
 
 export enum ADMIN_ROUTES {

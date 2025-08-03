@@ -4,7 +4,6 @@ import useApiService from "@/hooks/useApi"
 import { useCallback } from "react"
 import { toast } from "sonner"
 
-
 const NotificationService = () => {
   const { callApi, loading, setIsLoading } = useApiService();
 
@@ -29,7 +28,6 @@ const NotificationService = () => {
         API_ROUTES.CREATE_NOTIFICATION,
         values
       );
-      toast.success("Tạo thông báo thành công!");
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data || "Tạo thông báo thất bại!");
