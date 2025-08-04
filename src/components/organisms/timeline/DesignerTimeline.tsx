@@ -279,8 +279,8 @@ export default function DesignerTimeline({
         {/* Left Panel - Data and Legend */}
         <div className="lg:col-span-1 space-y-6">
           {/* Header */}
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50">
-            <CardContent className="p-6">
+          <Card className="border-0 shadow-xl bg-gradient-to-br ">
+            <CardContent className="p-3.5">
               <div className="text-center">
                 <h2 className="text-xl font-bold  mb-2">Lịch trình thiết kế</h2>
                 <p className="text-sm ">
@@ -418,7 +418,7 @@ export default function DesignerTimeline({
 
         {/* Right Panel - FullCalendar */}
         <div className="lg:col-span-3">
-          <Card className="border-0 shadow-lg">
+          <Card className="border-0 shadow-xl">
             <CardContent className="">
               <div className="h-[700px] designer-calendar">
                 <FullCalendar

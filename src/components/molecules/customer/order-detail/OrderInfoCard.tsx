@@ -78,7 +78,7 @@ export default function OrderInfoCard({
             <CardTitle className="text-lg font-semibold">
               Thông tin đơn hàng
             </CardTitle>
-            {order.orderStatus === "InProgress" && (
+            {(order.orderStatus === "InProgress" || order.orderStatus === "Created") && (
               <Button
                 variant="ghost"
                 size="icon"

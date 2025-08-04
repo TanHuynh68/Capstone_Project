@@ -27,6 +27,7 @@ interface OrderStatusTimelineProps {
   currentStatus: OrderStatus;
   userRole: any;
   order: any;
+  fetchOrderDetail: any;
 }
 
 interface StatusStep {
@@ -73,6 +74,7 @@ export default function OrderStatusTimeline({
   currentStatus,
   userRole,
   order,
+  fetchOrderDetail,
 }: OrderStatusTimelineProps) {
   const getStatusInfo = (status: OrderStatus) => {
     const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
@@ -272,15 +274,16 @@ export default function OrderStatusTimeline({
       {/* Delivery Button - Hiển thị phía dưới status description */}
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
-       <div className="flex justify-center items-center">
-         <div className="mt-4 text-center w-[200px] ">
-          <ShippingFormDialog
+        <div className="flex justify-center items-center">
+          <div className="mt-4 text-center w-[200px] ">
+            <ShippingFormDialog
+              fetchData={fetchOrderDetail}
               text={getDeliveryButtonText()}
               orderID={order?.orderID}
               order={order}
             />
+          </div>
         </div>
-       </div>
       )}
     </div>
   );

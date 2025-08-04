@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,22 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Search,
-  Filter,
-  CalendarIcon,
-  LayoutGrid,
-  List,
-  RefreshCw,
-} from "lucide-react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { Search, Filter, LayoutGrid, List, RefreshCw } from "lucide-react";
 import { ORDER_STATUSES } from "@/constants";
 
 interface OrderFiltersProps {
@@ -56,32 +39,6 @@ export default function OrderFilters({
 
   const handleStatusChange = (value: string) => {
     onFiltersChange({ ...filters, status: value === "all" ? "" : value });
-  };
-
-  const handleDateRangeChange = (
-    type: "from" | "to",
-    date: Date | undefined
-  ) => {
-    onFiltersChange({
-      ...filters,
-      dateRange: {
-        ...filters.dateRange,
-        [type]: date || null,
-      },
-    });
-  };
-
-  const handleDeadlineRangeChange = (
-    type: "from" | "to",
-    date: Date | undefined
-  ) => {
-    onFiltersChange({
-      ...filters,
-      deadlineRange: {
-        ...filters.deadlineRange,
-        [type]: date || null,
-      },
-    });
   };
 
   const clearFilters = () => {
@@ -149,96 +106,6 @@ export default function OrderFilters({
             ))}
           </SelectContent>
         </Select>
-
-        {/* Date Range Filter */}
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger>
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto justify-start text-left"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.dateRange.from ? (
-                  filters.dateRange.to ? (
-                    <>
-                      {format(filters.dateRange.from, "dd MMM", { locale: vi })}{" "}
-                      - {format(filters.dateRange.to, "dd MMM", { locale: vi })}
-                    </>
-                  ) : (
-                    format(filters.dateRange.from, "dd MMM yyyy", {
-                      locale: vi,
-                    })
-                  )
-                ) : (
-                  "Ngày tạo"
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={filters.dateRange.from || undefined}
-                selected={{
-                  from: filters.dateRange.from || undefined,
-                  to: filters.dateRange.to || undefined,
-                }}
-                onSelect={(range) => {
-                  handleDateRangeChange("from", range?.from);
-                  handleDateRangeChange("to", range?.to);
-                }}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-
-          <Popover>
-            <PopoverTrigger>
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto justify-start text-left"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.deadlineRange.from ? (
-                  filters.deadlineRange.to ? (
-                    <>
-                      {format(filters.deadlineRange.from, "dd MMM", {
-                        locale: vi,
-                      })}{" "}
-                      -{" "}
-                      {format(filters.deadlineRange.to, "dd MMM", {
-                        locale: vi,
-                      })}
-                    </>
-                  ) : (
-                    format(filters.deadlineRange.from, "dd MMM yyyy", {
-                      locale: vi,
-                    })
-                  )
-                ) : (
-                  "Deadline"
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={filters.deadlineRange.from || undefined}
-                selected={{
-                  from: filters.deadlineRange.from || undefined,
-                  to: filters.deadlineRange.to || undefined,
-                }}
-                onSelect={(range) => {
-                  handleDeadlineRangeChange("from", range?.from);
-                  handleDeadlineRangeChange("to", range?.to);
-                }}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
 
         {/* Sort */}
         <Select
