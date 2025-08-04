@@ -40,6 +40,7 @@ export enum AUTH_ROUTES {
   REGISTER = "register",
   FORGOT_PASSWORD = "forgot-password",
   VERIFY_ACCOUNT = "verify-account",
+  REVERIFY_ACCOUNT = "reverify-account"
 }
 
 export enum DESIGNER_ROUTES {

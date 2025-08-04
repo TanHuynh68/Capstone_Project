@@ -1,5 +1,5 @@
 export const ACTIVITY_TYPE_VI = {
-    General: "Tạo mới đơn hàng",
+    General: "Thông tin",
     Deposit: "Đặt cọc",
     Withdraw: "Rút tiền",
     Refund: "Hoàn tiền",

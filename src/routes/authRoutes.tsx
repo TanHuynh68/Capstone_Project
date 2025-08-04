@@ -6,6 +6,7 @@ import {
   VerifyAccountPage,
 } from "@/pages";
 import PublicRoute from "./public";
+import RereverifyAccount from "@/pages/auth/reverify-account";
 
 export const authRoutes = [
   {
@@ -40,6 +41,14 @@ export const authRoutes = [
         element: (
           <PublicRoute>
             <VerifyAccountPage />
+          </PublicRoute>
+        ),
+      },
+      {
+        path: AUTH_ROUTES.REVERIFY_ACCOUNT,
+        element: (
+          <PublicRoute>
+            <RereverifyAccount />
           </PublicRoute>
         ),
       },
