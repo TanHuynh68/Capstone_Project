@@ -28,7 +28,7 @@ interface OrderFilterState {
 }
 const ORDER_STATUSES = {
   Created: "Đã tạo mới",                        // 1
-  ShippingToDesigner: "Đang giao cho designer",// 2
+  ShippingToDesigner: "Đang giao cho NTK",// 2
   DesignerRejected: "NTK từ chối",        // 2.1
   InProgress: "Đang thực hiện",                // 3
   Completed: "Đã hoàn thành",                  // 4

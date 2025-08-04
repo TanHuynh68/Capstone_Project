@@ -16,6 +16,7 @@ interface ShippingFormDialogProps {
   onSuccess?: () => void;
   onOrderCreated?: () => void;
   text: string;
+  fetchData?: any;
 }
 
 export function ShippingFormDialog({
@@ -24,6 +25,7 @@ export function ShippingFormDialog({
   onSuccess,
   onOrderCreated,
   text,
+  fetchData,
 }: ShippingFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [currentOrderID, setCurrentOrderID] = useState<string | undefined>(
@@ -41,9 +43,11 @@ export function ShippingFormDialog({
     }
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = async() => {
     setOpen(false);
-    onSuccess?.();
+    if (fetchData) {
+      await fetchData();
+    }
   };
 
   const handleOrderCreated = () => {

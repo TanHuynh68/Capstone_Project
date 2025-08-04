@@ -14,7 +14,6 @@ import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
   Select,
@@ -28,57 +27,91 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, ShoppingCart, Flag, Calendar, RefreshCw } from "lucide-react";
+import { Calendar, RefreshCw, DollarSign } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import DashboardService from "@/services/DashboardService";
+import { chartConfigs } from "./chart-config";
+
+// Types
+type ChartType = "account" | "order" | "report";
+
+interface ChartDataPoint {
+  date: string;
+  [key: string]: string | number;
+}
+
+interface DashboardStats {
+  account: Record<string, number>;
+  order: Record<string, number>;
+  report: Record<string, number>;
+}
 
 // Chart configurations for different types
-const chartConfigs = {
-  account: {
-    title: "Thống kê tài khoản",
-    description: "Tổng quan về người dùng trong hệ thống",
-    icon: <Users className="w-4 h-4" />,
-    fields: {
-      totalAccount: { label: "Tổng tài khoản", color: "#3b82f6" }, // Bright blue
-      totalAccountActive: { label: "Tài khoản hoạt động", color: "#10b981" }, // Bright green
-      numberOfCustomer: { label: "Khách hàng", color: "#f59e0b" }, // Bright orange
-      numberOfDesigner: { label: "Nhà thiết kế", color: "#8b5cf6" }, // Bright purple
-      newAccount: { label: "Tài khoản mới", color: "#ef4444" }, // Bright red
-      newCustomer: { label: "Khách hàng mới", color: "#06b6d4" }, // Bright cyan
-      newDesigner: { label: "Nhà thiết kế mới", color: "#f97316" }, // Bright orange-red
-    },
-    defaultFields: ["totalAccount", "totalAccountActive"] as string[],
-  },
-  order: {
-    title: "Thống kê đơn hàng",
-    description: "Tình trạng các đơn hàng trong hệ thống",
-    icon: <ShoppingCart className="w-4 h-4" />,
-    fields: {
-      totalOrder: { label: "Tổng đơn hàng", color: "#3b82f6" },
-      orderDone: { label: "Đơn hoàn thành", color: "#10b981" },
-      orderInProgress: { label: "Đơn đang thực hiện", color: "#f59e0b" },
-      orderPendingConflict: { label: "Đơn tranh chấp", color: "#ef4444" },
-      orderCancelled: { label: "Đơn đã hủy", color: "#6b7280" },
-    },
-    defaultFields: ["totalOrder", "orderDone"] as string[],
-  },
-  report: {
-    title: "Thống kê báo cáo",
-    description: "Tình trạng các báo cáo trong hệ thống",
-    icon: <Flag className="w-4 h-4" />,
-    fields: {
-      totalReport: { label: "Tổng báo cáo", color: "#3b82f6" },
-      reportPending: { label: "Báo cáo chờ xử lý", color: "#f59e0b" },
-      reportResolved: { label: "Báo cáo đã giải quyết", color: "#10b981" },
-      reportRejected: { label: "Báo cáo bị từ chối", color: "#ef4444" },
-    },
-    defaultFields: ["totalReport", "reportPending"] as string[],
-  },
-} as const;
+
+// Custom Tooltip Component
+const CustomTooltipContent = ({ active, payload, label, chartConfig }: any) => {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-md">
+      <div className="grid gap-2">
+        <div className="flex flex-col">
+          <span className="text-[0.70rem] uppercase text-muted-foreground text-center">
+            {new Date(label).toLocaleDateString("vi-VN", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+        {payload.map((entry: any) => {
+          const fieldConfig = chartConfig[entry.dataKey];
+          if (!fieldConfig) return null;
+
+          const formatValue = (value: number, field: string) => {
+            if (field.includes("Revenue") || field.includes("revenue")) {
+              return new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(value);
+            }
+            return value.toLocaleString("vi-VN");
+          };
+
+          return (
+            <div key={entry.dataKey} className="flex items-center gap-2">
+              <div
+                className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
+                style={
+                  {
+                    "--color-bg": fieldConfig.color,
+                    "--color-border": fieldConfig.color,
+                  } as React.CSSProperties
+                }
+              />
+              <div className="flex flex-1 justify-between leading-none">
+                <span className="text-muted-foreground text-xs">
+                  {formatValue(entry.value, entry.dataKey)}
+                </span>
+                <span className="font-mono text-xs font-medium tabular-nums text-foreground">
+                  {fieldConfig.label}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile();
@@ -159,7 +192,6 @@ export function ChartAreaInteractive() {
         (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
       );
       let interval = 1; // daily
-
       if (totalDays > 60) {
         interval = 7; // weekly for longer periods
       }
@@ -195,13 +227,11 @@ export function ChartAreaInteractive() {
       results.forEach((result) => {
         if (result.data) {
           const dataPoint: ChartDataPoint = { date: result.date };
-
           // Add data based on chart type
           const statsData = result.data[chartType];
           Object.keys(chartConfigs[chartType].fields).forEach((field) => {
             dataPoint[field] = statsData[field as keyof typeof statsData] || 0;
           });
-
           data.push(dataPoint);
         }
       });
@@ -282,37 +312,97 @@ export function ChartAreaInteractive() {
   const currentChartConfig: ChartConfig = React.useMemo(() => {
     const config: ChartConfig = {};
     const currentConfig = chartConfigs[chartType];
-
     selectedFields.forEach((field) => {
       if (currentConfig.fields[field as keyof typeof currentConfig.fields]) {
         config[field] =
           currentConfig.fields[field as keyof typeof currentConfig.fields];
       }
     });
-
     return config;
   }, [chartType, selectedFields]);
 
   const currentConfig = chartConfigs[chartType];
 
-  // Add this function before the return statement
-  const calculateYAxisDomain = React.useMemo(() => {
-    if (chartData.length === 0) return [0, 100];
+  // Calculate Y-axis domain and find max value
+  const { yAxisDomain, maxValue, maxField } = React.useMemo(() => {
+    if (chartData.length === 0)
+      return { yAxisDomain: [0, 100], maxValue: 0, maxField: "" };
 
     let maxValue = 0;
+    let maxField = "";
     chartData.forEach((dataPoint) => {
       selectedFields.forEach((field) => {
         const value = dataPoint[field] as number;
         if (value > maxValue) {
           maxValue = value;
+          maxField = field;
         }
       });
     });
 
     // Add 25% headroom to the max value, minimum 10
     const upperBound = Math.max(Math.ceil(maxValue * 1.25), 10);
-    return [0, upperBound];
+    return { yAxisDomain: [0, upperBound], maxValue, maxField };
   }, [chartData, selectedFields]);
+
+  // Format value for display (especially for revenue)
+  const formatValue = (value: number, field: string) => {
+    if (field.includes("Revenue") || field.includes("revenue")) {
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    }
+    return value.toLocaleString("vi-VN");
+  };
+
+  // Custom Y-axis tick formatter
+  const yAxisTickFormatter = (value: number) => {
+    // Show the max value explicitly
+    if (value === maxValue && maxValue > 0) {
+      if (maxField.includes("Revenue") || maxField.includes("revenue")) {
+        return new Intl.NumberFormat("vi-VN", {
+          notation: "compact",
+          compactDisplay: "short",
+        }).format(value);
+      }
+      return value.toLocaleString("vi-VN");
+    }
+
+    // Format other values
+    if (
+      selectedFields.some(
+        (field) => field.includes("Revenue") || field.includes("revenue")
+      )
+    ) {
+      return new Intl.NumberFormat("vi-VN", {
+        notation: "compact",
+        compactDisplay: "short",
+      }).format(value);
+    }
+    return value.toLocaleString("vi-VN");
+  };
+
+  // Generate Y-axis ticks including the max value
+  const generateYAxisTicks = () => {
+    const [min, max] = yAxisDomain;
+    const ticks = [];
+    const step = Math.ceil(max / 5);
+
+    for (let i = min; i <= max; i += step) {
+      ticks.push(i);
+    }
+
+    // Always include the max value if it's not already included
+    if (maxValue > 0 && !ticks.includes(maxValue)) {
+      ticks.push(maxValue);
+      ticks.sort((a, b) => a - b);
+    }
+
+    return ticks;
+  };
 
   return (
     <Card className="@container/card my-4">
@@ -599,22 +689,14 @@ export function ChartAreaInteractive() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                domain={calculateYAxisDomain}
-                tickFormatter={(value) => value.toLocaleString()}
+                domain={yAxisDomain}
+                ticks={generateYAxisTicks()}
+                tickFormatter={yAxisTickFormatter}
               />
               <ChartTooltip
                 cursor={false}
                 content={
-                  <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString("vi-VN", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      });
-                    }}
-                    indicator="dot"
-                  />
+                  <CustomTooltipContent chartConfig={currentChartConfig} />
                 }
               />
               {selectedFields.map((field, index) => (
@@ -629,7 +711,6 @@ export function ChartAreaInteractive() {
                   }
                   strokeWidth={2}
                   fillOpacity={0.6}
-                  // Remove stackId="a" to prevent stacking
                 />
               ))}
             </AreaChart>
@@ -647,14 +728,18 @@ export function ChartAreaInteractive() {
               return (
                 <div
                   key={key}
-                  className="text-center p-3 rounded-lg border-2 border-solid"
+                  className="text-center p-3 rounded-lg border-2 border-solid hover:shadow-md transition-shadow"
                 >
                   <div className="text-2xl font-bold">
-                    {value.toLocaleString()}
+                    {formatValue(value as number, key)}
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">
                     {fieldConfig.label}
                   </div>
+                  {/* Add icon for revenue fields */}
+                  {(key.includes("Revenue") || key.includes("revenue")) && (
+                    <DollarSign className="w-4 h-4 mx-auto mt-1 text-green-600" />
+                  )}
                 </div>
               );
             })}
