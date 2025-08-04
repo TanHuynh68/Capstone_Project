@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "sonner";
+import { MESSAGE } from "@/constants";
 
 const initialState = {
   role: '',
@@ -22,7 +23,8 @@ export const userSlice = createSlice({
       localStorage.setItem("theme", "light");
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
-      toast.success("Hẹn gặp lại lần sau! Cảm ơn bạn thật nhiều 🐻✨");
+      // toast.success("Hẹn gặp lại lần sau! Cảm ơn bạn thật nhiều 🐻✨");
+      toast.success(MESSAGE.LOGOUT_SUCCESSFULLY);
       return initialState;
     },
   },

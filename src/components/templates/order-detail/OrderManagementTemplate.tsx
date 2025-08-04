@@ -38,6 +38,7 @@ interface OrderManagementTemplateProps {
   ordersDeposited: DepositHistoryItem[];
   fetchOrdersDeposited: any;
   fetchDepositTransaction: any;
+  fetchOrderDetail: any;
 }
 
 export default function OrderManagementTemplate({
@@ -56,6 +57,7 @@ export default function OrderManagementTemplate({
   ordersDeposited,
   fetchOrdersDeposited,
   fetchDepositTransaction,
+  fetchOrderDetail
 }: OrderManagementTemplateProps) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
@@ -196,6 +198,7 @@ export default function OrderManagementTemplate({
             order={orderDetail.order}
             userRole={currentUser.role}
             currentStatus={orderDetail.order.orderStatus as any}
+            fetchOrderDetail={fetchOrderDetail}
           />
         </div>
 

@@ -1,16 +1,18 @@
+"use client";
 
-import { Search } from "lucide-react";
 import { useState } from "react";
+import { Search } from "lucide-react";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import ChatListItem from "@/components/molecules/customer/chat/ChatListItem";
-
 import { useCurrentUser } from "@/utils";
+
 interface ChatSidebarProps {
-  users: UserChat[];
-  messages: Message[];
+  users: any[];
+  onSelectChat: any;
+  messages: any[];
   activeChat: string;
-  onSelectChat: (chatId: string) => void;
 }
 
 export default function ChatSidebar({
@@ -21,25 +23,13 @@ export default function ChatSidebar({
   const userMain = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter users based on search term
-  const filteredUsers = users?.filter((user) => {
+  // Filter users based on search term only - no sorting by active chat
+  const filteredUsers = users.filter((user) => {
     const displayName =
       userMain.id !== user.account1.accountID
         ? user.account1.accountName
         : user.account2.accountName;
-
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-
-  // ✨ Users đã được sắp xếp từ component cha (Chat.tsx) theo thời gian tin nhắn mới nhất
-  // Chỉ cần ưu tiên active chat lên đầu nếu cần
-  const sortedUsers = filteredUsers?.sort((a, b) => {
-    // Ưu tiên chat đang active
-    if (a.chatRoomID === activeChat) return -1;
-    if (b.chatRoomID === activeChat) return 1;
-
-    // Giữ nguyên thứ tự đã được sắp xếp từ component cha
-    return 0;
   });
 
   return (
@@ -69,8 +59,8 @@ export default function ChatSidebar({
       </div>
 
       <ScrollArea className="flex-1">
-        {sortedUsers?.length > 0 ? (
-          sortedUsers.map((user) => (
+        {filteredUsers?.length > 0 ? (
+          filteredUsers.map((user) => (
             <ChatListItem
               usersInChatSection={user}
               key={user.chatRoomID}

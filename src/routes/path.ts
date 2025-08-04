@@ -40,6 +40,7 @@ export enum AUTH_ROUTES {
   REGISTER = "register",
   FORGOT_PASSWORD = "forgot-password",
   VERIFY_ACCOUNT = "verify-account",
+  REVERIFY_ACCOUNT = "reverify-account"
 }
 
 export enum DESIGNER_ROUTES {
@@ -53,6 +54,7 @@ export enum ADMIN_ROUTES {
   ADMIN = "/admin", // Đảm bảo có dấu "/" ở đầu
   ADMIN_DASHBOARD = "dashboard",
   ADMIN_MANAGER_BENEFIT = "manager-benefits",
+  ADMIN_CREATE_STAFF = "create-staff",
 }
 
 export enum STAFF_ROUTES {
@@ -117,6 +119,7 @@ export enum PATH {
   STAFF_ROUTES.STAFF_MANAGE_REPORT,
   //Admin
   ADMIN_DASHBOARD = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_DASHBOARD,
+  ADMIN_CREATE_STAFF = ADMIN_ROUTES.ADMIN + "/" + ADMIN_ROUTES.ADMIN_CREATE_STAFF,
   DESIGNER_PORTFOLIO_PAGE = "/portfolio/:id",
   STAFF_MANAGE_POSTS = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_MANAGE_POSTS,
 

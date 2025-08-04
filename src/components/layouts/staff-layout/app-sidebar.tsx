@@ -33,8 +33,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { logout } from "@/redux/userSlice";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { MESSAGE } from "@/constants";
+// import { toast } from "sonner";
+// import { MESSAGE } from "@/constants";
 import LogoWeb from "@/components/atoms/custom/logo/LogoWeb";
 import { staffSidebarData } from "./sidebar-data";
 import { ThemeToggle } from "@/components/themes/ThemeToggle";
@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handleLogout = () => {
     dispatch(logout());
-    toast.success(MESSAGE.LOGOUT_SUCCESSFULLY);
+    // toast.success(MESSAGE.LOGOUT_SUCCESSFULLY);
     navigate("/auth/login");
   };
 

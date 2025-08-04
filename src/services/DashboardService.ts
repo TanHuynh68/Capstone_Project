@@ -24,8 +24,25 @@ const DashboardService = () => {
     [callApi]
   );
 
+  const getGrowthRates = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.POST,
+          API_ROUTES.GET_GROWTH_RATE,
+          values
+        );
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   return {
     getDashboard,
+    getGrowthRates
   };
 };
 

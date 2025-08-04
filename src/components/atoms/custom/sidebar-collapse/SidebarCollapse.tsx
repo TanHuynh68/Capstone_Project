@@ -88,11 +88,11 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
                       item.tabName === "designs") &&
                       item.fetch && (
                         <Button
-                          variant="outline"
+                          variant="default"
                           size="sm"
                           disabled={loading}
                           onClick={() => handleFetch(item.fetch!)}
-                          className="shrink-0"
+                          className="shrink-0 bg-primary"
                         >
                           <RefreshCw
                             className={`h-4 w-4 mr-1 ${

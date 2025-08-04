@@ -10,6 +10,20 @@ const AdminService = () => {
     //   const navigate = useNavigate();
     //   const dispatch = useDispatch();
 
+    const createStaff = useCallback(
+        async (values: any) => {
+            try {
+                const response = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_UP, {
+                    ...values,
+                });
+                return response;
+            } catch (e: any) {
+                toast.error(e?.response?.data);
+            }
+        },
+        [callApi]
+    );
+
     const getBenefits = useCallback(
         async (values: any) => {
             try {
@@ -58,7 +72,7 @@ const AdminService = () => {
         [callApi]
     );
 
-    return { getBenefits, getBenefitById, loading, setIsLoading, postBenefit };
+    return { getBenefits, getBenefitById, loading, setIsLoading, postBenefit, createStaff };
 };
 
 export default AdminService;

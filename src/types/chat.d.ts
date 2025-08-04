@@ -6,6 +6,8 @@ interface UserChat {
   updatedAt: string;
   lastMessage: string;
   messageType: string;
+  account1IsRead: boolean;
+  account2IsRead: boolean;
   senderID: string;
 }
 interface account {

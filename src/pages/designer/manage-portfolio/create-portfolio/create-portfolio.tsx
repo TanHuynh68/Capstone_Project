@@ -397,17 +397,15 @@ export function CreatePortfolio({ onSuccess }: CreatePortfolioProps) {
       });
 
       // Call the createPortfolio service
-      await createPortfolio(formDataToSend);
-
-      // Reset form and close dialog on success
-      resetForm();
-      setIsOpen(false);
-
-      // Show success message
-      toast.success("Tạo dự án thành công!");
-
-      // Call onSuccess callback
-      onSuccess();
+      const res = await createPortfolio(formDataToSend);
+      if (res.statusCode === 200) {
+        toast.success("Tạo dự án thành công!");
+        resetForm();
+        setIsOpen(false);
+        onSuccess();
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo dự án");
+      }
     } catch (err) {
       console.error("Error creating portfolio:", err);
       // toast.error("Có lỗi xảy ra khi tạo dự án");

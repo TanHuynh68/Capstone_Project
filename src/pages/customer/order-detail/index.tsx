@@ -206,6 +206,7 @@ export default function OrderManagementPage() {
       onFetchProgressSteps={fetchProgressSteps}
       onCreateProgressStep={handleCreateProgressStep}
       onSelectPhases={createDepositListPhaseByCustomer}
+      fetchOrderDetail={fetchOrderDetail}
     />
   );
 }

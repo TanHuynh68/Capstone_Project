@@ -15,9 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { OfferEditorDialog } from "@/components/organisms/offer/OfferEditorDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatVietnamDate } from "@/utils/date";
 import { OfferEditImage } from "@/components/organisms/offer/OfferEditImage";
+import PortfolioService from "@/services/PortfolioService";
 
 interface OfferCardProps {
   offer: Offer;
@@ -52,6 +53,27 @@ export function OfferCard({
   const createdAt = formatVietnamDate(offer.createdAt);
   const deadline = formatVietnamDate(offer.deadlineEndAt);
   const [openEditImageDialog, setOpenEditImageDialog] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [portfolioData, setPortfolioData] = useState<{
+    portfolioID: string;
+    yearOfExperience: string;
+    content: string;
+    fullName: string;
+    avatar: string | null;
+    email: string;
+    phoneNumber: string;
+    expertIn: string;
+    createdAt: string;
+    updatedAt: string;
+    portfolioImages: Array<{
+      portfolioImageID: string;
+      imageUrl: string;
+      imageDescription: string;
+      imageType: number;
+      createdAt: string;
+    }>;
+  } | null>(null);
+  const { getPortfolioDesignerForAll } = PortfolioService();
   const handleDeleteOffer = async () => {
     try {
       const response = await deleteOffer({ offerID: offer.offerID });
@@ -97,12 +119,34 @@ export function OfferCard({
     setOpenEditImageDialog(true);
   };
 
+  // Fetch portfolio data when component mounts
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      try {
+        const response = await getPortfolioDesignerForAll({
+          DesignerID: offer.designerID,
+        });
+        if (response?.isSuccess && response?.responseRequestModel) {
+          setPortfolioData(response.responseRequestModel);
+        }
+      } catch (error) {
+        console.error("Error fetching portfolio data:", error);
+      }
+    };
+
+    fetchPortfolioData();
+  }, [offer.designerID, getPortfolioDesignerForAll]);
+
   return (
     <div className="bg-card text-card-foreground rounded-xl border border-border p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-accent/5 dark:hover:bg-accent/10">
       {/* Avatar + name + status */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <div className="relative group flex text-center justify-center">
+          <div
+            className="relative flex text-center justify-center"
+            onMouseEnter={() => setShowProfilePopup(true)}
+            onMouseLeave={() => setShowProfilePopup(false)}
+          >
             <div className="flex items-center justify-center">
               <Avatar
                 src={offer.avatar || "/unknown-user.png"}
@@ -112,15 +156,14 @@ export function OfferCard({
               />
               <div className="text-sm font-medium ml-2">{offer.fullName}</div>
             </div>
-            <ProfilePopup
-              designerID={offer.designerID}
-              fullName={offer.fullName}
-              avatar={offer.avatar}
-              location={offer.location}
-              appreciations={offer.appreciations}
-              followers={offer.followers}
-              views={offer.views}
-            />
+            {showProfilePopup && (
+              <ProfilePopup
+                designerID={offer.designerID}
+                fullName={offer.fullName}
+                avatar={offer.avatar}
+                portfolioData={portfolioData}
+              />
+            )}
           </div>
         </div>
 

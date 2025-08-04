@@ -10,7 +10,7 @@ export const MESSAGE = {
   DELETE_ADDRESS_SUCCESSFULLY: "Đã xóa địa chỉ thành công.",
   LOGIN_SUCCESSFULLY: "Đăng nhập thành công.",
   // LOGOUT_SUCCESSFULLY: "Đăng xuất thành công.",
-  LOGOUT_SUCCESSFULLY: "Đăng xuất thành công. Hẹn gặp lại bạn!",
+  LOGOUT_SUCCESSFULLY: "Hẹn gặp lại lần sau! Cảm ơn bạn thật nhiều 🐻✨",
   LOGOUT_FAILED: "Đăng xuất thất bại. Vui lòng thử lại!",
   // MANAGER USERS BY STAFF
   CREATE_USER_SUCCESSFULLY: "Tạo người dùng thành công.",

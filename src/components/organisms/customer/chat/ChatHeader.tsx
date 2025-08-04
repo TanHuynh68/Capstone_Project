@@ -25,7 +25,7 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
       />
       <div className="flex gap-1">
         <ChatButton onClick={setIsOpen}>
-          <Info className="h-5 w-5" />
+          <Info className="h-5 w-5 text-primary" />
           <span className="sr-only">Thông tin</span>
         </ChatButton>
       </div>
