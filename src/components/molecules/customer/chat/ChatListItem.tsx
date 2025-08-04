@@ -23,29 +23,25 @@ export default function ChatListItem({
   const currentUser = useCurrentUser()
 
   return (
-    <button
+    <div className="p-1">
+      <button
       className={cn(
-        "flex items-start gap-3 p-3 text-left hover:bg-gray-100 w-full transition-colors",
-        isActive && "bg-blue-50 border-r-2 border-blue-500",
+        "flex items-start gap-3 p-3 text-left hover:bg-primary  hover:text-white transition-colors w-full rounded-lg",
+        isActive && "",
       )}
       onClick={() => onClick(id)}
     >
       <ChatAvatar src={avatar} name={name} />
-      <div className="flex-1 min-w-0">
-        <div className={cn("font-medium truncate", isActive && "text-blue-600")}>{name}</div>
-        <div className="text-sm text-gray-400 truncate w-[250px]">
+      <div className="flex-1 min-w-0 w-full">
+        <div className={cn("font-medium truncate", isActive && "")}>{name}</div>
+        <div className="text-sm truncate w-full">
           {currentUser?.id === usersInChatSection.senderID
             ? `Bạn: ${renderLastMessage(usersInChatSection.lastMessage, usersInChatSection.messageType)}`
             : renderLastMessage(usersInChatSection.lastMessage, usersInChatSection.messageType)}
         </div>
       </div>
-      {/* Unread indicator - you can add this if you have unread count */}
-      {/* {unreadCount > 0 && (
-        <div className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-          {unreadCount}
-        </div>
-      )} */}
     </button>
+    </div>
   )
 }
 

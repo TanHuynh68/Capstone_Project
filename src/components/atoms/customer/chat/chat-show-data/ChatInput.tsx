@@ -1,7 +1,7 @@
 "use client"
 
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, ThumbsUp, ImageIcon, FileText } from "lucide-react"
+import { Plus, ImageIcon, FileText, Send } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import type React from "react"
 
@@ -74,7 +74,7 @@ export default function ChatInput({
             canSend ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
-          <ThumbsUp className="h-4 w-4" />
+          <Send className="h-4 w-4" />
           <span className="sr-only">Gửi</span>
         </button>
       </div>
