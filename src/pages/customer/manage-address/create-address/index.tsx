@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,11 +17,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import CustomerService from "@/services/CustomerService";
 import { getDistricts, getWards } from "@/services/ghnApi";
 import { MapPinned } from "lucide-react";
+import {
+  createAddressSchema,
+  CreateAddressFormData,
+  createAddressPayloadSchema,
+} from "@/schemas/addressSchema";
 
 const HCM_PROVINCE_ID = 202;
+
+type District = {
+  DistrictID: number;
+  DistrictName: string;
+};
+
+type Ward = {
+  WardCode: number;
+  WardName: string;
+};
 
 type CreateAddressProps = {
   onCreated: () => void;
@@ -35,16 +59,23 @@ const CreateAddress = ({
 }: CreateAddressProps) => {
   const { postAddresses } = CustomerService();
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    addressDetail: "",
-    district: "",
-    ward: "",
-  });
-
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [wards, setWards] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
 
   const maxAddressesReached = addresses.length >= 3;
+
+  const form = useForm<CreateAddressFormData>({
+    resolver: zodResolver(createAddressSchema),
+    defaultValues: {
+      addressDetail: "",
+      district: "",
+      ward: "",
+      isMainAddress: false,
+    },
+    mode: "onBlur",
+  });
+
+  const watchedDistrict = form.watch("district");
 
   useEffect(() => {
     const fetchDistricts = async () => {
@@ -56,53 +87,64 @@ const CreateAddress = ({
 
   useEffect(() => {
     if (!open) {
-      setFormData({
+      form.reset({
         addressDetail: "",
         district: "",
         ward: "",
+        isMainAddress: false,
       });
       setWards([]);
     }
-  }, [open]);
+  }, [open, form]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDistrictSelect = async (value: string) => {
-    setFormData((prev) => ({ ...prev, district: value, ward: "" }));
-    const res = await getWards(Number(value));
-    setWards(res.data.data || []);
-  };
-
-  const handleSubmit = async () => {
-    const payload = {
-      ...formData,
-      district: Number(formData.district),
-      ward: Number(formData.ward),
-      isMainAddress: addresses.length === 0,
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (watchedDistrict) {
+        const res = await getWards(Number(watchedDistrict));
+        setWards(res.data.data || []);
+        form.setValue("ward", "");
+      } else {
+        setWards([]);
+      }
     };
+    fetchWards();
+  }, [watchedDistrict, form]);
 
-    const isDuplicate = addresses.some(
-      (addr) =>
-        addr.addressDetail.trim().toLowerCase() ===
-          payload.addressDetail.trim().toLowerCase() &&
-        Number(addr.district) === payload.district &&
-        Number(addr.ward) === payload.ward
-    );
+  const onSubmit = async (data: CreateAddressFormData) => {
+    console.log("Form data:", data); // Debug log
+    try {
+      const validatedPayload = createAddressPayloadSchema.parse(data);
+      const payload = {
+        ...validatedPayload,
+        isMainAddress: addresses.length === 0,
+      };
 
-    if (isDuplicate) {
-      alert("Địa chỉ này đã tồn tại. Vui lòng nhập địa chỉ khác.");
-      return;
-    }
+      console.log("Payload:", payload); // Debug log
 
-    const res = await postAddresses(payload);
-    if (res) {
-      onCreated();
-      setOpen(false);
+      const isDuplicate = addresses.some(
+        (addr) =>
+          addr.addressDetail.trim().toLowerCase() ===
+            payload.addressDetail.trim().toLowerCase() &&
+          Number(addr.district) === payload.district &&
+          Number(addr.ward) === payload.ward
+      );
+
+      if (isDuplicate) {
+        alert("Địa chỉ này đã tồn tại. Vui lòng nhập địa chỉ khác.");
+        return;
+      }
+
+      const res = await postAddresses(payload);
+      if (res?.statusCode === 201) {
+        onCreated();
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
     }
   };
+
+  const handleSubmit = form.handleSubmit(onSubmit);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -118,66 +160,89 @@ const CreateAddress = ({
         <DialogHeader>
           <DialogTitle>Thêm địa chỉ mới</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 mt-4">
-          <div>
-            <Label htmlFor="addressDetail" className="mb-2 block">
-              Địa chỉ chi tiết
-            </Label>
-            <Input
-              id="addressDetail"
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <FormField
+              control={form.control}
               name="addressDetail"
-              value={formData.addressDetail}
-              onChange={handleChange}
-              placeholder="Ví dụ: 123 Lê Lợi"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Địa chỉ chi tiết</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ví dụ: 123 Lê Lợi" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="mb-2 block">Chọn Quận/Huyện</Label>
-              <Select
-                value={formData.district}
-                onValueChange={handleDistrictSelect}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn quận/huyện" />
-                </SelectTrigger>
-                <SelectContent>
-                  {districts.map((d) => (
-                    <SelectItem key={d.DistrictID} value={String(d.DistrictID)}>
-                      {d.DistrictName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-2 block">Chọn Phường/Xã</Label>
-              <Select
-                value={formData.ward}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, ward: value }))
-                }
-                disabled={!formData.district}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn phường/xã" />
-                </SelectTrigger>
-                <SelectContent>
-                  {wards.map((w) => (
-                    <SelectItem key={w.WardCode} value={String(w.WardCode)}>
-                      {w.WardName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="district"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chọn Quận/Huyện</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn quận/huyện" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {districts.map((d) => (
+                          <SelectItem
+                            key={d.DistrictID}
+                            value={String(d.DistrictID)}
+                          >
+                            {d.DistrictName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Button onClick={handleSubmit} className="w-full mt-3">
-            Lưu địa chỉ
-          </Button>
-        </div>
+              <FormField
+                control={form.control}
+                name="ward"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chọn Phường/Xã</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={!watchedDistrict}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn phường/xã" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {wards.map((w) => (
+                          <SelectItem
+                            key={w.WardCode}
+                            value={String(w.WardCode)}
+                          >
+                            {w.WardName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button type="submit" className="w-full mt-3">
+              Lưu địa chỉ
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

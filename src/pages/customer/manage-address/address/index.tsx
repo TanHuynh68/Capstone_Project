@@ -11,6 +11,14 @@ const VALID_HCM_DISTRICTS = new Set([
   1454, 1453, 1452, 1451, 1450, 1449, 1448, 1447, 1446, 1444, 1443, 1442,
 ]);
 
+type Address = {
+  addressID: string;
+  addressDetail: string;
+  district: number;
+  ward: number;
+  isMainAddress: boolean;
+};
+
 type GetAddressProps = {
   addresses: Record<string, unknown>[];
   onUpdated: () => void;
@@ -194,7 +202,7 @@ const GetAddress = ({ addresses, onUpdated }: GetAddressProps) => {
       {selectedAddress && (
         <PutAddress
           key={selectedAddress.addressID as string}
-          address={selectedAddress}
+          address={selectedAddress as Address}
           onUpdated={() => {
             setSelectedAddress(null);
             onUpdated();
