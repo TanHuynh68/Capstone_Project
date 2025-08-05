@@ -189,4 +189,6 @@ export enum API_ROUTES {
   // Dashboard
   GET_DASHBOARD = `${API_ENDPOINTS.DASHBOARD}`,
   GET_GROWTH_RATE = `${API_ENDPOINTS.DASHBOARD}/growth-rate`,
+  ADMIN_GET_STAFF = `/admin/${API_ENDPOINTS.ACCOUNT}/staff`,
+  ADMIN_CHANGE_STAFF = `/admin/${API_ENDPOINTS.ACCOUNT}/change-active`,
 }

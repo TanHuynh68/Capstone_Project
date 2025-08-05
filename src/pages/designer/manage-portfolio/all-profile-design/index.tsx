@@ -17,9 +17,7 @@ import { RoleVietnamese } from "@/utils";
 import { Separator } from "@/components/ui/separator";
 import PortfolioService from "@/services/PortfolioService";
 import { useParams } from "react-router-dom";
-import {
-  formatVietnamDate,
-} from "@/utils/date";
+import { formatVietnamDate } from "@/utils/date";
 
 interface Profile {
   accountID: string;
@@ -245,7 +243,7 @@ const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
               </CardContent>
 
               <Separator />
-              <CardHeader className="text-center pb-0">
+              <CardHeader className="text-center pb-0 mt-3">
                 {/* Ảnh đại diện + nút Camera */}
                 <div className="flex justify-center mb-4 relative">
                   <Avatar className="h-24 w-24 shadow-sm">
@@ -292,7 +290,7 @@ const AllProfileDesign = ({ portfolioData }: AllProfileDesignProps) => {
               </CardHeader>
 
               <CardContent>
-                <div className="space-y-4 text-sm">
+                <div className="space-y-4 text-sm mt-3">
                   <div className="flex items-center">
                     <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
                     <span>{profile?.email || "Chưa cập nhật"}</span>
