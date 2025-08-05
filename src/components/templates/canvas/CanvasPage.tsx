@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/CanvasListInPage";
+import CanvasLoadingOverlay from "@/components/atoms/layout/navbar/CanvasLoadingOverlay";
 import { USER_ROUTES } from "@/routes/path";
 import CanvasService from "@/services/CanvasService";
 import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
@@ -48,6 +49,9 @@ export default function CanvasPage() {
 
   // Canvas selection state
   const [selectedCanvasId, setSelectedCanvasId] = useState<string>("");
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState("Đang tạo canvas...");
 
   // Unit conversion functions
   const pxToCm = (px: number): number => {
@@ -192,6 +196,10 @@ export default function CanvasPage() {
 
   const createCanvas = async () => {
     console.log("createCanvas");
+    setShowLoadingOverlay(true);
+    setLoadingProgress(10);
+    setLoadingMessage("Đang chuẩn bị tạo canvas...");
+
     const finalImageWidthPx =
       unit === "px"
         ? imageWidth[0]
@@ -212,6 +220,9 @@ export default function CanvasPage() {
       const folderName = folderNameInput.trim() || defaultFolderName;
       console.log("Trước khi gọi CanvasService");
 
+      setLoadingProgress(30);
+      setLoadingMessage("Đang tạo thư mục...");
+
       // 1. Tạo folder
       const response = await postFolderCanvas({
         folderName: folderName,
@@ -223,6 +234,9 @@ export default function CanvasPage() {
         response?.responseRequestModel?.canvasFolderId
       ) {
         const newFolderId = response.responseRequestModel.canvasFolderId;
+
+        setLoadingProgress(60);
+        setLoadingMessage("Đang tạo canvas...");
 
         // 2. Tạo canvas đầu tiên trong folder
         const canvasResponse = await postCanvas({
@@ -238,6 +252,9 @@ export default function CanvasPage() {
             imageHeight: finalImageHeightPx,
           }),
         });
+        setLoadingProgress(90);
+        setLoadingMessage("Hoàn thành! Đang chuyển hướng...");
+
         if (
           canvasResponse?.isSuccess &&
           canvasResponse?.responseRequestModel?.canvasInfoId
@@ -271,6 +288,13 @@ export default function CanvasPage() {
     } catch (error) {
       console.error("Error creating folder or canvas:", error);
       // toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
+    } finally {
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setShowLoadingOverlay(false);
+        setLoadingMessage("Đang tạo canvas...");
+        setLoadingProgress(0);
+      }, 500);
     }
   };
 
@@ -415,6 +439,13 @@ export default function CanvasPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-purple-100 to-pink-100">
+      {/* Loading Overlay */}
+      <CanvasLoadingOverlay
+        isVisible={showLoadingOverlay}
+        message={loadingMessage}
+        progress={loadingProgress}
+      />
+
       {/* Header */}
       {/* <header className="flex justify-end p-4">
         <Button

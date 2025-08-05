@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatFullDateWithDistance3 } from "@/utils/date";
 import { useNavigate } from "react-router-dom";
-import { useCanvasPreload } from "@/context/CanvasPreloadContext";
+import CanvasLoadingOverlay from "@/components/atoms/layout/navbar/CanvasLoadingOverlay";
 
 interface CanvasFolder {
   canvasFolderId: string;
@@ -67,8 +67,10 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const [page, setPage] = useState(1);
   const [searchTitle, setSearchTitle] = useState("");
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
-  const [hasUsedPreloadedData, setHasUsedPreloadedData] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isInitialLoad] = useState(true);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Đang tải thiết kế...");
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Refs for tracking state
   const loadInProgressRef = useRef(false);
@@ -90,48 +92,19 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     CanvasService();
   const navigate = useNavigate();
 
-  // Get preloaded data from context
-  const { preloadedCanvasList, hasPreloadedData, isFabricReady } =
-    useCanvasPreload();
-
-  // Immediate use of preloaded data when component mounts
-  useEffect(() => {
-    if (
-      hasPreloadedData &&
-      preloadedCanvasList.length > 0 &&
-      canvasList.length === 0 &&
-      !hasUsedPreloadedData &&
-      !searchTitle
-    ) {
-      console.log(
-        "CanvasListInPage: Component mount - using preloaded data immediately",
-        {
-          preloadedCanvasListLength: preloadedCanvasList.length,
-          hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
-          previewUrls: preloadedCanvasList.map((item) => item.previewUrl),
-        }
-      );
-
-      setCanvasList(preloadedCanvasList);
-      setHasUsedPreloadedData(true);
-      setLoading(false);
-      setIsInitialLoad(false);
-
-      // Dispatch canvas count event
-      window.dispatchEvent(
-        new CustomEvent("canvasCountUpdated", {
-          detail: { totalCount: preloadedCanvasList.length },
-        })
-      );
-    }
-  }, []); // Empty dependency array - run only once on mount
-
   // Optimized canvas preview generation using fabric.js status
   const generateCanvasPreview = useCallback(
     async (
-      item: CanvasFolder
+      item: CanvasFolder,
+      index: number,
+      total: number
     ): Promise<{ url: string; width: number; height: number }> => {
       try {
+        // Update loading message and progress for preview generation
+        setLoadingMessage(`Đang tải thiết kế ${index + 1}/${total}...`);
+        const progress = Math.round(30 + ((index + 1) / total) * 60); // 30% to 90%
+        setLoadingProgress(progress);
+
         // If we have latestCanvasInfo with previewUrl, use it
         if (item.latestCanvasInfo?.previewUrl) {
           return { url: item.latestCanvasInfo.previewUrl, width: 0, height: 0 };
@@ -140,7 +113,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         // If we have canvas description, generate preview from it
         if (item.latestCanvasInfo?.canvasDescription) {
           // Check if fabric is ready
-          if (!isFabricReady) {
+          if (typeof window.fabric === "undefined") {
             return {
               url: "/images/canvas-placeholder.png",
               width: 0,
@@ -233,7 +206,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
       }
     },
-    [isFabricReady]
+    []
   );
 
   const loadList = useCallback(async () => {
@@ -242,46 +215,12 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       return;
     }
 
-    // Priority: Use preloaded data if available
-    if (
-      hasPreloadedData &&
-      preloadedCanvasList.length > 0 &&
-      !hasUsedPreloadedData &&
-      !searchTitle
-    ) {
-      console.log(
-        "CanvasListInPage: loadList - Using preloaded data instead of API call",
-        {
-          preloadedCanvasListLength: preloadedCanvasList.length,
-          hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
-        }
-      );
-
-      setCanvasList(preloadedCanvasList);
-      setHasUsedPreloadedData(true);
-      setLoading(false);
-      setIsInitialLoad(false);
-
-      // Dispatch canvas count event
-      window.dispatchEvent(
-        new CustomEvent("canvasCountUpdated", {
-          detail: { totalCount: preloadedCanvasList.length },
-        })
-      );
-      return;
-    }
-
-    // Only call API if we don't have preloaded data or need to search/paginate
-    if (hasPreloadedData && !hasUsedPreloadedData && !searchTitle) {
-      console.log(
-        "CanvasListInPage: loadList - Skipping API call, preloaded data should be used"
-      );
-      return;
-    }
-
     try {
       loadInProgressRef.current = true;
       setLoading(true);
+      setShowLoadingOverlay(true);
+      setLoadingMessage("Đang tải danh sách thư mục...");
+      setLoadingProgress(10);
 
       console.log("CanvasListInPage: loadList - Calling API for data");
 
@@ -292,6 +231,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       });
       const items = data?.responseRequestModel?.responseList?.items || [];
 
+      setLoadingMessage("Đang tải thiết kế...");
+      setLoadingProgress(30);
+
       // Generate previews progressively for better UX
       const itemsWithPreviews: CanvasFolder[] = [];
       const totalItems = items.length;
@@ -299,7 +241,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       for (let i = 0; i < totalItems; i++) {
         try {
           const item = items[i];
-          const preview = await generateCanvasPreview(item);
+          const preview = await generateCanvasPreview(item, i, totalItems);
 
           itemsWithPreviews.push({
             ...item,
@@ -316,6 +258,8 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             items[i].canvasFolderId,
             error
           );
+
+          // Add item with placeholder
           itemsWithPreviews.push({
             ...items[i],
             previewUrl: "/images/canvas-placeholder.png",
@@ -326,6 +270,14 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       }
 
       setCanvasList(itemsWithPreviews);
+
+      // Đạt 100% và ẩn overlay ngay lập tức
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setShowLoadingOverlay(false);
+        setLoadingMessage("Đang tải thiết kế...");
+        setLoadingProgress(0);
+      }, 500); // Hiển thị 100% trong 0.5s rồi ẩn
 
       const totalCount =
         data?.responseRequestModel?.responseList?.totalItems || 0;
@@ -340,93 +292,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       setLoading(false);
       loadInProgressRef.current = false;
     }
-  }, [
-    page,
-    getFolderCanvas,
-    searchTitle,
-    generateCanvasPreview,
-    hasPreloadedData,
-    preloadedCanvasList,
-    hasUsedPreloadedData,
-  ]);
-
-  // Use preloaded data when available
-  useEffect(() => {
-    if (
-      hasPreloadedData &&
-      preloadedCanvasList.length > 0 &&
-      !hasUsedPreloadedData &&
-      isInitialLoad &&
-      !searchTitle // Only use preloaded data for initial load without search
-    ) {
-      console.log("CanvasListInPage: Using preloaded data with previews", {
-        preloadedCanvasListLength: preloadedCanvasList.length,
-        hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
-        previewUrls: preloadedCanvasList.map((item) => item.previewUrl),
-      });
-
-      // Use preloaded data directly without regenerating previews
-      setCanvasList(preloadedCanvasList);
-      setHasUsedPreloadedData(true);
-      setLoading(false);
-      setIsInitialLoad(false);
-
-      // Dispatch canvas count event
-      window.dispatchEvent(
-        new CustomEvent("canvasCountUpdated", {
-          detail: { totalCount: preloadedCanvasList.length },
-        })
-      );
-    }
-  }, [
-    hasPreloadedData,
-    preloadedCanvasList,
-    hasUsedPreloadedData,
-    isInitialLoad,
-    searchTitle,
-  ]);
-
-  // Listen for preload complete events
-  useEffect(() => {
-    const handlePreloadComplete = (event: CustomEvent) => {
-      if (
-        event.detail?.canvasList &&
-        canvasList.length === 0 &&
-        isInitialLoad
-      ) {
-        console.log("CanvasListInPage: Received preload complete event", {
-          canvasListLength: event.detail.canvasList.length,
-          hasPreviews: event.detail.canvasList.some(
-            (item: CanvasFolder) => item.previewUrl
-          ),
-        });
-
-        setCanvasList(event.detail.canvasList);
-        setHasUsedPreloadedData(true);
-        setLoading(false);
-        setIsInitialLoad(false);
-
-        // Dispatch canvas count event
-        window.dispatchEvent(
-          new CustomEvent("canvasCountUpdated", {
-            detail: { totalCount: event.detail.canvasList.length },
-          })
-        );
-      }
-    };
-
-    window.addEventListener(
-      "canvasPreloadComplete",
-      handlePreloadComplete as EventListener
-    );
-
-    return () => {
-      window.removeEventListener(
-        "canvasPreloadComplete",
-        handlePreloadComplete as EventListener
-      );
-    };
-  }, [canvasList.length, isInitialLoad]);
+  }, [page, getFolderCanvas, searchTitle, generateCanvasPreview]);
 
   const handleSearch = useCallback(() => {
     const newSearchTitle = folderName.trim();
@@ -439,7 +305,6 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     lastSearchRef.current = newSearchTitle;
     setSearchTitle(newSearchTitle);
     setPage(1);
-    setHasUsedPreloadedData(false); // Force API call for search
   }, [folderName]);
 
   // Update folder name
@@ -449,6 +314,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   ) => {
     try {
       setLoading(true);
+      setShowLoadingOverlay(true);
+      setLoadingMessage("Đang cập nhật thư mục...");
+
       const response = await putFolderCanvas({
         canvasFolderId,
         folderName: newFolderName,
@@ -464,6 +332,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       // toast.error("Cập nhật thư mục thất bại!");
     } finally {
       setLoading(false);
+      setShowLoadingOverlay(false);
     }
   };
 
@@ -471,6 +340,9 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const handleDeleteFolder = async (canvasFolderId: string) => {
     try {
       setLoading(true);
+      setShowLoadingOverlay(true);
+      setLoadingMessage("Đang xóa thư mục...");
+
       const response = await deleteFolderCanvas({ id: canvasFolderId });
       if (response?.statusCode === 200) {
         toast.success("Xóa thư mục thành công!");
@@ -483,6 +355,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       // toast.error("Xóa thư mục thất bại!");
     } finally {
       setLoading(false);
+      setShowLoadingOverlay(false);
     }
   };
 
@@ -512,57 +385,24 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
 
   // Load data when needed
   useEffect(() => {
-    // Priority: Use preloaded data first
-    if (
-      hasPreloadedData &&
-      preloadedCanvasList.length > 0 &&
-      !hasUsedPreloadedData &&
-      isInitialLoad &&
-      !searchTitle
-    ) {
-      console.log(
-        "CanvasListInPage: shouldLoad - Using preloaded data, skipping API call"
-      );
-      return; // Let the preloaded data useEffect handle this
-    }
-
-    // Only load from API if we don't have preloaded data or need to search/paginate
-    const shouldLoad =
-      (!hasPreloadedData || hasUsedPreloadedData) && // No preloaded data available
-      (page > 1 || searchTitle || (!isInitialLoad && canvasList.length === 0));
+    const shouldLoad = isInitialLoad || page > 1 || searchTitle;
 
     console.log("CanvasListInPage: Checking if should load API", {
-      hasUsedPreloadedData,
-      hasPreloadedData,
-      preloadedCanvasListLength: preloadedCanvasList.length,
       page,
       searchTitle,
       isInitialLoad,
-      canvasListLength: canvasList.length,
       shouldLoad,
     });
 
     if (shouldLoad && !loadInProgressRef.current) {
       console.log("CanvasListInPage: Loading from API");
       loadList();
-    } else if (!shouldLoad) {
-      console.log("CanvasListInPage: Skipping API call, using preloaded data");
     }
-  }, [
-    searchTitle,
-    page,
-    loadList,
-    hasUsedPreloadedData,
-    hasPreloadedData,
-    preloadedCanvasList.length,
-    isInitialLoad,
-    canvasList.length,
-  ]);
+  }, [searchTitle, page, loadList, isInitialLoad]);
 
   useEffect(() => {
     const handleCanvasSaved = () => {
       setPage(1);
-      setHasUsedPreloadedData(false); // Force refresh
       loadList();
     };
 
@@ -603,7 +443,14 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   }, [isEditDialogOpen]);
 
   return (
-    <div className="space-y-4 p-0">
+    <div className="space-y-4 p-0 relative">
+      {/* Loading Overlay */}
+      <CanvasLoadingOverlay
+        isVisible={showLoadingOverlay}
+        message={loadingMessage}
+        progress={loadingProgress}
+      />
+
       {/* Custom Search Bar UI */}
       <div className="flex justify-center items-center py-2">
         <div className="relative w-full max-w-4xl">
