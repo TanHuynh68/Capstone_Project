@@ -10,8 +10,6 @@ import { ThemeProvider } from "./components/themes/theme-provider";
 import { InitUserFromToken } from "./services/InitUserFromToken";
 import { NotificationProvider } from "./components/atoms/notification/notification-context";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { CanvasPreloadProvider } from "./context/CanvasPreloadContext";
-import CanvasPreloadInitializer from "./components/atoms/layout/navbar/CanvasPreloadInitializer";
 
 function App() {
   return (
@@ -22,12 +20,9 @@ function App() {
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <StateProvider>
-                <CanvasPreloadProvider>
-                  <CanvasPreloadInitializer />
-                  <RouterProvider router={router} />
-                  <Toaster />
-                  <InitUserFromToken />
-                </CanvasPreloadProvider>
+                <RouterProvider router={router} />
+                <Toaster />
+                <InitUserFromToken />
               </StateProvider>
             </PersistGate>
           </Provider>

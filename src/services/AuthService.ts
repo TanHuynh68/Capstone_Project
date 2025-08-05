@@ -31,6 +31,8 @@ const useAuthService = () => {
   const login = useCallback(
     async (values: any) => {
       const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
+
+      console.log(res, "res");
       const jwtToken = res?.responseRequestModel?.jwtToken;
       const token = jwtToken?.accessToken;
       const refreshToken = jwtToken?.refreshToken;
