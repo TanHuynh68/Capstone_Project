@@ -64,8 +64,8 @@ const DashboardService = () => {
     async (values: any) => {
       try {
         const res = await callApi(
-          HTTP_METHOD.POST,
-          `${API_ROUTES.ADMIN_GET_STAFF}`,
+          HTTP_METHOD.PUT,
+          `${API_ROUTES.ADMIN_CHANGE_STAFF}`,
           values
         );
         return res;

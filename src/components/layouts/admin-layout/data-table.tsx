@@ -24,7 +24,6 @@ import {
   ColumnsIcon,
   MoreVerticalIcon,
   PlusIcon,
-  UserIcon,
   XCircleIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -66,7 +65,66 @@ import {
 import { useStaffManagement } from "@/hooks/useManageStaffByAdmin";
 import { CreateStaffForm } from "@/components/organisms/staff/create-staff";
 
-const columns: ColumnDef<Staff>[] = [
+interface Staff {
+  accountID: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  genderDisplay: string;
+  roleDisplay: string;
+  isActive: boolean;
+  isVerify: boolean;
+  createdAt: string;
+}
+
+// Component riêng cho Actions Menu để tránh re-render toàn bộ table
+function StaffActionsMenu({ staff }: { staff: Staff }) {
+  const { updateStaffActive } = useStaffManagement();
+  const [isUpdating, setIsUpdating] = React.useState(false);
+
+  const handleToggleActive = async () => {
+    setIsUpdating(true);
+    console.log(
+      "Toggle active for staff:",
+      staff.accountID,
+      "current:",
+      staff.isActive,
+      "new:",
+      !staff.isActive
+    );
+    await updateStaffActive(staff.accountID, !staff.isActive);
+    setIsUpdating(false);
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button
+          variant="ghost"
+          className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+          size="icon"
+          disabled={isUpdating}
+        >
+          <MoreVerticalIcon />
+          <span className="sr-only">Open menu</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem onClick={handleToggleActive} disabled={isUpdating}>
+          {isUpdating
+            ? "Đang cập nhật..."
+            : staff.isActive
+            ? "Vô hiệu hóa"
+            : "Kích hoạt"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+const createColumns = (): ColumnDef<Staff>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -99,9 +157,8 @@ const columns: ColumnDef<Staff>[] = [
     accessorKey: "fullName",
     header: "Họ và tên",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <UserIcon className="h-4 w-4 text-muted-foreground" />
-        <span className="font-medium">{row.original.fullName}</span>
+      <div className="">
+        <div className="font-medium">{row.original.fullName}</div>
       </div>
     ),
     enableHiding: false,
@@ -125,7 +182,7 @@ const columns: ColumnDef<Staff>[] = [
     header: "Giới tính",
     cell: ({ row }) => (
       <Badge variant="outline" className="px-2 text-xs">
-        {row.original.genderDisplay}
+        {row.original.genderDisplay === "Male" ? "Nam" : "Nữ"}
       </Badge>
     ),
   },
@@ -134,7 +191,7 @@ const columns: ColumnDef<Staff>[] = [
     header: "Vai trò",
     cell: ({ row }) => (
       <Badge variant="secondary" className="px-2 text-xs">
-        {row.original.roleDisplay}
+        {row.original.roleDisplay === "Staff" && "Nhân viên"}
       </Badge>
     ),
   },
@@ -142,17 +199,19 @@ const columns: ColumnDef<Staff>[] = [
     accessorKey: "isActive",
     header: "Trạng thái",
     cell: ({ row }) => (
-      <Badge
-        variant={row.original.isActive ? "default" : "destructive"}
-        className="flex gap-1 px-2 text-xs [&_svg]:size-3"
-      >
-        {row.original.isActive ? (
-          <CheckCircle2Icon className="text-green-500" />
-        ) : (
-          <XCircleIcon className="text-red-500" />
-        )}
-        {row.original.isActive ? "Hoạt động" : "Vô hiệu hóa"}
-      </Badge>
+      <div className="flex justify-center">
+        <Badge
+          variant={row.original.isActive ? "default" : "destructive"}
+          className="flex gap-1 px-2 text-xs [&_svg]:size-3"
+        >
+          {row.original.isActive ? (
+            <CheckCircle2Icon className="text-green-500" />
+          ) : (
+            <XCircleIcon className="text-red-500" />
+          )}
+          {row.original.isActive ? "Hoạt động" : "Vô hiệu hóa"}
+        </Badge>
+      </div>
     ),
   },
   {
@@ -170,36 +229,6 @@ const columns: ColumnDef<Staff>[] = [
   },
 ];
 
-function StaffActionsMenu({ staff }: { staff: Staff }) {
-  const { updateStaffActive } = useStaffManagement();
-
-  const handleToggleActive = async () => {
-    await updateStaffActive(staff.accountID, !staff.isActive);
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button
-          variant="ghost"
-          className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-          size="icon"
-        >
-          <MoreVerticalIcon />
-          <span className="sr-only">Open menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem onClick={handleToggleActive}>
-          {staff.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 export function DataTable() {
   const {
     staffs,
@@ -209,6 +238,7 @@ export function DataTable() {
     filters,
     updateFilters,
     createNewStaff,
+    refreshTrigger,
   } = useStaffManagement();
 
   const [rowSelection, setRowSelection] = React.useState({});
@@ -219,6 +249,15 @@ export function DataTable() {
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
+
+  // Tạo columns mới mỗi khi refreshTrigger thay đổi
+  const columns = React.useMemo(() => createColumns(), [refreshTrigger]);
+
+  // Log để debug
+  React.useEffect(() => {
+    console.log("DataTable re-render, staffs:", staffs);
+    console.log("RefreshTrigger:", refreshTrigger);
+  }, [staffs, refreshTrigger]);
 
   const table = useReactTable({
     data: staffs,
@@ -351,9 +390,15 @@ export function DataTable() {
           </div>
         </div>
 
+        {/* Debug info */}
+        <div className="text-xs text-muted-foreground">
+          Debug: Staffs count: {staffs.length}, Refresh trigger:{" "}
+          {refreshTrigger}
+        </div>
+
         {/* Table */}
         <div className="overflow-hidden rounded-lg border">
-          <Table>
+          <Table key={`table-${refreshTrigger}`}>
             <TableHeader className="sticky top-0 z-10 bg-muted">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -385,11 +430,11 @@ export function DataTable() {
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
-                    key={row.id}
+                    key={`${row.id}-${refreshTrigger}-${row.original.isActive}`}
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={`${cell.id}-${refreshTrigger}`}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
