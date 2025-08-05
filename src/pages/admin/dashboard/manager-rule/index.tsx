@@ -151,11 +151,8 @@ const BenefitManager: React.FC = () => {
       <Card className="border shadow-md">
         <CardHeader className="flex justify-between items-center">
           <CardTitle>Bộ lọc quyền lợi</CardTitle>
-          <Button onClick={() => setOpenCreateModal(true)}>
-            Tạo quyền lợi
-          </Button>
         </CardHeader>
-        <CardContent className="flex flex-col md:flex-row gap-3">
+        <CardContent className="flex flex-col md:flex-row gap-3 mt-5">
           <Input
             placeholder="Tìm theo tiêu đề..."
             value={filterTitle}
@@ -181,6 +178,9 @@ const BenefitManager: React.FC = () => {
               <SelectItem value="4">Bảo hành</SelectItem>
             </SelectContent>
           </Select>
+          <Button onClick={() => setOpenCreateModal(true)}>
+            Tạo quyền lợi
+          </Button>
           <Button onClick={fetchBenefits} className="w-full md:w-auto">
             Tìm kiếm
           </Button>

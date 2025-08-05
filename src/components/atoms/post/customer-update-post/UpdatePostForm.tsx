@@ -21,19 +21,20 @@ import { Calendar } from "@/components/ui/calendar";
 import PostService from "@/services/PostService";
 import { toast } from "sonner";
 import { MESSAGE } from "@/constants";
-import { DialogClose } from "@/components/ui/dialog";
 import { formatDateToSubmit } from "@/utils";
 
 interface UpdatePostFormProps {
   fetchPosts: any;
   data: UpdatePostFormValues;
   projectPostId: string;
+  setOpen: any;
 }
 
 export function UpdatePostForm({
   data,
   projectPostId,
   fetchPosts,
+  setOpen
 }: UpdatePostFormProps) {
   const { updatePost } = PostService();
   const onSubmit = async (values: UpdatePostFormValues) => {
@@ -51,8 +52,10 @@ export function UpdatePostForm({
     if (response && response.isSuccess) {
       await fetchPosts();
       toast.success(MESSAGE.UPDATE_POST_SUCCESSFULLY);
+      setOpen(false)
     }
   };
+
   const form = useForm({
     resolver: zodResolver(updatePostSchema),
     defaultValues: {
@@ -76,9 +79,9 @@ export function UpdatePostForm({
             <FormItem>
               <FormLabel>Tiêu đề 2</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input  placeholder="shadcn" {...field} />
+                
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -151,9 +154,7 @@ export function UpdatePostForm({
               />
             </div>
             <div className=" ">
-              <DialogClose>
-                <Button type="submit">Gửi</Button>
-              </DialogClose>
+              <Button type="submit">Gửi</Button>
             </div>
           </div>
         </div>

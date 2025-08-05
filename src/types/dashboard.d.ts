@@ -1,5 +1,5 @@
 // dashboard chart
- interface DashboardStats {
+interface DashboardStats {
   account: {
     totalAccount: number
     totalAccountActive: number
@@ -66,4 +66,44 @@ interface DateRange {
 interface ComparisonDateRange {
   compareStart: string
   compareEnd: string
+}
+
+//Admin manage staff
+interface Staff {
+  accountID: string
+  fullName: string
+  phoneNumber: string
+  email: string
+  genderDisplay: string
+  roleDisplay: string
+  isActive: boolean
+  isVerify: boolean
+  createdAt: string
+}
+
+interface StaffFilters {
+  fullName: string
+  page: number
+  size: number
+}
+
+interface StaffResponse {
+  data: Staff[]
+  totalPages: number
+  totalElements: number
+}
+
+interface CreateStaffRequest {
+  fullName: string
+  phoneNumber: string
+  email: string
+  gender: string
+  password: string
+  confirmPassword: string
+  role: string
+}
+
+interface UpdateStaffActiveRequest {
+  accountID: string
+  isActive: boolean
 }
