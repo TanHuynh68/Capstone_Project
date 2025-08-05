@@ -42,7 +42,7 @@ export default function CreateStaffPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CreateStaffForm onSubmit={handleCreateStaff} />
+      <CreateStaffForm  onSubmit={handleCreateStaff} />
     </div>
   );
 }

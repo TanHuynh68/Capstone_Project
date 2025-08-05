@@ -2,8 +2,8 @@ import * as z from "zod";
 const minNumber = 1000;
 
 export const updatePostSchema = z.object({
-  Title: z.string().min(1, { message: "Tiêu đề không được để trống" }),
-  Description: z.string().min(1, { message: "Mô tả không được để trống" }),
+  Title: z.string().min(1, { message: "Tiêu đề không được để trống" }).max(50, { message: "Tiêu đề không được dài quá 50 ký tự" }),
+  Description: z.string().min(1, { message: "Mô tả không được để trống" }).max(250, { message: "Mô tả không được dài quá 200 ký tự" }),
   ItemValue: z.coerce
     .number()
     .min(minNumber, {
