@@ -33,6 +33,7 @@ export function LoginForm({
     // console.log("Dữ liệu gửi đi:", values);
     try {
       const response = await login(values);
+      console.log(response, "response");
       if (response) {
         // console.log("Đăng nhập thành công: ", response);
       }

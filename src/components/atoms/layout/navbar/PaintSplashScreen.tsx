@@ -5,7 +5,8 @@ import { useCanvasPreload } from "@/context/CanvasPreloadContext";
 const PaintSplashScreen = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const { isPreloading, hasPreloadedData, startPreload } = useCanvasPreload();
+  const { isPreloading, hasPreloadedData, startPreload, isFabricReady } =
+    useCanvasPreload();
 
   const steps = [
     "Đang tải các thiết kế gần đây",
@@ -14,22 +15,54 @@ const PaintSplashScreen = () => {
     "Hoàn tất!",
   ];
 
-  // Start preloading when splash screen appears
+  // Start preloading when splash screen appears (only if not already preloading)
   useEffect(() => {
-    startPreload();
-  }, [startPreload]);
+    if (!hasPreloadedData && !isPreloading) {
+      startPreload();
+    }
+  }, [startPreload, hasPreloadedData, isPreloading]);
 
+  // Progress animation that stops at 90% and waits for preload
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const newProgress = prev + 3.33; // 100% / 30 steps = 3.33% per step
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 100);
+    console.log("PaintSplashScreen: Starting progress animation");
+    const startTime = Date.now();
+    const duration = 3000; // 3 seconds total
+    let animationId: number;
+
+    const animateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progressPercent = Math.min((elapsed / duration) * 90, 90); // Stop at 90%
+
+      console.log("PaintSplashScreen: Progress update:", progressPercent);
+      setProgress(progressPercent);
+
+      if (elapsed < duration) {
+        animationId = requestAnimationFrame(animateProgress);
+      }
+    };
+
+    animationId = requestAnimationFrame(animateProgress);
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, []);
+
+  // Complete progress to 100% when preload is done
+  useEffect(() => {
+    if (!isPreloading && hasPreloadedData) {
+      console.log(
+        "PaintSplashScreen: Preload complete, setting progress to 100%"
+      );
+      setProgress(100);
+    }
+  }, [isPreloading, hasPreloadedData]);
+
+  // Step transitions - complete all steps within 3 seconds
+  useEffect(() => {
+    const stepDuration = 3000 / steps.length; // Distribute steps evenly over 3 seconds
 
     const stepInterval = setInterval(() => {
       setCurrentStep((prev) => {
@@ -39,64 +72,15 @@ const PaintSplashScreen = () => {
         }
         return prev + 1;
       });
-    }, 750);
+    }, stepDuration);
 
-    return () => {
-      clearInterval(interval);
-      clearInterval(stepInterval);
-    };
+    return () => clearInterval(stepInterval);
   }, []);
 
-  // Update progress based on preload status
-  useEffect(() => {
-    if (!isPreloading && hasPreloadedData) {
-      // If preload is complete, speed up the progress but don't jump to 100%
-      setProgress((prev) => {
-        const newProgress = prev + 15; // Speed up by 15%
-        return Math.min(newProgress, 95); // Cap at 95% to let normal progress finish
-      });
-    }
-  }, [isPreloading, hasPreloadedData]);
-
-  // Ensure progress reaches 100% at the end of splash screen
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setProgress(100);
-    }, 2800); // Set to 100% 200ms before splash screen ends
-
-    return () => clearTimeout(timer);
-  }, []);
+  console.log("PaintSplashScreen: Current progress:", progress);
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-cyan-100 via-purple-100 to-pink-100 z-50 flex items-center justify-center overflow-hidden">
-      {/* Animated Background Elements */}
-      {/* <div className="absolute inset-0">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-purple-400 rounded-full animate-ping animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.3}s`,
-              animationDuration: "3s",
-            }}
-          />
-        ))}
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={`sparkle-${i}`}
-            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-pulse"
-            style={{
-              left: `${20 + Math.random() * 60}%`,
-              top: `${20 + Math.random() * 60}%`,
-              animationDelay: `${i * 0.8}s`,
-              animationDuration: "2s",
-            }}
-          />
-        ))}
-      </div> */}
-
       <div className="text-center relative z-10">
         {/* Animated Logo GIF */}
         <div className="mb-6 animate-scale-in">
@@ -106,14 +90,6 @@ const PaintSplashScreen = () => {
             className="w-auto h-20 md:h-24 mx-auto"
           />
         </div>
-
-        {/* Loading Indicator */}
-        {/* <div className="flex items-center justify-center gap-3 mb-8 animate-fade-in-delay-2">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
-          <span className="text-purple-600 font-medium text-lg">
-            Đang tải...
-          </span>
-        </div> */}
 
         {/* Current Step Display */}
         <div className="mb-6 animate-fade-in-delay-3">
@@ -129,8 +105,11 @@ const PaintSplashScreen = () => {
         <div className="w-80 mx-auto mb-8">
           <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
             <div
-              className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300 ease-out shadow-lg"
-              style={{ width: `${Math.min(progress, 100)}%` }}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full shadow-lg"
+              style={{
+                width: `${Math.min(progress, 100)}%`,
+                transition: "none", // Remove CSS transition to prevent conflicts
+              }}
             ></div>
           </div>
           <div className="text-center mt-2 text-sm text-gray-500">
@@ -174,7 +153,51 @@ const PaintSplashScreen = () => {
           <div className="mt-4 text-xs text-gray-500 animate-fade-in-delay-3">
             <div className="flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span>Đang tải danh sách thiết kế...</span>
+              <span>
+                {isFabricReady
+                  ? "Đang tạo preview thiết kế..."
+                  : "Đang tải công cụ thiết kế..."}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Fabric Status */}
+        {isFabricReady && (
+          <div className="mt-2 text-xs text-green-500 animate-fade-in-delay-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Công cụ thiết kế đã sẵn sàng</span>
+            </div>
+          </div>
+        )}
+
+        {/* Waiting for Preload Status */}
+        {progress >= 90 && isPreloading && (
+          <div className="mt-2 text-xs text-yellow-500 animate-fade-in-delay-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+              <span>Chờ hoàn tất tải dữ liệu...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Preload Complete */}
+        {!isPreloading && hasPreloadedData && progress >= 90 && (
+          <div className="mt-2 text-xs text-green-500 animate-fade-in-delay-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Dữ liệu đã sẵn sàng!</span>
+            </div>
+          </div>
+        )}
+
+        {/* Timeout Warning */}
+        {isPreloading && progress > 80 && (
+          <div className="mt-2 text-xs text-orange-500 animate-fade-in-delay-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+              <span>Chuyển đến canvas trong vài giây...</span>
             </div>
           </div>
         )}

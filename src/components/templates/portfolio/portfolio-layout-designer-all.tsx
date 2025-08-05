@@ -2,6 +2,8 @@ import { useState } from "react";
 import { HeaderBanner } from "@/components/organisms/portfolio/header-banner";
 import { ProjectsGridAll } from "@/components/organisms/portfolio-all/projects-grid-all";
 import { ProfileSidebarAll } from "@/components/organisms/portfolio-all/profile-sidebar-all";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DesignerFeedback } from "@/components/organisms/feedback/DesignerFeedback";
 
 interface PortfolioImage {
   portfolioImageID: string;
@@ -34,10 +36,28 @@ export function PortfolioLayoutDesignerAll() {
 
           <div className="md:col-span-3">
             <div className="bg-card rounded-lg p-3 sm:p-4 md:p-6 shadow-sm border border-border transition-all duration-200">
-              <h2 className="text-base font-semibold mb-2">Thiết kế cá nhân</h2>
-              <div className="mt-0 sm:mt-0 md:mt-0">
-                <ProjectsGridAll onPortfolioData={setPortfolioData} />
-              </div>
+              <Tabs defaultValue="portfolio" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-0 cursor-pointer">
+                  <TabsTrigger className="cursor-pointer" value="portfolio">
+                    Thiết kế cá nhân
+                  </TabsTrigger>
+                  <TabsTrigger className="cursor-pointer" value="feedback">
+                    Đánh giá
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="portfolio" className="space-y-4">
+                  <div className="mt-3 sm:mt-4 md:mt-6">
+                    <ProjectsGridAll onPortfolioData={setPortfolioData} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="feedback" className="space-y-4">
+                  <div className="mt-3 sm:mt-4 md:mt-6">
+                    <DesignerFeedback />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>

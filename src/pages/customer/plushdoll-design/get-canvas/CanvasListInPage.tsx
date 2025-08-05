@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronRight,
@@ -68,6 +68,11 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const [searchTitle, setSearchTitle] = useState("");
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const [hasUsedPreloadedData, setHasUsedPreloadedData] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Refs for tracking state
+  const loadInProgressRef = useRef(false);
+  const lastSearchRef = useRef("");
 
   // Dialog states
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -86,96 +91,200 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
   const navigate = useNavigate();
 
   // Get preloaded data from context
-  const { preloadedCanvasList, hasPreloadedData } = useCanvasPreload();
+  const { preloadedCanvasList, hasPreloadedData, isFabricReady } =
+    useCanvasPreload();
 
-  // Function to generate canvas preview
-  const generateCanvasPreview = async (
-    item: CanvasFolder
-  ): Promise<{ url: string; width: number; height: number }> => {
-    try {
-      // If we have latestCanvasInfo with previewUrl, use it
-      if (item.latestCanvasInfo?.previewUrl) {
-        return { url: item.latestCanvasInfo.previewUrl, width: 0, height: 0 };
-      }
+  // Immediate use of preloaded data when component mounts
+  useEffect(() => {
+    if (
+      hasPreloadedData &&
+      preloadedCanvasList.length > 0 &&
+      canvasList.length === 0 &&
+      !hasUsedPreloadedData &&
+      !searchTitle
+    ) {
+      console.log(
+        "CanvasListInPage: Component mount - using preloaded data immediately",
+        {
+          preloadedCanvasListLength: preloadedCanvasList.length,
+          hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
+          previewUrls: preloadedCanvasList.map((item) => item.previewUrl),
+        }
+      );
 
-      // If we have canvas description, generate preview from it
-      if (item.latestCanvasInfo?.canvasDescription) {
-        let originalWidth = 960;
-        let originalHeight = 540;
-        try {
-          const parsedDesc = JSON.parse(
-            item.latestCanvasInfo.canvasDescription
-          );
-          if (parsedDesc.width && parsedDesc.height) {
-            originalWidth = parsedDesc.width;
-            originalHeight = parsedDesc.height;
-          }
+      setCanvasList(preloadedCanvasList);
+      setHasUsedPreloadedData(true);
+      setLoading(false);
+      setIsInitialLoad(false);
 
-          // Tạo canvas gốc
-          const tempCanvas = document.createElement("canvas");
-          tempCanvas.width = originalWidth;
-          tempCanvas.height = originalHeight;
-          const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
-            backgroundColor: "#fff",
-          });
+      // Dispatch canvas count event
+      window.dispatchEvent(
+        new CustomEvent("canvasCountUpdated", {
+          detail: { totalCount: preloadedCanvasList.length },
+        })
+      );
+    }
+  }, []); // Empty dependency array - run only once on mount
 
-          await new Promise((resolve) => {
-            fabricCanvas.loadFromJSON(parsedDesc, () => {
-              setTimeout(() => {
-                fabricCanvas.renderAll();
-                resolve(null);
-              }, 100);
-            });
-          });
+  // Optimized canvas preview generation using fabric.js status
+  const generateCanvasPreview = useCallback(
+    async (
+      item: CanvasFolder
+    ): Promise<{ url: string; width: number; height: number }> => {
+      try {
+        // If we have latestCanvasInfo with previewUrl, use it
+        if (item.latestCanvasInfo?.previewUrl) {
+          return { url: item.latestCanvasInfo.previewUrl, width: 0, height: 0 };
+        }
 
-          // Tạo preview đúng kích thước gốc
-          const previewCanvas = document.createElement("canvas");
-          previewCanvas.width = originalWidth;
-          previewCanvas.height = originalHeight;
-          const ctx = previewCanvas.getContext("2d");
-          if (ctx) {
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(0, 0, originalWidth, originalHeight);
-            const canvasEl =
-              typeof fabricCanvas.getElement === "function"
-                ? (fabricCanvas.getElement() as HTMLCanvasElement)
-                : (
-                    fabricCanvas as unknown as {
-                      lowerCanvasEl: HTMLCanvasElement;
-                    }
-                  ).lowerCanvasEl;
-            ctx.drawImage(
-              canvasEl,
-              0,
-              0,
-              originalWidth,
-              originalHeight,
-              0,
-              0,
-              originalWidth,
-              originalHeight
-            );
+        // If we have canvas description, generate preview from it
+        if (item.latestCanvasInfo?.canvasDescription) {
+          // Check if fabric is ready
+          if (!isFabricReady) {
             return {
-              url: previewCanvas.toDataURL("image/png"),
-              width: originalWidth,
-              height: originalHeight,
+              url: "/images/canvas-placeholder.png",
+              width: 0,
+              height: 0,
             };
           }
-        } catch (parseError) {
-          console.error("Error parsing canvas description:", parseError);
+
+          let originalWidth = 960;
+          let originalHeight = 540;
+          try {
+            const parsedDesc = JSON.parse(
+              item.latestCanvasInfo.canvasDescription
+            );
+            if (parsedDesc.width && parsedDesc.height) {
+              originalWidth = parsedDesc.width;
+              originalHeight = parsedDesc.height;
+            }
+
+            // Create canvas with timeout to prevent hanging
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = originalWidth;
+            tempCanvas.height = originalHeight;
+            const fabricCanvas = new window.fabric.Canvas(tempCanvas, {
+              backgroundColor: "#fff",
+            });
+
+            // Add timeout to prevent infinite loading
+            const loadPromise = new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => {
+                reject(new Error("Canvas loading timeout"));
+              }, 3000); // Reduced timeout for better UX
+
+              fabricCanvas.loadFromJSON(parsedDesc, () => {
+                clearTimeout(timeout);
+                setTimeout(() => {
+                  fabricCanvas.renderAll();
+                  resolve(null);
+                }, 30); // Reduced delay
+              });
+            });
+
+            await loadPromise;
+
+            // Create preview with optimized rendering
+            const previewCanvas = document.createElement("canvas");
+            previewCanvas.width = originalWidth;
+            previewCanvas.height = originalHeight;
+            const ctx = previewCanvas.getContext("2d");
+
+            if (ctx) {
+              ctx.fillStyle = "#fff";
+              ctx.fillRect(0, 0, originalWidth, originalHeight);
+
+              const canvasEl =
+                typeof fabricCanvas.getElement === "function"
+                  ? (fabricCanvas.getElement() as HTMLCanvasElement)
+                  : (
+                      fabricCanvas as unknown as {
+                        lowerCanvasEl: HTMLCanvasElement;
+                      }
+                    ).lowerCanvasEl;
+
+              ctx.drawImage(
+                canvasEl,
+                0,
+                0,
+                originalWidth,
+                originalHeight,
+                0,
+                0,
+                originalWidth,
+                originalHeight
+              );
+
+              return {
+                url: previewCanvas.toDataURL("image/png", 0.8), // Reduced quality for better performance
+                width: originalWidth,
+                height: originalHeight,
+              };
+            }
+          } catch (parseError) {
+            console.error("Error parsing canvas description:", parseError);
+          }
         }
+
+        // Return placeholder if no preview available
+        return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
+      } catch (error) {
+        console.error("Error generating preview:", error);
+        return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
       }
-      // Return placeholder if no preview available
-      return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
-    } catch (error) {
-      console.error("Error generating preview:", error);
-      return { url: "/images/canvas-placeholder.png", width: 0, height: 0 };
-    }
-  };
+    },
+    [isFabricReady]
+  );
 
   const loadList = useCallback(async () => {
+    // Prevent multiple simultaneous loads
+    if (loadInProgressRef.current) {
+      return;
+    }
+
+    // Priority: Use preloaded data if available
+    if (
+      hasPreloadedData &&
+      preloadedCanvasList.length > 0 &&
+      !hasUsedPreloadedData &&
+      !searchTitle
+    ) {
+      console.log(
+        "CanvasListInPage: loadList - Using preloaded data instead of API call",
+        {
+          preloadedCanvasListLength: preloadedCanvasList.length,
+          hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
+        }
+      );
+
+      setCanvasList(preloadedCanvasList);
+      setHasUsedPreloadedData(true);
+      setLoading(false);
+      setIsInitialLoad(false);
+
+      // Dispatch canvas count event
+      window.dispatchEvent(
+        new CustomEvent("canvasCountUpdated", {
+          detail: { totalCount: preloadedCanvasList.length },
+        })
+      );
+      return;
+    }
+
+    // Only call API if we don't have preloaded data or need to search/paginate
+    if (hasPreloadedData && !hasUsedPreloadedData && !searchTitle) {
+      console.log(
+        "CanvasListInPage: loadList - Skipping API call, preloaded data should be used"
+      );
+      return;
+    }
+
     try {
+      loadInProgressRef.current = true;
       setLoading(true);
+
+      console.log("CanvasListInPage: loadList - Calling API for data");
+
       const data = await getFolderCanvas({
         FolderName: searchTitle,
         page,
@@ -183,18 +292,38 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       });
       const items = data?.responseRequestModel?.responseList?.items || [];
 
-      // Generate previews for all items
-      const itemsWithPreviews = await Promise.all(
-        items.map(async (item: CanvasFolder) => {
+      // Generate previews progressively for better UX
+      const itemsWithPreviews: CanvasFolder[] = [];
+      const totalItems = items.length;
+
+      for (let i = 0; i < totalItems; i++) {
+        try {
+          const item = items[i];
           const preview = await generateCanvasPreview(item);
-          return {
+
+          itemsWithPreviews.push({
             ...item,
             previewUrl: preview.url,
             previewWidth: preview.width,
             previewHeight: preview.height,
-          };
-        })
-      );
+          });
+
+          // Small delay to prevent blocking UI
+          await new Promise((resolve) => setTimeout(resolve, 5));
+        } catch (error) {
+          console.error(
+            "Error generating preview for item:",
+            items[i].canvasFolderId,
+            error
+          );
+          itemsWithPreviews.push({
+            ...items[i],
+            previewUrl: "/images/canvas-placeholder.png",
+            previewWidth: 0,
+            previewHeight: 0,
+          });
+        }
+      }
 
       setCanvasList(itemsWithPreviews);
 
@@ -209,43 +338,38 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       console.error("Lỗi tải thiết kế:", error);
     } finally {
       setLoading(false);
+      loadInProgressRef.current = false;
     }
-  }, [page, getFolderCanvas, searchTitle]);
+  }, [
+    page,
+    getFolderCanvas,
+    searchTitle,
+    generateCanvasPreview,
+    hasPreloadedData,
+    preloadedCanvasList,
+    hasUsedPreloadedData,
+  ]);
 
-  // Use preloaded data if available
+  // Use preloaded data when available
   useEffect(() => {
     if (
       hasPreloadedData &&
       preloadedCanvasList.length > 0 &&
-      !hasUsedPreloadedData
+      !hasUsedPreloadedData &&
+      isInitialLoad &&
+      !searchTitle // Only use preloaded data for initial load without search
     ) {
-      setCanvasList(preloadedCanvasList);
-      setHasUsedPreloadedData(true);
-      setLoading(false);
-
-      // Dispatch canvas count event
-      window.dispatchEvent(
-        new CustomEvent("canvasCountUpdated", {
-          detail: { totalCount: preloadedCanvasList.length },
-        })
-      );
-    }
-  }, [hasPreloadedData, preloadedCanvasList, hasUsedPreloadedData]);
-
-  // Use preloaded data when component mounts and preloaded data is available
-  useEffect(() => {
-    if (
-      hasPreloadedData &&
-      preloadedCanvasList.length > 0 &&
-      canvasList.length === 0
-    ) {
-      console.log("CanvasListInPage: Using preloaded data on mount", {
+      console.log("CanvasListInPage: Using preloaded data with previews", {
         preloadedCanvasListLength: preloadedCanvasList.length,
-        canvasListLength: canvasList.length,
+        hasPreviews: preloadedCanvasList.some((item) => item.previewUrl),
+        previewUrls: preloadedCanvasList.map((item) => item.previewUrl),
       });
+
+      // Use preloaded data directly without regenerating previews
       setCanvasList(preloadedCanvasList);
       setHasUsedPreloadedData(true);
       setLoading(false);
+      setIsInitialLoad(false);
 
       // Dispatch canvas count event
       window.dispatchEvent(
@@ -254,15 +378,33 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         })
       );
     }
-  }, [hasPreloadedData, preloadedCanvasList, canvasList.length]);
+  }, [
+    hasPreloadedData,
+    preloadedCanvasList,
+    hasUsedPreloadedData,
+    isInitialLoad,
+    searchTitle,
+  ]);
 
   // Listen for preload complete events
   useEffect(() => {
     const handlePreloadComplete = (event: CustomEvent) => {
-      if (event.detail?.canvasList && canvasList.length === 0) {
+      if (
+        event.detail?.canvasList &&
+        canvasList.length === 0 &&
+        isInitialLoad
+      ) {
+        console.log("CanvasListInPage: Received preload complete event", {
+          canvasListLength: event.detail.canvasList.length,
+          hasPreviews: event.detail.canvasList.some(
+            (item: CanvasFolder) => item.previewUrl
+          ),
+        });
+
         setCanvasList(event.detail.canvasList);
         setHasUsedPreloadedData(true);
         setLoading(false);
+        setIsInitialLoad(false);
 
         // Dispatch canvas count event
         window.dispatchEvent(
@@ -284,12 +426,21 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
         handlePreloadComplete as EventListener
       );
     };
-  }, [canvasList.length]);
+  }, [canvasList.length, isInitialLoad]);
 
-  const handleSearch = () => {
-    setSearchTitle(folderName);
+  const handleSearch = useCallback(() => {
+    const newSearchTitle = folderName.trim();
+
+    // Prevent duplicate searches
+    if (newSearchTitle === lastSearchRef.current) {
+      return;
+    }
+
+    lastSearchRef.current = newSearchTitle;
+    setSearchTitle(newSearchTitle);
     setPage(1);
-  };
+    setHasUsedPreloadedData(false); // Force API call for search
+  }, [folderName]);
 
   // Update folder name
   const handleUpdateFolder = async (
@@ -359,24 +510,42 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     setDeletingFolder(null);
   };
 
+  // Load data when needed
   useEffect(() => {
-    // Only load if we haven't used preloaded data and we're not on the first page
-    // Also check if we have preloaded data available
+    // Priority: Use preloaded data first
+    if (
+      hasPreloadedData &&
+      preloadedCanvasList.length > 0 &&
+      !hasUsedPreloadedData &&
+      isInitialLoad &&
+      !searchTitle
+    ) {
+      console.log(
+        "CanvasListInPage: shouldLoad - Using preloaded data, skipping API call"
+      );
+      return; // Let the preloaded data useEffect handle this
+    }
+
+    // Only load from API if we don't have preloaded data or need to search/paginate
     const shouldLoad =
-      (!hasUsedPreloadedData && !hasPreloadedData) || page > 1 || searchTitle;
+      (!hasPreloadedData || hasUsedPreloadedData) && // No preloaded data available
+      (page > 1 || searchTitle || (!isInitialLoad && canvasList.length === 0));
+
     console.log("CanvasListInPage: Checking if should load API", {
       hasUsedPreloadedData,
       hasPreloadedData,
       preloadedCanvasListLength: preloadedCanvasList.length,
       page,
       searchTitle,
+      isInitialLoad,
+      canvasListLength: canvasList.length,
       shouldLoad,
     });
 
-    if (shouldLoad) {
+    if (shouldLoad && !loadInProgressRef.current) {
       console.log("CanvasListInPage: Loading from API");
       loadList();
-    } else {
+    } else if (!shouldLoad) {
       console.log("CanvasListInPage: Skipping API call, using preloaded data");
     }
   }, [
@@ -386,11 +555,14 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
     hasUsedPreloadedData,
     hasPreloadedData,
     preloadedCanvasList.length,
+    isInitialLoad,
+    canvasList.length,
   ]);
 
   useEffect(() => {
     const handleCanvasSaved = () => {
       setPage(1);
+      setHasUsedPreloadedData(false); // Force refresh
       loadList();
     };
 
@@ -580,17 +752,6 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
                       {formatFullDateWithDistance3(item.createdAt)}
                     </div>
                   </div>
-                  {/* {item.latestCanvasInfo?.canvasDescription ? (
-                    <div className="text-xs font-semibold text-blue-600 mt-1 flex items-center gap-1">
-                      <FolderOpen className="w-4 h-4 text-blue-400" />
-                      {item.latestCanvasInfo.canvasTitle || "Thiết kế mới nhất"}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                      <Folders className="w-4 h-4 text-gray-300" />
-                      Thư mục trống
-                    </div>
-                  )} */}
                 </div>
               </div>
             ))
