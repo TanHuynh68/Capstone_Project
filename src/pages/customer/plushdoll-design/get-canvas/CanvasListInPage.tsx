@@ -102,7 +102,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       try {
         // Update loading message and progress for preview generation
         setLoadingMessage(`Đang tải thiết kế ${index + 1}/${total}...`);
-        const progress = Math.round(30 + ((index + 1) / total) * 60); // 30% to 90%
+        const progress = Math.round(25 + ((index + 1) / total) * 65); // 25% to 90%
         setLoadingProgress(progress);
 
         // If we have latestCanvasInfo with previewUrl, use it
@@ -144,7 +144,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             const loadPromise = new Promise((resolve, reject) => {
               const timeout = setTimeout(() => {
                 reject(new Error("Canvas loading timeout"));
-              }, 3000); // Reduced timeout for better UX
+              }, 2000); // Reduced timeout for better UX
 
               fabricCanvas.loadFromJSON(parsedDesc, () => {
                 clearTimeout(timeout);
@@ -220,7 +220,7 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       setLoading(true);
       setShowLoadingOverlay(true);
       setLoadingMessage("Đang tải danh sách thư mục...");
-      setLoadingProgress(10);
+      setLoadingProgress(5);
 
       console.log("CanvasListInPage: loadList - Calling API for data");
 
@@ -231,8 +231,8 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
       });
       const items = data?.responseRequestModel?.responseList?.items || [];
 
-      setLoadingMessage("Đang tải thiết kế...");
-      setLoadingProgress(30);
+      setLoadingMessage("Đang chuẩn bị tải thiết kế...");
+      setLoadingProgress(20);
 
       // Generate previews progressively for better UX
       const itemsWithPreviews: CanvasFolder[] = [];
@@ -250,8 +250,8 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
             previewHeight: preview.height,
           });
 
-          // Small delay to prevent blocking UI
-          await new Promise((resolve) => setTimeout(resolve, 5));
+          // Smaller delay for smoother progress
+          await new Promise((resolve) => setTimeout(resolve, 2));
         } catch (error) {
           console.error(
             "Error generating preview for item:",
@@ -271,13 +271,11 @@ const CanvasListInPage: React.FC<CanvasListProps> = ({
 
       setCanvasList(itemsWithPreviews);
 
-      // Đạt 100% và ẩn overlay ngay lập tức
+      // Hoàn thành ngay lập tức khi tạo xong preview
       setLoadingProgress(100);
-      setTimeout(() => {
-        setShowLoadingOverlay(false);
-        setLoadingMessage("Đang tải thiết kế...");
-        setLoadingProgress(0);
-      }, 500); // Hiển thị 100% trong 0.5s rồi ẩn
+      setShowLoadingOverlay(false);
+      setLoadingMessage("Đang tải thiết kế...");
+      setLoadingProgress(0);
 
       const totalCount =
         data?.responseRequestModel?.responseList?.totalItems || 0;

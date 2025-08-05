@@ -17,7 +17,6 @@ import CanvasListInPage from "@/pages/customer/plushdoll-design/get-canvas/Canva
 import CanvasLoadingOverlay from "@/components/atoms/layout/navbar/CanvasLoadingOverlay";
 import { USER_ROUTES } from "@/routes/path";
 import CanvasService from "@/services/CanvasService";
-import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
 
 interface ImageDimensions {
   width: number;
@@ -197,7 +196,7 @@ export default function CanvasPage() {
   const createCanvas = async () => {
     console.log("createCanvas");
     setShowLoadingOverlay(true);
-    setLoadingProgress(10);
+    setLoadingProgress(5);
     setLoadingMessage("Đang chuẩn bị tạo canvas...");
 
     const finalImageWidthPx =
@@ -220,7 +219,13 @@ export default function CanvasPage() {
       const folderName = folderNameInput.trim() || defaultFolderName;
       console.log("Trước khi gọi CanvasService");
 
-      setLoadingProgress(30);
+      setLoadingProgress(15);
+      setLoadingMessage("Đang chuẩn bị dữ liệu...");
+
+      // Small delay for smooth progress
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      setLoadingProgress(25);
       setLoadingMessage("Đang tạo thư mục...");
 
       // 1. Tạo folder
@@ -229,13 +234,16 @@ export default function CanvasPage() {
       });
       console.log("response", response);
 
+      setLoadingProgress(50);
+      setLoadingMessage("Đang chuẩn bị canvas...");
+
       if (
         response?.statusCode === 200 &&
         response?.responseRequestModel?.canvasFolderId
       ) {
         const newFolderId = response.responseRequestModel.canvasFolderId;
 
-        setLoadingProgress(60);
+        setLoadingProgress(70);
         setLoadingMessage("Đang tạo canvas...");
 
         // 2. Tạo canvas đầu tiên trong folder
@@ -252,7 +260,8 @@ export default function CanvasPage() {
             imageHeight: finalImageHeightPx,
           }),
         });
-        setLoadingProgress(90);
+
+        setLoadingProgress(85);
         setLoadingMessage("Hoàn thành! Đang chuyển hướng...");
 
         if (
@@ -290,11 +299,9 @@ export default function CanvasPage() {
       // toast.error("Có lỗi xảy ra khi tạo thư mục hoặc canvas");
     } finally {
       setLoadingProgress(100);
-      setTimeout(() => {
-        setShowLoadingOverlay(false);
-        setLoadingMessage("Đang tạo canvas...");
-        setLoadingProgress(0);
-      }, 500);
+      setShowLoadingOverlay(false);
+      setLoadingMessage("Đang tạo canvas...");
+      setLoadingProgress(0);
     }
   };
 
@@ -984,7 +991,7 @@ export default function CanvasPage() {
           />
         </div>
       </main>
-      <ChatAIHomePage />
+      {/* <ChatAIHomePage /> */}
     </div>
   );
 }
