@@ -46,7 +46,10 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
       <CardContent className="pt-0 overflow-x-hidden">
         <CardTitle className="relative flex justify-between items-center pb-3 z-10">
           Lịch sử điểm uy tín
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
             <X className="h-4 w-4 text-gray-500" />
           </button>
         </CardTitle>
