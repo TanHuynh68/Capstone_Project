@@ -22,12 +22,14 @@ interface ReputationBenefitsProps {
   onClose: () => void;
   currentLevel?: number;
   onOpenAllBenefits?: () => void;
+  showAllBenefitsPanel?: boolean;
 }
 
 const ReputationBenefits = ({
   onClose,
   currentLevel = 1,
   onOpenAllBenefits,
+  showAllBenefitsPanel = false,
 }: ReputationBenefitsProps) => {
   const [benefits, setBenefits] = useState<ReputationBenefit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,9 +82,9 @@ const ReputationBenefits = ({
           Quyền lợi thành viên
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-muted rounded-full transition-colors cursor-pointer"
           >
-            <X className="h-4 w-4 text-gray-500" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </CardTitle>
 
@@ -91,8 +93,8 @@ const ReputationBenefits = ({
             <div className="space-y-4">
               {isLoading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                  <p className="text-gray-500 font-medium">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3"></div>
+                  <p className="text-muted-foreground font-medium">
                     Đang tải quyền lợi...
                   </p>
                 </div>
@@ -103,8 +105,8 @@ const ReputationBenefits = ({
                     className={cn(
                       "p-5 border rounded-xl w-full max-w-md mx-auto overflow-x-hidden transition-all duration-200",
                       benefit.isUnlocked
-                        ? "bg-white border-gray-200 shadow-sm hover:shadow-md"
-                        : "bg-gray-50 border-gray-200 opacity-60"
+                        ? "bg-card border-border shadow-sm hover:shadow-md"
+                        : "bg-muted/50 border-border opacity-60"
                     )}
                   >
                     <div className="flex-1 min-w-0">
@@ -113,13 +115,13 @@ const ReputationBenefits = ({
                           className={cn(
                             "font-bold text-base",
                             benefit.isUnlocked
-                              ? "text-gray-900"
-                              : "text-gray-500"
+                              ? "text-foreground"
+                              : "text-muted-foreground"
                           )}
                         >
                           {benefit.title}
                         </h3>
-                        <span className="text-sm text-gray-600 font-medium">
+                        <span className="text-sm text-muted-foreground font-medium">
                           Tối đa {benefit.maxActivities || 3}
                         </span>
                       </div>
@@ -127,7 +129,9 @@ const ReputationBenefits = ({
                       <p
                         className={cn(
                           "text-sm mb-3 leading-relaxed",
-                          benefit.isUnlocked ? "text-gray-700" : "text-gray-500"
+                          benefit.isUnlocked
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                         )}
                       >
                         {benefit.description}
@@ -135,7 +139,7 @@ const ReputationBenefits = ({
 
                       {benefit.updatedAt && (
                         <div className="flex items-center gap-2 justify-end">
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-muted-foreground">
                             Cập nhật:{" "}
                             {formatVietnamDateHours(benefit.updatedAt)}
                           </span>
@@ -146,10 +150,10 @@ const ReputationBenefits = ({
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 font-medium mb-2">
+                  <p className="text-muted-foreground font-medium mb-2">
                     Không có thông tin quyền lợi
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Vui lòng thử lại sau hoặc liên hệ hỗ trợ
                   </p>
                 </div>
@@ -157,24 +161,26 @@ const ReputationBenefits = ({
             </div>
           </div>
 
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t border-border">
             <div className="text-center space-y-3">
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-sm text-muted-foreground font-medium">
                 Tham gia tích cực để nhận thêm các quyền lợi!
               </p>
 
               <div className="flex gap-2 justify-center">
                 <Link
                   to={"/contact"}
-                  className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-700 dark:hover:border-blue-300 rounded-lg transition-colors"
                 >
                   Câu hỏi thường gặp
                 </Link>
                 <button
                   onClick={onOpenAllBenefits}
-                  className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 hover:text-green-700 hover:bg-green-50 hover:border-green-700 rounded-lg transition-colors"
+                  className="px-2 py-2 text-sm font-medium text-green-600 dark:text-green-400 border border-green-600 dark:border-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/50 hover:border-green-700 dark:hover:border-green-300 rounded-lg transition-colors"
                 >
-                  Tất cả quyền lợi
+                  {showAllBenefitsPanel
+                    ? "Ẩn tất cả quyền lợi"
+                    : "Tất cả quyền lợi"}
                 </button>
               </div>
             </div>

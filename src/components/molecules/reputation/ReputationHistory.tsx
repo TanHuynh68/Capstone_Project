@@ -48,16 +48,16 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
           Lịch sử điểm uy tín
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-muted rounded-full transition-colors"
           >
-            <X className="h-4 w-4 text-gray-500" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </CardTitle>
 
         <div className="space-y-3">
           {isLoading ? (
             <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-200 border-t-gray-600"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-muted border-t-primary"></div>
             </div>
           ) : history.length > 0 ? (
             <div className="max-h-[calc(4*7rem)] overflow-y-auto overflow-x-hidden pr-1">
@@ -65,20 +65,20 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
                 {history.map((item) => (
                   <div
                     key={item.reputationHistoryID}
-                    className="p-3 bg-white border rounded-lg w-full max-w-md mx-auto overflow-x-hidden"
+                    className="p-3 bg-card border border-border rounded-lg w-full max-w-md mx-auto overflow-x-hidden"
                   >
                     <div className="grid grid-cols-[1fr,auto] gap-4 min-w-0">
                       <div className="space-y-2 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-500 w-[40px] shrink-0">
+                          <span className="text-sm text-muted-foreground w-[40px] shrink-0">
                             Điểm:
                           </span>
                           <span
                             className={cn(
                               "font-medium flex items-center gap-1",
                               item.scoreChange > 0
-                                ? "text-green-600"
-                                : "text-red-600"
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-red-600 dark:text-red-400"
                             )}
                           >
                             {item.scoreChange > 0 ? (
@@ -91,16 +91,16 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
                           </span>
                         </div>
                         <div className="flex gap-2 min-w-0">
-                          <span className="text-sm text-gray-500 w-[40px] shrink-0">
+                          <span className="text-sm text-muted-foreground w-[40px] shrink-0">
                             Lý do:
                           </span>
-                          <p className="text-sm text-gray-700 break-all break-words whitespace-pre-wrap max-w-full overflow-hidden">
+                          <p className="text-sm text-foreground break-all break-words whitespace-pre-wrap max-w-full overflow-hidden">
                             {item.reason}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm text-gray-500 flex items-center gap-1 justify-end">
+                        <span className="text-sm text-muted-foreground flex items-center gap-1 justify-end">
                           <Clock className="h-3.5 w-3.5" />
                           {formatVietnamDateHours(item.changedAt)}
                         </span>
@@ -111,7 +111,7 @@ const ReputationHistory = ({ onClose }: ReputationHistoryProps) => {
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p className="font-medium mb-1">Chưa có lịch sử điểm uy tín</p>
               <p className="text-sm">
                 Điểm uy tín sẽ được cập nhật khi bạn thực hiện các hoạt động
