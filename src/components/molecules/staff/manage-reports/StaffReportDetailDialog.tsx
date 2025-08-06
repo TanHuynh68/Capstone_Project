@@ -14,7 +14,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  ImageIcon,  
+  ImageIcon,
 } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { useState } from "react";
@@ -67,9 +67,9 @@ export default function StaffReportDetailDialog({
             <div className="space-y-6 py-2">
               {/* Basic Information */}
               <Card className="shadow-sm border-gray-200">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg h-full">
+                <CardHeader className="bg-gradient-to-r bg-pr rounded-t-lg h-full">
                   <CardTitle className="text-lg flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    <div className="w-2 h-2 rounded-full"></div>
                     <div className="flex justify-between w-full">
                       <div>Thông tin cơ bản</div>
                       {getCustomerReportStatusBadge(reportDetail.reportStatus)}
@@ -77,41 +77,36 @@ export default function StaffReportDetailDialog({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-semibold text-gray-700">
-                        Ngày tạo
-                      </Label>
-                      <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
+                      <Label className="text-sm font-semibold ">Ngày tạo</Label>
+                      <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
+                        <Calendar className="h-4 w-4 " />
                         {formatFullDateWithDistance2(reportDetail?.createdAt)}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-700">
+                      <Label className="text-sm font-semibold ">
                         Người báo cáo
                       </Label>
-                      <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                      <p className="text-sm  p-2 rounded mt-1">
                         {reportDetail.reporter}
                       </p>
                     </div>
                   </div>
-                                    <div>
+                  <div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-700">
-                        Tiêu đề
-                      </Label>
-                      <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                      <Label className="text-sm font-semibold ">Tiêu đề</Label>
+                      <p className="text-sm  p-2 rounded mt-1">
                         {reportDetail.title}
                       </p>
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-700">
-                      Nộ dung báo cáo
+                    <Label className="text-sm font-semibold ">
+                      Nội dung báo cáo
                     </Label>
-                    <Textarea className="text-sm bg-gray-100 p-2 rounded mt-1">
+                    <Textarea className="text-sm  p-2 rounded mt-1">
                       {reportDetail.content}
                     </Textarea>
                   </div>
@@ -305,9 +300,9 @@ export default function StaffReportDetailDialog({
                         <Label className="text-sm font-semibold text-gray-700">
                           Ghi chú xử lý
                         </Label>
-                         <Textarea className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {reportDetail.processNote}
-                          </Textarea>
+                        <Textarea className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {reportDetail.processNote}
+                        </Textarea>
                       </div>
                     )}
                   </CardContent>

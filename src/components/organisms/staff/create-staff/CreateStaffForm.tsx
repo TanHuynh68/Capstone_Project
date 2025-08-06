@@ -21,7 +21,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserPlus } from "lucide-react";
-
 interface CreateStaffFormProps {
   onSubmit: any;
   onSuccess?: () => void;
@@ -42,7 +41,7 @@ export default function CreateStaffForm({
       phoneNumber: "",
       email: "",
       gender: "0",
-      role: "3",
+      role: "2",
     },
     mode: "onBlur",
     reValidateMode: "onChange",
@@ -51,8 +50,17 @@ export default function CreateStaffForm({
   const handleSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      const success = await onSubmit(data);
-      if (success) {
+      const dataSubmit = {
+        email: data.email,
+        fullName: data.fullName,
+        gender: parseInt(data.gender),
+        password: data.password,
+        role: parseInt(data.role),
+        phoneNumber: data.phoneNumber,
+      };
+      const success = await onSubmit(dataSubmit);
+      console.log('success: ', success)
+      if (success && success.isSuccess) {
         form.reset();
         onSuccess?.();
       }
@@ -69,7 +77,7 @@ export default function CreateStaffForm({
     { value: "2", label: "Khác" },
   ];
 
-  const roleOptions = [{ value: "3", label: "Nhân viên" }];
+  const roleOptions = [{ value: "2", label: "Nhân viên" }];
 
   return (
     <Card className="shadow-sm border-0 bg-gradient-to-t from-primary/5 to-card">
@@ -101,6 +109,7 @@ export default function CreateStaffForm({
                         label="Họ và tên"
                         placeholder="Nhập họ và tên đầy đủ"
                         required
+                        type="text"
                       />
                     )}
                   />
@@ -192,7 +201,7 @@ export default function CreateStaffForm({
                 </div>
               </div>
               <div className="w-full md:w-1/2">
-                <div className="min-h-[76px] flex flex-col justify-start">
+                <div className="min-h-[76px]  hidden">
                   <FormFieldController
                     control={form.control}
                     name="role"

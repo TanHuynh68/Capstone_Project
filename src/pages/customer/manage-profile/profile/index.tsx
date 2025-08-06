@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   User,
   Mail,
@@ -40,6 +40,7 @@ import type { RootState } from "@/redux/store";
 import { RoleVietnamese } from "@/utils";
 import { toast } from "sonner";
 import ReputationHistory from "@/components/molecules/reputation/ReputationHistory";
+import ReputationBenefits from "@/components/molecules/reputation/ReputationBenefits";
 import { ChangePasswordPage, OrderHistoryPage } from "@/pages";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DeliveryByToken from "@/components/organisms/delivery/delivery-by-token";
@@ -48,6 +49,7 @@ import LoadingSpinner from "@/components/atoms/custom/loading-spinner/LoadingSpi
 import { AnimatePresence, motion } from "framer-motion";
 import { easeInOut } from "framer-motion";
 import ChatAIHomePage from "../../chat-ai-homepage";
+import AllBenefits from "@/components/molecules/reputation/AllBenefits";
 
 interface Profile {
   accountID: string;
@@ -131,7 +133,11 @@ const Profile = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isDragAndDrop, setIsDragAndDrop] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
+  const [showBenefitsPanel, setShowBenefitsPanel] = useState(false);
+  const [showAllBenefitsPanel, setShowAllBenefitsPanel] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [isClosingBenefits, setIsClosingBenefits] = useState(false);
+  const [isClosingAllBenefits, setIsClosingAllBenefits] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const tabOrder = ["profile", "orders", "delivery"];
   const [direction, setDirection] = useState(1); // 1: phải, -1: trái
@@ -369,6 +375,64 @@ const Profile = () => {
     }, 300); // Match animation duration
   };
 
+  const handleCloseBenefits = () => {
+    setIsClosingBenefits(true);
+    setTimeout(() => {
+      setShowBenefitsPanel(false);
+      setIsClosingBenefits(false);
+    }, 300); // Match animation duration
+  };
+
+  const handleCloseAllBenefits = () => {
+    setIsClosingAllBenefits(true);
+    setTimeout(() => {
+      setShowAllBenefitsPanel(false);
+      setIsClosingAllBenefits(false);
+    }, 300);
+  };
+
+  const handleOpenAllBenefits = () => {
+    if (showHistoryPanel) {
+      handleCloseHistory();
+      setTimeout(() => {
+        setShowAllBenefitsPanel(true);
+      }, 300);
+    } else if (showBenefitsPanel) {
+      handleCloseBenefits();
+      setTimeout(() => {
+        setShowAllBenefitsPanel(true);
+      }, 300);
+    } else {
+      setShowAllBenefitsPanel(true);
+    }
+  };
+
+  const handleOpenBenefits = () => {
+    if (showHistoryPanel) {
+      // Đóng panel lịch sử trước
+      handleCloseHistory();
+      // Mở panel quyền lợi sau khi đóng xong
+      setTimeout(() => {
+        setShowBenefitsPanel(true);
+      }, 300);
+    } else {
+      setShowBenefitsPanel(true);
+    }
+  };
+
+  const handleOpenHistory = () => {
+    if (showBenefitsPanel) {
+      // Đóng panel quyền lợi trước
+      handleCloseBenefits();
+      // Mở panel lịch sử sau khi đóng xong
+      setTimeout(() => {
+        setShowHistoryPanel(true);
+      }, 300);
+    } else {
+      setShowHistoryPanel(true);
+    }
+  };
+
   if (isLoading) {
     // Skeleton cho avatar, tên, email, thông tin cá nhân, điểm uy tín, địa chỉ
     return (
@@ -479,12 +543,18 @@ const Profile = () => {
               >
                 {/* Nội dung tab profile */}
                 <div className="container max-w-6xl mx-auto py-0">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 relative">
                     {/* Profile Card */}
                     <div
                       className={`${
-                        showHistoryPanel ? "md:col-span-3" : "md:col-span-4"
-                      } transition-all duration-500 ease-in-out`}
+                        showHistoryPanel ||
+                        showBenefitsPanel ||
+                        showAllBenefitsPanel
+                          ? "md:col-span-3"
+                          : "md:col-span-4"
+                      } transition-all duration-500 ease-in-out ${
+                        showAllBenefitsPanel ? "hidden" : ""
+                      }`}
                     >
                       <Card className="shadow-sm h-full">
                         <CardHeader className="text-center pb-0">
@@ -589,7 +659,7 @@ const Profile = () => {
                             />
                           ) : (
                             <p className="text-sm text-gray-500 mt-2 px-4 text-center">
-                              Bạn đã đạt giới hạn tối đa 3 địa chỉ.
+                              Giới hạn tối đa 3 địa chỉ.
                             </p>
                           )}
                         </CardFooter>
@@ -599,7 +669,11 @@ const Profile = () => {
                     {/* Reputation and Address Card */}
                     <div
                       className={`${
-                        showHistoryPanel ? "md:col-span-6" : "md:col-span-8"
+                        showHistoryPanel || showBenefitsPanel
+                          ? "md:col-span-5"
+                          : showAllBenefitsPanel
+                          ? "md:col-span-4"
+                          : "md:col-span-8"
                       } transition-all duration-500 ease-in-out`}
                     >
                       <Card className="shadow-sm h-full">
@@ -659,17 +733,21 @@ const Profile = () => {
                                 <div className="flex flex-col gap-3 pl-5 flex-wrap">
                                   {/* Nút Xem quyền lợi – xanh lá nổi bật */}
                                   <Button
-                                    asChild
+                                    type="button"
                                     variant="outline"
                                     className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                    onClick={() => {
+                                      if (showBenefitsPanel) {
+                                        handleCloseBenefits();
+                                      } else {
+                                        handleOpenBenefits();
+                                      }
+                                    }}
                                   >
-                                    <Link
-                                      to="/reputation-benefits"
-                                      className="flex items-center gap-2"
-                                    >
-                                      <User className="w-4 h-4" />
-                                      Xem quyền lợi
-                                    </Link>
+                                    <User className="w-4 h-4" />
+                                    {showBenefitsPanel
+                                      ? "Ẩn quyền lợi"
+                                      : "Xem quyền lợi"}
                                   </Button>
 
                                   {/* Nút Lịch sử điểm – xanh dương nhạt */}
@@ -677,11 +755,13 @@ const Profile = () => {
                                     type="button"
                                     variant="outline"
                                     className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                    onClick={() =>
-                                      showHistoryPanel
-                                        ? handleCloseHistory()
-                                        : setShowHistoryPanel(true)
-                                    }
+                                    onClick={() => {
+                                      if (showHistoryPanel) {
+                                        handleCloseHistory();
+                                      } else {
+                                        handleOpenHistory();
+                                      }
+                                    }}
                                   >
                                     <Award className="w-4 h-4 mr-2" />
                                     {showHistoryPanel
@@ -728,13 +808,59 @@ const Profile = () => {
                     {/* History Panel */}
                     {(showHistoryPanel || isClosing) && (
                       <div
-                        className={`md:col-span-3 transition-all duration-500 ease-in-out ${
+                        className={`md:col-span-4 transition-all duration-500 ease-in-out ${
                           isClosing
                             ? "animate-slide-out-right"
                             : "animate-slide-in-right"
                         }`}
                       >
                         <ReputationHistory onClose={handleCloseHistory} />
+                      </div>
+                    )}
+
+                    {/* Benefits Panel */}
+                    {(showBenefitsPanel || isClosingBenefits) && (
+                      <div
+                        className={`md:col-span-4 transition-all duration-500 ease-in-out ${
+                          isClosingBenefits
+                            ? "animate-slide-out-right"
+                            : "animate-slide-in-right"
+                        }`}
+                      >
+                        <ReputationBenefits
+                          onClose={handleCloseBenefits}
+                          currentLevel={reputation?.level || 1}
+                          onOpenAllBenefits={handleOpenAllBenefits}
+                        />
+                      </div>
+                    )}
+
+                    {/* Quyền lợi thành viên Column - chỉ hiện khi showAllBenefitsPanel */}
+                    {showAllBenefitsPanel && (
+                      <div className="md:col-span-4 transition-all duration-500 ease-in-out">
+                        <ReputationBenefits
+                          onClose={() => {}} // Không cần close function vì đây là column riêng
+                          currentLevel={reputation?.level || 1}
+                          onOpenAllBenefits={handleOpenAllBenefits}
+                        />
+                      </div>
+                    )}
+
+                    {/* All Benefits Panel */}
+                    {(showAllBenefitsPanel || isClosingAllBenefits) && (
+                      <div
+                        className={`md:col-span-4 transition-all duration-500 ease-in-out ${
+                          isClosingAllBenefits
+                            ? "animate-slide-out-right"
+                            : "animate-slide-in-right"
+                        }`}
+                      >
+                        <AllBenefits
+                          page={1}
+                          size={10}
+                          title="Tất cả quyền lợi hệ thống"
+                          onClose={handleCloseAllBenefits}
+                        />
                       </div>
                     )}
                   </div>

@@ -84,16 +84,11 @@ function StaffActionsMenu({ staff }: { staff: Staff }) {
 
   const handleToggleActive = async () => {
     setIsUpdating(true);
-    console.log(
-      "Toggle active for staff:",
-      staff.accountID,
-      "current:",
-      staff.isActive,
-      "new:",
-      !staff.isActive
-    );
-    await updateStaffActive(staff.accountID, !staff.isActive);
-    setIsUpdating(false);
+    const response = await updateStaffActive(staff.accountID, !staff.isActive);
+    if (response && response.accountID ) {
+      console.log('handleToggleActive: ', response)
+      setIsUpdating(false);
+    }
   };
 
   return (
