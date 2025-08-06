@@ -29,7 +29,7 @@ const useApiService = () => {
         console.log(response);
         return response.data;
       } catch (e: any) {
-        console.error(e);
+        console.error('useApiService: ', e);
       } finally {
         setIsLoading(false);
       }

@@ -8,6 +8,8 @@ interface ReceiverInfoAutofillProps {
   onChange?: (data: Record<string, unknown>) => void;
   errors?: Record<string, string>;
   accountId?: string;
+  receiverID?: string | number;
+  orderID?: string | number;
 }
 
 interface District {
@@ -30,6 +32,8 @@ export function ReceiverInfoAutofill({
   onChange,
   errors,
   accountId,
+  receiverID,
+  orderID,
 }: ReceiverInfoAutofillProps) {
   const { getAddressesReceiver } = CustomerService();
   const { getProfileForAll } = GeneralService();
@@ -232,7 +236,11 @@ export function ReceiverInfoAutofill({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold h-[32px]">Địa chỉ</h3>
         </div>
-        <ReceiverAddressView addresses={addresses} />
+        <ReceiverAddressView
+          addresses={addresses}
+          receiverID={receiverID}
+          orderID={orderID}
+        />
       </div>
     </div>
   );

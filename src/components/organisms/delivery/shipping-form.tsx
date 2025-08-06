@@ -35,11 +35,24 @@ export function ShippingForm({
   const { createDelivery } = DeliveryService();
   const currentUserId = useSelector((state: RootState) => state.user.id);
   let receiverAccountId = undefined;
+  let receiverID = undefined;
+
   if (order) {
-    if (order.customerID !== currentUserId)
-      receiverAccountId = order.customerID;
-    else if (order.designerID !== currentUserId)
+    // If current user is the customer, then the receiver is the designer
+    if (order.customerID === currentUserId) {
       receiverAccountId = order.designerID;
+      receiverID = order.designerID;
+    }
+    // If current user is the designer, then the receiver is the customer
+    else if (order.designerID === currentUserId) {
+      receiverAccountId = order.customerID;
+      receiverID = order.customerID;
+    }
+    // If current user is neither (shouldn't happen in normal cases), default to customer
+    else {
+      receiverAccountId = order.customerID;
+      receiverID = order.customerID;
+    }
   }
 
   // Kiểm tra xem form có đầy đủ thông tin cần thiết không
@@ -289,6 +302,8 @@ export function ShippingForm({
                 onChange={handleReceiverChange}
                 errors={errors}
                 accountId={receiverAccountId}
+                receiverID={receiverID}
+                orderID={orderID}
               />
             </div>
           </div>
