@@ -391,19 +391,24 @@ const Profile = () => {
     }, 300);
   };
 
-  const handleOpenAllBenefits = () => {
-    if (showHistoryPanel) {
-      handleCloseHistory();
+  // Replace handleOpenAllBenefits with toggle logic
+  const handleToggleAllBenefits = () => {
+    if (showAllBenefitsPanel) {
+      setIsClosingAllBenefits(true);
       setTimeout(() => {
-        setShowAllBenefitsPanel(true);
-      }, 300);
-    } else if (showBenefitsPanel) {
-      handleCloseBenefits();
-      setTimeout(() => {
-        setShowAllBenefitsPanel(true);
+        setShowAllBenefitsPanel(false);
+        setIsClosingAllBenefits(false);
       }, 300);
     } else {
-      setShowAllBenefitsPanel(true);
+      if (showHistoryPanel) {
+        handleCloseHistory();
+        setTimeout(() => {
+          setShowAllBenefitsPanel(true);
+        }, 300);
+      } else {
+        // KHÔNG đóng showBenefitsPanel khi mở AllBenefits
+        setShowAllBenefitsPanel(true);
+      }
     }
   };
 
@@ -466,7 +471,7 @@ const Profile = () => {
               <Skeleton className="h-6 w-32 mb-4" />
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full mb-6">
                 <Skeleton className="h-44 w-44 rounded-full" />
-                <div className="flex flex-col gap-3 pl-5 flex-wrap w-40">
+                <div className="flex flex-col gap-3 pl-0 flex-wrap w-40">
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-full" />
                 </div>
@@ -669,10 +674,10 @@ const Profile = () => {
                     {/* Reputation and Address Card */}
                     <div
                       className={`${
-                        showHistoryPanel || showBenefitsPanel
-                          ? "md:col-span-5"
-                          : showAllBenefitsPanel
+                        showAllBenefitsPanel
                           ? "md:col-span-4"
+                          : showHistoryPanel || showBenefitsPanel
+                          ? "md:col-span-5"
                           : "md:col-span-8"
                       } transition-all duration-500 ease-in-out`}
                     >
@@ -685,7 +690,7 @@ const Profile = () => {
                             {/* Reputation Section */}
                             <div className="flex flex-col items-center gap-4 -mt-2">
                               {/* Vòng cung + thông tin bên trong */}
-                              <div className="flex flex-col md:flex-row items-center justify-center gap-4 -mt-2 w-full">
+                              <div className="flex flex-col md:flex-row items-center justify-center gap-6 -mt-2 w-full">
                                 {/* Vòng cung uy tín - cột trái */}
                                 <div className="relative w-44 h-44 mx-auto md:mx-0">
                                   <svg
@@ -730,7 +735,7 @@ const Profile = () => {
                                     </span>
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-3 pl-5 flex-wrap">
+                                <div className="flex flex-col gap-3 pl-0 flex-wrap">
                                   {/* Nút Xem quyền lợi – xanh lá nổi bật */}
                                   <Button
                                     type="button"
@@ -830,18 +835,8 @@ const Profile = () => {
                         <ReputationBenefits
                           onClose={handleCloseBenefits}
                           currentLevel={reputation?.level || 1}
-                          onOpenAllBenefits={handleOpenAllBenefits}
-                        />
-                      </div>
-                    )}
-
-                    {/* Quyền lợi thành viên Column - chỉ hiện khi showAllBenefitsPanel */}
-                    {showAllBenefitsPanel && (
-                      <div className="md:col-span-4 transition-all duration-500 ease-in-out">
-                        <ReputationBenefits
-                          onClose={() => {}} // Không cần close function vì đây là column riêng
-                          currentLevel={reputation?.level || 1}
-                          onOpenAllBenefits={handleOpenAllBenefits}
+                          onOpenAllBenefits={handleToggleAllBenefits}
+                          showAllBenefitsPanel={showAllBenefitsPanel}
                         />
                       </div>
                     )}
