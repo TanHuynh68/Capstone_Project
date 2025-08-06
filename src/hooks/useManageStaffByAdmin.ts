@@ -68,49 +68,37 @@ export function useStaffManagement() {
     }
   }, [filters, adminGetStaffs, refreshTrigger]) // Thêm refreshTrigger vào dependency
 
-  const createNewStaff = async (staffData: CreateStaffRequest): Promise<boolean> => {
+  const createNewStaff = async (staffData: CreateStaffRequest) => {
     try {
-      await createStaff(staffData)
-      toast.success("Tạo tài khoản nhân viên thành công!")
-      setRefreshTrigger((prev) => prev + 1) // Trigger refresh
-      return true
+      const response = await createStaff(staffData)
+      if (response && response.isSuccess) {
+        toast.success("Tạo tài khoản nhân viên thành công!")
+        setRefreshTrigger((prev) => prev + 1) // Trigger refresh
+        return response
+      }
+      return null
     } catch (error) {
       toast.error("Không thể tạo tài khoản nhân viên")
       console.error("Error creating staff:", error)
-      return false
+      return null
     }
   }
 
   const updateStaffActive = async (accountID: string, isActive: boolean) => {
     console.log("Updating staff active:", accountID, isActive)
-
     try {
       const response = await adminChangeActiveStaff({ accountID, isActive })
       if (response && response.responseRequestModel) {
-        console.log("updateStaffActive response: ", response)
-
-        // Cập nhật state ngay lập tức
-        setStaffs((prevStaffs) => {
-          const updatedStaffs = prevStaffs.map((staff) =>
-            staff.accountID === accountID ? { ...staff, isActive: isActive } : staff,
-          )
-          console.log("Updated staffs state:", updatedStaffs)
-          return updatedStaffs
-        })
-
         toast.success(`${isActive ? "Kích hoạt" : "Vô hiệu hóa"} tài khoản thành công!`)
-
-        // Force refresh sau một khoảng thời gian ngắn
-        setTimeout(() => {
-          setRefreshTrigger((prev) => prev + 1)
-        }, 100)
+        setRefreshTrigger((prev) => prev + 1) // Trigger refresh
+        window.location.reload()
+        return response.responseRequestModel
       }
+      return null
     } catch (error) {
       toast.error("Không thể cập nhật trạng thái tài khoản")
       console.error("Error updating staff active status:", error)
-
-      // Nếu có lỗi, force refresh để đảm bảo UI đúng
-      setRefreshTrigger((prev) => prev + 1)
+      return null
     }
   }
 
