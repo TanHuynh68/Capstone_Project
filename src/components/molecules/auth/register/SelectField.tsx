@@ -35,6 +35,7 @@ interface SelectFieldProps<
   placeholder?: string;
   description?: string;
   required?: boolean;
+  hiddenUia?: boolean;
 }
 
 export default function SelectField<
@@ -47,11 +48,37 @@ export default function SelectField<
   placeholder,
   description,
   required = false,
+  hiddenUia,
 }: SelectFieldProps<TFieldValues, TName>) {
   // Tách error ra khỏi field để không truyền vào Select
   const { error, ...selectProps } = field;
 
-  return (
+  return hiddenUia ? (
+    <FormItem hidden>
+      <FormLabel>
+        {label} {required && <span className="text-red-500">*</span>}
+      </FormLabel>
+      <Select
+        onValueChange={selectProps.onChange}
+        defaultValue={selectProps.value}
+      >
+        <FormControl>
+          <SelectTrigger className={error ? "border-red-500" : ""}>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {description && <FormDescription>{description}</FormDescription>}
+      <FormMessage />
+    </FormItem>
+  ) : (
     <FormItem>
       <FormLabel>
         {label} {required && <span className="text-red-500">*</span>}

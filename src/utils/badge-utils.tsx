@@ -41,7 +41,6 @@ export const getOrderStatusBadge = (status: string) => {
     case "Canceled":
       return (
         <Badge
-          variant="destructive"
           className="bg-red-100 text-red-800 border-red-200"
         >
           Đã hủy
@@ -56,7 +55,6 @@ export const getOrderStatusBadge = (status: string) => {
     case "Failed":
       return (
         <Badge
-          variant="destructive"
           className="bg-red-100 text-red-800 border-red-200"
         >
           Thất bại
@@ -82,12 +80,7 @@ export const getUserStatusBadge = (status: string | boolean) => {
         Hoạt động
       </Badge>
     ) : (
-      <Badge
-        variant="destructive"
-        className="bg-red-100 text-red-800 border-red-200"
-      >
-        Tạm khóa
-      </Badge>
+      <Badge className="bg-red-100 text-red-800">Tạm khóa</Badge>
     );
   }
 
@@ -104,14 +97,7 @@ export const getUserStatusBadge = (status: string | boolean) => {
       );
     case "Inactive":
     case "false":
-      return (
-        <Badge
-          variant="destructive"
-          className="bg-red-100 text-red-800 border-red-200"
-        >
-          Tạm khóa
-        </Badge>
-      );
+      return <Badge className="bg-red-100 text-red-800">Tạm khóa</Badge>;
     case "Verified":
       return (
         <Badge
@@ -122,14 +108,7 @@ export const getUserStatusBadge = (status: string | boolean) => {
         </Badge>
       );
     case "Unverified":
-      return (
-        <Badge
-          variant="destructive"
-          className="bg-red-100 text-red-800 border-red-200"
-        >
-          Chưa xác minh
-        </Badge>
-      );
+      return <Badge className="bg-red-100 text-red-800 ">Chưa xác minh</Badge>;
     default:
       return (
         <Badge className="bg-gray-100 text-gray-800 border-gray-200">
