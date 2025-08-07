@@ -177,6 +177,7 @@ const PlushDollDesign: React.FC = () => {
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const [activeText, setActiveText] = useState<fabric.IText | null>(null);
   const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
   const historyRef = useRef<{ states: string[]; index: number }>({
     states: [],
     index: -1,
@@ -370,30 +371,32 @@ const PlushDollDesign: React.FC = () => {
     const activeObject = canvasRef.current?.getActiveObject();
     if (!activeObject) return;
 
-    // X
+    // Sử dụng tọa độ chuẩn của Fabric.js
+    // X - left position
     const newX = convertToPx(parseFloat(draftProperties.x) || 0, propertyUnit);
     activeObject.set("left", newX);
 
-    // Y
+    // Y - top position
     const newY = convertToPx(parseFloat(draftProperties.y) || 0, propertyUnit);
     activeObject.set("top", newY);
 
-    // W
+    // W - width (scaleX)
     const newDisplayWidth = parseFloat(draftProperties.w) || 0;
     const newWidthPx = convertToPx(newDisplayWidth, propertyUnit);
     const originalWidth = activeObject.width || 1;
     activeObject.set("scaleX", newWidthPx / originalWidth);
 
-    // H
+    // H - height (scaleY)
     const newDisplayHeight = parseFloat(draftProperties.h) || 0;
     const newHeightPx = convertToPx(newDisplayHeight, propertyUnit);
     const originalHeight = activeObject.height || 1;
     activeObject.set("scaleY", newHeightPx / originalHeight);
 
-    // A
+    // A - angle
     const newAngle = parseFloat(draftProperties.a) || 0;
     activeObject.set("angle", newAngle);
 
+    // Cập nhật tọa độ sau khi thay đổi position
     activeObject.setCoords();
     canvasRef.current?.renderAll();
     saveState();
@@ -1370,23 +1373,81 @@ const PlushDollDesign: React.FC = () => {
   };
 
   const updateToolbarPos = (obj: fabric.Object) => {
-    if (!canvasRef.current || !canvasWrapperRef.current) return;
+    if (!canvasRef.current || !canvasWrapperRef.current || !toolbarRef.current)
+      return;
 
+    // Đảm bảo object có coordinates được cập nhật
+    obj.setCoords();
+
+    // Lấy bounding rect của object (bao gồm cả transform)
     const bound = obj.getBoundingRect(true, true);
 
-    // Get the canvas element
-    const canvasEl = canvasRef.current.getElement() as HTMLCanvasElement;
-    const canvasRect = canvasEl.getBoundingClientRect();
+    // Tính toán vị trí toolbar: ngay trên object (viền trên)
+    const centerX = bound.left + bound.width / 2; // Tâm theo trục X
+    const topY = bound.top; // Viền trên theo trục Y
+
+    // Lấy vị trí của canvas wrapper để tính toán tọa độ tương đối
     const wrapperRect = canvasWrapperRef.current.getBoundingClientRect();
 
-    // Tính toán offset canvas trong wrapper
-    const offsetX = canvasRect.left - wrapperRect.left;
-    const offsetY = canvasRect.top - wrapperRect.top;
+    // Lấy canvas element để tính toán vị trí thực tế
+    const canvas = canvasRef.current;
+    const canvasElement = canvas.getElement();
+    const canvasRect = canvasElement.getBoundingClientRect();
+
+    // Tính toán vị trí toolbar dựa trên vị trí thực tế của canvas
+    // Chuyển đổi tọa độ canvas sang tọa độ screen
+    const canvasLeft = canvasRect.left;
+    const canvasTop = canvasRect.top;
+    const canvasWidth = canvasRect.width;
+    const canvasHeight = canvasRect.height;
+
+    // Tính toán tỷ lệ scale giữa canvas thực tế và canvas logic
+    const scaleX = canvasWidth / canvas.getWidth();
+    const scaleY = canvasHeight / canvas.getHeight();
+
+    // Chuyển đổi tọa độ canvas sang tọa độ screen
+    const screenX = canvasLeft + centerX * scaleX;
+    const screenY = canvasTop + topY * scaleY;
+
+    // Tính toán vị trí toolbar tương đối với wrapper
+    const toolbarX = screenX - wrapperRect.left - 141.5; // toolbarWidth / 2 = 283 / 2 = 141.5
+    const toolbarY = screenY - wrapperRect.top - 120; // Offset 120px lên trên
+
+    // Debug: log các giá trị để kiểm tra
+    console.log("Toolbar positioning debug:", {
+      bound,
+      centerX,
+      topY,
+      wrapperRect,
+      canvasRect,
+      scaleX,
+      scaleY,
+      screenX,
+      screenY,
+      toolbarX,
+      toolbarY,
+    });
 
     setToolbarPos({
-      x: bound.left + bound.width / 2 + offsetX,
-      y: bound.top - 100 + offsetY,
+      x: toolbarX,
+      y: toolbarY,
     });
+
+    // Thêm setTimeout để đảm bảo toolbar được render và căn giữa chính xác
+    setTimeout(() => {
+      if (toolbarRef.current) {
+        const actualToolbarWidth = toolbarRef.current.offsetWidth;
+        if (actualToolbarWidth && actualToolbarWidth !== 283) {
+          // Nếu toolbar width khác với dự đoán, tính toán lại
+          const correctedToolbarX =
+            screenX - wrapperRect.left - actualToolbarWidth / 2;
+          setToolbarPos({
+            x: correctedToolbarX,
+            y: toolbarY,
+          });
+        }
+      }
+    }, 0);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -1463,9 +1524,11 @@ const PlushDollDesign: React.FC = () => {
 
     if (activeObject.type === "activeSelection") {
       const selection = activeObject as fabric.ActiveSelection;
+      // Sử dụng getBoundingRect với tọa độ chuẩn của Fabric.js
       const bbox = activeObject.getBoundingRect(true, true);
 
       const objects = selection.getObjects().map((obj) => {
+        // Tính toán vị trí tương đối sử dụng tọa độ chuẩn
         const relLeft = (obj.left || 0) - bbox.left;
         const relTop = (obj.top || 0) - bbox.top;
         return { obj, relLeft, relTop };
@@ -1492,11 +1555,15 @@ const PlushDollDesign: React.FC = () => {
       const clonedObjects: fabric.Object[] = [];
       objects.forEach(({ obj, relLeft, relTop }) => {
         obj.clone((clonedObj: fabric.Object) => {
+          // Sử dụng tọa độ chuẩn của Fabric.js
           clonedObj.set({
             left: bbox.left + relLeft + pasteOffset,
             top: bbox.top + relTop + pasteOffset,
             evented: true,
           });
+
+          // Cập nhật tọa độ sau khi set position
+          clonedObj.setCoords();
 
           canvas.add(clonedObj);
           clonedObjects.push(clonedObj);
@@ -1515,11 +1582,16 @@ const PlushDollDesign: React.FC = () => {
     } else {
       const obj = clipboardRef.current;
       obj.clone((clonedObj: fabric.Object) => {
+        // Sử dụng tọa độ chuẩn của Fabric.js
         clonedObj.set({
           left: (clonedObj.left || 0) + pasteOffset,
           top: (clonedObj.top || 0) + pasteOffset,
           evented: true,
         });
+
+        // Cập nhật tọa độ sau khi set position
+        clonedObj.setCoords();
+
         canvas.add(clonedObj);
         canvas.setActiveObject(clonedObj);
         canvas.requestRenderAll();
@@ -3559,11 +3631,11 @@ const PlushDollDesign: React.FC = () => {
 
                   return (
                     <div
+                      ref={toolbarRef}
                       className="absolute z-50 bg-card shadow-lg rounded-md p-2 flex gap-2 select-none"
                       style={{
                         top: toolbarPos.y,
                         left: toolbarPos.x,
-                        transform: "translateX(-50%)",
                       }}
                       onMouseDown={startDrag}
                     >
