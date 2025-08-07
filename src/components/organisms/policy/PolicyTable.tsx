@@ -30,20 +30,17 @@ export default function PolicyTable({ category }: PolicyTableProps) {
                 <TableHead className="w-[400px] font-semibold">
                   Tình huống
                 </TableHead>
-                <TableHead className="w-[500px] font-semibold whitespace-normal break-words">
-                  Mô tả chi tiết
-                </TableHead>
                 <TableHead className="text-center font-semibold">
                   Điểm KH
                 </TableHead>
                 <TableHead className="text-center font-semibold">
-                  Điểm TK
+                  Điểm NTK
                 </TableHead>
                 <TableHead className="text-center font-semibold">
                   Bồi thường KH
                 </TableHead>
                 <TableHead className="text-center font-semibold">
-                  Bồi thường TK
+                  Bồi thường NTK
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -51,9 +48,6 @@ export default function PolicyTable({ category }: PolicyTableProps) {
               {category.rules.map((rule) => (
                 <TableRow key={rule.id} className="hover:bg-muted/30">
                   <TableCell className="font-medium">{rule.scenario}</TableCell>
-                  <TableCell className="text-sm text-gray-600 whitespace-normal break-words w-[300px]">
-                    {rule.description}
-                  </TableCell>
                   <TableCell className="text-center">
                     <ScoreDisplay score={rule.customerScore} />
                   </TableCell>

@@ -6,6 +6,8 @@ import { PAGE_SIZE } from "@/constants/reports.constants"
 import { filterReportsBySearch } from "@/utils/reports.utils"
 import ReportService from "@/services/ReportService"
 import CustomerReportService from "@/services/CustomerReportService"
+import { ProcessReportFormData } from "@/schemas/updateReportSchema"
+
 export const useReportsLogic = () => {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(false)
@@ -15,7 +17,6 @@ export const useReportsLogic = () => {
   const [isProcessDialogOpen, setIsProcessDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
-
   const [filters, setFilters] = useState<TableFilters>({
     reportType: "all",
     reportStatus: "all",
@@ -25,7 +26,8 @@ export const useReportsLogic = () => {
 
   const { getReportsByStaff, processReport } = ReportService()
   const { getReportDetail } = CustomerReportService()
-  // Lấy danh sách báo cáo
+
+  // Fetch reports
   const fetchReports = useCallback(
     async (params?: { showToast?: boolean }) => {
       setLoading(true)
@@ -37,13 +39,11 @@ export const useReportsLogic = () => {
           page: filters.page,
           size: PAGE_SIZE,
         }
-
         const res = await getReportsByStaff(query)
         const items = res?.responseRequestModel?.responseList?.items || []
         const total = res?.responseRequestModel?.responseList?.totalPages || 1
         setReports(items)
         setTotalPages(total)
-
         if (params?.showToast) {
           toast.success("Lấy danh sách báo cáo thành công")
         }
@@ -57,7 +57,7 @@ export const useReportsLogic = () => {
     [getReportsByStaff, filters],
   )
 
-  // Lấy chi tiết báo cáo
+  // Fetch report detail
   const fetchReportDetail = useCallback(
     async (reportID: string) => {
       setDetailLoading(true)
@@ -73,23 +73,13 @@ export const useReportsLogic = () => {
     [getReportDetail],
   )
 
-  // Xem chi tiết báo cáo
-  const handleViewDetail = useCallback(
-    (report: Report) => {
-      setSelectedReport(report)
-      setIsDetailDialogOpen(true)
-      fetchReportDetail(report.reportID)
-    },
-    [fetchReportDetail],
-  )
-
-  // Xử lý báo cáo
+  // Process report
   const handleProcessReport = useCallback((report: Report) => {
     setSelectedReport(report)
     setIsProcessDialogOpen(true)
   }, [])
 
-  // Cập nhật trạng thái báo cáo
+  // Update report status
   const handleUpdateReportStatus = useCallback(
     async (
       // reportID: string, newStatus: number
@@ -107,11 +97,18 @@ export const useReportsLogic = () => {
     [fetchReports],
   )
 
-  // Xử lý submit báo cáo
+  // Process submit with benefitID
   const handleProcessSubmit = useCallback(
-    async (data: ProcessReportData) => {
+    async (data: ProcessReportFormData) => {
       try {
-        await processReport(data)
+        const processData = {
+          reportID: data.reportID,
+          processNote: data.processNote,
+          accept: data.accept,
+          benefitID: data.benefitID,
+        }
+
+        await processReport(processData)
         toast.success("Xử lý báo cáo thành công")
         setIsProcessDialogOpen(false)
         setSelectedReport(null)
@@ -126,40 +123,50 @@ export const useReportsLogic = () => {
     [processReport, fetchReports],
   )
 
-  // Xử lý tìm kiếm
+  // Handle search
   const handleSearch = useCallback((searchTerm: string) => {
     setFilters((prev) => ({ ...prev, searchTerm, page: 1 }))
   }, [])
 
-  // Xử lý thay đổi filter
+  // Handle filter change
   const handleFilterChange = useCallback((newFilters: Partial<TableFilters>) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }))
   }, [])
 
-  // Xử lý thay đổi trang
+  // Handle page change
   const handlePageChange = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }))
   }, [])
 
-  // Đóng dialog chi tiết
+  // Handle view detail
+  const handleViewDetail = useCallback(
+    (report: Report) => {
+      setSelectedReport(report)
+      setIsDetailDialogOpen(true)
+      fetchReportDetail(report.reportID)
+    },
+    [fetchReportDetail],
+  )
+
+  // Close detail dialog
   const handleCloseDetailDialog = useCallback(() => {
     setIsDetailDialogOpen(false)
     setSelectedReport(null)
     setReportDetail(null)
   }, [])
 
-  // Đóng dialog xử lý
+  // Close process dialog
   const handleCloseProcessDialog = useCallback(() => {
     setIsProcessDialogOpen(false)
     setSelectedReport(null)
   }, [])
 
-  // Lọc báo cáo theo từ khóa tìm kiếm
+  // Filtered reports
   const filteredReports = useMemo(() => {
     return filterReportsBySearch(reports, filters.searchTerm)
   }, [reports, filters.searchTerm])
 
-  // Effect để fetch data khi filters thay đổi
+  // Effect to fetch data when filters change
   useEffect(() => {
     fetchReports()
   }, [filters.page, filters.reportType, filters.reportStatus])
@@ -175,7 +182,6 @@ export const useReportsLogic = () => {
     isProcessDialogOpen,
     isDetailDialogOpen,
     detailLoading,
-
     // Actions
     fetchReports,
     handleViewDetail,

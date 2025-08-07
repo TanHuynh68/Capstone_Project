@@ -63,7 +63,6 @@ const AdminService = () => {
                     API_ROUTES.CREATE_BENEFIT,
                     values
                 );
-                toast.success(MESSAGE.CREATE_BENEFIT_SUCCESSFULLY);
                 return res;
             } catch (err: any) {
                 toast.error(err?.response?.data || MESSAGE.CREATE_BENEFIT_FAILED);

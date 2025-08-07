@@ -6,7 +6,7 @@ import { policyData } from "./policyData";
 
 export default function PolicyTemplate() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br">
       <div className="container mx-auto px-4 py-8 ">
         {/* Header */}
         <div className="text-center mb-8">
@@ -14,11 +14,11 @@ export default function PolicyTemplate() {
             <div className="p-3 bg-primary/10 rounded-full">
               <Scale className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-4xl font-bold ">
               Quyền lợi & Chính sách
             </h1>
           </div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg  max-w-4xl mx-auto">
             Hệ thống điểm số và bồi thường minh bạch, đảm bảo quyền lợi cho cả
             khách hàng và nhà thiết kế
           </p>

@@ -18,6 +18,18 @@ const BenefitService = () => {
         [callApi]
     );
 
+    const getBenefitDetail = useCallback(
+        async (id: any) => {
+            try {
+                const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_BENEFIT}/${id}`);
+                return res;
+            } catch (err: any) {
+                toast.error(err?.response?.data || "Đã xảy ra lỗi khi lấy thông tin quyền lợi.");
+            }
+        },
+        [callApi]
+    );
+
     const getBenefitsLevel = useCallback(
         async (values: any) => {
             try {
@@ -28,9 +40,9 @@ const BenefitService = () => {
             }
         },
         [callApi]
-    ); 
+    );
 
-    return { getBenefits, getBenefitsLevel };
+    return { getBenefits, getBenefitsLevel, getBenefitDetail };
 };
 
 

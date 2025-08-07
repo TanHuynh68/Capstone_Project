@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -76,7 +76,7 @@ const AllBenefits = ({
     fetchAllBenefits();
   }, [getBenefits, benefitType, page, size]);
 
-  const getBenefitTypeLabel = (type: string): string | JSX.Element => {
+  const getBenefitTypeLabel = (type: string): string | ReactNode => {
     switch (type) {
       case "General":
         return "Chung";

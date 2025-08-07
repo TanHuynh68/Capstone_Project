@@ -44,7 +44,7 @@ export default function PolicyRuleCard({ rule }: PolicyRuleCardProps) {
 
             <div className="text-center">
               <p className="text-xs font-medium text-gray-500 mb-2">
-                Bồi thường TK
+                Bồi thường NTK
               </p>
               <CompensationDisplay amount={rule.designCompensation} />
             </div>
