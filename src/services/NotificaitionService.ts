@@ -43,7 +43,7 @@ const NotificationService = () => {
         API_ROUTES.READ_NOTIFICATION,
         { notificationID: notificationID }
       );
-      toast.success("Đã đánh dấu thông báo đã đọc!");
+      // toast.success("Đã đánh dấu thông báo đã đọc!");
       return res;
     } catch (err: any) {
       toast.error(err?.response?.data || "Đánh dấu thông báo thất bại!");
