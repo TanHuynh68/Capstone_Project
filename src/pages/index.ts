@@ -29,4 +29,5 @@ export { default as CustomerManageReportsPage } from "./customer/manage-reports"
 export { default as ImageUploadWithDescriptions } from "../components/molecules/getdelivery/ImageUploadWithDescriptions";
 export { default as StaffManagePostsPage } from "./staff/manage-post";
 export { default as PolicyPage } from "./general/policy";
+export { default as AdminManageBenefits } from "./admin/manager-benefit";
 
