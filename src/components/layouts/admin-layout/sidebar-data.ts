@@ -10,7 +10,6 @@ import {
     LayoutDashboardIcon,
     SettingsIcon,
     SearchIcon,
-    UserPlusIcon,
 } from "lucide-react";
 import { ADMIN_ROUTES, PATH } from "@/routes/path";
 
@@ -27,35 +26,10 @@ export const appSidebarData = {
             icon: LayoutDashboardIcon,
         },
         {
-            title: "Quản lý luật lệ",
+            title: "Quản lý chính sách",
             url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
             icon: GavelIcon,
         },
-        {
-            title: "Tạo tài khoản nhân viên",
-            url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_CREATE_STAFF}`,
-            icon: UserPlusIcon,
-        },
-        // {
-        //     title: "Lifecycle",
-        //     url: "#",
-        //     icon: ListIcon,
-        // },
-        // {
-        //     title: "Analytics",
-        //     url: "#",
-        //     icon: BarChartIcon,
-        // },
-        // {
-        //     title: "Projects",
-        //     url: "#",
-        //     icon: FolderIcon,
-        // },
-        // {
-        //     title: "Team",
-        //     url: "#",
-        //     icon: UsersIcon,
-        // },
     ],
     navClouds: [
         {

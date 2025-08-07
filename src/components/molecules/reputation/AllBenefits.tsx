@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import BenefitService from "@/services/BenefitService";
 import { X } from "lucide-react";
+import { formatVietnamDate } from "@/utils/date";
 
 interface AllBenefit {
   benefitID: string;
@@ -75,16 +76,26 @@ const AllBenefits = ({
     fetchAllBenefits();
   }, [getBenefits, benefitType, page, size]);
 
-  const getBenefitTypeLabel = (type: string) => {
+  const getBenefitTypeLabel = (type: string): string | ReactNode => {
     switch (type) {
       case "General":
         return "Chung";
       case "Delivery":
         return "Giao hàng";
       case "OrderAndProgress":
-        return "Đơn hàng & Tiến độ";
+        return (
+          <>
+            Đơn hàng &<br />
+            Tiến độ
+          </>
+        );
       case "PostAndOffer":
-        return "Bài viết & Đề xuất";
+        return (
+          <>
+            Bài viết &<br />
+            Đề xuất
+          </>
+        );
       case "Scam":
         return "Lừa đảo";
       default:
@@ -100,9 +111,9 @@ const AllBenefits = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-muted rounded-full transition-colors cursor-pointer"
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-muted-foreground" />
             </button>
           )}
         </CardTitle>
@@ -111,8 +122,8 @@ const AllBenefits = ({
             <div className="space-y-4">
               {isLoading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                  <p className="text-gray-500 font-medium">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3"></div>
+                  <p className="text-muted-foreground font-medium">
                     Đang tải quyền lợi...
                   </p>
                 </div>
@@ -121,32 +132,32 @@ const AllBenefits = ({
                   <div
                     key={benefit.benefitID}
                     className={cn(
-                      "p-5 border rounded-xl w-full max-w-md mx-auto overflow-x-hidden transition-all duration-200 bg-white border-gray-200 shadow-sm hover:shadow-md"
+                      "p-5 border rounded-xl w-full max-w-md mx-auto overflow-x-hidden transition-all duration-200 bg-card border-border shadow-sm hover:shadow-md"
                     )}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2 justify-between">
-                        <h3 className="font-bold text-base text-gray-900">
+                        <h3 className="font-bold text-base text-foreground">
                           {benefit.title}
                         </h3>
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded whitespace-nowrap">
                           {getBenefitTypeLabel(benefit.benefitType)}
                         </span>
                       </div>
 
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">
+                          <span className="text-muted-foreground">
                             Điểm khách hàng:
                           </span>
                           <span
                             className={cn(
                               "font-medium",
                               benefit.customerScoreChange > 0
-                                ? "text-green-600"
+                                ? "text-green-600 dark:text-green-400"
                                 : benefit.customerScoreChange < 0
-                                ? "text-red-600"
-                                : "text-gray-600"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-muted-foreground"
                             )}
                           >
                             {benefit.customerScoreChange > 0 ? "+" : ""}
@@ -154,15 +165,17 @@ const AllBenefits = ({
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Điểm designer:</span>
+                          <span className="text-muted-foreground">
+                            Điểm nhà thiết kế:
+                          </span>
                           <span
                             className={cn(
                               "font-medium",
                               benefit.designerScoreChange > 0
-                                ? "text-green-600"
+                                ? "text-green-600 dark:text-green-400"
                                 : benefit.designerScoreChange < 0
-                                ? "text-red-600"
-                                : "text-gray-600"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-muted-foreground"
                             )}
                           >
                             {benefit.designerScoreChange > 0 ? "+" : ""}
@@ -170,30 +183,33 @@ const AllBenefits = ({
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">
+                          <span className="text-muted-foreground">
                             Bồi thường khách:
                           </span>
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-foreground">
                             {benefit.customerCompensationRate}%
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            Bồi thường designer:
+                          <span className="text-muted-foreground">
+                            Bồi thường nhà thiết kế:
                           </span>
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-foreground">
                             {benefit.designerCompensationRate}%
                           </span>
                         </div>
                       </div>
 
                       {benefit.createdAt && (
-                        <div className="flex items-center gap-2 justify-end mt-3">
-                          <span className="text-xs text-gray-400">
-                            Tạo:{" "}
-                            {new Date(benefit.createdAt).toLocaleDateString(
-                              "vi-VN"
-                            )}
+                        <div className="flex items-center gap-4 justify-end mt-3">
+                          <span className="text-xs text-muted-foreground">
+                            Phiên bản:{" "}
+                            <span className="font-semibold text-muted-foreground">
+                              {benefit.version}
+                            </span>
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Ngày tạo: {formatVietnamDate(benefit.createdAt)}
                           </span>
                         </div>
                       )}
@@ -202,10 +218,10 @@ const AllBenefits = ({
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 font-medium mb-2">
+                  <p className="text-muted-foreground font-medium mb-2">
                     Không có thông tin quyền lợi
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Vui lòng thử lại sau hoặc liên hệ hỗ trợ
                   </p>
                 </div>

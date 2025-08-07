@@ -12,9 +12,7 @@ export default function ErrorPage() {
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl animate-bounce">
             404
           </h1>
-          <p className="text-gray-500">
-            Có vẻ như bạn đã mạo hiểm bước vào thế giới kỹ thuật số chưa được biết đến.
-          </p>
+          <p className="text-muted-foreground">Không tìm thấy trang</p>
         </div>
         <div onClick={() => navigate(PATH.HOME)}>
           <Button>Quay lại trang chủ</Button>

@@ -30,34 +30,45 @@ const useAuthService = () => {
 
   const login = useCallback(
     async (values: any) => {
-      const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
+     try {
+       const res = await callApi(HTTP_METHOD.POST, API_ROUTES.SIGN_IN, values);
 
-      console.log(res, "res");
-      const jwtToken = res?.responseRequestModel?.jwtToken;
-      const token = jwtToken?.accessToken;
-      const refreshToken = jwtToken?.refreshToken;
+       console.log(res, "res");
+       // if (res?.statusCode === 400) {
+       //   navigate(AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REVERIFY_ACCOUNT);
+       //   return res; 
+       // }
 
-      if (jwtToken) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("refreshToken", refreshToken);
-        const decoded = jwtDecode<DecodedUserRaw>(token);
-        const user = normalizeDecodedUser(decoded);
-        dispatch(loginSuccess(user));
-        toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
-        switch (user.role) {
-          case ROLE.ADMIN:
-            navigate(PATH.ADMIN_DASHBOARD);
-            break;
-          case ROLE.STAFF:
-            navigate(PATH.STAFF_DASHBOARD_MANAGER_USERS);
-            break;
-          default:
-            navigate(PATH.HOME);
-            break;
-        }
-      }
+       if (res?.statusCode === 200) {
+         const jwtToken = res?.responseRequestModel?.jwtToken;
+         const token = jwtToken?.accessToken;
+         const refreshToken = jwtToken?.refreshToken;
 
-      return res;
+         if (jwtToken) {
+           localStorage.setItem("token", token);
+           localStorage.setItem("refreshToken", refreshToken);
+           const decoded = jwtDecode<DecodedUserRaw>(token);
+           const user = normalizeDecodedUser(decoded);
+           dispatch(loginSuccess(user));
+           toast.success(MESSAGE.LOGIN_SUCCESSFULLY);
+           switch (user.role) {
+             case ROLE.ADMIN:
+               navigate(PATH.ADMIN_DASHBOARD);
+               break;
+             case ROLE.STAFF:
+               navigate(PATH.STAFF_DASHBOARD_MANAGER_USERS);
+               break;
+             default:
+               navigate(PATH.HOME);
+               break;
+           }
+         }
+       }
+
+       return res;
+     } catch (error) {
+       console.log('error: ', error)
+     }
     },
     [callApi, dispatch, navigate]
   );

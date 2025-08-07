@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import ENV from "./env";
 import { logout } from "@/redux/userSlice";
 import { store } from "@/redux/store";
+import { AUTH_ROUTES } from "@/routes/path";
+
 const axiosInstance = axios.create({
   baseURL: ENV.BASE_URL,
 });
@@ -26,6 +28,13 @@ axiosInstance.interceptors.response.use(
       const isLoginRequest = config?.url?.includes('/auth/login');
       const isAuthError = status === 401 || status === 403;
       const token = localStorage.getItem("token");
+
+      // console.log(error.response, "error.response");
+
+      if (data.message === "Tài khoản chưa được xác thực" && data.statusCode === 400) {
+        window.location.href = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REVERIFY_ACCOUNT;
+        return error;
+      }
 
       if ((status === 400 || status === 401) && data.errors) {
         const messages = Object.values(data.errors).flat() as string[];

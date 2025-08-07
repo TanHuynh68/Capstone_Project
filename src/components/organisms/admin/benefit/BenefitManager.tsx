@@ -26,23 +26,7 @@ import {
 import AdminService from "@/services/AdminService";
 import { Badge } from "@/components/ui/badge";
 import { formatVietnamDateHours } from "@/utils/date";
-import BenefitCreateForm from "./create-rule";
-interface Benefit {
-  benefitID: string;
-  benefitType: string;
-  title: string;
-  description?: string;
-  version: number;
-  createdAt: string;
-  isActive: boolean;
-  scoreChange: number;
-  compensationRate: number;
-  listVersion?: Array<{
-    benefitID: string;
-    version: number;
-    createdAt: string;
-  }>;
-}
+import BenefitCreateForm from "./BenefitCreateForm";
 
 const BenefitManager: React.FC = () => {
   const [benefits, setBenefits] = useState<Benefit[]>([]);
@@ -52,11 +36,9 @@ const BenefitManager: React.FC = () => {
   const [totalItems, setTotalItems] = useState<number>(0);
   const [benefitTypeFilter, setBenefitTypeFilter] = useState<number>(-1);
   const [openCreateModal, setOpenCreateModal] = useState(false);
-
   const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [openVersionModal, setOpenVersionModal] = useState(false);
-
   const [selectedOldBenefit, setSelectedOldBenefit] = useState<Benefit | null>(
     null
   );
@@ -65,19 +47,16 @@ const BenefitManager: React.FC = () => {
   const { getBenefits, getBenefitById } = AdminService();
 
   const fetchBenefits = useCallback(async () => {
-    const params: {
-      title: string;
-      page: number;
-      size: number;
-      benefitType?: number;
-    } = {
+    const params: BenefitFilters = {
       title: filterTitle,
       page,
       size,
     };
+
     if (benefitTypeFilter !== -1) {
       params.benefitType = benefitTypeFilter;
     }
+
     const res = await getBenefits(params);
     if (res?.responseRequestModel?.responseList) {
       setBenefits(res.responseRequestModel.responseList.items);
@@ -105,19 +84,19 @@ const BenefitManager: React.FC = () => {
   const mapBenefitType = (type: number | string) => {
     switch (type) {
       case 0:
-      case "Chung":
+      case "General":
         return "Chung";
       case 1:
-      case "DatCoc":
+      case "Deposit":
         return "Đặt cọc";
       case 2:
-      case "GiaoHang":
+      case "Delivery":
         return "Giao hàng";
       case 3:
-      case "Phat":
+      case "Penalty":
         return "Phạt";
       case 4:
-      case "BaoHanh":
+      case "Warranty":
         return "Bảo hành";
       default:
         return type;
@@ -142,15 +121,32 @@ const BenefitManager: React.FC = () => {
     );
   };
 
+  const formatScoreChange = (score: number) => {
+    return (
+      <span
+        className={`font-medium ${
+          score >= 0 ? "text-green-600" : "text-red-600"
+        }`}
+      >
+        {score > 0 ? "+" : ""}
+        {score}
+      </span>
+    );
+  };
+
+  const formatCompensationRate = (rate: number) => {
+    return <span className="font-medium text-blue-600">{rate}%</span>;
+  };
+
   useEffect(() => {
     fetchBenefits();
   }, [fetchBenefits]);
 
   return (
-    <div className="w-full max-w-full mx-auto space-y-6 p-4">
+    <div className="w-full mx-auto space-y-6 p-4">
       <Card className="border shadow-md">
         <CardHeader className="flex justify-between items-center">
-          <CardTitle>Bộ lọc quyền lợi</CardTitle>
+          <CardTitle>Bộ lọc</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-3 mt-5">
           <Input
@@ -189,7 +185,7 @@ const BenefitManager: React.FC = () => {
 
       <Card className="border shadow-md">
         <CardHeader>
-          <CardTitle>Danh sách quyền lợi</CardTitle>
+          <CardTitle>Danh sách chính sách</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table className="min-w-full">
@@ -244,7 +240,6 @@ const BenefitManager: React.FC = () => {
               )}
             </TableBody>
           </Table>
-
           <div className="flex justify-between mt-4">
             <div>
               Trang {page} / {Math.ceil(totalItems / size)}
@@ -271,9 +266,9 @@ const BenefitManager: React.FC = () => {
 
       {/* Modal Create Benefit */}
       <Dialog open={openCreateModal} onOpenChange={setOpenCreateModal}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="min-w-[800px] h-[750px]">
           <DialogHeader>
-            <DialogTitle>Tạo quyền lợi mới</DialogTitle>
+            <DialogTitle className="text-center">Tạo quyền lợi mới</DialogTitle>
           </DialogHeader>
           <BenefitCreateForm
             onCreated={() => {
@@ -294,17 +289,18 @@ const BenefitManager: React.FC = () => {
           }
         }}
       >
-        <DialogContent className="max-w-lg bg-white rounded-xl shadow-md p-6">
+        <DialogContent className="max-w-2xl bg-white rounded-xl shadow-md p-6">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-primary">
               Chi tiết quyền lợi
             </DialogTitle>
           </DialogHeader>
           {selectedBenefit && (
-            <div className="space-y-6 mt-4">
+            <div className="space-y-6 ">
               <div className="text-2xl font-bold text-primary border-b pb-2">
                 {selectedBenefit.title}
               </div>
+
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
                 <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
                   <span className="text-muted-foreground">Loại</span>
@@ -343,28 +339,54 @@ const BenefitManager: React.FC = () => {
                   <span className="text-muted-foreground">Trạng thái</span>
                   {mapIsActive(selectedBenefit.isActive)}
                 </div>
-                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
-                  <span className="text-muted-foreground">Điểm thay đổi</span>
-                  <span
-                    className={`font-medium ${
-                      selectedBenefit.scoreChange >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {selectedBenefit.scoreChange > 0 ? "+" : ""}
-                    {selectedBenefit.scoreChange}
-                  </span>
-                </div>
-                <div className="flex justify-between gap-4 p-2 bg-gray-50 rounded-lg">
-                  <span className="text-muted-foreground">
-                    Tỷ lệ bồi thường
-                  </span>
-                  <span className="font-medium text-blue-600">
-                    {selectedBenefit.compensationRate}%
-                  </span>
+              </div>
+
+              {/* Score Changes Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Thay đổi điểm số
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <span className="text-blue-700 font-medium">
+                      Khách hàng
+                    </span>
+                    {formatScoreChange(selectedBenefit.customerScoreChange)}
+                  </div>
+                  <div className="flex justify-between gap-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <span className="text-purple-700 font-medium">
+                      Nhà thiết kế
+                    </span>
+                    {formatScoreChange(selectedBenefit.designerScoreChange)}
+                  </div>
                 </div>
               </div>
+
+              {/* Compensation Rates Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Tỷ lệ bồi thường
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between gap-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <span className="text-green-700 font-medium">
+                      Khách hàng
+                    </span>
+                    {formatCompensationRate(
+                      selectedBenefit.customerCompensationRate
+                    )}
+                  </div>
+                  <div className="flex justify-between gap-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <span className="text-orange-700 font-medium">
+                      Nhà thiết kế
+                    </span>
+                    {formatCompensationRate(
+                      selectedBenefit.designerCompensationRate
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-4">
                 <span className="text-muted-foreground block mb-2 font-medium">
                   Mô tả
@@ -409,8 +431,9 @@ const BenefitManager: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Modal So sánh phiên bản */}
       <Dialog open={openCompareModal} onOpenChange={setOpenCompareModal}>
-        <DialogContent className="max-w-4xl bg-white rounded-xl shadow-md p-6">
+        <DialogContent className="max-w-6xl bg-white rounded-xl shadow-md p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               So sánh phiên bản
@@ -451,15 +474,28 @@ const BenefitManager: React.FC = () => {
                       type: "description",
                     },
                     {
-                      label: "Điểm thay đổi",
-                      current: selectedBenefit.scoreChange,
-                      old: selectedOldBenefit.scoreChange,
+                      label: "Điểm khách hàng",
+                      current: selectedBenefit.customerScoreChange,
+                      old: selectedOldBenefit.customerScoreChange,
                       type: "number",
                     },
                     {
-                      label: "Tỷ lệ bồi thường",
-                      current: selectedBenefit.compensationRate,
-                      old: selectedOldBenefit.compensationRate,
+                      label: "Điểm nhà thiết kế",
+                      current: selectedBenefit.designerScoreChange,
+                      old: selectedOldBenefit.designerScoreChange,
+                      type: "number",
+                    },
+                    {
+                      label: "Bồi thường khách hàng",
+                      current: selectedBenefit.customerCompensationRate,
+                      old: selectedOldBenefit.customerCompensationRate,
+                      type: "number",
+                      unit: "%",
+                    },
+                    {
+                      label: "Bồi thường nhà thiết kế",
+                      current: selectedBenefit.designerCompensationRate,
+                      old: selectedOldBenefit.designerCompensationRate,
                       type: "number",
                       unit: "%",
                     },
@@ -467,7 +503,6 @@ const BenefitManager: React.FC = () => {
                     const isDifferent = item.current !== item.old;
                     let currentClass = "border p-3";
                     let oldClass = "border p-3";
-
                     if (item.type === "number") {
                       if (item.current > item.old) {
                         currentClass += " text-green-600 font-bold";
@@ -485,7 +520,6 @@ const BenefitManager: React.FC = () => {
                         oldClass += " text-red-600 font-bold";
                       }
                     }
-
                     return (
                       <tr key={item.label}>
                         <td className="border p-3 font-semibold">
