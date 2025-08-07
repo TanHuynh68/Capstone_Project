@@ -1166,8 +1166,8 @@ const PlushDollDesign: React.FC = () => {
     // toast.success(`Đã tạo thiết kế mới ${width}x${height} ${unit}`);
   };
 
-  // Zoom state: default is fit-to-parent (Fix Window)
-  const [zoom, setZoom] = useState(1);
+  // Zoom state: default is 60%
+  const [zoom, setZoom] = useState(0.6);
   const [isFullWindow, setIsFullWindow] = useState(false);
   const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
@@ -1185,10 +1185,10 @@ const PlushDollDesign: React.FC = () => {
   };
 
   const handleResetZoom = () => {
-    setZoom(1);
+    setZoom(0.6);
     if (canvasWrapperRef.current) {
       // Reset CSS transform
-      canvasWrapperRef.current.style.transform = "scale(1)";
+      canvasWrapperRef.current.style.transform = "scale(0.6)";
       canvasWrapperRef.current.style.transformOrigin = "center center";
     }
   };
@@ -1212,9 +1212,9 @@ const PlushDollDesign: React.FC = () => {
     updateScaleRatio();
 
     // Reset zoom and CSS transform when fixing window
-    setZoom(1);
+    setZoom(0.6);
     if (canvasWrapperRef.current) {
-      canvasWrapperRef.current.style.transform = "scale(1)";
+      canvasWrapperRef.current.style.transform = "scale(0.6)";
       canvasWrapperRef.current.style.transformOrigin = "center center";
     }
 
@@ -3766,7 +3766,7 @@ const PlushDollDesign: React.FC = () => {
             >
               <div
                 ref={canvasWrapperRef}
-                className="relative bg-card shadow-md origin-top"
+                className="relative bg-card shadow-md origin-top ml-30"
                 style={{
                   width: isFullWindow
                     ? `${canvasWrapperRef.current?.style.width || "100%"}`
@@ -4048,7 +4048,7 @@ const PlushDollDesign: React.FC = () => {
               size="icon"
               variant="ghost"
               onClick={handleResetZoom}
-              title="Reset zoom to 100%"
+              title="Reset zoom to 60%"
             >
               ↺
             </Button>
