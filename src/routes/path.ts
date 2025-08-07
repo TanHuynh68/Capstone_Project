@@ -31,7 +31,7 @@ export enum USER_ROUTES {
   DESIGNER_PORTFOLIO_PAGE = "portfolio/:id",
   CUSTOMER_UPLOAD_PAGE = "post/upload-post",
   CUSTOMER_MANAGE_REPORTS = "manage-reports",
-
+  POLICY_PAGE = "policy",
 }
 
 export enum AUTH_ROUTES {
@@ -78,6 +78,7 @@ export enum PATH {
   HOME = "/",
   ABOUT_PAGE = "/about",
   CONTACT_PAGE = "/contact",
+  POLICY_PAGE = "/policy",
   FORGOT_PASSWORD = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.FORGOT_PASSWORD,
   LOGIN_IN = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.LOGIN_IN,
   REGISTER = AUTH_ROUTES.AUTH + "/" + AUTH_ROUTES.REGISTER,

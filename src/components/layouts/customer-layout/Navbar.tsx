@@ -20,6 +20,7 @@ import Deposit from "@/components/atoms/layout/navbar/Deposit";
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
   { title: "Liên hệ", href: PATH.CONTACT_PAGE },
+  { title: "Chính sách", href: PATH.POLICY_PAGE },
 ];
 
 export function Navbar() {
