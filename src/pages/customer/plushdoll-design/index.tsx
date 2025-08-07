@@ -1173,9 +1173,35 @@ const PlushDollDesign: React.FC = () => {
   // Zoom in/out handlers
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 0.1, 5));
+    // Auto-center canvas after zoom
+    setTimeout(() => {
+      if (canvasWrapperRef.current) {
+        const container = canvasWrapperRef.current.parentElement;
+        if (container) {
+          container.scrollTo({
+            left: (container.scrollWidth - container.clientWidth) / 2,
+            top: (container.scrollHeight - container.clientHeight) / 2,
+            behavior: "smooth",
+          });
+        }
+      }
+    }, 100);
   };
   const handleZoomOut = () => {
     setZoom((prev) => Math.max(prev - 0.1, 0.1));
+    // Auto-center canvas after zoom
+    setTimeout(() => {
+      if (canvasWrapperRef.current) {
+        const container = canvasWrapperRef.current.parentElement;
+        if (container) {
+          container.scrollTo({
+            left: (container.scrollWidth - container.clientWidth) / 2,
+            top: (container.scrollHeight - container.clientHeight) / 2,
+            behavior: "smooth",
+          });
+        }
+      }
+    }, 100);
   };
   const handleFixWindow = () => {
     setIsFullWindow(false);
@@ -2953,6 +2979,34 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [canvasRef.current]);
 
+  // EFFECT: Auto-center canvas when component mounts or canvas size changes
+  useEffect(() => {
+    const centerCanvas = () => {
+      if (canvasWrapperRef.current) {
+        const container = canvasWrapperRef.current.parentElement?.parentElement;
+        if (container) {
+          setTimeout(() => {
+            container.scrollTo({
+              left: (container.scrollWidth - container.clientWidth) / 2,
+              top: (container.scrollHeight - container.clientHeight) / 2,
+              behavior: "smooth",
+            });
+          }, 100);
+        }
+      }
+    };
+
+    centerCanvas();
+
+    // Add window resize listener to re-center canvas
+    const handleResize = () => {
+      centerCanvas();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [actualCanvasWidth, actualCanvasHeight, zoom]);
+
   // EFFECT: Load filter settings when selection changes
   useEffect(() => {
     if (currentSelectedImageId) {
@@ -3381,7 +3435,7 @@ const PlushDollDesign: React.FC = () => {
         />
 
         {/* Canvas */}
-        <div className="flex-1 relative bg-muted">
+        <div className="flex-1 relative bg-muted overflow-hidden">
           {activeText && (
             <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40 bg-card border border-border shadow-md flex gap-2 p-2 rounded-md">
               <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
@@ -3602,190 +3656,216 @@ const PlushDollDesign: React.FC = () => {
             </div>
           )}
 
-          <div className="relative flex justify-center items-center bg-muted h-full overflow-auto">
+          <div
+            className="relative bg-muted h-full overflow-auto"
+            style={{
+              scrollBehavior: "smooth",
+              scrollbarWidth: "thin",
+              scrollbarColor: "hsl(var(--muted-foreground)) transparent",
+            }}
+          >
+            {/* Canvas Container with proper centering and scrolling */}
             <div
-              ref={canvasWrapperRef}
-              className="relative bg-card shadow-md origin-top overflow-auto"
+              className="min-w-full min-h-full flex justify-center items-center p-4"
               style={{
-                width: isFullWindow
-                  ? `${canvasWrapperRef.current?.style.width || "100%"}`
-                  : `${convertToPixels(
-                      parseFloat(actualCanvasWidth) || 0,
-                      unit
-                    )}px`,
-                height: isFullWindow
-                  ? `${canvasWrapperRef.current?.style.height || "100%"}`
-                  : `${convertToPixels(
-                      parseFloat(actualCanvasHeight) || 0,
-                      unit
-                    )}px`,
-                transform: `scale(${zoom})`,
+                minHeight: "100vh",
+                minWidth: "100vw",
+                position: "relative",
+                padding: "2rem",
+                background:
+                  "radial-gradient(circle at center, transparent 0%, hsl(var(--muted)) 100%)",
               }}
             >
-              <canvas ref={htmlCanvasRef} className="w-full h-full" />
+              <div
+                ref={canvasWrapperRef}
+                className="relative bg-card shadow-md origin-top"
+                style={{
+                  width: isFullWindow
+                    ? `${canvasWrapperRef.current?.style.width || "100%"}`
+                    : `${convertToPixels(
+                        parseFloat(actualCanvasWidth) || 0,
+                        unit
+                      )}px`,
+                  height: isFullWindow
+                    ? `${canvasWrapperRef.current?.style.height || "100%"}`
+                    : `${convertToPixels(
+                        parseFloat(actualCanvasHeight) || 0,
+                        unit
+                      )}px`,
+                  transform: `scale(${zoom})`,
+                  minWidth: "fit-content",
+                  minHeight: "fit-content",
+                  maxWidth: "none",
+                  maxHeight: "none",
+                  position: "relative",
+                  display: "inline-block",
+                }}
+              >
+                <canvas ref={htmlCanvasRef} className="w-full h-full" />
 
-              {toolbarVisible &&
-                (() => {
-                  const obj = canvasRef.current?.getActiveObject();
-                  const isImage = obj?.type === "image";
+                {toolbarVisible &&
+                  (() => {
+                    const obj = canvasRef.current?.getActiveObject();
+                    const isImage = obj?.type === "image";
 
-                  return (
-                    <div
-                      ref={toolbarRef}
-                      className="absolute z-50 bg-card shadow-lg rounded-md p-2 flex gap-2 select-none"
-                      style={{
-                        top: toolbarPos.y,
-                        left: toolbarPos.x,
-                      }}
-                      onMouseDown={startDrag}
-                    >
-                      {/* Rotate Cw */}
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => {
-                          if (obj) {
-                            obj.rotate((obj.angle || 0) + 45);
-                            obj.setCoords();
-                            canvasRef.current?.renderAll();
-                            saveState();
-                          }
+                    return (
+                      <div
+                        ref={toolbarRef}
+                        className="absolute z-50 bg-card shadow-lg rounded-md p-2 flex gap-2 select-none"
+                        style={{
+                          top: toolbarPos.y,
+                          left: toolbarPos.x,
                         }}
+                        onMouseDown={startDrag}
                       >
-                        <RotateCw className="w-4 h-4" />
-                      </Button>
-                      {/* Rotate Ccw */}
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => {
-                          if (obj) {
-                            obj.rotate((obj.angle || 0) - 45);
-                            obj.setCoords();
-                            canvasRef.current?.renderAll();
-                            saveState();
-                          }
-                        }}
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                      </Button>
+                        {/* Rotate Cw */}
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj) {
+                              obj.rotate((obj.angle || 0) + 45);
+                              obj.setCoords();
+                              canvasRef.current?.renderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <RotateCw className="w-4 h-4" />
+                        </Button>
+                        {/* Rotate Ccw */}
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (obj) {
+                              obj.rotate((obj.angle || 0) - 45);
+                              obj.setCoords();
+                              canvasRef.current?.renderAll();
+                              saveState();
+                            }
+                          }}
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </Button>
 
-                      <Button
-                        variant="outline"
-                        className="h-full flex-1"
-                        onClick={flipObjectHorizontal}
-                        title="Lật ngang"
-                      >
-                        <FlipHorizontal size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-full flex-1"
-                        onClick={flipObjectVertical}
-                        title="Lật dọc"
-                      >
-                        <FlipVertical size={16} />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => {
-                          if (obj && canvasRef.current) {
-                            canvasRef.current.bringToFront(obj);
-                            obj.setCoords();
-                            canvasRef.current.setActiveObject(obj);
-                            canvasRef.current.fire("selection:updated", {
-                              selected: [obj],
-                            }); // ✅ Force selection update
-                            updateToolbarPos(obj); // ✅ Update toolbar position
-                            canvasRef.current.requestRenderAll();
-                            saveState();
-                          }
-                        }}
-                      >
-                        <Layers className="w-4 h-4" />
-                      </Button>
-
-                      {obj && !isAtTop(obj) && (
+                        <Button
+                          variant="outline"
+                          className="h-full flex-1"
+                          onClick={flipObjectHorizontal}
+                          title="Lật ngang"
+                        >
+                          <FlipHorizontal size={16} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-full flex-1"
+                          onClick={flipObjectVertical}
+                          title="Lật dọc"
+                        >
+                          <FlipVertical size={16} />
+                        </Button>
                         <Button
                           size="icon"
                           variant="outline"
                           onClick={() => {
                             if (obj && canvasRef.current) {
-                              canvasRef.current.bringForward(obj);
+                              canvasRef.current.bringToFront(obj);
                               obj.setCoords();
                               canvasRef.current.setActiveObject(obj);
                               canvasRef.current.fire("selection:updated", {
                                 selected: [obj],
                               }); // ✅ Force selection update
-                              updateToolbarPos(obj);
+                              updateToolbarPos(obj); // ✅ Update toolbar position
                               canvasRef.current.requestRenderAll();
                               saveState();
                             }
                           }}
                         >
-                          <ArrowUpFromLine className="w-4 h-4" />
+                          <Layers className="w-4 h-4" />
                         </Button>
-                      )}
 
-                      {obj && !isAtBottom(obj) && (
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => {
-                            if (obj && canvasRef.current) {
-                              canvasRef.current.sendBackwards(obj);
-                              obj.setCoords();
-                              canvasRef.current.setActiveObject(obj);
-                              canvasRef.current.fire("selection:updated", {
-                                selected: [obj],
-                              }); // ✅ Force selection update
-                              updateToolbarPos(obj);
-                              canvasRef.current.requestRenderAll();
-                              saveState();
-                            }
-                          }}
-                        >
-                          <ArrowDownFromLine className="w-4 h-4" />
-                        </Button>
-                      )}
+                        {obj && !isAtTop(obj) && (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => {
+                              if (obj && canvasRef.current) {
+                                canvasRef.current.bringForward(obj);
+                                obj.setCoords();
+                                canvasRef.current.setActiveObject(obj);
+                                canvasRef.current.fire("selection:updated", {
+                                  selected: [obj],
+                                }); // ✅ Force selection update
+                                updateToolbarPos(obj);
+                                canvasRef.current.requestRenderAll();
+                                saveState();
+                              }
+                            }}
+                          >
+                            <ArrowUpFromLine className="w-4 h-4" />
+                          </Button>
+                        )}
 
-                      {/* Group Button */}
-                      {canGroup() && (
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={groupObjects}
-                          title="Nhóm các đối tượng"
-                        >
-                          <Group className="w-4 h-4" />
-                        </Button>
-                      )}
+                        {obj && !isAtBottom(obj) && (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => {
+                              if (obj && canvasRef.current) {
+                                canvasRef.current.sendBackwards(obj);
+                                obj.setCoords();
+                                canvasRef.current.setActiveObject(obj);
+                                canvasRef.current.fire("selection:updated", {
+                                  selected: [obj],
+                                }); // ✅ Force selection update
+                                updateToolbarPos(obj);
+                                canvasRef.current.requestRenderAll();
+                                saveState();
+                              }
+                            }}
+                          >
+                            <ArrowDownFromLine className="w-4 h-4" />
+                          </Button>
+                        )}
 
-                      {/* Ungroup Button */}
-                      {canUngroup() && (
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={ungroupObjects}
-                          title="Tách nhóm"
-                        >
-                          <Ungroup className="w-4 h-4" />
-                        </Button>
-                      )}
+                        {/* Group Button */}
+                        {canGroup() && (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={groupObjects}
+                            title="Nhóm các đối tượng"
+                          >
+                            <Group className="w-4 h-4" />
+                          </Button>
+                        )}
 
-                      {isImage && (
-                        <RemoveBackgroundButton
-                          canvas={canvasRef.current}
-                          onStateChange={() => {
-                            // You can add additional state handling here if needed
-                          }}
-                          onSaveState={saveState}
-                        />
-                      )}
-                    </div>
-                  );
-                })()}
+                        {/* Ungroup Button */}
+                        {canUngroup() && (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={ungroupObjects}
+                            title="Tách nhóm"
+                          >
+                            <Ungroup className="w-4 h-4" />
+                          </Button>
+                        )}
+
+                        {isImage && (
+                          <RemoveBackgroundButton
+                            canvas={canvasRef.current}
+                            onStateChange={() => {
+                              // You can add additional state handling here if needed
+                            }}
+                            onSaveState={saveState}
+                          />
+                        )}
+                      </div>
+                    );
+                  })()}
+              </div>
             </div>
           </div>
           <div
@@ -3796,6 +3876,8 @@ const PlushDollDesign: React.FC = () => {
               pointerEvents: "auto",
               right: 0,
               left: 0,
+              backdropFilter: "blur(8px)",
+              backgroundColor: "hsl(var(--muted) / 0.95)",
             }}
           >
             <Button
@@ -3820,6 +3902,22 @@ const PlushDollDesign: React.FC = () => {
                   canvasRef.current.setZoom(value / 100);
                   canvasRef.current.requestRenderAll();
                 }
+                // Auto-center canvas after zoom change
+                setTimeout(() => {
+                  if (canvasWrapperRef.current) {
+                    const container =
+                      canvasWrapperRef.current.parentElement?.parentElement;
+                    if (container) {
+                      container.scrollTo({
+                        left:
+                          (container.scrollWidth - container.clientWidth) / 2,
+                        top:
+                          (container.scrollHeight - container.clientHeight) / 2,
+                        behavior: "smooth",
+                      });
+                    }
+                  }
+                }, 100);
               }}
               className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
               style={{ width: 50 }}
@@ -3838,6 +3936,7 @@ const PlushDollDesign: React.FC = () => {
               variant="outline"
               onClick={handleFixWindow}
               className="ml-2 text-xs px-2 h-7"
+              title="Cố định kích thước canvas"
             >
               Fix Window
             </Button>
@@ -3846,8 +3945,31 @@ const PlushDollDesign: React.FC = () => {
               variant="outline"
               onClick={handleFullWindow}
               className="text-xs px-2 h-7"
+              title="Toàn màn hình canvas"
             >
               Full Window
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (canvasWrapperRef.current) {
+                  const container =
+                    canvasWrapperRef.current.parentElement?.parentElement;
+                  if (container) {
+                    container.scrollTo({
+                      left: (container.scrollWidth - container.clientWidth) / 2,
+                      top:
+                        (container.scrollHeight - container.clientHeight) / 2,
+                      behavior: "smooth",
+                    });
+                  }
+                }
+              }}
+              className="text-xs px-2 h-7"
+              title="Căn giữa canvas"
+            >
+              Center
             </Button>
           </div>
         </div>
