@@ -1169,43 +1169,55 @@ const PlushDollDesign: React.FC = () => {
   // Zoom state: default is fit-to-parent (Fix Window)
   const [zoom, setZoom] = useState(1);
   const [isFullWindow, setIsFullWindow] = useState(false);
+  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
-  // Zoom in/out handlers
+  // Zoom in/out handlers using Fabric.js zoom
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.1, 5));
-    // Auto-center canvas after zoom
-    setTimeout(() => {
-      if (canvasWrapperRef.current) {
-        const container = canvasWrapperRef.current.parentElement;
-        if (container) {
-          container.scrollTo({
-            left: (container.scrollWidth - container.clientWidth) / 2,
-            top: (container.scrollHeight - container.clientHeight) / 2,
-            behavior: "smooth",
-          });
-        }
-      }
-    }, 100);
+    const newZoom = Math.min(zoom + 0.1, 5);
+    setZoom(newZoom);
+    zoomCanvasSmooth(newZoom, 200);
   };
+
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.1, 0.1));
-    // Auto-center canvas after zoom
-    setTimeout(() => {
-      if (canvasWrapperRef.current) {
-        const container = canvasWrapperRef.current.parentElement;
-        if (container) {
-          container.scrollTo({
-            left: (container.scrollWidth - container.clientWidth) / 2,
-            top: (container.scrollHeight - container.clientHeight) / 2,
-            behavior: "smooth",
-          });
-        }
-      }
-    }, 100);
+    const newZoom = Math.max(zoom - 0.1, 0.1);
+    setZoom(newZoom);
+    zoomCanvasSmooth(newZoom, 200);
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    if (canvasWrapperRef.current) {
+      // Reset CSS transform
+      canvasWrapperRef.current.style.transform = "scale(1)";
+      canvasWrapperRef.current.style.transformOrigin = "center center";
+    }
+  };
+
+  const handleZoomSelect = (zoomLevel: number) => {
+    const newZoom = zoomLevel / 100;
+    // Đảm bảo giá trị chính xác bằng cách làm tròn
+    const roundedZoom = Math.round(newZoom * 1000) / 1000;
+    setZoom(roundedZoom);
+    zoomCanvasSmooth(roundedZoom, 200);
+    setShowZoomDropdown(false);
+  };
+
+  const isZoomLevelActive = (zoomLevel: number) => {
+    const currentZoomPercent = Math.round(zoom * 100);
+    // So sánh chính xác sau khi làm tròn, với tolerance nhỏ cho floating point
+    return Math.abs(currentZoomPercent - zoomLevel) < 0.1;
   };
   const handleFixWindow = () => {
     setIsFullWindow(false);
     updateScaleRatio();
+
+    // Reset zoom and CSS transform when fixing window
+    setZoom(1);
+    if (canvasWrapperRef.current) {
+      canvasWrapperRef.current.style.transform = "scale(1)";
+      canvasWrapperRef.current.style.transformOrigin = "center center";
+    }
+
     if (canvasWrapperRef.current && canvasRef.current) {
       const width = convertToPixels(parseFloat(actualCanvasWidth) || 0, unit);
       const height = convertToPixels(parseFloat(actualCanvasHeight) || 0, unit);
@@ -1218,28 +1230,19 @@ const PlushDollDesign: React.FC = () => {
   };
   const handleFullWindow = () => {
     setIsFullWindow(true);
-    setZoom(0.94); // Set zoom to 94%
-    console.log("handleFullWindow");
-    if (canvasWrapperRef.current && canvasRef.current) {
-      console.log("handleFullWindow 2");
+    const newZoom = 0.94; // Set zoom to 94%
+    setZoom(newZoom);
+    zoomCanvasFromCenter(newZoom);
 
+    if (canvasWrapperRef.current && canvasRef.current) {
       const parent = canvasWrapperRef.current.parentElement;
       if (parent) {
-        console.log("handleFullWindow 3");
-
         const newWidth = parent.clientWidth * 0.94;
         const newHeight = parent.clientHeight * 0.94;
-        console.log("newWidth", newWidth);
-        console.log("newHeight", newHeight);
-        const width = canvasWrapperRef.current.style.width;
-        const height = canvasWrapperRef.current.style.height;
-        console.log("width", width);
-        console.log("height", height);
+
         canvasWrapperRef.current.style.width = `${newWidth}px`;
         canvasWrapperRef.current.style.height = `${newHeight}px`;
-        console.log("width22", width);
-        console.log("height22", height);
-        // Sửa: Không cần requestAnimationFrame, set trực tiếp
+
         canvasRef.current.setWidth(newWidth);
         canvasRef.current.setHeight(newHeight);
         canvasRef.current.requestRenderAll();
@@ -1247,9 +1250,29 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
-  // Sync zoom to canvas
+  // Remove the useEffect that syncs zoom to canvas since we're handling it directly in zoom handlers
+
+  // Handle mouse wheel zoom
+  const handleWheel = (e: WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      const newZoom = Math.max(0.1, Math.min(5, zoom + delta));
+      setZoom(newZoom);
+
+      zoomToPoint(newZoom);
+    }
+  };
+
+  // Add wheel event listener
   useEffect(() => {
-    zoomCanvasFromCenter(zoom);
+    const canvasElement = htmlCanvasRef.current;
+    if (canvasElement) {
+      canvasElement.addEventListener("wheel", handleWheel, { passive: false });
+      return () => {
+        canvasElement.removeEventListener("wheel", handleWheel);
+      };
+    }
   }, [zoom]);
 
   // On isFullWindow change, if false, recalc fit
@@ -1286,8 +1309,15 @@ const PlushDollDesign: React.FC = () => {
     setZoom(ratio);
     setIsFullWindow(false);
 
+    // Set canvas size
     canvasWrapperRef.current.style.width = `${canvasWidth}px`;
     canvasWrapperRef.current.style.height = `${canvasHeight}px`;
+
+    // Apply CSS transform zoom
+    if (canvasWrapperRef.current) {
+      canvasWrapperRef.current.style.transform = `scale(${ratio})`;
+      canvasWrapperRef.current.style.transformOrigin = "center center";
+    }
 
     setScaleRatio(ratio);
   };
@@ -1439,21 +1469,6 @@ const PlushDollDesign: React.FC = () => {
     const toolbarX = screenX - wrapperRect.left - 141.5; // toolbarWidth / 2 = 283 / 2 = 141.5
     const toolbarY = screenY - wrapperRect.top - 120; // Offset 120px lên trên
 
-    // Debug: log các giá trị để kiểm tra
-    console.log("Toolbar positioning debug:", {
-      bound,
-      centerX,
-      topY,
-      wrapperRect,
-      canvasRect,
-      scaleX,
-      scaleY,
-      screenX,
-      screenY,
-      toolbarX,
-      toolbarY,
-    });
-
     setToolbarPos({
       x: toolbarX,
       y: toolbarY,
@@ -1531,6 +1546,24 @@ const PlushDollDesign: React.FC = () => {
         // Ctrl+G for group
         groupObjects();
       }
+    }
+
+    // Arrow keys for panning canvas
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      panCanvas(0, -20);
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      panCanvas(0, 20);
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      panCanvas(-20, 0);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      panCanvas(20, 0);
     }
   };
 
@@ -2873,14 +2906,69 @@ const PlushDollDesign: React.FC = () => {
   ];
 
   const zoomCanvasFromCenter = (zoomValue: number) => {
+    if (!canvasWrapperRef.current) return;
+
+    // Apply zoom to the entire canvas wrapper using CSS transform
+    canvasWrapperRef.current.style.transform = `scale(${zoomValue})`;
+    canvasWrapperRef.current.style.transformOrigin = "center center";
+  };
+
+  // Zoom to specific point (for mouse wheel zoom)
+  const zoomToPoint = (zoomValue: number) => {
+    if (!canvasWrapperRef.current) return;
+
+    // Apply zoom to the entire canvas wrapper using CSS transform
+    canvasWrapperRef.current.style.transform = `scale(${zoomValue})`;
+    canvasWrapperRef.current.style.transformOrigin = "center center";
+  };
+
+  // Zoom entire canvas with smooth animation
+  const zoomCanvasSmooth = (targetZoom: number, duration: number = 300) => {
+    if (!canvasWrapperRef.current) return;
+
+    // Apply smooth zoom using CSS transition
+    canvasWrapperRef.current.style.transition = `transform ${duration}ms ease-in-out`;
+    canvasWrapperRef.current.style.transform = `scale(${targetZoom})`;
+    canvasWrapperRef.current.style.transformOrigin = "center center";
+
+    // Remove transition after animation completes
+    setTimeout(() => {
+      if (canvasWrapperRef.current) {
+        canvasWrapperRef.current.style.transition = "";
+      }
+    }, duration);
+  };
+
+  // Fit canvas to viewport
+  const fitCanvasToViewport = () => {
+    if (!canvasRef.current || !canvasWrapperRef.current) return;
+    const canvas = canvasRef.current;
+    const wrapper = canvasWrapperRef.current;
+
+    // Calculate the scale to fit canvas in viewport
+    const scaleX = wrapper.clientWidth / canvas.getWidth();
+    const scaleY = wrapper.clientHeight / canvas.getHeight();
+    const scale = Math.min(scaleX, scaleY, 1); // Don't zoom in beyond 100%
+
+    setZoom(scale);
+    wrapper.style.transform = `scale(${scale})`;
+    wrapper.style.transformOrigin = "center center";
+  };
+
+  // Pan canvas (move viewport)
+  const panCanvas = (deltaX: number, deltaY: number) => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
-    const center = new fabric.Point(
-      canvas.getWidth() / 2,
-      canvas.getHeight() / 2
-    );
-    canvas.zoomToPoint(center, zoomValue);
-    canvas.requestRenderAll();
+
+    // Get current viewport transform
+    const vpt = canvas.viewportTransform;
+    if (vpt) {
+      // Update pan offset
+      vpt[4] += deltaX;
+      vpt[5] += deltaY;
+      canvas.setViewportTransform(vpt);
+      canvas.requestRenderAll();
+    }
   };
 
   // Footer/sidebar nhỏ width
@@ -3692,7 +3780,7 @@ const PlushDollDesign: React.FC = () => {
                         parseFloat(actualCanvasHeight) || 0,
                         unit
                       )}px`,
-                  transform: `scale(${zoom})`,
+
                   minWidth: "fit-content",
                   minHeight: "fit-content",
                   maxWidth: "none",
@@ -3888,41 +3976,66 @@ const PlushDollDesign: React.FC = () => {
             >
               -
             </Button>
-            <input
-              type="number"
-              min={10}
-              max={500}
-              value={Math.round(zoom * 100)}
-              onChange={(e) => {
-                let value = Number(e.target.value);
-                if (isNaN(value)) value = 100;
-                value = Math.max(10, Math.min(500, value));
-                setZoom(value / 100);
-                if (canvasRef.current) {
-                  canvasRef.current.setZoom(value / 100);
-                  canvasRef.current.requestRenderAll();
-                }
-                // Auto-center canvas after zoom change
-                setTimeout(() => {
-                  if (canvasWrapperRef.current) {
-                    const container =
-                      canvasWrapperRef.current.parentElement?.parentElement;
-                    if (container) {
-                      container.scrollTo({
-                        left:
-                          (container.scrollWidth - container.clientWidth) / 2,
-                        top:
-                          (container.scrollHeight - container.clientHeight) / 2,
-                        behavior: "smooth",
-                      });
-                    }
-                  }
-                }, 100);
-              }}
-              className="w-14 text-center text-xs border rounded h-7 px-1 bg-card"
-              style={{ width: 50 }}
-            />
-            <span className="text-xs">%</span>
+            <div className="relative">
+              <input
+                type="number"
+                min={10}
+                max={500}
+                value={Math.round(zoom * 100)}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (isNaN(value)) value = 100;
+                  value = Math.max(10, Math.min(500, value));
+                  const newZoom = value / 100;
+                  setZoom(newZoom);
+                  zoomCanvasSmooth(newZoom, 200);
+                }}
+                onFocus={() => setShowZoomDropdown(true)}
+                onBlur={() => setTimeout(() => setShowZoomDropdown(false), 200)}
+                className="w-14 text-center text-xs border rounded h-7 px-1 bg-card cursor-pointer"
+                style={{ width: 50 }}
+                placeholder="100"
+              />
+              <span className="text-xs absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none">
+                %
+              </span>
+              <svg
+                className="w-3 h-3 absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+
+              {/* Zoom Dropdown */}
+              {showZoomDropdown && (
+                <div className="absolute bottom-full left-0 mb-1 bg-card border border-border rounded-md shadow-lg z-50 min-w-[120px]">
+                  <div className="p-3">
+                    {[25, 50, 75, 100, 125, 150, 200, 300, 400, 500].map(
+                      (zoomLevel) => (
+                        <button
+                          key={zoomLevel}
+                          onClick={() => handleZoomSelect(zoomLevel)}
+                          className={`w-full text-left px-2 py-1 text-xs hover:bg-muted rounded-sm ${
+                            isZoomLevelActive(zoomLevel)
+                              ? "bg-primary text-primary-foreground"
+                              : ""
+                          }`}
+                        >
+                          {zoomLevel}%
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <Button
               size="icon"
               variant="ghost"
@@ -3931,6 +4044,15 @@ const PlushDollDesign: React.FC = () => {
             >
               +
             </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleResetZoom}
+              title="Reset zoom to 100%"
+            >
+              ↺
+            </Button>
+
             <Button
               size="sm"
               variant="outline"
@@ -3970,6 +4092,15 @@ const PlushDollDesign: React.FC = () => {
               title="Căn giữa canvas"
             >
               Center
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={fitCanvasToViewport}
+              className="text-xs px-2 h-7"
+              title="Fit canvas to viewport"
+            >
+              Fit
             </Button>
           </div>
         </div>
