@@ -59,7 +59,7 @@ export default function CreateStaffForm({
         phoneNumber: data.phoneNumber,
       };
       const success = await onSubmit(dataSubmit);
-      console.log('success: ', success)
+      console.log("success: ", success);
       if (success && success.isSuccess) {
         form.reset();
         onSuccess?.();
@@ -220,7 +220,7 @@ export default function CreateStaffForm({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+            <div className="flex justify-center sm:flex-row gap-3 pt-4 border-t">
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -237,14 +237,6 @@ export default function CreateStaffForm({
                     Tạo tài khoản nhân viên
                   </>
                 )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => form.reset()}
-                className="flex-1 sm:flex-none"
-              >
-                Làm mới form
               </Button>
             </div>
           </form>
