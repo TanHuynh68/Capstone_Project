@@ -42,17 +42,17 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
         </span>
       ),
     },
-    {
-      header: "ID Báo cáo",
-      accessorKey: "reportID",
-      sortable: true,
-      className: "text-center",
-      cell: (row) => (
-        <span className="font-mono text-sm">
-          {highlightMatch(row.reportID.slice(0, 8) + "...", searchTerm)}
-        </span>
-      ),
-    },
+    // {
+    //   header: "ID Báo cáo",
+    //   accessorKey: "reportID",
+    //   sortable: true,
+    //   className: "text-center",
+    //   cell: (row) => (
+    //     <span className="font-mono text-sm">
+    //       {highlightMatch(row.reportID.slice(0, 8) + "...", searchTerm)}
+    //     </span>
+    //   ),
+    // },
     {
       header: "Người tố cáo",
       accessorKey: "reporter",
@@ -76,16 +76,6 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       accessorKey: "reportType",
       className: "text-center",
       cell: (row) => getReportTypeBadge(row.reportType),
-    },
-    {
-      header: "Target ID",
-      accessorKey: "targetID",
-      className: "text-center",
-      cell: (row) => (
-        <span className="font-mono text-sm">
-          {row.targetID ? row.targetID.slice(0, 8) + "..." : "N/A"}
-        </span>
-      ),
     },
     {
       header: "Trạng thái",

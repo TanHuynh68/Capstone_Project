@@ -22,6 +22,9 @@ export function NotificationItem({
 
   const handleNotificationClick = () => {
     if (redirectLink) {
+      if (!isRead) {
+        onMarkAsRead();
+      }
       navigate(redirectLink);
     }
   };

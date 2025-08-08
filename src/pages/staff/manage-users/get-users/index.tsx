@@ -214,9 +214,7 @@ const ManagerUsersByStaff: React.FC = () => {
 
   return (
     <div className="px-4 space-y-4">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
-
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-end">
         <div className="flex flex-col sm:flex-row gap-2 items-center">
           <div className="relative w-full max-w-xs">
             <Input

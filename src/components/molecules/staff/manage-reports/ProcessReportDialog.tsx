@@ -36,7 +36,6 @@ import type { ZodError } from "zod";
 import { formatFullDateWithDistance2 } from "@/utils";
 import { getCustomerReportStatusBadge } from "@/components/atoms/customer-reports/CustomerReportBadges";
 import BenefitService from "@/services/BenefitService";
-
 import { Badge } from "@/components/ui/badge";
 
 interface Report {
@@ -79,8 +78,8 @@ export default function ProcessReportDialog({
 
   const { getBenefits, getBenefitDetail } = BenefitService();
 
-  // Fetch benefits
-  const fetchBenefits = async (searchTerm = "") => {
+  // Fetch benefits with filtering based on accept state
+  const fetchBenefits = async (searchTerm = "", acceptState = true) => {
     setBenefitsLoading(true);
     try {
       const response = await getBenefits({
@@ -88,10 +87,22 @@ export default function ProcessReportDialog({
         page: 1,
         size: 50,
       });
+
       console.log("fetchBenefits:", response);
-      setBenefits(response.responseRequestModel.responseList.items);
+
+      let filteredBenefits = response.responseRequestModel.responseList.items || [];
+
+      // If accept is false, only show General benefits
+      if (!acceptState) {
+        filteredBenefits = filteredBenefits.filter(
+          (benefit: any) => benefit.benefitType === "General"
+        );
+      }
+
+      setBenefits(filteredBenefits);
     } catch (error) {
       console.error("Error fetching benefits:", error);
+      setBenefits([]);
     } finally {
       setBenefitsLoading(false);
     }
@@ -101,9 +112,7 @@ export default function ProcessReportDialog({
   const fetchBenefitDetail = async (benefitID: string) => {
     try {
       const benefit = await getBenefitDetail(benefitID);
-      if (benefit && benefit.responseRequestModel) {
-        setSelectedBenefit(benefit.responseRequestModel);
-      }
+      setSelectedBenefit(benefit);
     } catch (error) {
       console.error("Error fetching benefit detail:", error);
     }
@@ -126,26 +135,34 @@ export default function ProcessReportDialog({
   // Fetch benefits when dialog opens
   useEffect(() => {
     if (isOpen) {
-      fetchBenefits();
+      fetchBenefits("", formData.accept);
     }
   }, [isOpen]);
 
-  // Search benefits
+  // Search benefits with accept state filter
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (isOpen) {
-        fetchBenefits(benefitSearch);
+        fetchBenefits(benefitSearch, formData.accept);
       }
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [benefitSearch, isOpen]);
+  }, [benefitSearch, isOpen, formData.accept]);
 
   const handleInputChange = (
     field: keyof ProcessReportFormData,
     value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Handle accept state change - reset benefit selection and refetch
+    if (field === "accept") {
+      setFormData((prev) => ({ ...prev, benefitID: "" }));
+      setSelectedBenefit(null);
+      // Fetch benefits with new accept state
+      fetchBenefits(benefitSearch, value as boolean);
+    }
 
     // Handle benefit selection
     if (field === "benefitID" && typeof value === "string") {
@@ -237,23 +254,20 @@ export default function ProcessReportDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="min-w-[1200px] overflow-y-auto">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold flex items-center justify-center gap-2">
             <FileText className="h-6 w-6 text-blue-600" />
             Giải quyết tố cáo
           </DialogTitle>
-          <p className="text-gray-600 text-sm">
-            Xử lý và đưa ra quyết định cho tố cáo này
-          </p>
         </DialogHeader>
 
-        <div className="space-y-6 py-6">
+        <div className="space-y-6">
           {/* Report Information */}
           <Card className="shadow-sm border-gray-200">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                <div className="flex justify-between w-full">
+                <div className="flex justify-between pt-1 w-full">
                   <div>Thông tin cơ bản</div>
                   {getCustomerReportStatusBadge(report.reportStatus)}
                 </div>
@@ -282,7 +296,7 @@ export default function ProcessReportDialog({
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2  gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {/* Process Form */}
             <Card className="shadow-sm border-gray-200">
               <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
@@ -336,6 +350,17 @@ export default function ProcessReportDialog({
                     <span className="text-red-500">*</span>
                   </Label>
 
+                  {/* Info message for reject state */}
+                  {!formData.accept && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-sm text-amber-700 flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Khi từ chối tố cáo, chỉ có thể áp dụng quyền lợi loại
+                        "Chung"
+                      </p>
+                    </div>
+                  )}
+
                   {/* Benefit Select */}
                   <Select
                     value={formData.benefitID}
@@ -376,7 +401,9 @@ export default function ProcessReportDialog({
                         ))
                       ) : (
                         <div className="p-4 text-center text-gray-500">
-                          Không tìm thấy quyền lợi nào
+                          {!formData.accept
+                            ? "Không tìm thấy quyền lợi loại 'Chung' nào"
+                            : "Không tìm thấy quyền lợi nào"}
                         </div>
                       )}
                     </SelectContent>
@@ -438,14 +465,14 @@ export default function ProcessReportDialog({
                 <CardContent className="space-y-4 pt-6">
                   <div>
                     <h3 className="font-semibold text-lg text-purple-700">
-                      {selectedBenefit.title ?? ''}
+                      {selectedBenefit.title}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">
-                        {mapBenefitType(selectedBenefit.benefitType) ?? ''}
+                        {mapBenefitType(selectedBenefit.benefitType)}
                       </Badge>
                       <Badge variant="secondary" className="text-xs">
-                        Version {selectedBenefit.version ?? ''}
+                        Version {selectedBenefit.version}
                       </Badge>
                     </div>
                   </div>
