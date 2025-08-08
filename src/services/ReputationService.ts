@@ -44,7 +44,19 @@ const ReputationService = () => {
     [callApi]
   );
 
-  return { getReputation, getReputationHistory, getReputationByAccountID };
+  const staffGetReputation = useCallback(
+    async (reputationID: string) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_REPUTATION_BY_ACCOUNT}?reputationID=${reputationID}&page=1&size=10`);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  return { getReputation, getReputationHistory, getReputationByAccountID, staffGetReputation };
 };
 
 export default ReputationService;

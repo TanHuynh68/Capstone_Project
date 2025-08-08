@@ -9,8 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Bell } from "lucide-react";
+import { MoreHorizontal, Bell, Trophy } from "lucide-react";
 import CreateNotificationDialog from "../notifications/CreateNotificationDialog";
+import ViewReputationDialog from "../reputation/ViewReputationDialog";
 import ChangeActiveUserButton from "@/pages/staff/manage-users/change-active-user";
 
 interface User {
@@ -32,11 +33,12 @@ export default function UserActionsDropdown({
   onCreateNotification,
 }: UserActionsDropdownProps) {
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [reputationDialogOpen, setReputationDialogOpen] = useState(false);
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger >
+        <DropdownMenuTrigger>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -49,8 +51,19 @@ export default function UserActionsDropdown({
             <Bell className="h-4 w-4 mr-2" />
             Tạo thông báo
           </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => setReputationDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <Trophy className="h-4 w-4 mr-2" />
+            Xem reputation
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
+
           <div className="">
+            {/* Change active account */}
             <ChangeActiveUserButton
               accountID={user.accountID}
               isActive={user.isActive}
@@ -65,6 +78,13 @@ export default function UserActionsDropdown({
         onClose={() => setNotificationDialogOpen(false)}
         user={user}
         onSubmit={onCreateNotification}
+      />
+
+      <ViewReputationDialog
+        isOpen={reputationDialogOpen}
+        onClose={() => setReputationDialogOpen(false)}
+        accountID={user.accountID}
+        accountName={user.fullName}
       />
     </>
   );
