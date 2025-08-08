@@ -37,6 +37,9 @@ import {
   RotateCcw,
   GripVertical,
   Droplets,
+  FileImage,
+  ChevronDown,
+  MenuIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 // import CanvasList from "./get-canvas";
@@ -60,6 +63,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import CanvasVersionHistory from "@/pages/customer/plushdoll-design/canvas-history/CanvasVersionHistory";
 
@@ -154,6 +158,8 @@ const PlushDollDesign: React.FC = () => {
   );
   const [scaleRatio, setScaleRatio] = useState(1);
   const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
+  const [tempCanvasWidth, setTempCanvasWidth] = useState("");
+  const [tempCanvasHeight, setTempCanvasHeight] = useState("");
 
   // Add state for drawing brush properties
   const [brushColor, setBrushColor] = useState("#000000");
@@ -1900,8 +1906,52 @@ const PlushDollDesign: React.FC = () => {
     if (dataURL) {
       const link = document.createElement("a");
       link.href = dataURL;
-      link.download = "canvas.png";
+      const fileName = currentCanvasTitle
+        ? `${currentCanvasTitle}.png`
+        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.png`;
+      link.download = fileName;
       link.click();
+      toast.success("Đã xuất thiết kế dưới dạng PNG thành công!");
+    } else {
+      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+    }
+  };
+
+  const saveCanvasAsJPEG = () => {
+    const dataURL = canvasRef.current?.toDataURL({
+      format: "jpeg",
+      quality: 0.9,
+    });
+    if (dataURL) {
+      const link = document.createElement("a");
+      link.href = dataURL;
+      const fileName = currentCanvasTitle
+        ? `${currentCanvasTitle}.jpeg`
+        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpeg`;
+      link.download = fileName;
+      link.click();
+      toast.success("Đã xuất thiết kế dưới dạng JPEG thành công!");
+    } else {
+      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+    }
+  };
+
+  const saveCanvasAsJPG = () => {
+    const dataURL = canvasRef.current?.toDataURL({
+      format: "jpeg",
+      quality: 0.9,
+    });
+    if (dataURL) {
+      const link = document.createElement("a");
+      link.href = dataURL;
+      const fileName = currentCanvasTitle
+        ? `${currentCanvasTitle}.jpg`
+        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpg`;
+      link.download = fileName;
+      link.click();
+      toast.success("Đã xuất thiết kế dưới dạng JPG thành công!");
+    } else {
+      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
     }
   };
 
@@ -3110,6 +3160,12 @@ const PlushDollDesign: React.FC = () => {
     // This dependency array is correct. It triggers a save when the filter UI state changes.
   }, [filterValues, activeFilters, isFilterEnabled, currentSelectedImageId]);
 
+  // Initialize temporary values when actual canvas dimensions change
+  useEffect(() => {
+    setTempCanvasWidth(actualCanvasWidth);
+    setTempCanvasHeight(actualCanvasHeight);
+  }, [actualCanvasWidth, actualCanvasHeight]);
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -3124,28 +3180,20 @@ const PlushDollDesign: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Button variant="outline" size="icon" aria-label="Menu">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
+                  <MenuIcon className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40" align="start" side="bottom">
-                <DropdownMenuSub
-                  onOpenChange={(open) => {
-                    if (open) {
-                      setCanvasWidthInput(actualCanvasWidth);
-                      setCanvasHeightInput(actualCanvasHeight);
-                    }
-                  }}
-                >
-                  <DropdownMenuSubTrigger>Đổi cỡ</DropdownMenuSubTrigger>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger
+                    onClick={() => {
+                      // Initialize temporary values with current actual canvas dimensions
+                      setTempCanvasWidth(actualCanvasWidth);
+                      setTempCanvasHeight(actualCanvasHeight);
+                    }}
+                  >
+                    Đổi cỡ
+                  </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <div className="p-2 w-64">
                       <div className="font-semibold text-sm mb-2">
@@ -3157,36 +3205,93 @@ const PlushDollDesign: React.FC = () => {
                         </label>
                         <Input
                           type="number"
-                          value={canvasWidthInput}
-                          onChange={(e) => setCanvasWidthInput(e.target.value)}
+                          value={
+                            unit === "px"
+                              ? tempCanvasWidth
+                              : (
+                                  parseFloat(tempCanvasWidth) /
+                                  convertToPixels(1, unit)
+                                ).toFixed(2)
+                          }
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            if (unit === "px") {
+                              setTempCanvasWidth(newValue);
+                            } else {
+                              // Convert from the selected unit back to pixels
+                              const pixelsPerUnit = convertToPixels(1, unit);
+                              const pixelValue =
+                                parseFloat(newValue) * pixelsPerUnit;
+                              setTempCanvasWidth(pixelValue.toString());
+                            }
+                          }}
                           className="w-full"
                         />
                         <label className="text-xs font-medium">Chiều cao</label>
                         <Input
                           type="number"
-                          value={canvasHeightInput}
-                          onChange={(e) => setCanvasHeightInput(e.target.value)}
+                          value={
+                            unit === "px"
+                              ? tempCanvasHeight
+                              : (
+                                  parseFloat(tempCanvasHeight) /
+                                  convertToPixels(1, unit)
+                                ).toFixed(2)
+                          }
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            if (unit === "px") {
+                              setTempCanvasHeight(newValue);
+                            } else {
+                              // Convert from the selected unit back to pixels
+                              const pixelsPerUnit = convertToPixels(1, unit);
+                              const pixelValue =
+                                parseFloat(newValue) * pixelsPerUnit;
+                              setTempCanvasHeight(pixelValue.toString());
+                            }
+                          }}
                           className="w-full"
                         />
                         <label className="text-xs font-medium">Đơn vị</label>
                         <select
                           value={unit}
-                          onChange={(e) =>
-                            setUnit(e.target.value as "px" | "cm" | "mm")
-                          }
-                          className="border rounded px-2 h-8 text-xs"
+                          onChange={(e) => {
+                            const newUnit = e.target.value as
+                              | "px"
+                              | "cm"
+                              | "mm";
+                            setUnit(newUnit);
+                          }}
+                          className="w-full p-2 border rounded"
                         >
                           <option value="px">px</option>
                           <option value="cm">cm</option>
                           <option value="mm">mm</option>
                         </select>
                         <Button
-                          className="mt-2"
                           onClick={() => {
-                            setActualCanvasWidth(canvasWidthInput);
-                            setActualCanvasHeight(canvasHeightInput);
-                            createNewCanvas();
+                            // Get the pixel values from temporary state
+                            const newWidth = parseFloat(tempCanvasWidth) || 0;
+                            const newHeight = parseFloat(tempCanvasHeight) || 0;
+
+                            // Update canvas dimensions
+                            if (
+                              canvasRef.current &&
+                              newWidth > 0 &&
+                              newHeight > 0
+                            ) {
+                              canvasRef.current.setDimensions({
+                                width: newWidth,
+                                height: newHeight,
+                              });
+                              canvasRef.current.renderAll();
+
+                              // Update the actual canvas dimensions
+                              setActualCanvasWidth(newWidth.toString());
+                              setActualCanvasHeight(newHeight.toString());
+                            }
                           }}
+                          className="w-full"
                         >
                           Xác nhận
                         </Button>
@@ -3301,41 +3406,7 @@ const PlushDollDesign: React.FC = () => {
             {/* Làm lại */}
           </Button>
 
-          {/* ZOOM CONTROLS */}
-          {/* Đã di chuyển xuống dưới */}
-          <Button variant="outline" onClick={saveCanvasAsPNG}>
-            <Download className="w-4 h-4 mr-1" />
-            Xuất PNG
-          </Button>
-          <Button variant="outline" onClick={saveCanvasAsJSON}>
-            <Save className="w-4 h-4 mr-1" />
-            Lưu thiết kế
-          </Button>
-          <Button
-            variant="outline"
-            onClick={async () => {
-              if (!currentCanvasId) {
-                toast.error("Không có canvas để lưu version!");
-                return;
-              }
-              try {
-                const res = await newVersionCanvas({
-                  canvasInfoId: currentCanvasId,
-                });
-                if (res?.isSuccess) {
-                  toast.success("Đã lưu version mới thành công!");
-                } else {
-                  toast.error("Có lỗi xảy ra khi lưu version!");
-                }
-              } catch {
-                toast.error("Có lỗi xảy ra khi lưu version!");
-              }
-            }}
-            disabled={!currentCanvasId}
-          >
-            <Save className="w-4 h-4 mr-1" />
-            Lưu version
-          </Button>
+          {/* Export and Save Dropdown */}
 
           <Button
             variant={isAutoSaveEnabled ? "default" : "outline"}
@@ -3363,6 +3434,100 @@ const PlushDollDesign: React.FC = () => {
             <Settings className="w-4 h-4" />
             <span className="text-xs font-medium">Thông tin</span>
           </Button>
+
+          {/* Export Design Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                <span className="text-xs font-medium">Xuất thiết kế</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" side="bottom">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsPNG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">PNG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Phù hợp nhất cho hình ảnh, hình minh họa phức tạp
+                  </span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsJPEG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">JPEG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Phù hợp nhất để chia sẻ
+                  </span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsJPG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">JPG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Phù hợp nhất để chia sẻ
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Save Design Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                <span className="text-xs font-medium">Lưu thiết kế</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" side="bottom">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsJSON}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                <span className="text-xs font-medium">Lưu thiết kế</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
+                  if (!currentCanvasId) {
+                    toast.error("Không có canvas để lưu version!");
+                    return;
+                  }
+                  try {
+                    const res = await newVersionCanvas({
+                      canvasInfoId: currentCanvasId,
+                    });
+                    if (res?.isSuccess) {
+                      toast.success("Đã lưu version mới thành công!");
+                    } else {
+                      toast.error("Có lỗi xảy ra khi lưu version!");
+                    }
+                  } catch {
+                    toast.error("Có lỗi xảy ra khi lưu version!");
+                  }
+                }}
+                disabled={!currentCanvasId}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                <span className="text-xs font-medium">Lưu version</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
