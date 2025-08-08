@@ -95,13 +95,13 @@ const GetWalletTransaction = () => {
         </span>
       ),
     },
-    {
-      header: "Mã giao dịch",
-      accessorKey: "walletTransactionID",
-      sortable: true,
-      className: "text-center",
-      cell: (row) => highlightMatch(row.walletTransactionID, searchTerm),
-    },
+    // {
+    //   header: "Mã giao dịch",
+    //   accessorKey: "walletTransactionID",
+    //   sortable: true,
+    //   className: "text-center",
+    //   cell: (row) => highlightMatch(row.walletTransactionID, searchTerm),
+    // },
     {
       header: "Số dư trước",
       accessorKey: "beforeBalance",

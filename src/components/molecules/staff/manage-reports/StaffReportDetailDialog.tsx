@@ -1,26 +1,151 @@
 "use client";
 
+import ReportBasicInfo from "@/components/atoms/staff/manage-reports/ReportBasicInfo";
+import ReportImages from "@/components/atoms/staff/manage-reports/ReportImages";
+import ReportResolutionInfo from "@/components/atoms/staff/manage-reports/ReportResolutionInfo";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  FileText,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Clock,
-  ImageIcon,
-} from "lucide-react";
-import { formatFullDateWithDistance2 } from "@/utils/date";
-import { useState } from "react";
-import ImageGalleryModal from "../../customer/order-detail/ImageGalleryModal";
-import { getCustomerReportStatusBadge } from "@/components/atoms/customer-reports/CustomerReportBadges";
-import { Textarea } from "@/components/ui/textarea";
+import { FileText } from "lucide-react";
+import ShippingReportDetail from "./ShippingReportDetail";
+import PaymentReportDetail from "./PaymentReportDetail";
+import PostReportDetail from "./PostReportDetail";
+import OrderReportDetail from "./OrderReportDetail";
+
+interface DeliveryImage {
+  deliveryImageID: string;
+  imageUrl: string;
+  uploadType: string;
+}
+
+interface ShippingTargetDetail {
+  deliveryID: string;
+  orderID: string;
+  senderID: string;
+  senderName: string;
+  receiverID: string;
+  receiverName: string;
+  orderCode: string;
+  senderAddress: string;
+  senderPhoneNumber: string;
+  receiverAddress: string;
+  receiverPhoneNumber: string;
+  deliveryPrice: number;
+  length: string;
+  width: string;
+  height: string;
+  weight: string;
+  note: string;
+  deliveryStatus: string;
+  createdAt: string;
+  deliveredAt?: string;
+  isConfirm: boolean;
+  images: DeliveryImage[];
+}
+
+interface ProjectImage {
+  projectImageID: string;
+  imageUrl: string;
+  imageType: string;
+  createdBy: string;
+}
+
+interface PostTargetDetail {
+  projectPostID: string;
+  accountID: string;
+  accountName: string;
+  title: string;
+  description: string;
+  postStatus: string;
+  itemValue: number;
+  suggestedPrice: number;
+  createdAt: string;
+  endAt: string;
+  finishDate: string;
+  isActive: boolean;
+  originalImages: ProjectImage[];
+  requestedImages: ProjectImage[];
+}
+
+interface Order {
+  orderID: string;
+  customerID: string;
+  customerName: string;
+  designerID: string;
+  designerName: string;
+  totalPrice: number;
+  orderStatus: string;
+  requiredDepositAmount: number;
+  designerDepositAmount: number;
+  note: string;
+  deadlineAt: string;
+  startDate: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Offer {
+  offerID: string;
+  projectPostID: string;
+  itemValue: number;
+  initPrice: number;
+  finalPrice: number;
+  designerDepositPrice: number;
+  note: string;
+  sampleImage: string;
+  offerStatus: string;
+  createdAt: string;
+  deadlineEndAt: string;
+}
+
+interface OfferPhase {
+  offerPhaseID: string;
+  phase: number;
+  phaseName: string;
+  phaseDescription: string;
+  offerPhasePrice: number;
+  offerPhaseStatus: string;
+  progressCount: number;
+  startDate: string;
+  endDate: string;
+  modifyDate: string;
+}
+
+interface OrderTargetDetail {
+  order: Order;
+  offer: Offer;
+  offerPhases: OfferPhase[];
+}
+
+interface ReportImages {
+  reportImageID: string;
+  imageURL: string;
+  imageNote?: string;
+}
+
+interface ReportDetail {
+  reportID: string;
+  reporter: string;
+  targetID: string;
+  title: string;
+  content: string;
+  reportType: string;
+  reportStatus: string;
+  createdAt: string;
+  resolver?: string;
+  processNote?: string;
+  resolvedAt?: string;
+  reportImages: ReportImages[];
+  targetDetail?:
+    | ShippingTargetDetail
+    | PostTargetDetail
+    | OrderTargetDetail
+    | null;
+}
 
 interface StaffReportDetailDialogProps {
   isOpen: boolean;
@@ -35,297 +160,73 @@ export default function StaffReportDetailDialog({
   reportDetail,
   loading,
 }: StaffReportDetailDialogProps) {
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
   if (!reportDetail && !loading) return null;
 
-  const handleImageClick = (index: number) => {
-    setSelectedImageIndex(index);
-    setIsImageModalOpen(true);
+  const renderTargetDetail = () => {
+    if (!reportDetail?.targetDetail) {
+      if (reportDetail?.reportType === "PaymentReport") {
+        return <PaymentReportDetail />;
+      }
+      return null;
+    }
+
+    switch (reportDetail.reportType) {
+      case "ShippingReport":
+        return (
+          <ShippingReportDetail
+            targetDetail={reportDetail.targetDetail as ShippingTargetDetail}
+          />
+        );
+      case "PostReport":
+        return (
+          <PostReportDetail
+            targetDetail={reportDetail.targetDetail as PostTargetDetail}
+          />
+        );
+      case "OrderReport":
+        return (
+          <OrderReportDetail
+            targetDetail={reportDetail.targetDetail as OrderTargetDetail}
+          />
+        );
+      case "PaymentReport":
+        return <PaymentReportDetail />;
+      default:
+        return null;
+    }
   };
 
-  console.log("reportDetail: ", reportDetail);
-
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <FileText className="h-6 w-6 text-blue-600" />
-              Chi tiết báo cáo vi phạm
-            </DialogTitle>
-          </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="min-w-[1200px] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+            <FileText className="h-6 w-6 text-blue-600" />
+            Chi tiết báo cáo vi phạm
+          </DialogTitle>
+        </DialogHeader>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-2">Đang tải...</span>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2">Đang tải...</span>
+          </div>
+        ) : reportDetail ? (
+          <div className="space-y-6 py-2 grid grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div>
+              <ReportBasicInfo reportDetail={reportDetail} />
+              <ReportResolutionInfo reportDetail={reportDetail} />
             </div>
-          ) : reportDetail ? (
-            <div className="space-y-6 py-2">
-              {/* Basic Information */}
-              <Card className="shadow-sm border-gray-200">
-                <CardHeader className="bg-gradient-to-r bg-pr rounded-t-lg h-full">
-                  <CardTitle className="text-lg flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 rounded-full"></div>
-                    <div className="flex justify-between w-full">
-                      <div>Thông tin cơ bản</div>
-                      {getCustomerReportStatusBadge(reportDetail.reportStatus)}
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold ">Ngày tạo</Label>
-                      <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 " />
-                        {formatFullDateWithDistance2(reportDetail?.createdAt)}
-                      </p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold ">
-                        Người báo cáo
-                      </Label>
-                      <p className="text-sm  p-2 rounded mt-1">
-                        {reportDetail.reporter}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <div>
-                      <Label className="text-sm font-semibold ">Tiêu đề</Label>
-                      <p className="text-sm  p-2 rounded mt-1">
-                        {reportDetail.title}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold ">
-                      Nội dung báo cáo
-                    </Label>
-                    <Textarea className="text-sm  p-2 rounded mt-1">
-                      {reportDetail.content}
-                    </Textarea>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Report Images */}
-              {reportDetail.reportImages &&
-                reportDetail.reportImages.length > 0 && (
-                  <Card className="shadow-sm border-gray-200">
-                    <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-t-lg">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <ImageIcon className="h-5 w-5 text-orange-600" />
-                        Hình ảnh đính kèm ({reportDetail.reportImages.length})
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      {/* First row - 3 images */}
-                      <div className="grid grid-cols-3 gap-2 mb-2">
-                        {reportDetail.reportImages
-                          .slice(0, 3)
-                          .map((image, index) => (
-                            <div
-                              key={image.reportImageID}
-                              className="aspect-square rounded-lg overflow-hidden bg-white border border-gray-200 relative group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                              onClick={() => handleImageClick(index)}
-                            >
-                              <img
-                                src={image.imageURL || "/placeholder.svg"}
-                                alt={`Report image ${index + 1}`}
-                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = "/placeholder.svg";
-                                }}
-                              />
-                              <div className=" inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                              {image.imageNote &&
-                                image.imageNote !== "string" && (
-                                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                                    {image.imageNote}
-                                  </div>
-                                )}
-                            </div>
-                          ))}
-                      </div>
-
-                      {/* Second row - 3 images (4-6) */}
-                      {reportDetail.reportImages.length > 3 && (
-                        <div className="grid grid-cols-3 gap-2 mb-2">
-                          {reportDetail.reportImages
-                            .slice(3, 6)
-                            .map((image, index) => (
-                              <div
-                                key={image.reportImageID}
-                                className="aspect-square rounded-lg overflow-hidden bg-white border border-gray-200 relative group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                                onClick={() => handleImageClick(index + 3)}
-                              >
-                                <img
-                                  src={image.imageURL || "/placeholder.svg"}
-                                  alt={`Report image ${index + 4}`}
-                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = "/placeholder.svg";
-                                  }}
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                                {image.imageNote &&
-                                  image.imageNote !== "string" && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                                      {image.imageNote}
-                                    </div>
-                                  )}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-
-                      {/* Third row - 3 images (7-9) */}
-                      {reportDetail.reportImages.length > 6 && (
-                        <div className="grid grid-cols-3 gap-2 mb-2">
-                          {reportDetail.reportImages
-                            .slice(6, 9)
-                            .map((image, index) => (
-                              <div
-                                key={image.reportImageID}
-                                className="aspect-square rounded-lg overflow-hidden bg-white border border-gray-200 relative group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                                onClick={() => handleImageClick(index + 6)}
-                              >
-                                <img
-                                  src={image.imageURL || "/placeholder.svg"}
-                                  alt={`Report image ${index + 7}`}
-                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = "/placeholder.svg";
-                                  }}
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                                {image.imageNote &&
-                                  image.imageNote !== "string" && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                                      {image.imageNote}
-                                    </div>
-                                  )}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-
-                      {/* Fourth row - 1 image (10) */}
-                      {reportDetail.reportImages.length > 9 && (
-                        <div className="grid grid-cols-3 gap-2">
-                          <div
-                            className="aspect-square rounded-lg overflow-hidden bg-white border border-gray-200 relative group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                            onClick={() => handleImageClick(9)}
-                          >
-                            <img
-                              src={
-                                reportDetail.reportImages[9].imageURL ||
-                                "/placeholder.svg"
-                              }
-                              alt="Report image 10"
-                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = "/placeholder.svg";
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                            {reportDetail.reportImages[9].imageNote &&
-                              reportDetail.reportImages[9].imageNote !==
-                                "string" && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                                  {reportDetail.reportImages[9].imageNote}
-                                </div>
-                              )}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-              {/* Resolution Information */}
-              {(reportDetail.resolver ||
-                reportDetail.processNote ||
-                reportDetail.resolvedAt) && (
-                <Card className="shadow-sm border-gray-200">
-                  <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 rounded-t-lg">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      {reportDetail.reportStatus === "Approved" ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      ) : reportDetail.reportStatus === "Rejected" ? (
-                        <XCircle className="h-5 w-5 text-red-600" />
-                      ) : (
-                        <Clock className="h-5 w-5 text-orange-600" />
-                      )}
-                      Thông tin xử lý
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {reportDetail.resolver && (
-                        <div>
-                          <Label className="text-sm font-semibold text-gray-700">
-                            Người xử lý
-                          </Label>
-                          <p className="text-sm bg-gray-100 p-2 rounded mt-1">
-                            {reportDetail.resolver}
-                          </p>
-                        </div>
-                      )}
-                      {reportDetail.resolvedAt && (
-                        <div>
-                          <Label className="text-sm font-semibold text-gray-700">
-                            Ngày xử lý
-                          </Label>
-                          <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-gray-500" />
-                            {formatFullDateWithDistance2(
-                              reportDetail.resolvedAt
-                            )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {reportDetail.processNote && (
-                      <div>
-                        <Label className="text-sm font-semibold text-gray-700">
-                          Ghi chú xử lý
-                        </Label>
-                        <Textarea className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {reportDetail.processNote}
-                        </Textarea>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+            {/* Right Column */}
+            <div className="space-y-6">
+              {renderTargetDetail()}
+              <ReportImages reportImages={reportDetail.reportImages} />
             </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
-
-      {/* Image Gallery Modal */}
-      {reportDetail?.reportImages && reportDetail.reportImages.length > 0 && (
-        <ImageGalleryModal
-          isOpen={isImageModalOpen}
-          onClose={() => setIsImageModalOpen(false)}
-          images={reportDetail.reportImages.map((img) => ({
-            url: img.imageURL || "/placeholder.svg",
-            alt: `Report image`,
-            description: img.imageNote !== "string" ? img.imageNote : undefined,
-          }))}
-          initialIndex={selectedImageIndex}
-        />
-      )}
-    </>
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
