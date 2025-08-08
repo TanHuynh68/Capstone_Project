@@ -1442,32 +1442,10 @@ const PlushDollDesign: React.FC = () => {
     const centerX = bound.left + bound.width / 2; // Tâm theo trục X
     const topY = bound.top; // Viền trên theo trục Y
 
-    // Lấy vị trí của canvas wrapper để tính toán tọa độ tương đối
-    const wrapperRect = canvasWrapperRef.current.getBoundingClientRect();
-
-    // Lấy canvas element để tính toán vị trí thực tế
-    const canvas = canvasRef.current;
-    const canvasElement = canvas.getElement();
-    const canvasRect = canvasElement.getBoundingClientRect();
-
-    // Tính toán vị trí toolbar dựa trên vị trí thực tế của canvas
-    // Chuyển đổi tọa độ canvas sang tọa độ screen
-    const canvasLeft = canvasRect.left;
-    const canvasTop = canvasRect.top;
-    const canvasWidth = canvasRect.width;
-    const canvasHeight = canvasRect.height;
-
-    // Tính toán tỷ lệ scale giữa canvas thực tế và canvas logic
-    const scaleX = canvasWidth / canvas.getWidth();
-    const scaleY = canvasHeight / canvas.getHeight();
-
-    // Chuyển đổi tọa độ canvas sang tọa độ screen
-    const screenX = canvasLeft + centerX * scaleX;
-    const screenY = canvasTop + topY * scaleY;
-
-    // Tính toán vị trí toolbar tương đối với wrapper
-    const toolbarX = screenX - wrapperRect.left - 141.5; // toolbarWidth / 2 = 283 / 2 = 141.5
-    const toolbarY = screenY - wrapperRect.top - 120; // Offset 120px lên trên
+    // Tính toán vị trí toolbar tương đối với canvas wrapper
+    // Sử dụng tọa độ logic của object và để CSS transform xử lý scaling
+    const toolbarX = centerX - 141.5; // toolbarWidth / 2 = 283 / 2 = 141.5
+    const toolbarY = topY - 120; // Offset 120px lên trên
 
     setToolbarPos({
       x: toolbarX,
@@ -1480,8 +1458,7 @@ const PlushDollDesign: React.FC = () => {
         const actualToolbarWidth = toolbarRef.current.offsetWidth;
         if (actualToolbarWidth && actualToolbarWidth !== 283) {
           // Nếu toolbar width khác với dự đoán, tính toán lại
-          const correctedToolbarX =
-            screenX - wrapperRect.left - actualToolbarWidth / 2;
+          const correctedToolbarX = centerX - actualToolbarWidth / 2;
           setToolbarPos({
             x: correctedToolbarX,
             y: toolbarY,
