@@ -82,11 +82,11 @@ export default function ViewReputationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="min-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Trophy className="h-6 w-6 text-yellow-500" />
-            Thông tin Reputation
+            Uy tín người dùng
           </DialogTitle>
         </DialogHeader>
 
@@ -140,7 +140,7 @@ export default function ViewReputationDialog({
                 {/* Current Score */}
                 <Card className="shadow-sm border-gray-200">
                   <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-lg flex items-center gap-2 justify-center">
                       <Star className="h-5 w-5 text-green-600" />
                       Điểm hiện tại
                     </CardTitle>
@@ -164,8 +164,8 @@ export default function ViewReputationDialog({
                 {/* Last Updated */}
                 <Card className="shadow-sm border-gray-200">
                   <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-purple-600" />
+                    <CardTitle className="text-lg flex items-center justify-center gap-2">
+                      <Calendar className="h-5 w-5 text-purple-600 text-center" />
                       Cập nhật lần cuối
                     </CardTitle>
                   </CardHeader>

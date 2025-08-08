@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { useRef, useState } from "react";
+import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
 
 interface Order {
   orderID: string;
@@ -133,41 +134,6 @@ const mapOfferStatus = (status: string) => {
         label: "Chờ xử lý",
         color: "bg-yellow-100 text-yellow-800",
         icon: Clock,
-      };
-    default:
-      return {
-        label: status,
-        color: "bg-gray-100 text-gray-800",
-        icon: AlertCircle,
-      };
-  }
-};
-
-const mapPhaseStatus = (status: string) => {
-  switch (status) {
-    case "Dealed":
-      return {
-        label: "Đã thỏa thuận",
-        color: "bg-green-100 text-green-800",
-        icon: CheckCircle,
-      };
-    case "Rework":
-      return {
-        label: "Làm lại",
-        color: "bg-orange-100 text-orange-800",
-        icon: AlertCircle,
-      };
-    case "InProgress":
-      return {
-        label: "Đang thực hiện",
-        color: "bg-blue-100 text-blue-800",
-        icon: Clock,
-      };
-    case "Completed":
-      return {
-        label: "Hoàn thành",
-        color: "bg-green-100 text-green-800",
-        icon: CheckCircle,
       };
     default:
       return {
@@ -449,8 +415,6 @@ export default function OrderReportDetail({
               className="max-h-96 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
             >
               {offerPhases.map((phase) => {
-                const phaseStatusInfo = mapPhaseStatus(phase.offerPhaseStatus);
-                const PhaseStatusIcon = phaseStatusInfo.icon;
                 const isSelected = selectedPhaseId === phase.offerPhaseID;
 
                 return (
@@ -474,10 +438,7 @@ export default function OrderReportDetail({
                       >
                         Giai đoạn {phase.phase}: {phase.phaseName}
                       </h5>
-                      <Badge className={phaseStatusInfo.color}>
-                        <PhaseStatusIcon className="h-3 w-3 mr-1" />
-                        {phaseStatusInfo.label}
-                      </Badge>
+                      <PhaseStatusBadge status={phase.offerPhaseStatus} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">

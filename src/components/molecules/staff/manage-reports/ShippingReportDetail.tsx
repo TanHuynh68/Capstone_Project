@@ -323,7 +323,7 @@ export default function ShippingReportDetail({
                         target.src = "/placeholder.svg";
                       }}
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                    <div className="inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
                     <div className="absolute top-2 right-2">
                       <Badge
                         variant="secondary"
