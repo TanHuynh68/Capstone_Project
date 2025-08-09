@@ -95,7 +95,7 @@ export default function PostForm() {
       form.reset();
       setOriginalAttachmentFiles([]);
       setRequestedAttachmentFiles([]);
-      navigate('/'+PATH.MY_POST)
+      navigate("/" + PATH.MY_POST);
     }
     setSubmitting(false);
   };
@@ -186,7 +186,7 @@ export default function PostForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel required htmlFor="suggestedPrice">
-                          Giá đề xuất
+                          Ngân sách
                         </FormLabel>
 
                         <FormControl>
