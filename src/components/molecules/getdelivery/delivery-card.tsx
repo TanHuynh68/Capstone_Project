@@ -11,7 +11,7 @@ import {
 import { HighlightText } from "@/utils/highlight-text";
 import type { DeliveryItem } from "@/components/organisms/delivery/delivery-by-token";
 import { formatVietnamDateHours } from "@/utils/date";
-import { Flag, Upload } from "lucide-react";
+import { Check, Flag, Upload } from "lucide-react";
 import CustomerReportService from "@/services/CustomerReportService";
 import { ReportFormData } from "@/schemas/report/reportSchema";
 import ReportDialog from "../customer-and-designer/report/ReportDialog";
@@ -55,7 +55,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
     const response = await createReport({
       ...data,
       targetID: delivery.deliveryID,
-      reportType: 4, // Delivery report type (assuming 5 is for deliveries)
+      reportType: 4,
     });
     return response;
   };
@@ -219,8 +219,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {delivery.isConfirm != null ? (
-                // Show report button only if isConfirm is != null
+              {delivery.isConfirm === false ? (
                 <button
                   className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-red-500/20 shadow-md"
                   onClick={handleReportClick}
@@ -231,31 +230,42 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                   <Flag className="h-4 w-4" />
                   <span>Báo cáo vi phạm</span>
                 </button>
-              ) :
-                // Show upload button if delivery date exists and isConfirm is not true
-                // delivery.deliveryStatus === "Delivered" &&
-                delivery.receiverName === user.name ? (
-                  <>
-                    <button
-                      className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white font-semibold text-sm transition-all duration-300 hover:from-primary/90 hover:to-primary/70 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-primary/20 shadow-md"
-                      onClick={handleOpenUploadDialog}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onMouseUp={(e) => e.preventDefault()}
-                      onPointerDown={(e) => e.preventDefault()}
-                    >
-                      <Upload className="h-4 w-4" />
-                      <span>Tải lên minh chứng</span>
-                    </button>
-                    <UploadDeliveryImageDialog
-                      open={showUploadDialog}
-                      onClose={() => {
-                        setShowUploadDialog(false);
-                        setSelectedDeliveryDetail(null);
-                      }}
-                      onSubmit={handleUploadDeliveryImage}
-                    />
-                  </>
-                ) : null}
+              ) : // Show upload button if delivery date exists and isConfirm is not true
+              // delivery.deliveryStatus === "Delivered" &&
+              delivery.receiverName === user.name &&
+                delivery.isConfirm === null ? (
+                <>
+                  <button
+                    className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white font-semibold text-sm transition-all duration-300 hover:from-primary/90 hover:to-primary/70 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-primary/20 shadow-md"
+                    onClick={handleOpenUploadDialog}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseUp={(e) => e.preventDefault()}
+                    onPointerDown={(e) => e.preventDefault()}
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span>Tải lên minh chứng</span>
+                  </button>
+                  <UploadDeliveryImageDialog
+                    open={showUploadDialog}
+                    onClose={() => {
+                      setShowUploadDialog(false);
+                      setSelectedDeliveryDetail(null);
+                    }}
+                    onSubmit={handleUploadDeliveryImage}
+                  />
+                </>
+              ) : (
+                <button
+                  className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold text-sm transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-green-500/20 shadow-md"
+                  onClick={handleViewDetails}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onMouseUp={(e) => e.preventDefault()}
+                  onPointerDown={(e) => e.preventDefault()}
+                >
+                  <Check className="h-4 w-4" />
+                  <span>Đã giao đúng hàng</span>
+                </button>
+              )}
             </div>
           </div>
         </CardContent>

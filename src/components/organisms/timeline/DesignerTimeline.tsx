@@ -279,7 +279,7 @@ export default function DesignerTimeline({
         {/* Left Panel - Data and Legend */}
         <div className="lg:col-span-1 space-y-6">
           {/* Header */}
-          <Card className="border-0 shadow-xl bg-gradient-to-br ">
+          {/* <Card className="border-0 shadow-xl bg-gradient-to-br ">
             <CardContent className="p-3.5">
               <div className="text-center">
                 <h2 className="text-xl font-bold  mb-2">Lịch trình thiết kế</h2>
@@ -288,53 +288,65 @@ export default function DesignerTimeline({
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Thống kê tổng quan */}
-          <Card className="border-0 shadow-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Package className="w-5 h-5 text-blue-500" />
-                Thống kê tổng quan
+          <Card className="border-0 shadow-l">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex justify-center items-center gap-2">
+                <div className="text-center">
+                  <h2 className="text-lg font-bold mb-1 text-foreground">
+                    Lịch trình thiết kế
+                  </h2>
+                  <p className="text-xs text-center text-muted-foreground">
+                    Quản lý tiến độ và lịch trình của bạn
+                  </p>
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                      <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex items-center justify-between p-2 rounded-lg transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-blue-200 rounded-md flex items-center justify-center">
+                      <Package className="w-3 h-3 text-blue-600" />
                     </div>
-                    <span className="text-sm font-medium ">Tổng đơn hàng</span>
+                    <span className="text-xs font-medium text-foreground">
+                      Tổng đơn hàng
+                    </span>
                   </div>
                   <Badge
                     variant="secondary"
-                    className="font-bold text-base px-3 py-1"
+                    className="font-bold text-sm px-2 py-0.5"
                   >
                     {uniqueOrders.length}
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex items-center justify-between p-2 rounded-lg transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-emerald-200 rounded-md flex items-center justify-center">
+                      <CheckCircle className="w-3 h-3 text-emerald-600" />
                     </div>
-                    <span className="text-sm font-medium ">Hoàn thành</span>
+                    <span className="text-xs font-medium text-foreground">
+                      Hoàn thành
+                    </span>
                   </div>
-                  <Badge className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 font-bold text-base px-3 py-1">
+                  <Badge className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 font-bold text-sm px-2 py-0.5">
                     {events.filter((event) => event.status === "Done").length}
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-lg flex items-center justify-center">
-                      <Settings className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <div className="flex items-center justify-between p-2 rounded-lg transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-amber-200 rounded-md flex items-center justify-center">
+                      <Settings className="w-3 h-3 text-amber-600" />
                     </div>
-                    <span className="text-sm font-medium ">Đang thực hiện</span>
+                    <span className="text-xs font-medium text-foreground">
+                      Đang thực hiện
+                    </span>
                   </div>
-                  <Badge className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 font-bold text-base px-3 py-1">
+                  <Badge className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 font-bold text-sm px-2 py-0.5">
                     {
                       events.filter((event) => event.status === "InProgress")
                         .length
@@ -342,14 +354,16 @@ export default function DesignerTimeline({
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 dark:bg-red-900/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center">
-                      <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
+                <div className="flex items-center justify-between p-2 rounded-lg transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-red-200 rounded-md flex items-center justify-center">
+                      <RefreshCw className="w-3 h-3 text-red-600" />
                     </div>
-                    <span className="text-sm font-medium ">Cần làm lại</span>
+                    <span className="text-xs font-medium text-foreground">
+                      Cần làm lại
+                    </span>
                   </div>
-                  <Badge className="bg-red-500 hover:bg-red-600 dark:bg-red-600 font-bold text-base px-3 py-1">
+                  <Badge className="bg-red-500 hover:bg-red-600 dark:bg-red-600 font-bold text-sm px-2 py-0.5">
                     {events.filter((event) => event.status === "Rework").length}
                   </Badge>
                 </div>
@@ -360,9 +374,14 @@ export default function DesignerTimeline({
           {/* Danh sách đơn hàng */}
           <Card className="border-0 shadow-xl">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="w-5 h-5 text-purple-500" />
-                Danh sách đơn hàng
+              <CardTitle className="text-lg flex justify-center items-center gap-2">
+                {/* <FileText className="w-5 h-5 text-purple-500" /> */}
+
+                <div className="text-center">
+                  <h2 className="text-lg font-bold mb-1 text-foreground">
+                    Danh sách đơn hàng
+                  </h2>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -430,6 +449,10 @@ export default function DesignerTimeline({
                     today: "Hôm nay",
                     month: "Tháng",
                     week: "Tuần",
+                  }}
+                  titleFormat={{
+                    month: "long",
+                    year: "numeric",
                   }}
                   headerToolbar={{
                     left: "title",
