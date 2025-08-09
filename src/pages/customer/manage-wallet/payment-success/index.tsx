@@ -1,46 +1,44 @@
-
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/separator";
 import { formatCurrencyVND } from "@/utils";
 import { PATH } from "@/routes/path";
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 export default function PaymentSuccess() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  const depositMoney = urlParams.get('depositMoney');
-  const vnp_TransactionNo = urlParams.get('vnp_TransactionNo');
+  const depositMoney = urlParams.get("depositMoney");
+  const vnp_TransactionNo = urlParams.get("vnp_TransactionNo");
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] gap-8 px-4 md:px-6">
       <div className="bg-background rounded-lg shadow-lg p-8 w-full max-w-md">
         <div className="flex flex-col items-center justify-center gap-4">
           <CircleCheckIcon className="text-green-500 w-12 h-12" />
           <h1 className="text-2xl font-bold">Thanh toán thành công</h1>
-          <p className="text-muted-foreground">Cảm ơn bạn đã thanh toán! Đơn hàng của bạn đang được xử lý.</p>
+          <p className="text-muted-foreground">
+            Cảm ơn bạn đã thanh toán! Đơn hàng của bạn đang được xử lý.
+          </p>
         </div>
         <Separator className="my-6" />
         <div className="grid gap-4">
-          {
-            vnp_TransactionNo ? <div>
-              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Mã giao dịch #</p>
-                <p>{vnp_TransactionNo}</p>
-              </div>
+          {vnp_TransactionNo ? (
+            <div>
               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                 <p className="text-muted-foreground">Tổng tiền</p>
-                <p>{formatCurrencyVND(parseInt(depositMoney + '') || 0)}</p>
+                <p>{formatCurrencyVND(parseInt(depositMoney + "") || 0)}</p>
               </div>
               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                 <p className="text-muted-foreground">Phương thức thanh toán</p>
                 <p>VNPay</p>
               </div>
-            </div> :
+            </div>
+          ) : (
             <div>
-               <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                 <p className="text-muted-foreground">Phương thức thanh toán</p>
                 <p>PayOs</p>
               </div>
             </div>
-          }
+          )}
         </div>
         <Separator className="my-6" />
         <div className="flex justify-center">
@@ -53,7 +51,7 @@ export default function PaymentSuccess() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function CircleCheckIcon(props: any) {
@@ -73,5 +71,5 @@ function CircleCheckIcon(props: any) {
       <circle cx="12" cy="12" r="10" />
       <path d="m9 12 2 2 4-4" />
     </svg>
-  )
+  );
 }

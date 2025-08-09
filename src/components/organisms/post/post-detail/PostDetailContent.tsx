@@ -1,6 +1,5 @@
 import PriceDisplay from "@/components/atoms/post/post-detail/PriceDisplay";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
-import { Textarea } from "@/components/ui/textarea";
 
 interface PostDetailContentProps {
   post: Post;
@@ -17,9 +16,9 @@ export default function PostDetailContent({
       <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6">
         <h2 className="text-xl font-semibold mb-4">Mô tả</h2>
         <div className="prose max-w-none">
-          <Textarea className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
             {post.description}
-          </Textarea>
+          </p>
         </div>
       </div>
 

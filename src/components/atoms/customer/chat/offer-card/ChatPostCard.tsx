@@ -317,7 +317,7 @@ export function ChatPostCard({
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Giá ban đầu</div>
                     <div className="font-semibold text-blue-600">
@@ -344,6 +344,14 @@ export function ChatPostCard({
                     <div className="font-semibold text-green-600">
                       {post?.offer?.designerDepositPrice
                         ? formatCurrencyVND(post.offer.designerDepositPrice)
+                        : "Chưa có"}
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded border">
+                    <div className="text-sm text-gray-600">Giá ban đầu</div>
+                    <div className="font-semibold text-blue-600">
+                      {post.offer.finalPrice != null
+                        ? formatCurrencyVND(post.offer.finalPrice)
                         : "Chưa có"}
                     </div>
                   </div>
@@ -378,7 +386,7 @@ export function ChatPostCard({
         onOpenChange={setIsCreatePhaseDialogOpen}
       >
         <DialogContent
-          className="min-w-[650px]"
+          className="min-w-[1200px]"
           onKeyDown={(e) => e.stopPropagation()}
         >
           <DialogHeader>

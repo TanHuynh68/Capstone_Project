@@ -69,7 +69,7 @@ export default function ProcessReportDialog({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  console.log("report: ", report);
   // Benefit states
   const [benefits, setBenefits] = useState<Benefit[]>([]);
   const [benefitsLoading, setBenefitsLoading] = useState(false);
@@ -90,7 +90,8 @@ export default function ProcessReportDialog({
 
       console.log("fetchBenefits:", response);
 
-      let filteredBenefits = response.responseRequestModel.responseList.items || [];
+      let filteredBenefits =
+        response.responseRequestModel.responseList.items || [];
 
       // If accept is false, only show General benefits
       if (!acceptState) {
@@ -112,7 +113,8 @@ export default function ProcessReportDialog({
   const fetchBenefitDetail = async (benefitID: string) => {
     try {
       const benefit = await getBenefitDetail(benefitID);
-      setSelectedBenefit(benefit);
+      console.log("fetchBenefitDetail; ", benefit);
+      setSelectedBenefit(benefit.responseRequestModel);
     } catch (error) {
       console.error("Error fetching benefit detail:", error);
     }
