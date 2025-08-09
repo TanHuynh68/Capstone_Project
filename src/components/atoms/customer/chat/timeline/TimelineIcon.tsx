@@ -1,4 +1,11 @@
-import { Settings, Check, Info, Banknote, Truck } from "lucide-react";
+import {
+  Settings,
+  Check,
+  Info,
+  Banknote,
+  Truck,
+  TriangleAlert,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type TimelineIconType =
@@ -7,7 +14,9 @@ export type TimelineIconType =
   | "ship"
   | "progress"
   | "check"
-  | "calendar";
+  | "calendar"
+  | "pending"
+  | "done";
 
 interface TimelineIconProps {
   type: TimelineIconType;
@@ -27,6 +36,10 @@ export default function TimelineIcon({ type, className }: TimelineIconProps) {
         return <Settings className="h-4 w-4" />;
       case "check":
         return <Check className="h-4 w-4" />;
+      case "done":
+        return <Check className="h-4 w-4" />;
+      case "pending":
+        return <TriangleAlert className="h-4 w-4" />;
       default:
         return <Info className="h-4 w-4" />;
     }
@@ -45,6 +58,10 @@ export default function TimelineIcon({ type, className }: TimelineIconProps) {
       case "check":
         return "bg-primary";
       case "calendar":
+        return "bg-primary";
+      case "pending":
+        return "bg-primary";
+      case "done":
         return "bg-primary";
       default:
         return "bg-primary";

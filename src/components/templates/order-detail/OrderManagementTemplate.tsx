@@ -120,6 +120,10 @@ export default function OrderManagementTemplate({
         return "progress";
       case "Check":
         return "check";
+      case "Pending":
+        return "pending";
+      case "Done":
+        return "done";
       default:
         return "info";
     }
