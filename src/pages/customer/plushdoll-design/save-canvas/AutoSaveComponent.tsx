@@ -6,7 +6,9 @@ interface AutoSaveComponentProps {
   isAutoSaveEnabled: boolean;
   setIsAutoSaveEnabled: (enabled: boolean) => void;
   autoSaveCountdown: number;
-  setAutoSaveCountdown: (countdown: number) => void;
+  setAutoSaveCountdown: (
+    countdown: number | ((prev: number) => number)
+  ) => void;
   saveCanvasAsJSON: () => Promise<void>;
 }
 
@@ -25,7 +27,7 @@ const AutoSaveComponent: React.FC<AutoSaveComponentProps> = ({
     if (isAutoSaveEnabled) {
       // Start countdown
       countdownIntervalRef.current = setInterval(() => {
-        setAutoSaveCountdown((prev) => {
+        setAutoSaveCountdown((prev: number) => {
           if (prev <= 1) {
             return 5; // Reset to 5 when reaching 0
           }
@@ -83,4 +85,3 @@ const AutoSaveComponent: React.FC<AutoSaveComponentProps> = ({
 };
 
 export default AutoSaveComponent;
-
