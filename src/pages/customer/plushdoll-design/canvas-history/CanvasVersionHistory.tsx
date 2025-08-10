@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import CanvasService, { CanvasResponse } from "@/services/CanvasService";
-import { Button } from "@/components/ui/button";
 import { fabric } from "fabric";
 import { formatVietnamDateHours } from "@/utils/date";
+import { Clock } from "lucide-react";
 
 interface CanvasVersionHistoryProps {
   canvasFolderId: string;
@@ -55,7 +55,6 @@ const generateCanvasPreview = async (
       if (ctx) {
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, previewWidth, previewHeight);
-        // fabric v5+ dùng getElement(), v4 dùng lowerCanvasEl
         const canvasEl =
           typeof fabricCanvas.getElement === "function"
             ? (fabricCanvas.getElement() as HTMLCanvasElement)
@@ -74,16 +73,16 @@ const generateCanvasPreview = async (
         );
         return previewCanvas.toDataURL("image/png");
       }
-      return "/images/canvas-placeholder.png";
+      return "/images/logo.png";
     } catch (parseError) {
       // eslint-disable-next-line no-console
       console.error("Error parsing canvas description:", parseError);
     }
-    return "/images/canvas-placeholder.png";
+    return "/images/logo.png";
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Error generating preview:", error);
-    return "/images/canvas-placeholder.png";
+    return "/images/logo.png";
   }
 };
 
@@ -122,53 +121,98 @@ const CanvasVersionHistory: React.FC<CanvasVersionHistoryProps> = ({
   }, [canvasFolderId, getCanvasHistory]);
 
   return (
-    <div className="p-2 w-110">
-      <div className="font-semibold text-sm mb-2">Các phiên bản gần đây</div>
+    <div className="p-4 w-110">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <h3 className="font-semibold text-foreground text-sm">
+            Các phiên bản gần đây
+          </h3>
+        </div>
+        <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+          {versions.length} phiên bản
+        </div>
+      </div>
+
       {loading ? (
-        <div>Đang tải...</div>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          <span className="ml-2 text-muted-foreground">Đang tải...</span>
+        </div>
       ) : (
-        <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+        <div className="space-y-4 max-h-80 overflow-y-auto pr-0 pl-0 py-0">
           {versions.length === 0 && (
-            <div className="text-xs text-muted-foreground">
-              Không có phiên bản nào
+            <div className="text-center py-8">
+              <span className="text-muted-foreground">
+                Không có phiên bản nào
+              </span>
             </div>
           )}
           {versions.map((ver) => (
             <div
               key={ver.canvasInfoId}
-              className="flex items-center justify-between p-2 rounded hover:bg-muted transition"
+              className={`relative group rounded-lg border transition-all duration-200 cursor-pointer ${
+                ver.isLatest
+                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 hover:border-blue-400 hover:shadow-lg"
+                  : "bg-card border-border hover:border-primary hover:shadow-md"
+              }`}
+              onClick={() => onRestore?.(ver)}
             >
-              <div className="flex items-center gap-2">
-                <div className="w-44 h-24 flex items-center justify-center py-2 bg-gray-200 rounded-lg">
-                  <img
-                    src={
-                      previewUrls[ver.canvasInfoId] ||
-                      "/images/canvas-placeholder.png"
-                    }
-                    alt={ver.canvasTitle || `Phiên bản ${ver.versionNumber}`}
-                    className="max-h-full max-w-full object-contain transition-all duration-200"
-                  />
-                </div>
-                <div>
-                  <div className="font-medium text-xs">
-                    {ver.canvasTitle || `Phiên bản ${ver.versionNumber}`}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {ver.updatedAt
-                      ? formatVietnamDateHours(ver.updatedAt)
-                      : ""}
-                  </div>
+              {/* Version badge */}
+              <div className="absolute top-2 right-2 z-10">
+                <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                  Phiên bản {ver.versionNumber}
                 </div>
               </div>
-              <Button
-                size="sm"
-                className="text-xs px-2 py-1"
-                onClick={() => onRestore?.(ver)}
-              >
-                Khôi phục
-              </Button>
+
+              {/* Latest version indicator */}
+              {ver.isLatest && (
+                <div className="absolute top-2 right-24 z-10">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                    Mới nhất
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 p-3">
+                {/* Preview image */}
+                <div className="relative">
+                  <div className="w-40 h-24 bg-muted rounded-lg overflow-hidden border border-border">
+                    <img
+                      src={previewUrls[ver.canvasInfoId] || "/images/logo.png"}
+                      alt={ver.canvasTitle || `Phiên bản ${ver.versionNumber}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Version info */}
+                <div className="flex-1 min-w-0 text-center justify-center">
+                  <h4 className="text-sm font-medium text-foreground truncate mb-1">
+                    {ver.canvasTitle || `Thiết kế ${ver.versionNumber}`}
+                  </h4>
+                </div>
+              </div>
+
+              {/* Timestamp - moved to bottom right corner */}
+              <div className="absolute bottom-2 right-2 z-10">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-card/80 backdrop-blur-sm px-2 py-1 rounded-full border border-border">
+                  <Clock className="w-3 h-3" />
+                  {ver.updatedAt
+                    ? formatVietnamDateHours(ver.updatedAt)
+                    : "Chưa có thời gian"}
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {versions.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-border">
+          <div className="flex items-center justify-center text-xs text-muted-foreground">
+            <span>Nhấp vào phiên bản để khôi phục</span>
+          </div>
         </div>
       )}
     </div>
