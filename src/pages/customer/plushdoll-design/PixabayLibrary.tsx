@@ -30,7 +30,15 @@ interface PixabayLibraryProps {
 type ImageType = "all" | "photo" | "illustration" | "vector";
 
 const API_KEY = ENV.PIXABAY_API_KEY;
-const PER_PAGE = 200;
+
+console.log("API_KEY", API_KEY);
+const PER_PAGE = 20;
+// Rate limiting & caching configuration
+const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours cache TTL (minimum per Pixabay policy)
+const RATE_LIMIT_MAX_PER_MINUTE = 85; // keep headroom below official 100/min limit
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_KEY = "pixabay:reqTimes"; // stores recent request timestamps (ms)
+const COOLDOWN_UNTIL_KEY = "pixabay:cooldownUntil"; // stores epoch ms until we should pause requests
 
 const PERSON_WORDS = new Set([
     "person", "people", "human", "man", "men", "woman", "women", "boy", "girl", "kid", "baby",
@@ -72,6 +80,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [totalHits, setTotalHits] = useState(0);
+    const [cooldownMsLeft, setCooldownMsLeft] = useState<number | null>(null);
 
     // filters
     const [imageType, setImageType] = useState<ImageType>("illustration");
@@ -85,6 +94,8 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
 
     // cancel fetch when thay đổi nhanh
     const abortRef = useRef<AbortController | null>(null);
+    const cooldownTimerRef = useRef<number | null>(null);
+    const requestTimesRef = useRef<number[]>([]);
 
 
 
@@ -114,13 +125,79 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
         return `pixabay:${qParam ?? "ALL"}:${imageType}:${color}:page${page}`;
     }, [qParam, imageType, onlyTransparent, page]);
 
+    // Helpers: cache with TTL
+    const readCache = useCallback((key: string): LibraryItem[] | null => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            // backward compat: older cache stored array directly
+            if (Array.isArray(parsed)) {
+                // wrap and re-store with timestamp so it honors TTL
+                localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: parsed }));
+                return parsed as LibraryItem[];
+            }
+            const ts: number | undefined = parsed?.ts;
+            const data: LibraryItem[] | undefined = parsed?.data;
+            if (!ts || !Array.isArray(data)) return null;
+            if (Date.now() - ts > TTL_MS) return null; // expired
+            return data;
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const writeCache = useCallback((key: string, data: LibraryItem[]) => {
+        try {
+            localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
+        } catch {
+            // ignore quota errors
+        }
+    }, []);
+
+    // Helpers: simple client-side rate limiter using sliding window timestamps in localStorage
+    const loadRequestTimes = useCallback(() => {
+        try {
+            const raw = localStorage.getItem(RATE_KEY);
+            const arr: number[] = raw ? JSON.parse(raw) : [];
+            requestTimesRef.current = Array.isArray(arr) ? arr : [];
+        } catch {
+            requestTimesRef.current = [];
+        }
+    }, []);
+
+    const saveRequestTimes = useCallback(() => {
+        try {
+            localStorage.setItem(RATE_KEY, JSON.stringify(requestTimesRef.current));
+        } catch {
+            // ignore
+        }
+    }, []);
+
+    const getThrottleDelayMs = useCallback(() => {
+        const now = Date.now();
+        const windowStart = now - RATE_LIMIT_WINDOW_MS;
+        // prune
+        requestTimesRef.current = requestTimesRef.current.filter(t => t >= windowStart);
+        const inWindow = requestTimesRef.current.length;
+        if (inWindow < RATE_LIMIT_MAX_PER_MINUTE) return 0;
+        const oldest = Math.min(...requestTimesRef.current);
+        const wait = RATE_LIMIT_WINDOW_MS - (now - oldest) + 250; // small buffer
+        return Math.max(wait, 0);
+    }, []);
+
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // initialize request times from localStorage
+    useEffect(() => { loadRequestTimes(); }, [loadRequestTimes]);
+
     const fetchPixabayImages = useCallback(async () => {
         if (!isOpen || isLoading || !hasMore) return;
 
-        // lấy cache
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            const pageItems: LibraryItem[] = JSON.parse(cached);
+        // lấy cache (with TTL)
+        const cachedData = readCache(cacheKey);
+        if (cachedData) {
+            const pageItems: LibraryItem[] = cachedData;
             setItems(prev => {
                 const merged = [...prev, ...pageItems];
                 return Array.from(new Map(merged.map(i => [i.id, i])).values());
@@ -136,6 +213,26 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
 
         try {
             setIsLoading(true);
+
+            // respect global cooldown if set (e.g. after receiving 429)
+            const cooldownUntilStr = localStorage.getItem(COOLDOWN_UNTIL_KEY);
+            const now = Date.now();
+            let cooldownDelay = 0;
+            if (cooldownUntilStr) {
+                const until = parseInt(cooldownUntilStr, 10);
+                if (!Number.isNaN(until) && until > now) {
+                    cooldownDelay = until - now;
+                }
+            }
+
+            // client-side throttle to keep well below 100/min
+            const throttleDelay = getThrottleDelayMs();
+            const totalDelay = Math.max(cooldownDelay, throttleDelay);
+            if (totalDelay > 0) {
+                setCooldownMsLeft(totalDelay);
+                await delay(totalDelay);
+                setCooldownMsLeft(null);
+            }
 
             const params = new URLSearchParams({
                 key: API_KEY,
@@ -161,6 +258,25 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                 lang
             });
             const res = await fetch(url, { signal: controller.signal });
+            // Handle rate limiting explicitly
+            if (res.status === 429) {
+                const resetHeader = res.headers.get("X-RateLimit-Reset");
+                // default to 60s if header missing
+                const resetSec = resetHeader ? parseInt(resetHeader, 10) : 60;
+                const waitMs = (Number.isFinite(resetSec) ? resetSec : 60) * 1000;
+                const until = Date.now() + waitMs;
+                try { localStorage.setItem(COOLDOWN_UNTIL_KEY, String(until)); } catch { /* ignore quota errors */ }
+                setCooldownMsLeft(waitMs);
+                console.warn(`Pixabay rate limited. Cooling down for ${waitMs}ms`);
+                // schedule a retry attempt after cooldown with jitter
+                if (cooldownTimerRef.current) window.clearTimeout(cooldownTimerRef.current);
+                cooldownTimerRef.current = window.setTimeout(() => {
+                    setCooldownMsLeft(null);
+                    // trigger re-fetch by bumping page to same value
+                    setPage(p => p);
+                }, waitMs + Math.floor(Math.random() * 400));
+                return;
+            }
             if (!res.ok) throw new Error(`Pixabay ${res.status}`);
             const data = await res.json();
             console.log("✅ Pixabay API Response:", {
@@ -201,8 +317,8 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                 };
             });
 
-            // cache theo trang
-            localStorage.setItem(cacheKey, JSON.stringify(pageItems));
+            // cache theo trang (with TTL)
+            writeCache(cacheKey, pageItems);
 
             setItems(prev => {
                 const merged = [...prev, ...pageItems];
@@ -213,6 +329,10 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
             const accessible = Math.min(data.totalHits || 0, 600);
             const maxPages = Math.max(1, Math.ceil(accessible / PER_PAGE));
             setHasMore(page < maxPages);
+
+            // record successful request for rate limiter
+            requestTimesRef.current.push(Date.now());
+            saveRequestTimes();
         } catch (e: unknown) {
             if (e instanceof Error && e.name === "AbortError") {
                 console.log("🚫 Request cancelled (user typing fast)");
@@ -223,7 +343,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
         } finally {
             setIsLoading(false);
         }
-    }, [isOpen, isLoading, hasMore, cacheKey, qParam, imageType, onlyTransparent, page, lang]);
+    }, [isOpen, isLoading, hasMore, cacheKey, qParam, imageType, onlyTransparent, page, lang, getThrottleDelayMs, readCache, writeCache, saveRequestTimes]);
 
     // observe for infinite scroll
     const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -244,18 +364,23 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     useEffect(() => { fetchPixabayImages(); }, [fetchPixabayImages]);
 
     useEffect(() => {
-        return () => abortRef.current?.abort(); // cleanup khi unmount
+        return () => {
+            abortRef.current?.abort(); // cleanup khi unmount
+            if (cooldownTimerRef.current) window.clearTimeout(cooldownTimerRef.current);
+        };
     }, []);
 
     if (!isOpen) return null;
 
     const status = isLoading
         ? "Đang tải..."
-        : totalHits > 0
-            ? `~${totalHits} ảnh${page > 1 ? ` (Trang ${page})` : ""}`
-            : debouncedQuery || activePreset
-                ? "Không tìm thấy kết quả phù hợp"
-                : "Sẵn sàng tìm kiếm";
+        : cooldownMsLeft != null
+            ? `Tạm dừng do giới hạn tốc độ (${Math.ceil(cooldownMsLeft / 1000)}s)`
+            : totalHits > 0
+                ? `~${totalHits} ảnh${page > 1 ? ` (Trang ${page})` : ""}`
+                : debouncedQuery || activePreset
+                    ? "Không tìm thấy kết quả phù hợp"
+                    : "Sẵn sàng tìm kiếm";
 
     return (
         <>
@@ -405,6 +530,9 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                         {!isLoading && items.length === 0 && (
                             <p className="text-muted-foreground">Không tìm thấy kết quả phù hợp.</p>
                         )}
+                    </div>
+                    <div className="pb-2 text-center text-xs text-muted-foreground">
+                        Kết quả từ Pixabay
                     </div>
                 </div>
             </ScrollArea>
