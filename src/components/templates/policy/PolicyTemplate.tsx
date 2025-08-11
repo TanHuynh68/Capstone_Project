@@ -1,11 +1,14 @@
 import PolicyOverview from "@/components/organisms/policy/PolicyOverview";
 import PolicyTable from "@/components/organisms/policy/PolicyTable";
 
-interface PolicyTemplateProps{
-  policyRules: any
-  groupedPolicyRules: any
+interface PolicyTemplateProps {
+  policyRules: any;
+  groupedPolicyRules: any;
 }
-export default function PolicyTemplate({policyRules, groupedPolicyRules}: PolicyTemplateProps) {
+export default function PolicyTemplate({
+  policyRules,
+  groupedPolicyRules,
+}: PolicyTemplateProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -21,7 +24,7 @@ export default function PolicyTemplate({policyRules, groupedPolicyRules}: Policy
       <PolicyOverview rules={policyRules} />
 
       <div className="space-y-8">
-        {Object.entries(groupedPolicyRules).map(([benefitType, rules]) => (
+        { groupedPolicyRules && Object.entries(groupedPolicyRules).map(([benefitType, rules]) => (
           <PolicyTable
             key={benefitType}
             benefitType={benefitType}

@@ -8,6 +8,7 @@ import {
   CheckCircle,
   ArrowLeft,
   Flag,
+  XCircle,
 } from "lucide-react";
 import { ROLE } from "@/constants";
 import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
@@ -21,7 +22,8 @@ type OrderStatus =
   | "Done"
   | "DesignerRejected"
   | "PendingConflict"
-  | "CustomerRejected";
+  | "CustomerRejected"
+  | "Rejected";
 
 interface OrderStatusTimelineProps {
   currentStatus: OrderStatus;
@@ -68,7 +70,33 @@ const mainStatuses: StatusStep[] = [
     label: "Hoàn tất",
     icon: <Flag className="w-4 h-4" />,
   },
+  {
+    key: "Rejected",
+    label: "Đã hủy",
+    icon: <XCircle className="w-4 h-4" />,
+  },
 ];
+
+const statusDescriptions: Record<OrderStatus, string> = {
+  Created: "Khách hàng cần gửi sản phẩm cần làm đến nhà thiết kế.",
+  ShippingToDesigner:
+    "Nhà thiết kế cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
+  DesignerRejected:
+    "Nhà thiết kế đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
+  InProgress:
+    "Khách hàng cần thanh toán cho từng giai đoạn. Nhà thiết kế sẽ rút tiền để tiến hành làm. Sau mỗi giai đoạn, khách hàng cần đánh giá.",
+  Completed:
+    "Đơn đã hoàn thành. Nhà thiết kế cần giao sản phẩm đã hoàn thành cho khách hàng.",
+  ShippingToCustomer:
+    "Khách hàng cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
+  CustomerRejected:
+    "Khách hàng đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
+  Done: "Đơn hàng đã hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
+  PendingConflict:
+    "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
+  Rejected:
+    "Đơn hàng đã bị hủy kèm quyền lợi. Xin lỗi vì trải nghiệm không được tốt này.",
+};
 
 export default function OrderStatusTimeline({
   currentStatus,
@@ -80,29 +108,35 @@ export default function OrderStatusTimeline({
     const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
     const isMainStatus = mainStatusIndex !== -1;
 
-    // Xử lý các trường hợp đặc biệt
     switch (status) {
       case "DesignerRejected":
         return {
-          currentIndex: 1, // ShippingToDesigner
+          currentIndex: 1,
           errorIndex: 1,
           errorMessage: "Nhà thiết kế đã từ chối",
-          completedUntil: 0, // Chỉ Created được hoàn thành
+          completedUntil: 0,
         };
       case "PendingConflict":
         return {
-          currentIndex: 2, // InProgress
+          currentIndex: 2,
           errorIndex: 2,
           errorMessage: "Đang có tranh chấp",
-          completedUntil: 1, // Created và ShippingToDesigner hoàn thành
+          completedUntil: 1,
         };
       case "CustomerRejected":
         return {
-          currentIndex: 4, // ShippingToCustomer
+          currentIndex: 4,
           errorIndex: 4,
           errorMessage: "Khách hàng đã từ chối",
-          completedUntil: 3, // Hoàn thành đến Completed
-          doneError: true, // Done cũng bị lỗi
+          completedUntil: 3,
+          doneError: true,
+        };
+      case "Rejected":
+        return {
+          currentIndex: 6,
+          errorIndex: 6,
+          errorMessage: "Đơn hàng đã bị hủy",
+          completedUntil: -1,
         };
       default:
         if (isMainStatus) {
@@ -184,16 +218,12 @@ export default function OrderStatusTimeline({
   };
 
   const getDeliveryButtonText = () => {
-    // Khi status là "Created" và role là CUSTOMER
     if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
       return "Giao hàng cho NTK";
     }
-
-    // Khi status là "Completed" và role là DESIGNER
     if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
       return "Giao hàng cho KH";
     }
-
     return "";
   };
 
@@ -209,7 +239,6 @@ export default function OrderStatusTimeline({
               key={step.key}
               className="flex flex-col items-center relative flex-1 min-h-[120px]"
             >
-              {/* Connector Line */}
               {index < mainStatuses.length - 1 && (
                 <div
                   className={`absolute top-6 h-0.5 ${getConnectorStyle(
@@ -223,7 +252,6 @@ export default function OrderStatusTimeline({
                 />
               )}
 
-              {/* Step Circle */}
               <div
                 className={`
                   relative z-10 w-12 h-12 rounded-full border-2 flex items-center justify-center
@@ -234,17 +262,15 @@ export default function OrderStatusTimeline({
                 <div className={stepStyle.icon}>{step.icon}</div>
               </div>
 
-              {/* Step Label */}
               <div
-                className={`mt-2 ư- text-sm font-medium text-center ${stepStyle.text} h-5`}
+                className={`mt-2 text-sm font-medium text-center ${stepStyle.text} h-5`}
               >
                 {step.label}
               </div>
 
-              {/* Error Message - Fixed height container */}
               <div className="mt-1 h-8 flex items-start justify-center">
                 {errorMessage && (
-                  <div className="text-xs  text-red-600 text-center max-w-40 leading-tight">
+                  <div className="text-xs text-red-600 text-center max-w-40 leading-tight">
                     {errorMessage}
                   </div>
                 )}
@@ -254,30 +280,23 @@ export default function OrderStatusTimeline({
         })}
       </div>
 
-      {/* Status Description */}
       <div className="mt-4 text-center">
-        <div className="text-sm ">
+        <div className="text-sm">
           Trạng thái hiện tại:{" "}
-          <span className="font-bold  text-green-600 ">
+          <span className="font-bold text-green-600">
             {mainStatuses.find((s) => s.key === currentStatus)?.label ||
-              (currentStatus === "DesignerRejected"
-                ? "Nhà thiết kế từ chối"
-                : currentStatus === "PendingConflict"
-                ? "Đang có tranh chấp"
-                : currentStatus === "CustomerRejected"
-                ? "Khách hàng từ chối"
-                : currentStatus)}
+              currentStatus}
           </span>
         </div>
+        <div className="text-center text-sm mt-1 text-gray-600">
+          {statusDescriptions[currentStatus]}
+        </div>
       </div>
-                <div className="text-center text-sm">
-                  Mô tả
-                </div>
-      {/* Delivery Button - Hiển thị phía dưới status description */}
+
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
         <div className="flex justify-center items-center">
-          <div className="mt-4 text-center w-[200px] ">
+          <div className="mt-4 text-center w-[200px]">
             <ShippingFormDialog
               fetchData={fetchOrderDetail}
               text={getDeliveryButtonText()}

@@ -74,13 +74,15 @@ export default function RightTopPanel({
       phase.offerPhaseStatus === "Deposited" && phase.offerPhasePrice > 0
   );
 
+  const isStatusDealedExisted = orderDetail.offerPhases.filter(item=>item.offerPhaseStatus === 'Dealed')
+  console.log('isStatusDealedExisted: ', isStatusDealedExisted)
   return (
     <>
       <div className="flex flex-col max-h-[242px]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Giai đoạn thực hiện</h3>
           <div className="flex items-center gap-2">
-            {currentUser?.role === ROLE.CUSTOMER &&
+            {currentUser?.role === ROLE.CUSTOMER && isStatusDealedExisted.length > 0 &&
               orderDetail.order.orderStatus === "InProgress" && (
                 <Button
                   variant="outline"

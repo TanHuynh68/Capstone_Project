@@ -12,6 +12,7 @@ interface OfferListProps {
   onRejectOffer?: (offerId: string) => void;
   isVisible?: boolean;
   postFinishDate: string;
+  isCreatingOffer?: boolean;
 }
 
 export function OfferList({
@@ -22,6 +23,7 @@ export function OfferList({
   onRejectOffer,
   isVisible = true,
   postFinishDate,
+  isCreatingOffer = false,
 }: OfferListProps) {
   const [exitingOffers, setExitingOffers] = useState<Set<string>>(new Set());
   const [visibleOffers, setVisibleOffers] = useState<Offer[]>([]);
@@ -211,6 +213,11 @@ export function OfferList({
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
                 <p className="text-gray-500 text-sm">Đang tải đề xuất...</p>
+              </div>
+            ) : isCreatingOffer ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Đang tạo đề xuất...</p>
               </div>
             ) : visibleOffers.length > 0 ? (
               <div className="offer-list space-y-3">

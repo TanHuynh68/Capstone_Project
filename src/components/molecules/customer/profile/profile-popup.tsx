@@ -153,7 +153,7 @@ export function ProfilePopup({
           alt={fullName}
           className="w-16 h-16 rounded-full border-2 border-background -mt-8 shadow-md"
         />
-        <div className="font-semibold text-base mt-2">{fullName}</div>
+        <div className="font-semibold text-base mt-2">{user.id != designerID ? fullName : `${fullName} (Bạn)`}</div>
         <div className="text-sm text-muted-foreground">
           {portfolioData?.email || "N/A"}
         </div>

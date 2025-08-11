@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MoreVertical, Trash2, Edit } from "lucide-react";
 import {
@@ -49,7 +48,10 @@ export default function MessageActions({
 
   return (
     <div>
-      {messageType.toLowerCase() === "text" && (
+      {(messageType.toLowerCase() === "text" ||
+        messageType.toLowerCase() === "image" ||
+        messageType.toLowerCase() === "json" ||
+        messageType.toLowerCase() === "link") && (
         <div
           className={cn(
             "  opacity-0 group-hover:opacity-100 transition-opacity",
@@ -67,13 +69,15 @@ export default function MessageActions({
               align="end"
               className="w-40 bg-gray-900 border-gray-800 text-gray-300"
             >
-              <DropdownMenuItem
-                className="flex items-center cursor-pointer hover:bg-gray-800 hover:text-white"
-                onClick={() => onEdit(messageId, content)}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                <span>Chỉnh sửa</span>
-              </DropdownMenuItem>
+              {messageType.toLowerCase() === "text" && (
+                <DropdownMenuItem
+                  className="flex items-center cursor-pointer hover:bg-gray-800 hover:text-white"
+                  onClick={() => onEdit(messageId, content)}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>Chỉnh sửa</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="flex items-center cursor-pointer text-red-500 hover:bg-gray-800 hover:text-red-400"
                 onClick={() => onDelete(messageId)}

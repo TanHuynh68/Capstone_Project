@@ -51,6 +51,12 @@ export default function PhaseStatusBadge({ status }: PhaseStatusBadgeProps) {
           label: "Hoàn thành",
           color: "bg-green-100 text-green-800",
         };
+      case "Refund":
+        return {
+          variant: "default" as const,
+          label: "Hoàn tiền",
+          color: "bg-red-100 text-red-800",
+        };
       default:
         return {
           variant: "secondary" as const,

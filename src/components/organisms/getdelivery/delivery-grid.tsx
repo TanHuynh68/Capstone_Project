@@ -7,12 +7,14 @@ interface DeliveryGridProps {
   deliveries: DeliveryItem[];
   onViewDetails?: (delivery: DeliveryItem) => void;
   searchTerm?: string;
+  onRefresh?: () => void;
 }
 
 export const DeliveryGrid: React.FC<DeliveryGridProps> = ({
   deliveries,
   onViewDetails,
   searchTerm = "",
+  onRefresh,
 }) => {
   if (deliveries.length === 0) {
     return (
@@ -34,6 +36,7 @@ export const DeliveryGrid: React.FC<DeliveryGridProps> = ({
             delivery={delivery}
             onViewDetails={onViewDetails}
             searchTerm={searchTerm}
+            onRefresh={onRefresh}
           />
         ))}
       </div>

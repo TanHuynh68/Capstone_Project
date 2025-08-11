@@ -24,6 +24,7 @@ interface DeliveryCardProps {
   delivery: DeliveryItem;
   onViewDetails?: (delivery: DeliveryItem) => void;
   searchTerm?: string;
+  onRefresh?: () => void;
   // onOpenUploadDialog?: (deliveryDetail: DeliveryDetailData) => void; // Remove this prop
 }
 
@@ -31,6 +32,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
   delivery,
   onViewDetails,
   searchTerm = "",
+  onRefresh,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -103,9 +105,15 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
     files.forEach((file) => formData.append("files", file));
     descriptions.forEach((desc) => formData.append("fileDescriptions", desc));
     const result = await uploadDeliveryImage(formData);
-    return result;
+
+    if (result?.statusCode === 200) {
+      // Fetch lại dữ liệu sau khi upload thành công
+      onRefresh?.();
+    }
+
     setShowUploadDialog(false);
     setSelectedDeliveryDetail(null);
+    return result;
   };
 
   return (
