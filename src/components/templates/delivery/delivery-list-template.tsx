@@ -143,6 +143,7 @@ export const DeliveryListTemplate: React.FC<DeliveryListTemplateProps> = ({
             deliveries={deliveries}
             onViewDetails={onViewDetails}
             searchTerm={searchValue}
+            onRefresh={onRefresh}
           />
           <div className="py-2">
             <DataTablePagination table={table} />

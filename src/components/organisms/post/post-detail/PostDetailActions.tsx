@@ -18,6 +18,7 @@ interface PostDetailActionsProps {
   post: Post;
   className?: string;
   onOfferCreated?: () => void;
+  onOfferCreating?: () => void;
   loading?: boolean;
   offers?: Offer[];
 }
@@ -26,6 +27,7 @@ export default function PostDetailActions({
   post,
   className = "",
   onOfferCreated,
+  onOfferCreating,
   loading = true,
   offers = [],
 }: PostDetailActionsProps) {
@@ -39,12 +41,13 @@ export default function PostDetailActions({
   const handleSubmitOffer = useCallback(
     async (formData: FormData) => {
       // Đã bỏ kiểm tra giá khởi điểm phải lớn hơn giá trị sản phẩm
+      onOfferCreating?.();
       formData.append("ProjectPostID", post.projectPostID);
       const result = await createOffer(formData);
       console.log("Offer created:", result);
       onOfferCreated?.();
     },
-    [createOffer, post.projectPostID, onOfferCreated]
+    [createOffer, post.projectPostID, onOfferCreated, onOfferCreating]
   );
 
   const createChatRoomByDesigner = async () => {

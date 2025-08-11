@@ -8,7 +8,7 @@ import { useOffersAll } from "@/hooks/use-offers-all";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { Link } from "react-router-dom";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 interface PostDetailTemplateProps {
   post: Post;
@@ -25,10 +25,14 @@ export default function PostDetailTemplate({
 }: PostDetailTemplateProps) {
   const { offers, loading, refetch } = useOffersAll(post.projectPostID);
   const role = useSelector((state: RootState) => state.user.role);
+  const [isCreatingOffer, setIsCreatingOffer] = useState(false);
 
   const handleOfferCreated = useCallback(() => {
+    setIsCreatingOffer(true);
     refetch();
     onOfferCreated?.();
+    // Reset loading state after a delay
+    setTimeout(() => setIsCreatingOffer(false), 2000);
   }, [refetch, onOfferCreated]);
 
   const isAuthorizedRole = ["Customer", "Designer", "Staff", "Admin"].includes(
@@ -52,6 +56,7 @@ export default function PostDetailTemplate({
                 <PostDetailActions
                   post={post}
                   onOfferCreated={handleOfferCreated}
+                  onOfferCreating={() => setIsCreatingOffer(true)}
                   loading={loading}
                   offers={offers}
                 />
@@ -65,6 +70,7 @@ export default function PostDetailTemplate({
                     onDeleteOffer={() => refetch()}
                     onUpdateOffer={() => refetch()}
                     postFinishDate={post.finishDate}
+                    isCreatingOffer={isCreatingOffer}
                   />
                 ) : (
                   <div className="bg-card text-card-foreground p-4 rounded-lg shadow border border-border">

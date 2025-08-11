@@ -425,7 +425,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
           </DialogContent>
         </Dialog> */}
       </div>
-      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      <div className="h-[calc(80vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
         <div className="grid grid-cols-2 gap-6">
           {loading ? (
             <div className="col-span-full flex flex-col items-center justify-center py-16">
@@ -449,7 +449,7 @@ const CanvasList: React.FC<CanvasListProps> = ({
                   item.canvasFolderId === selectedCanvasId
                     ? "border-pink-400 scale-105"
                     : "border-gray-200"
-                } transition-all duration-200 hover:scale-105 cursor-pointer overflow-hidden`}
+                } transition-all duration-200 hover:scale-105 cursor-pointer`}
                 style={{ minHeight: 140 }}
                 onClick={() => {
                   if (item.latestCanvasInfo?.canvasDescription) {

@@ -26,12 +26,13 @@ import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
-import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
+import CanvasInOfferModal from "@/components/molecules/customer/chat/CanvasInOfferModal";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import SingleImageGallerySmall from "@/components/molecules/post/post-detail/SingleImageGallerySmall";
 
 interface CreateOfferModalProps {
   open: boolean;
@@ -56,6 +57,7 @@ export default function CreateOfferModal({
   const [imageError, setImageError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isCanvasModalOpen, setIsCanvasModalOpen] = useState(false);
   const role = useSelector((state: RootState) => state.user.role);
 
   const formSchema = z.object({
@@ -104,35 +106,6 @@ export default function CreateOfferModal({
     }
   }, [open, post, form]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setImageError(null);
-
-    if (file) {
-      // Check file type
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!allowedTypes.includes(file.type)) {
-        setImageError("Chỉ chấp nhận file ảnh có định dạng JPG, JPEG hoặc PNG");
-        setImage(null);
-        setImagePreview(null);
-        return;
-      }
-
-      // Check file size (1MB = 1024 * 1024 bytes)
-      if (file.size > 1024 * 1024) {
-        setImageError("Kích thước file không được vượt quá 1MB");
-        setImage(null);
-        setImagePreview(null);
-        return;
-      }
-
-      setImage(file);
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-    }
-  };
-
   // Cleanup preview URL when component unmounts or image changes
   useEffect(() => {
     return () => {
@@ -179,6 +152,43 @@ export default function CreateOfferModal({
     onSubmit(formData);
     resetForm();
     onClose();
+  };
+
+  // Xử lý khi chọn hình ảnh từ CanvasInOfferModal
+  const handleImageSelect = (data: {
+    imageUrl: string;
+    title: string;
+    id?: string;
+    description?: string;
+    isCanvas?: boolean;
+  }) => {
+    // Nếu là canvas, convert base64 thành File
+    if (data.isCanvas) {
+      // Convert base64 to File
+      const byteString = atob(data.imageUrl.split(',')[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const file = new File([ab], `${data.title}.png`, { type: "image/png" });
+      setImage(file);
+      setImagePreview(data.imageUrl);
+    } else {
+      // Nếu là file upload, sử dụng trực tiếp
+      setImagePreview(data.imageUrl);
+      // Tạo File object từ base64 nếu cần
+      const byteString = atob(data.imageUrl.split(',')[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const file = new File([ab], data.title, { type: "image/png" });
+      setImage(file);
+    }
+    setImageError(null);
+    setIsCanvasModalOpen(false);
   };
 
   // Reset form when modal is closed
@@ -233,13 +243,13 @@ export default function CreateOfferModal({
             <div className="space-y-3">
               {post.description && (
                 <div className="bg-card/50 rounded-md px-3 py-2 border border-border">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm text-muted-foreground font-medium">
                       Mô tả sản phẩm
                     </span>
-                    <span className="text-sm text-muted-foreground font-semibold border-border">
+                    <p className="w-full text-sm text-foreground leading-relaxed whitespace-normal break-normal">
                       {post.description}
-                    </span>
+                    </p>
                   </div>
                 </div>
               )}
@@ -286,13 +296,13 @@ export default function CreateOfferModal({
                         <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           {post.finishDate
                             ? new Date(post.finishDate).toLocaleDateString(
-                                "vi-VN",
-                                {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                }
-                              )
+                              "vi-VN",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              }
+                            )
                             : "Chưa có"}
                         </span>
                       </div>
@@ -303,19 +313,18 @@ export default function CreateOfferModal({
                           Trạng thái
                         </span>
                         <span
-                          className={`text-sm font-semibold ${
-                            post.postStatus === 1
+                          className={`text-sm font-semibold ${post.postStatus === 1
                               ? "text-green-600 dark:text-green-400"
                               : post.postStatus === 2
-                              ? "text-blue-600 dark:text-blue-400"
-                              : "text-muted-foreground"
-                          }`}
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-muted-foreground"
+                            }`}
                         >
                           {post.postStatus === 1
                             ? "Đang hoạt động"
                             : post.postStatus === 2
-                            ? "Đang thực hiện"
-                            : "Đã đóng"}
+                              ? "Đang thực hiện"
+                              : "Đã đóng"}
                         </span>
                       </div>
                     </div>
@@ -326,23 +335,23 @@ export default function CreateOfferModal({
               {/* Image Gallery */}
               {(post.originalImages?.length > 0 ||
                 post.requestedImages?.length > 0) && (
-                <div className="relative w-full">
-                  {post.originalImages?.length > 0 && (
-                    <ImageGallery
-                      images={post.originalImages}
-                      title="Hình ảnh gốc"
-                      className="mt-2"
-                    />
-                  )}
-                  {post.requestedImages?.length > 0 && (
-                    <ImageGallery
-                      images={post.requestedImages}
-                      title="Hình ảnh yêu cầu"
-                      className="mt-2"
-                    />
-                  )}
-                </div>
-              )}
+                  <div className="relative w-full">
+                    {post.originalImages?.length > 0 && (
+                      <ImageGallery
+                        images={post.originalImages}
+                        title="Hình ảnh gốc"
+                        className="mt-2"
+                      />
+                    )}
+                    {post.requestedImages?.length > 0 && (
+                      <ImageGallery
+                        images={post.requestedImages}
+                        title="Hình ảnh yêu cầu"
+                        className="mt-2"
+                      />
+                    )}
+                  </div>
+                )}
             </div>
 
             {/* Thông tin giá và thời hạn */}
@@ -490,17 +499,19 @@ export default function CreateOfferModal({
                       Hình mẫu minh hoạ
                     </FormLabel>
                     <div className="space-y-4">
-                      <Input
-                        type="file"
-                        accept=".jpg,.jpeg,.png"
-                        onChange={handleImageChange}
-                        className="w-full h-9 text-sm file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80 bg-background border-border text-foreground"
-                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsCanvasModalOpen(true)}
+                        className="w-full h-9 text-sm bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+                      >
+                        Chọn hình mẫu minh họa
+                      </Button>
                       {imageError && (
                         <p className="text-xs text-destructive">{imageError}</p>
                       )}
                       {imagePreview && (
-                        <SingleImageGallery
+                        <SingleImageGallerySmall
                           imageUrl={imagePreview}
                           title="Hình mẫu đã chọn"
                           className="mt-2"
@@ -524,6 +535,13 @@ export default function CreateOfferModal({
           </div>
         </div>
       </DialogContent>
+
+      {/* CanvasInOfferModal */}
+      <CanvasInOfferModal
+        isOpen={isCanvasModalOpen}
+        onClose={() => setIsCanvasModalOpen(false)}
+        onSelectImage={handleImageSelect}
+      />
     </Dialog>
   );
 }
