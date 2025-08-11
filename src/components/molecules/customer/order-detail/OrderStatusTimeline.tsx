@@ -45,7 +45,7 @@ const mainStatuses: StatusStep[] = [
   },
   {
     key: "ShippingToDesigner",
-    label: "Gửi đến NTK",
+    label: "Đang gửi hàng đến NTK",
     icon: <Truck className="w-4 h-4" />,
   },
   {
@@ -60,7 +60,7 @@ const mainStatuses: StatusStep[] = [
   },
   {
     key: "ShippingToCustomer",
-    label: "Gửi đến KH",
+    label: "NTK trả hàng",
     icon: <ArrowLeft className="w-4 h-4" />,
   },
   {
@@ -236,7 +236,7 @@ export default function OrderStatusTimeline({
 
               {/* Step Label */}
               <div
-                className={`mt-2 text-sm font-medium text-center ${stepStyle.text} h-5`}
+                className={`mt-2 ư- text-sm font-medium text-center ${stepStyle.text} h-5`}
               >
                 {step.label}
               </div>
@@ -244,7 +244,7 @@ export default function OrderStatusTimeline({
               {/* Error Message - Fixed height container */}
               <div className="mt-1 h-8 flex items-start justify-center">
                 {errorMessage && (
-                  <div className="text-xs text-red-600 text-center max-w-20 leading-tight">
+                  <div className="text-xs  text-red-600 text-center max-w-40 leading-tight">
                     {errorMessage}
                   </div>
                 )}
@@ -270,7 +270,9 @@ export default function OrderStatusTimeline({
           </span>
         </div>
       </div>
-
+                <div className="text-center text-sm">
+                  Mô tả
+                </div>
       {/* Delivery Button - Hiển thị phía dưới status description */}
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (

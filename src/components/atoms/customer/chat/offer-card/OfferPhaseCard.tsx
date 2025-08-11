@@ -40,7 +40,7 @@ const OfferPhaseCard = ({ offerPhase, fetchOfferPhase }: OfferPhaseCardProps) =>
         <div className="grid grid-cols-12 gap-3">
           <div className="flex gap-3 items-center col-span-9">
             <div className="text-xs font-semibold bg-gray-700 px-3 py-1 rounded-full">
-              Giai đoạn {offerPhase?.phase}
+          {offerPhase?.phase}
             </div>
             <div className="text-lg font-semibold truncate">{offerPhase?.phaseName}</div>
           </div>
