@@ -348,7 +348,7 @@ export default function DesignerTimeline({
                   </div>
                   <Badge className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 font-bold text-sm px-2 py-0.5">
                     {
-                      events.filter((event) => event.status === "InProgress")
+                      events.filter((event) => event.status === "InProgress" ||  event.status === "Withdrawed")
                         .length
                     }
                   </Badge>
