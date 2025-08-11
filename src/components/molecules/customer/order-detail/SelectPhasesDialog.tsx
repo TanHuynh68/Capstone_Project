@@ -1,86 +1,109 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, CheckSquare, DollarSign } from "lucide-react"
-import type { OfferPhase } from "@/types/orderManagement"
-import { formatCurrencyVND } from "@/utils"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, CheckSquare, DollarSign } from "lucide-react";
+import type { OfferPhase } from "@/types/orderManagement";
+import { formatCurrencyVND } from "@/utils";
 
 interface SelectPhasesDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  phases: OfferPhase[]
-  onSubmit: (phaseIds: string[]) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  phases: OfferPhase[];
+  onSubmit: (phaseIds: string[]) => Promise<any>;
 }
 
-export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }: SelectPhasesDialogProps) {
-  const [selectedPhases, setSelectedPhases] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export default function SelectPhasesDialog({
+  isOpen,
+  onClose,
+  phases,
+  onSubmit,
+}: SelectPhasesDialogProps) {
+  const [selectedPhases, setSelectedPhases] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getPhaseStatusConfig = (status: string) => {
     switch (status) {
       case "NotStarted":
-        return { label: "Chưa bắt đầu", color: "bg-gray-100 text-gray-800" }
+        return { label: "Chưa bắt đầu", color: "bg-gray-100 text-gray-800" };
       case "InProgress":
-        return { label: "Đang thực hiện", color: "bg-blue-100 text-blue-800" }
+        return { label: "Đang thực hiện", color: "bg-blue-100 text-blue-800" };
       case "Completed":
-        return { label: "Hoàn thành", color: "bg-green-100 text-green-800" }
+        return { label: "Hoàn thành", color: "bg-green-100 text-green-800" };
       case "Cancelled":
-        return { label: "Đã hủy", color: "bg-red-100 text-red-800" }
+        return { label: "Đã hủy", color: "bg-red-100 text-red-800" };
       default:
-        return { label: status, color: "bg-gray-100 text-gray-800" }
+        return { label: status, color: "bg-gray-100 text-gray-800" };
     }
-  }
+  };
 
   // Calculate total price of selected phases
   const calculateTotalPrice = () => {
     return selectedPhases.reduce((total, phaseId) => {
-      const phase = phases.find((p) => p.offerPhaseID === phaseId)
-      return total + (phase?.offerPhasePrice || 0)
-    }, 0)
-  }
+      const phase = phases.find((p) => p.offerPhaseID === phaseId);
+      return total + (phase?.offerPhasePrice || 0);
+    }, 0);
+  };
 
   const handlePhaseToggle = (phaseId: string) => {
-    setSelectedPhases((prev) => (prev.includes(phaseId) ? prev.filter((id) => id !== phaseId) : [...prev, phaseId]))
-  }
+    setSelectedPhases((prev) =>
+      prev.includes(phaseId)
+        ? prev.filter((id) => id !== phaseId)
+        : [...prev, phaseId]
+    );
+  };
 
   const handleSelectAll = () => {
-    setSelectedPhases(selectedPhases.length === phases.length ? [] : phases.map((p) => p.offerPhaseID))
-  }
+    setSelectedPhases(
+      selectedPhases.length === phases.length
+        ? []
+        : phases.map((p) => p.offerPhaseID)
+    );
+  };
 
   const handleSubmit = async () => {
-    if (selectedPhases.length === 0) return
-
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      await onSubmit(selectedPhases)
-      setSelectedPhases([])
-      onClose()
+      const response = await onSubmit(selectedPhases);
+      if (response) {
+        // state of phase in dialog (select or no select)
+        setSelectedPhases([]);
+        onClose();
+      }
     } catch (error) {
-      console.error("Error submitting phases:", error)
+      console.error("Error submitting phases:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setSelectedPhases([])
-    onClose()
-  }
+    setSelectedPhases([]);
+    onClose();
+  };
 
-  const isAllSelected = selectedPhases.length === phases.length
-  const isIndeterminate = selectedPhases.length > 0 && selectedPhases.length < phases.length
-  const totalPrice = calculateTotalPrice()
+  const isAllSelected = selectedPhases.length === phases.length;
+  const isIndeterminate =
+    selectedPhases.length > 0 && selectedPhases.length < phases.length;
+  const totalPrice = calculateTotalPrice();
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="min-w-[600px] h-[800px] overflow-y-auto flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Chọn giai đoạn thực hiện</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            Chọn giai đoạn thực hiện
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden flex flex-col">
@@ -92,12 +115,15 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
                   id="select-all"
                   checked={isAllSelected}
                   ref={(ref: any) => {
-                    if (ref) ref.indeterminate = isIndeterminate
+                    if (ref) ref.indeterminate = isIndeterminate;
                   }}
                   onCheckedChange={handleSelectAll}
                   className="h-5 w-5"
                 />
-                <label htmlFor="select-all" className="font-medium cursor-pointer">
+                <label
+                  htmlFor="select-all"
+                  className="font-medium cursor-pointer"
+                >
                   Chọn tất cả ({selectedPhases.length}/{phases.length})
                 </label>
               </div>
@@ -106,7 +132,9 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
               {selectedPhases.length > 0 && (
                 <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full border border-green-200">
                   <DollarSign className="h-4 w-4 text-green-600" />
-                  <span className="font-semibold text-green-700">{formatCurrencyVND(totalPrice)}</span>
+                  <span className="font-semibold text-green-700">
+                    {formatCurrencyVND(totalPrice)}
+                  </span>
                 </div>
               )}
             </div>
@@ -115,14 +143,16 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
           {/* Phases List */}
           <div className="flex-1 overflow-y-auto space-y-3 p-2">
             {phases.map((phase) => {
-              const statusConfig = getPhaseStatusConfig(phase.offerPhaseStatus)
-              const isSelected = selectedPhases.includes(phase.offerPhaseID)
+              const statusConfig = getPhaseStatusConfig(phase.offerPhaseStatus);
+              const isSelected = selectedPhases.includes(phase.offerPhaseID);
 
               return (
                 <Card
                   key={phase.offerPhaseID}
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    isSelected ? "ring-2 ring-blue-500 bg-blue-50" : "hover:bg-gray-50"
+                    isSelected
+                      ? "ring-2 ring-blue-500 bg-blue-50"
+                      : "hover:bg-gray-50"
                   }`}
                   onClick={() => handlePhaseToggle(phase.offerPhaseID)}
                 >
@@ -137,28 +167,43 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">{phase.phase}</span>
-                            <span className="text-sm text-gray-600">{phase.phaseName}</span>
+                            <span className="font-semibold text-sm">
+                              {phase.phase}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              {phase.phaseName}
+                            </span>
                           </div>
-                          <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                          <Badge className={statusConfig.color}>
+                            {statusConfig.label}
+                          </Badge>
                         </div>
 
                         {phase.phaseDescription && (
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">{phase.phaseDescription}</p>
+                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                            {phase.phaseDescription}
+                          </p>
                         )}
 
                         <div className="flex items-center justify-between">
                           <div className="text-sm text-gray-500">
-                            {new Date(phase.startDate).toLocaleDateString("vi-VN")} -{" "}
-                            {new Date(phase.endDate).toLocaleDateString("vi-VN")}
+                            {new Date(phase.startDate).toLocaleDateString(
+                              "vi-VN"
+                            )}{" "}
+                            -{" "}
+                            {new Date(phase.endDate).toLocaleDateString(
+                              "vi-VN"
+                            )}
                           </div>
-                          <div className="font-semibold text-green-600">{formatCurrencyVND(phase.offerPhasePrice)}</div>
+                          <div className="font-semibold text-green-600">
+                            {formatCurrencyVND(phase.offerPhasePrice)}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -167,17 +212,25 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-600">
-                Đã chọn: <span className="font-semibold">{selectedPhases.length}</span> giai đoạn
+                Đã chọn:{" "}
+                <span className="font-semibold">{selectedPhases.length}</span>{" "}
+                giai đoạn
               </div>
               {selectedPhases.length > 0 && (
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-gray-600">Tổng tiền:</span>
-                  <span className="font-bold text-green-600 text-base">{formatCurrencyVND(totalPrice)}</span>
+                  <span className="font-bold text-green-600 text-base">
+                    {formatCurrencyVND(totalPrice)}
+                  </span>
                 </div>
               )}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
                 Hủy
               </Button>
               <Button
@@ -202,5 +255,5 @@ export default function SelectPhasesDialog({ isOpen, onClose, phases, onSubmit }
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

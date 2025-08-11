@@ -47,13 +47,13 @@ const ChatCreateOfferPhase = ({
   const form = useForm<OfferPhaseFormValues>({
     resolver: zodResolver(offerPhaseSchema),
     defaultValues: {
-      offerPhasePrice: 1000,
+      offerPhasePrice: 0,
       phaseDescription: "",
       phaseName: "",
       startDate: undefined,
       endDate: undefined,
     },
-    mode: "onBlur",
+    mode: "onSubmit",
     reValidateMode: "onChange",
   });
 
@@ -211,8 +211,8 @@ const ChatCreateOfferPhase = ({
                 <FormControl>
                   <Input
                     type="number"
-                    step={1000}
-                    min={1000}
+                    // step={1000}
+                    // min={1000}
                     placeholder="Nhập giá"
                     {...field}
                     onKeyDown={(e) => e.stopPropagation()}

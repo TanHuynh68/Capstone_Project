@@ -1,4 +1,5 @@
 "use client";
+import WalletService from "@/services/WalletService";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface StateContextType {
@@ -20,6 +21,11 @@ interface StateContextType {
   setActive: React.Dispatch<React.SetStateAction<boolean>>;
   realtime: string;
   setRealtime: React.Dispatch<React.SetStateAction<string>>;
+  //
+  fetchWallet: any;
+  wallet: any;
+  fetchDepositOrderList: any;
+  depositMoney: any;
 }
 
 const StateContext = createContext<StateContextType | undefined>(undefined);
@@ -39,6 +45,29 @@ export const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
   const [showChatList, setShowChatList] = useState<boolean>(true);
   const [active, setActive] = useState<boolean>(false);
   const [realtime, setRealtime] = useState<string>("");
+  //
+  const [wallet, setWallet] = useState<Wallet>();
+  const [depositMoney, setDepositMoney] = useState<DepositOrder[]>([]);
+  const { getWallet, getDepositOrder } = WalletService();
+
+  //
+  const fetchDepositOrderList = async () => {
+    const response = await getDepositOrder();
+    if (response && response.responseRequestModel)
+      console.log("fetchDepositOrderList: ", response.responseRequestModel);
+    {
+      setDepositMoney(response.responseRequestModel.responseList.items);
+    }
+  };
+
+  // fetch money in user wallet
+  const fetchWallet = async () => {
+    const response = await getWallet();
+    if (response && response.responseRequestModel) {
+      console.log("fetchWallet: ", response.responseRequestModel);
+      setWallet(response.responseRequestModel);
+    }
+  };
 
   const state: StateContextType = {
     theme,
@@ -57,6 +86,10 @@ export const StateProvider: React.FC<StateProviderProps> = ({ children }) => {
     setActive,
     realtime,
     setRealtime,
+    fetchWallet,
+    wallet,
+    fetchDepositOrderList,
+    depositMoney,
   };
 
   return (
