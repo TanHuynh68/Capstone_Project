@@ -3050,11 +3050,7 @@ const PlushDollDesign: React.FC = () => {
     // This dependency array is correct. It triggers a save when the filter UI state changes.
   }, [filterValues, activeFilters, isFilterEnabled, currentSelectedImageId]);
 
-  // Initialize temporary values when actual canvas dimensions change
-  useEffect(() => {
-    setTempCanvasWidth(actualCanvasWidth);
-    setTempCanvasHeight(actualCanvasHeight);
-  }, [actualCanvasWidth, actualCanvasHeight]);
+ 
 
   return (
     <div className="flex flex-col h-screen bg-background">
