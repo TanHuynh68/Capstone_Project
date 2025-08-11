@@ -120,6 +120,7 @@ export function ProductInfo({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <Input
+                 required
               label="Tên sản phẩm"
               placeholder="Nhập tên sản phẩm"
               onChange={(e) => {
@@ -142,6 +143,7 @@ export function ProductInfo({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div>
             <Input
+              required
               label="KL (gram)"
               defaultValue="0"
               type="number"
@@ -155,6 +157,7 @@ export function ProductInfo({
           <div>
             <Input
               label="Dài (cm)"
+                   required
               defaultValue="0"
               type="number"
               onChange={(e) => {
@@ -166,6 +169,7 @@ export function ProductInfo({
           </div>
           <div>
             <Input
+                 required
               label="Rộng (cm)"
               defaultValue="0"
               type="number"
@@ -178,6 +182,7 @@ export function ProductInfo({
           </div>
           <div>
             <Input
+                 required
               label="Cao (cm)"
               defaultValue="0"
               type="number"
@@ -192,8 +197,8 @@ export function ProductInfo({
 
         {/* Image Upload Section */}
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 justify-start flex">
-            Hình ảnh sản phẩm
+          <label className="block text-sm font-medium mb-2 justify-start ">
+            Hình ảnh sản phẩm <span className="ml-2 text-red-500">*</span>
           </label>
 
           {/* Preview thumbnails & modal dùng ImageGalleryOrder */}
@@ -253,8 +258,8 @@ export function ProductInfo({
         {/* Notes only, full width */}
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2 justify-start flex">
-              Ghi chú
+            <label className="block text-sm font-medium mb-2 justify-start ">
+              Ghi chú <span className="ml-2 text-red-500">*</span>
             </label>
             <Textarea
               id="notes"

@@ -88,16 +88,18 @@ export default function PostFilters({
             <DropdownMenuItem onClick={() => handleStatusChange("")}>
               Tất cả
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange("0")}>
+              Đã khóa
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleStatusChange("1")}>
-              Đang hoạt động
+              Chưa được nhận
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleStatusChange("2")}>
-              Đang xử lý
+              Đã được nhận
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleStatusChange("3")}>
-              Đã kết thúc
+              Đã hoàn thành
             </DropdownMenuItem>
-
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Trạng thái hoạt động</DropdownMenuLabel>
             <DropdownMenuItem

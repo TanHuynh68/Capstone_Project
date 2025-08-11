@@ -1,5 +1,41 @@
 import PolicyTemplate from "@/components/templates/policy/PolicyTemplate";
+import BenefitService from "@/services/BenefitService";
+import { useEffect, useState } from "react";
 
-export default function PolicyPage() {
-  return <PolicyTemplate />;
-}
+const PolicyPage = () => {
+  const { getBenefits } = BenefitService();
+  const [data, setData] = useState<PolicyCategory[]>([]);
+  const [groupedPolicyRules, setGroupedPolicyRules] = useState();
+  
+  useEffect(() => {
+    fetchBenefits();
+  }, []);
+
+  const fetchBenefits = async () => {
+    const response = await getBenefits({
+      title: "",
+      page: 1,
+      size: 10,
+    });
+    setData(response.responseRequestModel.responseList.items);
+    const groupPolicy = response.responseRequestModel.responseList.items.reduce(
+      (acc: any, rule: any) => {
+        if (!acc[rule.benefitType]) {
+          acc[rule.benefitType] = [];
+        }
+        acc[rule.benefitType].push(rule);
+        return acc;
+      },
+      {} as Record<string, PolicyRule[]>
+    );
+    setGroupedPolicyRules(groupPolicy);
+  };
+
+  return (
+    <PolicyTemplate
+      policyRules={data}
+      groupedPolicyRules={groupedPolicyRules}
+    />
+  );
+};
+export default PolicyPage;

@@ -30,7 +30,6 @@ import {
   Palette,
   Group,
   Ungroup,
-  Settings,
   FlipHorizontal,
   FlipVertical,
   RotateCw,
@@ -52,6 +51,7 @@ import {
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { convertToPixels } from "@/utils/convert";
+import CanvasResize from "@/pages/customer/plushdoll-design/canvas-resize";
 import RemoveBackgroundButton from "./RemoveBackgroundButton";
 import { useLocation } from "react-router-dom";
 import BackgroundColorPanel from "./BackgroundColorPanel";
@@ -157,9 +157,9 @@ const PlushDollDesign: React.FC = () => {
     initialSize.height.toString()
   );
   const [scaleRatio, setScaleRatio] = useState(1);
-  const [unit, setUnit] = useState<"px" | "cm" | "mm">("px");
-  const [tempCanvasWidth, setTempCanvasWidth] = useState("");
-  const [tempCanvasHeight, setTempCanvasHeight] = useState("");
+
+  const [unit] = useState<"px" | "cm" | "mm">("px");
+
 
   // Add state for drawing brush properties
   const [brushColor, setBrushColor] = useState("#000000");
@@ -1174,7 +1174,6 @@ const PlushDollDesign: React.FC = () => {
 
   // Zoom state: default is 60%
   const [zoom, setZoom] = useState(0.6);
-  const [isFullWindow, setIsFullWindow] = useState(false);
   const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   // Zoom in/out handlers using Fabric.js zoom
@@ -1213,50 +1212,6 @@ const PlushDollDesign: React.FC = () => {
     // So sánh chính xác sau khi làm tròn, với tolerance nhỏ cho floating point
     return Math.abs(currentZoomPercent - zoomLevel) < 0.1;
   };
-  const handleFixWindow = () => {
-    setIsFullWindow(false);
-    updateScaleRatio();
-
-    // Reset zoom and CSS transform when fixing window
-    setZoom(0.6);
-    if (canvasWrapperRef.current) {
-      canvasWrapperRef.current.style.transform = "scale(0.6)";
-      canvasWrapperRef.current.style.transformOrigin = "center center";
-    }
-
-    if (canvasWrapperRef.current && canvasRef.current) {
-      const width = convertToPixels(parseFloat(actualCanvasWidth) || 0, unit);
-      const height = convertToPixels(parseFloat(actualCanvasHeight) || 0, unit);
-      canvasWrapperRef.current.style.width = `${width}px`;
-      canvasWrapperRef.current.style.height = `${height}px`;
-      canvasRef.current.setWidth(width);
-      canvasRef.current.setHeight(height);
-      canvasRef.current.requestRenderAll();
-    }
-  };
-  const handleFullWindow = () => {
-    setIsFullWindow(true);
-    const newZoom = 0.94; // Set zoom to 94%
-    setZoom(newZoom);
-    zoomCanvasFromCenter(newZoom);
-
-    if (canvasWrapperRef.current && canvasRef.current) {
-      const parent = canvasWrapperRef.current.parentElement;
-      if (parent) {
-        const newWidth = parent.clientWidth * 0.94;
-        const newHeight = parent.clientHeight * 0.94;
-
-        canvasWrapperRef.current.style.width = `${newWidth}px`;
-        canvasWrapperRef.current.style.height = `${newHeight}px`;
-
-        canvasRef.current.setWidth(newWidth);
-        canvasRef.current.setHeight(newHeight);
-        canvasRef.current.requestRenderAll();
-      }
-    }
-  };
-
-  // Remove the useEffect that syncs zoom to canvas since we're handling it directly in zoom handlers
 
   // Handle mouse wheel zoom
   const handleWheel = (e: WheelEvent) => {
@@ -1281,14 +1236,7 @@ const PlushDollDesign: React.FC = () => {
     }
   }, [zoom]);
 
-  // On isFullWindow change, if false, recalc fit
-  useEffect(() => {
-    if (!isFullWindow) {
-      updateScaleRatio();
-    }
-  }, [isFullWindow]);
-
-  // updateScaleRatio: fit canvas to parent (Fix Window)
+  // updateScaleRatio: fit canvas to parent (centered and fit)
   const updateScaleRatio = () => {
     if (!canvasRef.current || !canvasWrapperRef.current) return;
 
@@ -1313,7 +1261,6 @@ const PlushDollDesign: React.FC = () => {
     const ratio = Math.min(widthRatio, heightRatio, 1);
 
     setZoom(ratio);
-    setIsFullWindow(false);
 
     // Set canvas size
     canvasWrapperRef.current.style.width = `${canvasWidth}px`;
@@ -1327,12 +1274,6 @@ const PlushDollDesign: React.FC = () => {
 
     setScaleRatio(ratio);
   };
-
-  // On mount, default to fit window
-  useEffect(() => {
-    handleFixWindow();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleSelection = (obj: fabric.Object) => {
     setToolbarVisible(true);
@@ -1949,6 +1890,7 @@ const PlushDollDesign: React.FC = () => {
         : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpg`;
       link.download = fileName;
       link.click();
+
       toast.success("Đã xuất thiết kế dưới dạng JPG thành công!");
     } else {
       toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
@@ -2932,14 +2874,6 @@ const PlushDollDesign: React.FC = () => {
     // },
   ];
 
-  const zoomCanvasFromCenter = (zoomValue: number) => {
-    if (!canvasWrapperRef.current) return;
-
-    // Apply zoom to the entire canvas wrapper using CSS transform
-    canvasWrapperRef.current.style.transform = `scale(${zoomValue})`;
-    canvasWrapperRef.current.style.transformOrigin = "center center";
-  };
-
   // Zoom to specific point (for mouse wheel zoom)
   const zoomToPoint = (zoomValue: number) => {
     if (!canvasWrapperRef.current) return;
@@ -2964,22 +2898,6 @@ const PlushDollDesign: React.FC = () => {
         canvasWrapperRef.current.style.transition = "";
       }
     }, duration);
-  };
-
-  // Fit canvas to viewport
-  const fitCanvasToViewport = () => {
-    if (!canvasRef.current || !canvasWrapperRef.current) return;
-    const canvas = canvasRef.current;
-    const wrapper = canvasWrapperRef.current;
-
-    // Calculate the scale to fit canvas in viewport
-    const scaleX = wrapper.clientWidth / canvas.getWidth();
-    const scaleY = wrapper.clientHeight / canvas.getHeight();
-    const scale = Math.min(scaleX, scaleY, 1); // Don't zoom in beyond 100%
-
-    setZoom(scale);
-    wrapper.style.transform = `scale(${scale})`;
-    wrapper.style.transformOrigin = "center center";
   };
 
   // Pan canvas (move viewport)
@@ -3094,34 +3012,6 @@ const PlushDollDesign: React.FC = () => {
     };
   }, [canvasRef.current]);
 
-  // EFFECT: Auto-center canvas when component mounts or canvas size changes
-  useEffect(() => {
-    const centerCanvas = () => {
-      if (canvasWrapperRef.current) {
-        const container = canvasWrapperRef.current.parentElement?.parentElement;
-        if (container) {
-          setTimeout(() => {
-            container.scrollTo({
-              left: (container.scrollWidth - container.clientWidth) / 2,
-              top: (container.scrollHeight - container.clientHeight) / 2,
-              behavior: "smooth",
-            });
-          }, 100);
-        }
-      }
-    };
-
-    centerCanvas();
-
-    // Add window resize listener to re-center canvas
-    const handleResize = () => {
-      centerCanvas();
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [actualCanvasWidth, actualCanvasHeight, zoom]);
-
   // EFFECT: Load filter settings when selection changes
   useEffect(() => {
     if (currentSelectedImageId) {
@@ -3185,118 +3075,26 @@ const PlushDollDesign: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40" align="start" side="bottom">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger
-                    onClick={() => {
-                      // Initialize temporary values with current actual canvas dimensions
-                      setTempCanvasWidth(actualCanvasWidth);
-                      setTempCanvasHeight(actualCanvasHeight);
-                    }}
-                  >
-                    Đổi cỡ
-                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubTrigger>Đổi cỡ</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <div className="p-2 w-64">
-                      <div className="font-semibold text-sm mb-2">
-                        Đổi kích thước Canvas
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs font-medium">
-                          Chiều rộng
-                        </label>
-                        <Input
-                          type="number"
-                          value={
-                            unit === "px"
-                              ? tempCanvasWidth
-                              : (
-                                  parseFloat(tempCanvasWidth) /
-                                  convertToPixels(1, unit)
-                                ).toFixed(2)
-                          }
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            if (unit === "px") {
-                              setTempCanvasWidth(newValue);
-                            } else {
-                              // Convert from the selected unit back to pixels
-                              const pixelsPerUnit = convertToPixels(1, unit);
-                              const pixelValue =
-                                parseFloat(newValue) * pixelsPerUnit;
-                              setTempCanvasWidth(pixelValue.toString());
-                            }
-                          }}
-                          className="w-full"
-                        />
-                        <label className="text-xs font-medium">Chiều cao</label>
-                        <Input
-                          type="number"
-                          value={
-                            unit === "px"
-                              ? tempCanvasHeight
-                              : (
-                                  parseFloat(tempCanvasHeight) /
-                                  convertToPixels(1, unit)
-                                ).toFixed(2)
-                          }
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            if (unit === "px") {
-                              setTempCanvasHeight(newValue);
-                            } else {
-                              // Convert from the selected unit back to pixels
-                              const pixelsPerUnit = convertToPixels(1, unit);
-                              const pixelValue =
-                                parseFloat(newValue) * pixelsPerUnit;
-                              setTempCanvasHeight(pixelValue.toString());
-                            }
-                          }}
-                          className="w-full"
-                        />
-                        <label className="text-xs font-medium">Đơn vị</label>
-                        <select
-                          value={unit}
-                          onChange={(e) => {
-                            const newUnit = e.target.value as
-                              | "px"
-                              | "cm"
-                              | "mm";
-                            setUnit(newUnit);
-                          }}
-                          className="w-full p-2 border rounded"
-                        >
-                          <option value="px">px</option>
-                          <option value="cm">cm</option>
-                          <option value="mm">mm</option>
-                        </select>
-                        <Button
-                          onClick={() => {
-                            // Get the pixel values from temporary state
-                            const newWidth = parseFloat(tempCanvasWidth) || 0;
-                            const newHeight = parseFloat(tempCanvasHeight) || 0;
+                    <CanvasResize
+                      actualCanvasWidth={actualCanvasWidth}
+                      actualCanvasHeight={actualCanvasHeight}
+                      onResize={(newWidth, newHeight) => {
+                        // Update canvas dimensions
+                        if (canvasRef.current) {
+                          canvasRef.current.setDimensions({
+                            width: newWidth,
+                            height: newHeight,
+                          });
+                          canvasRef.current.renderAll();
 
-                            // Update canvas dimensions
-                            if (
-                              canvasRef.current &&
-                              newWidth > 0 &&
-                              newHeight > 0
-                            ) {
-                              canvasRef.current.setDimensions({
-                                width: newWidth,
-                                height: newHeight,
-                              });
-                              canvasRef.current.renderAll();
-
-                              // Update the actual canvas dimensions
-                              setActualCanvasWidth(newWidth.toString());
-                              setActualCanvasHeight(newHeight.toString());
-                            }
-                          }}
-                          className="w-full"
-                        >
-                          Xác nhận
-                        </Button>
-                      </div>
-                    </div>
+                          // Update the actual canvas dimensions
+                          setActualCanvasWidth(newWidth.toString());
+                          setActualCanvasHeight(newHeight.toString());
+                        }
+                      }}
+                    />
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSub>
@@ -3426,63 +3224,14 @@ const PlushDollDesign: React.FC = () => {
             )}
           </Button>
 
-          <Button
+          {/* <Button
             variant={rightSidebarOpen ? "default" : "outline"}
             onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
             className="flex items-center gap-2"
           >
             <Settings className="w-4 h-4" />
             <span className="text-xs font-medium">Thông tin</span>
-          </Button>
-
-          {/* Export Design Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Download className="w-4 h-4" />
-                <span className="text-xs font-medium">Xuất thiết kế</span>
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" side="bottom">
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={saveCanvasAsPNG}
-              >
-                <FileImage className="w-4 h-4 mr-2" />
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-medium">PNG</span>
-                  <span className="text-xs text-muted-foreground">
-                    Phù hợp nhất cho hình ảnh, hình minh họa phức tạp
-                  </span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={saveCanvasAsJPEG}
-              >
-                <FileImage className="w-4 h-4 mr-2" />
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-medium">JPEG</span>
-                  <span className="text-xs text-muted-foreground">
-                    Phù hợp nhất để chia sẻ
-                  </span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={saveCanvasAsJPG}
-              >
-                <FileImage className="w-4 h-4 mr-2" />
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-medium">JPG</span>
-                  <span className="text-xs text-muted-foreground">
-                    Phù hợp nhất để chia sẻ
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          </Button> */}
 
           {/* Save Design Dropdown */}
           <DropdownMenu>
@@ -3525,6 +3274,55 @@ const PlushDollDesign: React.FC = () => {
               >
                 <Save className="w-4 h-4 mr-2" />
                 <span className="text-xs font-medium">Lưu version</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Export Design Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                <span className="text-xs font-medium">Xuất thiết kế</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-85" align="end" side="bottom">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsPNG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">PNG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Phù hợp nhất cho hình ảnh, hình minh họa phức tạp
+                  </span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsJPEG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">JPEG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Dung lượng nhẹ, lý tưởng cho ảnh chụp
+                  </span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={saveCanvasAsJPG}
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium">JPG</span>
+                  <span className="text-xs text-muted-foreground">
+                    Phù hợp nhất để chia sẻ
+                  </span>
+                </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -3908,20 +3706,16 @@ const PlushDollDesign: React.FC = () => {
             >
               <div
                 ref={canvasWrapperRef}
-                className="relative bg-card shadow-md origin-top ml-30"
+                className="relative bg-card shadow-md origin-top"
                 style={{
-                  width: isFullWindow
-                    ? `${canvasWrapperRef.current?.style.width || "100%"}`
-                    : `${convertToPixels(
-                        parseFloat(actualCanvasWidth) || 0,
-                        unit
-                      )}px`,
-                  height: isFullWindow
-                    ? `${canvasWrapperRef.current?.style.height || "100%"}`
-                    : `${convertToPixels(
-                        parseFloat(actualCanvasHeight) || 0,
-                        unit
-                      )}px`,
+                  width: `${convertToPixels(
+                    parseFloat(actualCanvasWidth) || 0,
+                    unit
+                  )}px`,
+                  height: `${convertToPixels(
+                    parseFloat(actualCanvasHeight) || 0,
+                    unit
+                  )}px`,
 
                   minWidth: "fit-content",
                   minHeight: "fit-content",
@@ -4097,153 +3891,6 @@ const PlushDollDesign: React.FC = () => {
                   })()}
               </div>
             </div>
-          </div>
-          <div
-            className={
-              "absolute bottom-0 z-30 bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300"
-            }
-            style={{
-              pointerEvents: "auto",
-              right: 0,
-              left: 0,
-              backdropFilter: "blur(8px)",
-              backgroundColor: "hsl(var(--muted) / 0.95)",
-            }}
-          >
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleZoomOut}
-              disabled={zoom <= 0.1}
-            >
-              -
-            </Button>
-            <div className="relative">
-              <input
-                type="number"
-                min={10}
-                max={500}
-                value={Math.round(zoom * 100)}
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (isNaN(value)) value = 100;
-                  value = Math.max(10, Math.min(500, value));
-                  const newZoom = value / 100;
-                  setZoom(newZoom);
-                  zoomCanvasSmooth(newZoom, 200);
-                }}
-                onFocus={() => setShowZoomDropdown(true)}
-                onBlur={() => setTimeout(() => setShowZoomDropdown(false), 200)}
-                className="w-14 text-center text-xs border rounded h-7 px-1 bg-card cursor-pointer"
-                style={{ width: 50 }}
-                placeholder="100"
-              />
-              <span className="text-xs absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none">
-                %
-              </span>
-              <svg
-                className="w-3 h-3 absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-
-              {/* Zoom Dropdown */}
-              {showZoomDropdown && (
-                <div className="absolute bottom-full left-0 mb-1 bg-card border border-border rounded-md shadow-lg z-50 min-w-[120px]">
-                  <div className="p-3">
-                    {[25, 50, 75, 100, 125, 150, 200, 300, 400, 500].map(
-                      (zoomLevel) => (
-                        <button
-                          key={zoomLevel}
-                          onClick={() => handleZoomSelect(zoomLevel)}
-                          className={`w-full text-left px-2 py-1 text-xs hover:bg-muted rounded-sm ${
-                            isZoomLevelActive(zoomLevel)
-                              ? "bg-primary text-primary-foreground"
-                              : ""
-                          }`}
-                        >
-                          {zoomLevel}%
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleZoomIn}
-              disabled={zoom >= 5}
-            >
-              +
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleResetZoom}
-              title="Reset zoom to 60%"
-            >
-              ↺
-            </Button>
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleFixWindow}
-              className="ml-2 text-xs px-2 h-7"
-              title="Cố định kích thước canvas"
-            >
-              Fix Window
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleFullWindow}
-              className="text-xs px-2 h-7"
-              title="Toàn màn hình canvas"
-            >
-              Full Window
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                if (canvasWrapperRef.current) {
-                  const container =
-                    canvasWrapperRef.current.parentElement?.parentElement;
-                  if (container) {
-                    container.scrollTo({
-                      left: (container.scrollWidth - container.clientWidth) / 2,
-                      top:
-                        (container.scrollHeight - container.clientHeight) / 2,
-                      behavior: "smooth",
-                    });
-                  }
-                }
-              }}
-              className="text-xs px-2 h-7"
-              title="Căn giữa canvas"
-            >
-              Center
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={fitCanvasToViewport}
-              className="text-xs px-2 h-7"
-              title="Fit canvas to viewport"
-            >
-              Fit
-            </Button>
           </div>
         </div>
 
@@ -4993,6 +4640,102 @@ const PlushDollDesign: React.FC = () => {
         </aside>
       </div>
 
+      {/* Toolbar bottom  */}
+      <div
+        className={
+          "bg-muted border-t border-border flex items-center justify-center gap-2 shadow-lg px-4 py-2 transition-all duration-300 flex-shrink-0"
+        }
+        style={{
+          pointerEvents: "auto",
+          backdropFilter: "blur(8px)",
+          backgroundColor: "hsl(var(--muted) / 0.95)",
+        }}
+      >
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomOut}
+          disabled={zoom <= 0.1}
+        >
+          -
+        </Button>
+        <div className="relative">
+          <input
+            type="number"
+            min={10}
+            max={500}
+            value={Math.round(zoom * 100)}
+            onChange={(e) => {
+              let value = Number(e.target.value);
+              if (isNaN(value)) value = 100;
+              value = Math.max(10, Math.min(500, value));
+              const newZoom = value / 100;
+              setZoom(newZoom);
+              zoomCanvasSmooth(newZoom, 200);
+            }}
+            onFocus={() => setShowZoomDropdown(true)}
+            onBlur={() => setTimeout(() => setShowZoomDropdown(false), 200)}
+            className="w-14 text-center text-xs border rounded h-7 px-1 bg-card cursor-pointer"
+            style={{ width: 50 }}
+            placeholder="100"
+          />
+          <span className="text-xs absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none">
+            %
+          </span>
+          <svg
+            className="w-3 h-3 absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+
+          {/* Zoom Dropdown */}
+          {showZoomDropdown && (
+            <div className="absolute bottom-full left-0 mb-1 bg-card border border-border rounded-md shadow-lg z-50 min-w-[120px]">
+              <div className="p-3">
+                {[25, 50, 75, 100, 125, 150, 200, 300, 400, 500].map(
+                  (zoomLevel) => (
+                    <button
+                      key={zoomLevel}
+                      onClick={() => handleZoomSelect(zoomLevel)}
+                      className={`w-full text-left px-2 py-1 text-xs hover:bg-muted rounded-sm ${
+                        isZoomLevelActive(zoomLevel)
+                          ? "bg-primary text-primary-foreground"
+                          : ""
+                      }`}
+                    >
+                      {zoomLevel}%
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleZoomIn}
+          disabled={zoom >= 5}
+        >
+          +
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleResetZoom}
+          title="Reset zoom to 60%"
+        >
+          ↺
+        </Button>
+      </div>
       {/* <CanvasDebugInfo /> */}
     </div>
   );

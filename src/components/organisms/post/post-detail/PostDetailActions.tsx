@@ -12,6 +12,7 @@ import { PATH } from "@/routes/path";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
+import { useStateValue } from "@/context/stateProvider";
 
 interface PostDetailActionsProps {
   post: Post;
@@ -34,7 +35,7 @@ export default function PostDetailActions({
   const [showModal, setShowModal] = useState(false);
   const role = useSelector((state: RootState) => state.user.role);
   const currentUser = useCurrentUser();
-
+  const { setIdRoomChat } = useStateValue();
   const handleSubmitOffer = useCallback(
     async (formData: FormData) => {
       // Đã bỏ kiểm tra giá khởi điểm phải lớn hơn giá trị sản phẩm
@@ -49,6 +50,7 @@ export default function PostDetailActions({
   const createChatRoomByDesigner = async () => {
     const response = await createChatRoom(post?.accountID);
     console.log("createChatRoom: ", response);
+    setIdRoomChat(response.responseRequestModel.chatRoomID);
     if (response) {
       navigate(PATH.CHAT_PAGE);
     }

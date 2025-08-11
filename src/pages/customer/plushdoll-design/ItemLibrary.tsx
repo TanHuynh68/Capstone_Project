@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import { PawPrint, Fan, Shapes } from "lucide-react";
 import UnsplashLibrary from "./UnsplashLibrary";
+import PixabayLibrary from "./PixabayLibrary";
 import ShapesLibrary from "./ShapesLibrary";
 import SidebarSearchBar from "./SidebarSearchBar";
 
@@ -13,7 +14,14 @@ export interface LibraryItem {
   imageUrl: string;
   category: string;
   tags?: string[];
-  source: "local" | "unsplash";
+  source: "local" | "unsplash" | "pixabay";
+  metadata?: {
+    user?: string;
+    views?: number;
+    downloads?: number;
+    likes?: number;
+    type?: string; // Added for Pixabay's image type
+  };
 }
 
 interface ItemLibraryProps {
@@ -116,7 +124,7 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
       null
     );
-    const [activeTab, setActiveTab] = useState<"unsplash" | "shapes">(
+    const [activeTab, setActiveTab] = useState<"unsplash" | "pixabay" | "shapes">(
       "unsplash"
     );
 
@@ -184,6 +192,16 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
               Unsplash
             </button>
             <button
+              onClick={() => setActiveTab("pixabay")}
+              className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${activeTab === "pixabay"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              <Fan className="w-4 h-4 inline mr-2" />
+              Pixabay
+            </button>
+            <button
               onClick={() => setActiveTab("shapes")}
               className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
                 activeTab === "shapes"
@@ -199,6 +217,14 @@ const ItemLibrary = forwardRef<HTMLDivElement, ItemLibraryProps>(
           {/* Tab Content */}
           {activeTab === "unsplash" && (
             <UnsplashLibrary
+              onSelect={onSelect}
+              isOpen={true}
+              onDragStart={handleDragStart}
+            />
+          )}
+
+          {activeTab === "pixabay" && (
+            <PixabayLibrary
               onSelect={onSelect}
               isOpen={true}
               onDragStart={handleDragStart}

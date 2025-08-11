@@ -14,20 +14,20 @@ export default function StatusBadge({
 
   switch (status) {
     case 0:
-      color = "bg-green-100 text-green-800 hover:bg-green-100";
-      label = "Đang hoạt động";
+      color = " bg-red-100 text-red-800 hover:bg-red-100";
+      label = "Đã khóa";
       break;
     case 1:
       color = "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
-      label = "Đang xử lý";
+      label = "Chưa được nhận";
       break;
     case 2:
       color = "bg-blue-100 text-blue-800 hover:bg-blue-100";
-      label = "Hoàn thành";
+      label = "Đã được nhận";
       break;
     case 3:
-      color = "bg-red-100 text-red-800 hover:bg-red-100";
-      label = "Đã bị khóa";
+      color = "bg-green-100 text-green-800 hover:bg-green-100";
+      label = "Đã hoàn thành";
       break;
     default:
       color = "bg-gray-100 text-gray-800 hover:bg-gray-100";

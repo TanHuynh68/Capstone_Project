@@ -112,11 +112,17 @@ export default function OrderInfoCard({
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
+          
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Mã đơn hàng:</span>
             <span className="text-sm font-mono">
               {order.orderID.slice(0, 8)}...
             </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-gray-600">Tên đơn hàng:</span>
+            <span className="text-sm font-medium">{order.note}</span>
           </div>
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-gray-500" />
