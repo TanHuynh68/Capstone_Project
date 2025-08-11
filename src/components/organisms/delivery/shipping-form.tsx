@@ -8,6 +8,7 @@ import { validateShippingForm, validateField } from "@/schemas/shippingSchema";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { ReceiverInfoAutofill } from "@/components/molecules/delivery/receiver-info-autofill";
+import { toast } from "sonner";
 
 interface ShippingFormProps {
   onSuccess?: () => void;
@@ -22,6 +23,7 @@ export function ShippingForm({
   order,
   onOrderCreated,
 }: ShippingFormProps) {
+ 
   const [sender, setSender] = useState<Record<string, unknown>>({});
   const [receiver, setReceiver] = useState<Record<string, unknown>>({});
   const [product, setProduct] = useState<Record<string, unknown>>({});
@@ -275,9 +277,12 @@ export function ShippingForm({
     });
 
     try {
-      await createDelivery(formData);
-      onSuccess?.();
-      onOrderCreated?.();
+      const response = await createDelivery(formData);
+      if (response) {
+        toast.success('Tạo đơn giao hàng thành công!')
+        onSuccess?.();
+        onOrderCreated?.();
+      }
     } catch (error) {
       console.error("Error creating delivery:", error);
     } finally {

@@ -13,6 +13,7 @@ import {
 import axiosInstance from "@/config/axios";
 import { toast } from "sonner";
 import { MESSAGE, ROLE } from "@/constants";
+import { useStateValue } from "@/context/stateProvider";
 
 const Chat = () => {
   const { deleteMessage, updateMessage } = ChatService();
@@ -22,22 +23,33 @@ const Chat = () => {
   const [shouldScroll, setShouldScroll] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<boolean>(false);
   const { getRoomList, getMessage, createChat } = ChatService();
-  const { offerFind } = OfferService();
+  const { offerFind, getOfferPhase } = OfferService();
   const [posts, setPosts] = useState<OfferDetail[]>([]);
   const connectionRef = useRef<HubConnection | null>(null);
-  const { getOfferPhase } = OfferService();
   const [offersPhase, setOffersPhase] = useState<OfferPhase[]>([]);
+  const userMain = useCurrentUser();
+
+  // ✅ Lấy idRoomChat từ context
+  const { idRoomChat, setIdRoomChat } = useStateValue();
+
+  // ✅ Khi idRoomChat từ context thay đổi -> set vào chatRoomID
+  useEffect(() => {
+    if (idRoomChat) {
+      console.log('idRoomChat: ', idRoomChat)
+      setChatRoomId(idRoomChat);
+      setIdRoomChat(""); // reset lại để tránh lần sau tự động nhảy
+    }
+  }, [idRoomChat, setIdRoomChat]);
 
   const fetchOfferPhase = async (offerID: string) => {
     const response = await getOfferPhase(offerID);
-    console.log("fetchOfferPhase: ", response);
     if (response) {
       setOffersPhase(response.responseRequestModel.responseList);
     }
   };
 
   useEffect(() => {
-    if (usersNeedToChat.length != 0) {
+    if (usersNeedToChat.length !== 0) {
       fetchOffers();
     }
   }, [usersNeedToChat]);
@@ -46,47 +58,42 @@ const Chat = () => {
     fetchOffers();
   }, [chatRoomID]);
 
-  const userMain = useCurrentUser();
-
   const fetchOffers = async () => {
     if (userMain?.role === ROLE.CUSTOMER) {
-      const user = usersNeedToChat.filter(
+      const user = usersNeedToChat.find(
         (item) => item.chatRoomID === chatRoomID
-      )[0];
-
-      console.log("run");
+      );
+      if (!user) return;
 
       const response = await offerFind({
         customerID: userMain?.id,
         designerID:
-          userMain?.id != user.account1.accountID
+          userMain?.id !== user.account1.accountID
             ? user.account1.accountID
             : user.account2.accountID,
       });
 
-      if (response && response.responseRequestModel.responseList) {
-        console.log("usersNeedToChat: ", usersNeedToChat);
-        console.log("response: ", response.responseRequestModel.responseList);
+      if (response?.responseRequestModel?.responseList) {
         setPosts(response.responseRequestModel.responseList);
       } else {
         setPosts([]);
       }
     } else {
-      const user = usersNeedToChat.filter(
+      const user = usersNeedToChat.find(
         (item) => item.chatRoomID === chatRoomID
-      )[0];
+      );
+      if (!user) return;
 
       const response = await offerFind({
         customerID:
-          userMain?.id != user.account1.accountID
+          userMain?.id !== user.account1.accountID
             ? user.account1.accountID
             : user.account2.accountID,
         designerID: userMain?.id,
       });
 
-      if (response && response.responseRequestModel.responseList) {
+      if (response?.responseRequestModel?.responseList) {
         setPosts(response.responseRequestModel.responseList);
-        console.log("response2: ", response.responseRequestModel.responseList);
       } else {
         setPosts([]);
       }
@@ -134,7 +141,6 @@ const Chat = () => {
       .build();
 
     connection.on("ReceiveMessage", async () => {
-      console.log("📩 Nhận sự kiện ReceiveMessage");
       if (roomId) {
         await getMessageOfChat(roomId);
         await getUsersNeedToChat();
@@ -143,7 +149,6 @@ const Chat = () => {
 
     try {
       await connection.start();
-      console.log("✅ Kết nối SignalR thành công");
       connectionRef.current = connection;
       await joinChatRoom(roomId);
     } catch (error) {
@@ -153,7 +158,6 @@ const Chat = () => {
 
   const joinChatRoom = async (roomId: string) => {
     try {
-      console.log("🚪 Tham gia phòng:", roomId);
       await axiosInstance.post(
         `https://pdcbackendapi.tlog.website/api/v1/chat`,
         {
@@ -169,35 +173,30 @@ const Chat = () => {
   };
 
   const getUsersNeedToChat = async () => {
-    try {
-      const response = await getRoomList();
-      const rooms = response?.responseRequestModel?.chatRooms ?? [];
+  try {
+    const response = await getRoomList();
+    const rooms = response?.responseRequestModel?.chatRooms ?? [];
 
-      const sortedRooms = rooms.sort((a: UserChat, b: UserChat) => {
-        if (a.updatedAt && b.updatedAt) {
-          return (
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          );
-        }
-
-        if (a.updatedAt && b.updatedAt) {
-          return (
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          );
-        }
-
-        return 0;
-      });
-
-      setUsersNeedToChat(sortedRooms);
-
-      if (sortedRooms.length > 0 && !chatRoomID) {
-        setChatRoomId(sortedRooms[0].chatRoomID);
+    const sortedRooms = rooms.sort((a: UserChat, b: UserChat) => {
+      if (a.updatedAt && b.updatedAt) {
+        return (
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
       }
-    } catch (error) {
-      console.error("❌ Lỗi lấy danh sách chat:", error);
+      return 0;
+    });
+
+    setUsersNeedToChat(sortedRooms);
+
+    // ✅ Chỉ set phòng mặc định nếu KHÔNG có idRoomChat từ context
+    if (sortedRooms.length > 0 && !chatRoomID && !idRoomChat) {
+      setChatRoomId(sortedRooms[0].chatRoomID);
     }
-  };
+  } catch (error) {
+    console.error("❌ Lỗi lấy danh sách chat:", error);
+  }
+};
+
 
   const getMessageOfChat = async (roomId: string) => {
     if (!roomId) return;
@@ -217,9 +216,6 @@ const Chat = () => {
   };
 
   const handleSendMessage = async (messageContent: string) => {
-    console.log("messageContent: ", messageContent);
-    console.log("chatRoomID: ", chatRoomID);
-
     if (!chatRoomID || !messageContent.trim()) return;
 
     try {
@@ -243,16 +239,11 @@ const Chat = () => {
 
   const handleSelectChat = async (newChatRoomID: string) => {
     if (newChatRoomID === chatRoomID) return;
-
-    console.log("🧑‍💬 Chọn người chat:", newChatRoomID);
     setChatRoomId(newChatRoomID);
   };
 
   const handleDeleteMessage = async (messageID: string) => {
-    console.log("messageID: ", messageID);
     const response = await deleteMessage(messageID);
-    console.log("handleDeleteMessage: ", response);
-
     if (response) {
       await getMessageOfChat(chatRoomID);
       toast.success(MESSAGE.DELETE_MESSAGE_SUCCESSFULLY);
@@ -260,17 +251,10 @@ const Chat = () => {
   };
 
   const handleEditMessage = async (messageId: string, newContent: string) => {
-    console.log("handleEditMessage: ", {
-      messageID: messageId,
-      content: newContent,
-    });
-
     const response = await updateMessage({
       messageID: messageId,
       content: newContent,
     });
-
-    console.log("response", response);
 
     if (response) {
       await getMessageOfChat(chatRoomID);

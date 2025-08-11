@@ -1,16 +1,17 @@
 interface PolicyRule {
-    id: string;
-    category: string;
-    scenario: string;
-    description: string;
-    customerScore: number;
-    designerScore: number;
-    customerCompensation: number;
-    designCompensation: number;
+    benefitID: string
+    benefitType: string
+    title: string
+    customerScoreChange: number
+    designerScoreChange: number
+    customerCompensationRate: number
+    designerCompensationRate: number
+    version: number
+    createdAt: string
 }
 
 interface PolicyCategory {
-    id: string;
-    name: string;
-    rules: PolicyRule[];
+    id: string
+    name: string
+    rules: PolicyRule[]
 }
