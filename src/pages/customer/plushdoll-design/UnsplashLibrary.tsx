@@ -186,7 +186,7 @@ const UnsplashLibrary: React.FC<UnsplashLibraryProps> = ({
 
     try {
       setIsLoading(true);
-      const query = searchQuery || "plush";
+      const query = searchQuery || "accessories";
       console.log(`Fetching with API key ${currentApiKeyIndex + 1}`);
 
       const response = await fetch(

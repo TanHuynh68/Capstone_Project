@@ -1,0 +1,415 @@
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { LibraryItem } from "./ItemLibrary";
+import SidebarSearchBar from "./SidebarSearchBar";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import ENV from "@/config/env";
+
+interface PixabayPhoto {
+    id: number;
+    type: "photo" | "illustration" | "vector";
+    webformatURL: string;
+    largeImageURL: string;
+    fullHDURL?: string;
+    imageURL?: string;   // full API access
+    vectorURL?: string;  // full API access
+    tags: string;        // comma separated
+    user: string;
+    views: number;
+    downloads: number;
+    likes: number;
+}
+
+interface PixabayLibraryProps {
+    onSelect: (imageUrl: string) => void;
+    isOpen: boolean;
+    onDragStart: (e: React.DragEvent<HTMLDivElement>, imageUrl: string) => void;
+}
+
+type ImageType = "all" | "photo" | "illustration" | "vector";
+
+const API_KEY = ENV.PIXABAY_API_KEY;
+const PER_PAGE = 200;
+
+const PERSON_WORDS = new Set([
+    "person", "people", "human", "man", "men", "woman", "women", "boy", "girl", "kid", "baby",
+    "portrait", "face", "selfie", "avatar", "model", "elderly", "senior"
+]);
+
+const PRESETS: { key: string; label: string; q: string }[] = [
+    { key: "hat", label: "Nón", q: "nón mũ" },
+    { key: "eyes", label: "Mắt", q: "mắt" },
+    { key: "glasses", label: "Kính", q: "kính" },
+    { key: "outfit", label: "Outfit", q: "quần áo trang phục" },
+    { key: "props", label: "Props", q: "đồ chơi phụ kiện" },
+    { key: "scarf", label: "Khăn", q: "khăn quàng" },
+    { key: "shoes", label: "Giày", q: "giày dép" },
+    { key: "bag", label: "Túi", q: "túi xách" },
+    { key: "jewelry", label: "Trang sức", q: "vòng tay nhẫn" },
+];
+
+
+
+const guessCategory = (tags: string): LibraryItem["category"] | undefined => {
+    const t = tags.toLowerCase();
+    if (/(hat|cap|beanie|bucket|straw)/.test(t)) return "Hat";
+    if (/(eye|eyes|pupil|eyeball)/.test(t)) return "Eye";
+    if (/(glass|goggle|sunglasses)/.test(t)) return "Glasses";
+    if (/(scarf|shawl)/.test(t)) return "Scarf";
+    if (/(hoodie|shirt|jacket|dress|outfit|clothes)/.test(t)) return "Outfit";
+    if (/(cup|boba|prop|toy)/.test(t)) return "Prop";
+    return undefined;
+};
+
+const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
+    onSelect, isOpen, onDragStart,
+}) => {
+    const [items, setItems] = useState<LibraryItem[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState("");
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [totalHits, setTotalHits] = useState(0);
+
+    // filters
+    const [imageType, setImageType] = useState<ImageType>("illustration");
+    const [onlyTransparent, setOnlyTransparent] = useState(true);
+    const [lang] = useState("vi");
+    const [activePreset, setActivePreset] = useState<string | null>("hat");
+
+    // infinite scroll
+    const observer = useRef<IntersectionObserver | null>(null);
+    const loadingRef = useRef<HTMLDivElement | null>(null);
+
+    // cancel fetch when thay đổi nhanh
+    const abortRef = useRef<AbortController | null>(null);
+
+
+
+    // debounce search & reset trang
+    useEffect(() => {
+        const t = setTimeout(() => {
+            setDebouncedQuery(searchQuery.trim());
+            setPage(1);
+            setItems([]);
+            setHasMore(true);
+        }, 400);
+        return () => clearTimeout(t);
+    }, [searchQuery, imageType, onlyTransparent, activePreset]);
+
+    // query thực tế
+    const effectiveQuery = useMemo(() => {
+        if (debouncedQuery) return debouncedQuery;
+        const preset = PRESETS.find(p => p.key === activePreset);
+        return preset ? preset.q : "phụ kiện";
+    }, [debouncedQuery, activePreset]);
+
+    // cache key
+    const qParam = useMemo(() => effectiveQuery.trim() || undefined, [effectiveQuery]);
+    const cacheKey = useMemo(() => {
+        const color = onlyTransparent ? "transparent" : "any";
+        // dùng qParam (đã encode + cắt 100 char) để cache đúng theo request thực tế
+        return `pixabay:${qParam ?? "ALL"}:${imageType}:${color}:page${page}`;
+    }, [qParam, imageType, onlyTransparent, page]);
+
+    const fetchPixabayImages = useCallback(async () => {
+        if (!isOpen || isLoading || !hasMore) return;
+
+        // lấy cache
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const pageItems: LibraryItem[] = JSON.parse(cached);
+            setItems(prev => {
+                const merged = [...prev, ...pageItems];
+                return Array.from(new Map(merged.map(i => [i.id, i])).values());
+            });
+            setHasMore(pageItems.length === PER_PAGE);
+            return;
+        }
+
+        // hủy request cũ nếu còn
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        try {
+            setIsLoading(true);
+
+            const params = new URLSearchParams({
+                key: API_KEY,
+                lang,
+                image_type: imageType,
+                orientation: "all",
+                safesearch: "false",
+                order: "popular",
+                per_page: String(PER_PAGE),
+                page: String(page),
+            });
+
+            if (onlyTransparent) params.set("colors", "transparent");
+            if (qParam) params.set("q", qParam); // omit q nếu undefined => trả all images
+
+            const url = `https://pixabay.com/api/?${params.toString()}`;
+            console.log("🌐 Pixabay API Request:", {
+                url,
+                qParam,
+                imageType,
+                onlyTransparent,
+                page,
+                lang
+            });
+            const res = await fetch(url, { signal: controller.signal });
+            if (!res.ok) throw new Error(`Pixabay ${res.status}`);
+            const data = await res.json();
+            console.log("✅ Pixabay API Response:", {
+                status: res.status,
+                totalHits: data?.totalHits,
+                hitsCount: data?.hits?.length || 0,
+                firstHit: data?.hits?.[0]?.tags || "No hits"
+            });
+
+            setTotalHits(Math.min(data?.totalHits ?? 0, 600)); // API truy cập tối đa 600 ảnh/keyword
+
+            // lọc bỏ ảnh người qua tags
+            const hits: PixabayPhoto[] = (data.hits || []).filter((h: PixabayPhoto) => {
+                const tagStr = (h.tags || "").toLowerCase();
+                return ![...PERSON_WORDS].some(w => tagStr.includes(w));
+            });
+
+            const pageItems: LibraryItem[] = hits.map((h, i) => {
+                const isVector = h.type === "vector" || !!h.vectorURL;
+                const bestUrl =
+                    (isVector && (h.vectorURL || h.imageURL)) || // nếu có full access
+                    h.largeImageURL || h.webformatURL;
+
+                return {
+                    id: `pixabay-${h.id}-${page}-${i}`,
+                    name: h.tags || "Pixabay Asset",
+                    imageUrl: bestUrl,
+                    category: guessCategory(h.tags) ?? "Pixabay",
+                    tags: h.tags ? h.tags.split(",").map(s => s.trim()) : [],
+                    source: "pixabay",
+                    metadata: {
+                        user: h.user,
+                        views: h.views,
+                        downloads: h.downloads,
+                        likes: h.likes,
+                        type: h.type,
+                    }
+                };
+            });
+
+            // cache theo trang
+            localStorage.setItem(cacheKey, JSON.stringify(pageItems));
+
+            setItems(prev => {
+                const merged = [...prev, ...pageItems];
+                return Array.from(new Map(merged.map(i => [i.id, i])).values());
+            });
+
+            // tính hasMore theo giới hạn 600 ảnh
+            const accessible = Math.min(data.totalHits || 0, 600);
+            const maxPages = Math.max(1, Math.ceil(accessible / PER_PAGE));
+            setHasMore(page < maxPages);
+        } catch (e: unknown) {
+            if (e instanceof Error && e.name === "AbortError") {
+                console.log("🚫 Request cancelled (user typing fast)");
+                return; // bị hủy khi user gõ nhanh
+            }
+            console.error("❌ Error fetching Pixabay images:", e);
+            setHasMore(false);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isOpen, isLoading, hasMore, cacheKey, qParam, imageType, onlyTransparent, page, lang]);
+
+    // observe for infinite scroll
+    const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isLoading && hasMore) {
+            setPage(p => p + 1);
+        }
+    }, [isLoading, hasMore]);
+
+    useEffect(() => {
+        if (!loadingRef.current) return;
+        observer.current?.disconnect();
+        observer.current = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+        observer.current.observe(loadingRef.current);
+        return () => observer.current?.disconnect();
+    }, [handleObserver]);
+
+    useEffect(() => { fetchPixabayImages(); }, [fetchPixabayImages]);
+
+    useEffect(() => {
+        return () => abortRef.current?.abort(); // cleanup khi unmount
+    }, []);
+
+    if (!isOpen) return null;
+
+    const status = isLoading
+        ? "Đang tải..."
+        : totalHits > 0
+            ? `~${totalHits} ảnh${page > 1 ? ` (Trang ${page})` : ""}`
+            : debouncedQuery || activePreset
+                ? "Không tìm thấy kết quả phù hợp"
+                : "Sẵn sàng tìm kiếm";
+
+    return (
+        <>
+            {/* Ô search */}
+            <SidebarSearchBar
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onSearch={() => { setPage(1); setItems([]); setHasMore(true); }}
+                onKeyDown={(e) => e.key === "Enter" && (setPage(1), setItems([]), setHasMore(true))}
+                placeholder="Tìm phụ kiện (ví dụ: 'nón', 'mắt', 'kính')..."
+                loading={isLoading}
+            />
+
+            {/* Preset + Filters */}
+            <div className="px-0 pt-0 pb-2 space-y-2 text-sm">
+                {/* Preset */}
+
+                <ScrollArea className="w-full">
+                    <div className="flex gap-2 pb-4 preset-scroll-container">
+                        {PRESETS.map(p => (
+                            <Button
+                                key={p.key}
+                                variant={activePreset === p.key ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => {
+                                    setActivePreset(p.key);
+                                    setSearchQuery("");
+                                    setPage(1);
+                                    setItems([]);
+                                    setHasMore(true);
+                                }}
+                                className="whitespace-nowrap"
+                                title={p.q}
+                            >
+                                {p.label}
+                            </Button>
+                        ))}
+                        <Button
+                            variant={!activePreset ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                                setActivePreset(null);
+                                setPage(1);
+                                setItems([]);
+                                setHasMore(true);
+                            }}
+                            className="whitespace-nowrap"
+                        >
+                            Tự nhập
+                        </Button>
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+
+
+                <div className="flex flex-wrap items-center gap-2 justify-center">
+                    {/* Segmented control: image_type */}
+                    <div className="flex gap-2 justify-center items-center">
+                        {(["photo", "illustration", "vector"] as ImageType[]).map(t => (
+                            <Button
+                                key={t}
+                                variant={imageType === t ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => { setImageType(t); setPage(1); setItems([]); setHasMore(true); }}
+                                className="whitespace-nowrap"
+                            >
+                                {t === "photo" ? "Ảnh chụp" : t === "illustration" ? "Đồ họa" : "Vector"}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Transparent only */}
+                    <label className="inline-flex items-center gap-2 cursor-pointer text-foreground">
+                        <Checkbox
+                            id="transparent-only"
+                            checked={onlyTransparent}
+                            onCheckedChange={(checked) => {
+                                setOnlyTransparent(checked as boolean);
+                                setPage(1);
+                                setItems([]);
+                                setHasMore(true);
+                            }}
+                        />
+                        <span>Chỉ nền trong suốt</span>
+                        <span className="ml-auto text-muted-foreground">{status}</span>
+                    </label>
+
+                </div>
+            </div>
+
+            {/* Grid */}
+            <ScrollArea className="h-[calc(100vh-340px)]">
+                <div className="p-2">
+                    <div className="grid grid-cols-2 gap-4">
+                        {items.map((item) => (
+                            <div
+                                key={item.id}
+                                className="cursor-move group"
+                                onClick={() => onSelect(item.imageUrl)}
+                                draggable
+                                onDragStart={(e) => onDragStart(e, item.imageUrl)}
+                            >
+                                <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
+                                    <img
+                                        src={item.imageUrl}
+                                        alt={item.name}
+                                        crossOrigin="anonymous"
+                                        className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+                                        draggable={false}
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors" />
+
+                                    {/* hover metadata */}
+                                    {/* {item.metadata && (
+                                        <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex justify-between">
+                                                <span>👤 {item.metadata.user}</span>
+                                                <span>❤️ {item.metadata.likes}</span>
+                                            </div>
+                                            <div className="flex justify-between mt-1">
+                                                <span>👁️ {item.metadata.views}</span>
+                                                <span>⬇️ {item.metadata.downloads}</span>
+                                            </div>
+                                            {item.metadata.type && (
+                                                <div className="mt-1 opacity-80">Type: {String(item.metadata.type)}</div>
+                                            )}
+                                        </div>
+                                    )} */}
+                                </div>
+                                <p className="text-sm text-center text-muted-foreground truncate">
+                                    {item.name}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div ref={loadingRef} className="flex justify-center items-center h-24">
+                        {isLoading && (
+                            <>
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                                <p className="ml-3 text-muted-foreground">Đang tải...</p>
+                            </>
+                        )}
+                        {!isLoading && !hasMore && items.length > 0 && (
+                            <p className="text-muted-foreground">Đã hết kết quả.</p>
+                        )}
+                        {!isLoading && items.length === 0 && (
+                            <p className="text-muted-foreground">Không tìm thấy kết quả phù hợp.</p>
+                        )}
+                    </div>
+                </div>
+            </ScrollArea>
+        </>
+    );
+};
+
+export default PixabayLibrary;
