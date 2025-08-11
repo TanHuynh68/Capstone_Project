@@ -1,65 +1,147 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, CheckCircle, XCircle } from "lucide-react";
+import {
+  FileText,
+  Users,
+  Truck,
+  ShoppingCart,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
+interface PolicyOverviewProps {
+  rules: PolicyRule[];
+}
 
-export default function PolicyOverview() {
+export default function PolicyOverview({ rules }: PolicyOverviewProps) {
+  const totalRules = rules.length;
+  const generalRules = rules.filter(
+    (rule) => rule.benefitType === "General"
+  ).length;
+  const deliveryRules = rules.filter(
+    (rule) => rule.benefitType === "Delivery"
+  ).length;
+  const orderRules = rules.filter(
+    (rule) => rule.benefitType === "OrderAndProgress"
+  ).length;
+
+  const positiveCustomerRules = rules.filter(
+    (rule) => rule.customerScoreChange > 0
+  ).length;
+  const negativeCustomerRules = rules.filter(
+    (rule) => rule.customerScoreChange < 0
+  ).length;
+  const positiveDesignerRules = rules.filter(
+    (rule) => rule.designerScoreChange > 0
+  ).length;
+  const negativeDesignerRules = rules.filter(
+    (rule) => rule.designerScoreChange < 0
+  ).length;
+
+  const stats = [
+    {
+      title: "Tổng số quy tắc",
+      value: totalRules,
+      icon: FileText,
+      color: "bg-blue-100 text-blue-800",
+    },
+    {
+      title: "Chính sách chung",
+      value: generalRules,
+      icon: Users,
+      color: "bg-gray-100 text-gray-800",
+    },
+    {
+      title: "Chính sách giao hàng",
+      value: deliveryRules,
+      icon: Truck,
+      color: "bg-blue-100 text-blue-800",
+    },
+    {
+      title: "Chính sách đơn hàng",
+      value: orderRules,
+      icon: ShoppingCart,
+      color: "bg-purple-100 text-purple-800",
+    },
+  ];
+
+  const scoreStats = [
+    {
+      title: "KH tăng điểm",
+      value: positiveCustomerRules,
+      icon: TrendingUp,
+      color: "bg-green-100 text-green-800",
+    },
+    {
+      title: "KH giảm điểm",
+      value: negativeCustomerRules,
+      icon: TrendingDown,
+      color: "bg-red-100 text-red-800",
+    },
+    {
+      title: "NTK tăng điểm",
+      value: positiveDesignerRules,
+      icon: TrendingUp,
+      color: "bg-green-100 text-green-800",
+    },
+    {
+      title: "NTK giảm điểm",
+      value: negativeDesignerRules,
+      icon: TrendingDown,
+      color: "bg-red-100 text-red-800",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <Card className="border-green-200 bg-green-50/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-green-700">
-            <CheckCircle className="h-5 w-5" />
-            Điểm tích cực
+    <div className="space-y-6 mb-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-center">
+            Tổng quan chính sách
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-green-600">
-            Hoàn thành đúng hạn, chất lượng tốt sẽ được cộng điểm và nhận thưởng
-          </p>
-          <Badge
-            variant="outline"
-            className="mt-2 text-green-600 border-green-300"
-          >
-            +5 đến +10 điểm
-          </Badge>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.title} className="text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <Badge className={stat.color}>
+                      <Icon className="h-4 w-4 mr-1" />
+                      {stat.value}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600">{stat.title}</p>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="border-red-200 bg-red-50/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-red-700">
-            <XCircle className="h-5 w-5" />
-            Điểm tiêu cực
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-center">
+            Phân tích điểm số
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-red-600">
-            Vi phạm cam kết, giao hàng trễ sẽ bị trừ điểm và phạt bồi thường
-          </p>
-          <Badge variant="outline" className="mt-2 text-red-600 border-red-300">
-            -5 đến -20 điểm
-          </Badge>
-        </CardContent>
-      </Card>
-
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-blue-700">
-            <Shield className="h-5 w-5" />
-            Bồi thường
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-blue-600">
-            Tỷ lệ bồi thường dựa trên mức độ thiệt hại và trách nhiệm của từng
-            bên
-          </p>
-          <Badge
-            variant="outline"
-            className="mt-2 text-blue-600 border-blue-300"
-          >
-            0% đến 100%
-          </Badge>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {scoreStats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.title} className="text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <Badge className={stat.color}>
+                      <Icon className="h-4 w-4 mr-1" />
+                      {stat.value}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600">{stat.title}</p>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
     </div>

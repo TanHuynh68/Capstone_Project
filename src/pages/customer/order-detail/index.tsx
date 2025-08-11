@@ -137,15 +137,9 @@ export default function OrderManagementPage() {
   // Create progress step
   const handleCreateProgressStep = async (data: CreateProgressStepFormData) => {
     const response = await createProgressStep(data);
-    console.log("handleCreateProgressStep: ", response);
     if (response && response.responseRequestModel) {
       toast.success(MESSAGE.CREATE_PROGRESS_STEP);
-      // Refresh progress steps if a phase is selected
-      if (progressSteps.length > 0) {
-        const currentPhaseId = progressSteps[0]?.progressStep?.progressStepID; // You might need to track this differently
-        await fetchOrderDetail();
-        await fetchProgressSteps(currentPhaseId);
-      }
+      await fetchOrderDetail();
     }
   };
 
