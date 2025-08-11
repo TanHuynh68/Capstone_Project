@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "../../ui/button";
@@ -14,8 +14,8 @@ import { PATH } from "@/routes/path";
 import Message from "@/components/atoms/layout/navbar/Message";
 import DualLogo from "@/components/atoms/custom/logo/LogoWeb";
 import Balance from "@/components/atoms/layout/navbar/Balance";
-import WalletService from "@/services/WalletService";
 import Deposit from "@/components/atoms/layout/navbar/Deposit";
+import { useStateValue } from "@/context/stateProvider";
 
 const navItems = [
   { title: "Giới thiệu", href: PATH.ABOUT_PAGE },
@@ -24,35 +24,13 @@ const navItems = [
 ];
 
 export function Navbar() {
-  const { getWallet, getDepositOrder } = WalletService();
-  const [wallet, setWallet] = useState<Wallet>();
-  const [depositMoney, setDepositMoney] = useState<DepositOrder[]>([]);
+  const { wallet, fetchWallet, depositMoney, fetchDepositOrderList } =
+    useStateValue();
 
   useEffect(() => {
     fetchWallet();
     fetchDepositOrderList();
   }, []);
-
-  /**
-   * fetch wallet to show balance on navbar
-   */
-  const fetchWallet = async () => {
-    const response = await getWallet();
-    if (response && response.responseRequestModel) {
-      console.log(
-        "response.responseRequestModel: ",
-        response.responseRequestModel
-      );
-      setWallet(response.responseRequestModel);
-    }
-  };
-
-  const fetchDepositOrderList = async () => {
-    const response = await getDepositOrder();
-    if (response && response.responseRequestModel) {
-      setDepositMoney(response.responseRequestModel.responseList.items);
-    }
-  };
 
   const MobileMenu = () => (
     <div className="flex flex-col space-y-4 py-4">
@@ -91,7 +69,7 @@ export function Navbar() {
               {isLoggedIn() && (
                 <Deposit
                   deposits={depositMoney.filter(
-                    (item) => item.type === "Deposit"
+                    (item: any) => item.type === "Deposit"
                   )}
                   amount={wallet?.locked || 0}
                 />

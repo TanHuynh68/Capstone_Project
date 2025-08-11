@@ -15,6 +15,7 @@ import { CreateFeedbackFormData } from "@/schemas/feedbackSchema";
 import { useCurrentUser } from "@/utils";
 import WalletService from "@/services/WalletService";
 import LoadingSpinner from "@/components/atoms/custom/loading-spinner/LoadingSpinner";
+import { useStateValue } from "@/context/stateProvider";
 
 export default function OrderManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,8 +25,12 @@ export default function OrderManagementPage() {
     createWithdrawPhase,
     getOrderDeposited,
   } = OrderService();
-  const { getProgress, createProgressStep, getProgressReviewDetail } =
-    ProgressService();
+  const {
+    getProgress,
+    createProgressStep,
+    getProgressReviewDetail,
+    createProgressReview,
+  } = ProgressService();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
   const [ordersDeposited, setOrdersDeposited] = useState<DepositHistoryItem[]>(
     []
@@ -38,8 +43,7 @@ export default function OrderManagementPage() {
   const [isLoadingOrder, setIsLoadingOrder] = useState(true);
 
   const currentUser = useCurrentUser();
-  console.log("currentUser: ", currentUser);
-  const { createProgressReview } = ProgressService();
+  const { fetchDepositOrderList, fetchWallet } = useStateValue();
   const { getDepositTransaction } = WalletService();
   const { createFeedback, createFeedbackResponse, getFeedbacks } =
     FeedbackService();
@@ -97,6 +101,8 @@ export default function OrderManagementPage() {
       if (response) {
         toast.success(MESSAGE.DEPOSIT_SUCCESSFULLY);
         fetchOrderDetail();
+        fetchDepositOrderList();
+        fetchWallet();
       }
     }
   };
@@ -109,6 +115,8 @@ export default function OrderManagementPage() {
       if (response) {
         toast.success(MESSAGE.WITHDRAW_SUCCESSFULLY);
         fetchOrderDetail();
+        fetchDepositOrderList();
+        fetchWallet();
       }
     }
   };
@@ -118,12 +126,13 @@ export default function OrderManagementPage() {
     const response = await createProgressReview(value);
     if (response && response.responseRequestModel) {
       toast.success(MESSAGE.CREATE_PROGRESS_SUCCESSFULLY);
+      fetchOrderDetail();
     }
   };
 
   //fetch progress steps by offer phase ID
   const fetchProgressSteps = async (offerPhaseId: string) => {
-    console.log('fetchProgressSteps: ', offerPhaseId)
+    console.log("fetchProgressSteps: ", offerPhaseId);
     const response = await getProgress(id + "", offerPhaseId);
     if (response) {
       setProgressSteps(response?.responseRequestModel?.responseList);
@@ -139,7 +148,7 @@ export default function OrderManagementPage() {
     const response = await createProgressStep(data);
     if (response && response.responseRequestModel) {
       toast.success(MESSAGE.CREATE_PROGRESS_STEP);
-      await fetchOrderDetail();
+      fetchOrderDetail();
     }
   };
 

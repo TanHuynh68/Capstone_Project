@@ -58,6 +58,8 @@ export default function DepositHistoryMainDialog({
         return "bg-green-100 text-green-800 hover:bg-green-200";
       case "Withdraw":
         return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+        case "Forfeit":
+        return "bg-red-100 text-red-800 hover:bg-red-200";
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
@@ -69,6 +71,10 @@ export default function DepositHistoryMainDialog({
         return "Đặt cọc";
       case "Withdraw":
         return "Rút tiền";
+      case "Forfeit":
+        return "Bồi thường";
+      case "Refund":
+        return "Hoàn tiền";
       default:
         return type;
     }
