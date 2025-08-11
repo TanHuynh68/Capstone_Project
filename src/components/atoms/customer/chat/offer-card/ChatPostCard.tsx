@@ -256,7 +256,7 @@ export function ChatPostCard({
                   </div>
                   <div className="bg-white p-3 rounded border">
                     <div className="text-sm text-gray-600">Ngân sách</div>
-                    <div className="font-semibold text-green-600">
+                    <div className="font-semibold text-blue-600">
                       {formatCurrencyVND(post.post.suggestedPrice)}
                     </div>
                   </div>
@@ -319,7 +319,7 @@ export function ChatPostCard({
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Giá ban đầu</div>
+                    <div className="text-sm text-gray-600">Giá NTK đề xuất</div>
                     <div className="font-semibold text-blue-600">
                       {formatCurrencyVND(post.offer.initPrice)}
                     </div>
@@ -348,8 +348,21 @@ export function ChatPostCard({
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Giá ban đầu</div>
-                    <div className="font-semibold text-blue-600">
+                    <div className="text-sm text-gray-600 flex gap-1 items-center">Giá cuối cùng
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              Giá cuối cùng bằng tổng giá trị các giai đoạn
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="font-semibold text-green-600">
                       {post.offer.finalPrice != null
                         ? formatCurrencyVND(post.offer.finalPrice)
                         : "Chưa có"}

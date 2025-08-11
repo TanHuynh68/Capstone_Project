@@ -41,7 +41,7 @@ export default function PolicyTemplate() {
                 • Điểm số được tính tự động dựa trên hành vi và kết quả thực tế
               </p>
               <p>
-                • Bồi thường được tính theo tỷ lệ phần trăm của giá trị đơn hàng
+                • Bồi thường được tính theo tỷ lệ phần trăm giá trị đặt cọc của nhà thiết kế
               </p>
               <p>• Mọi tranh chấp sẽ được xem xét và giải quyết công bằng</p>
               <p>

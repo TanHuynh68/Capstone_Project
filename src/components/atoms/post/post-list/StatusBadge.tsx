@@ -14,7 +14,7 @@ export default function StatusBadge({
 
   switch (status) {
     case 0:
-      color = "bg-green-100 text-green-800 hover:bg-green-100";
+      color = " bg-red-100 text-red-800 hover:bg-red-100";
       label = "Đã khóa";
       break;
     case 1:
@@ -26,7 +26,7 @@ export default function StatusBadge({
       label = "Đã được nhận";
       break;
     case 3:
-      color = "bg-red-100 text-red-800 hover:bg-red-100";
+      color = "bg-green-100 text-green-800 hover:bg-green-100";
       label = "Đã hoàn thành";
       break;
     default:

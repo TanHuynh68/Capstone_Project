@@ -21,13 +21,13 @@ const OfferPhasesDialog = ({
   fetchOfferPhase,
 }: OfferPhasesDialogProps) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="min-w-[400px] max-h-[80vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={onClose} >
+      <DialogContent className="min-w-[500px]  overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Giai đoạn dự án</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3 mt-4">
+        <div className="space-y-3 mt-4 w-full">
           {offersPhase.length > 0 ? (
             offersPhase.map((item: OfferPhase) => (
               <OfferPhaseCard
