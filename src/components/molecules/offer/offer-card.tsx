@@ -154,7 +154,7 @@ export function OfferCard({
                 size="sm"
                 className="cursor-pointer"
               />
-              <div className="text-sm font-medium ml-2">{offer.fullName}</div>
+              <div className="text-sm font-medium ml-2">{currentUser.id != offer.designerID ? offer.fullName : `${offer.fullName} (Bạn)`}</div>
             </div>
             {showProfilePopup && (
               <ProfilePopup

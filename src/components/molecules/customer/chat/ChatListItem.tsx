@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
-import { useCurrentUser } from "@/utils";
+import { formatDateTimeVN, useCurrentUser } from "@/utils";
 
 interface ChatListItemProps {
   id: string;
@@ -16,7 +16,7 @@ interface ChatListItemProps {
 // Helper function to calculate relative time
 const getRelativeTime = (updatedAt: string): string => {
   const now = new Date();
-  const messageTime = new Date(updatedAt);
+  const messageTime = new Date(formatDateTimeVN(updatedAt));
   const diffInMs = now.getTime() - messageTime.getTime();
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
