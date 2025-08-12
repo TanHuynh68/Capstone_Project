@@ -39,11 +39,13 @@ import {
   FileImage,
   ChevronDown,
   MenuIcon,
+  Shapes,
 } from "lucide-react";
 import { toast } from "sonner";
 // import CanvasList from "./get-canvas";
 import ItemLibrary from "./ItemLibrary";
 import CanvasListSidebar from "./CanvasListSidebar";
+import ShapesLibrary from "./ShapesLibrary";
 import {
   Popover,
   PopoverTrigger,
@@ -213,6 +215,8 @@ const PlushDollDesign: React.FC = () => {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [showUnsplash, setShowUnsplash] = useState(false);
   const [showCanvasList, setShowCanvasList] = useState(false);
+  const [showShapes, setShowShapes] = useState(false);
+  const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
 
   const location = useLocation();
 
@@ -221,8 +225,7 @@ const PlushDollDesign: React.FC = () => {
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Thêm state điều khiển panel
-  const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
+
 
   // Thêm state for background color
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
@@ -2231,6 +2234,31 @@ const PlushDollDesign: React.FC = () => {
 
           fabric.loadSVGFromString(svgString, (objects) => {
             if (objects && objects.length > 0) {
+              // Apply color to all objects in the shape
+              objects.forEach((obj) => {
+                if (
+                  obj.type === "path" ||
+                  obj.type === "line" ||
+                  obj.type === "polygon" ||
+                  obj.type === "rect" ||
+                  obj.type === "circle" ||
+                  obj.type === "ellipse"
+                ) {
+                  // Set fill color for filled shapes
+                  if (obj.fill && obj.fill !== "none") {
+                    obj.set("fill", shapeColor);
+                  }
+                  // Set stroke color for stroked shapes
+                  if (obj.stroke && obj.stroke !== "none") {
+                    obj.set("stroke", shapeColor);
+                  }
+                  // If no fill or stroke, set fill as default
+                  if (!obj.fill && !obj.stroke) {
+                    obj.set("fill", shapeColor);
+                  }
+                }
+              });
+
               const group = new fabric.Group(objects, {
                 left: canvasX - 50, // Center the shape
                 top: canvasY - 50,
@@ -2760,6 +2788,7 @@ const PlushDollDesign: React.FC = () => {
           setShowUnsplash(false);
           setShowCanvasList(false);
           setDrawingPanelOpen(false);
+          setShowShapes(false);
         }
       },
     },
@@ -2774,6 +2803,7 @@ const PlushDollDesign: React.FC = () => {
         setShowUnsplash(false);
         setShowCanvasList(false);
         setDrawingPanelOpen(false);
+        setShowShapes(false);
       },
     },
     {
@@ -2790,6 +2820,25 @@ const PlushDollDesign: React.FC = () => {
           setShowUnsplash(true);
           setShowCanvasList(false);
           setDrawingPanelOpen(false);
+          setShowShapes(false);
+        }
+      },
+    },
+    {
+      key: "shapes",
+      icon: Shapes,
+      label: "Hình dạng",
+      active: showShapes,
+      onClick: () => {
+        setBackgroundPanelOpen(false);
+        if (showShapes) {
+          setShowShapes(false);
+        } else {
+          setLibraryOpen(false);
+          setShowUnsplash(false);
+          setShowCanvasList(false);
+          setDrawingPanelOpen(false);
+          setShowShapes(true);
         }
       },
     },
@@ -2843,6 +2892,7 @@ const PlushDollDesign: React.FC = () => {
           setShowUnsplash(false);
           setShowCanvasList(false);
           setDrawingPanelOpen(true);
+          setShowShapes(false);
         }
       },
     },
@@ -2860,6 +2910,7 @@ const PlushDollDesign: React.FC = () => {
           setShowUnsplash(false);
           setShowCanvasList(true);
           setDrawingPanelOpen(false);
+          setShowShapes(false);
         }
       },
     },
@@ -2950,6 +3001,7 @@ const PlushDollDesign: React.FC = () => {
 
   // Thêm các ref cho sidebar
   const itemLibraryRef = useRef<HTMLDivElement>(null);
+  const shapesLibraryRef = useRef<HTMLDivElement>(null);
   const canvasListSidebarRef = useRef<HTMLDivElement>(null);
   const drawingToolPanelRef = useRef<HTMLDivElement>(null);
   const backgroundColorPanelRef = useRef<HTMLDivElement>(null);
@@ -3402,6 +3454,18 @@ const PlushDollDesign: React.FC = () => {
           showUnsplash={showUnsplash}
           onCloseLibrary={() => setLibraryOpen(false)}
           onCloseUnsplash={() => setShowUnsplash(false)}
+        />
+
+        {/* Shapes Library Sidebar */}
+        <ShapesLibrary
+          ref={shapesLibraryRef}
+          onSelect={handleItemSelect}
+          isOpen={showShapes}
+          onClose={() => setShowShapes(false)}
+          onDragStart={(e, shapeData) => {
+            e.dataTransfer.setData("text/plain", JSON.stringify(shapeData));
+            e.dataTransfer.effectAllowed = "copy";
+          }}
         />
 
         {/* Canvas List Sidebar */}

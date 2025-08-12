@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, forwardRef } from "react";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
-import { Palette } from "lucide-react";
 import SidebarSearchBar from "./SidebarSearchBar";
 
 interface BackgroundColorPanelProps {
@@ -154,8 +153,6 @@ const BackgroundColorPanel = forwardRef<
       ref={ref}
       isOpen={isOpen}
       onClose={onClose}
-      title="Chọn màu nền"
-      icon={<Palette className="w-5 h-5 mr-2" />}
     >
       <SidebarSearchBar
         value={searchQuery}

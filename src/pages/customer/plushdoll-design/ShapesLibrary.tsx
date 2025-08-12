@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import SidebarSearchBar from "./SidebarSearchBar";
+import SidebarPanelWrapper from "./SidebarPanelWrapper";
 
 interface ShapesLibraryProps {
   onSelect: (shapeData: { type: string; svg: string }) => void;
   isOpen: boolean;
+  onClose: () => void;
   onDragStart: (
     e: React.DragEvent<HTMLDivElement>,
     shapeData: { type: string; svg: string }
   ) => void;
 }
 
-const ShapesLibrary: React.FC<ShapesLibraryProps> = ({
+const ShapesLibrary = forwardRef<HTMLDivElement, ShapesLibraryProps>(({
   onSelect,
   isOpen,
+  onClose,
   onDragStart,
-}) => {
+}, ref) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const allItems: Array<{
@@ -450,7 +453,11 @@ const ShapesLibrary: React.FC<ShapesLibraryProps> = ({
   if (!isOpen) return null;
 
   return (
-    <>
+    <SidebarPanelWrapper
+      ref={ref}
+      isOpen={isOpen}
+      onClose={onClose}
+    >
       <SidebarSearchBar
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
@@ -464,7 +471,7 @@ const ShapesLibrary: React.FC<ShapesLibraryProps> = ({
         loading={false}
       />
 
-      <div className="h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      <div className="h-[calc(100vh)] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
         <div className="p-2">
           {Object.entries(groupedItems).map(([category, items]) => (
             <div key={category} className="mb-6">
@@ -498,6 +505,9 @@ const ShapesLibrary: React.FC<ShapesLibraryProps> = ({
                       </div>
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     </div>
+                    <p className="text-xs text-center text-muted-foreground truncate">
+                      {item.name}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -505,8 +515,8 @@ const ShapesLibrary: React.FC<ShapesLibraryProps> = ({
           ))}
         </div>
       </div>
-    </>
+    </SidebarPanelWrapper>
   );
-};
+});
 
 export default ShapesLibrary;

@@ -5,15 +5,13 @@ import { Button } from "@/components/ui/button";
 interface SidebarPanelWrapperProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  icon?: React.ReactNode;
   children: React.ReactNode;
 }
 
 const SidebarPanelWrapper = forwardRef<
   HTMLDivElement,
   SidebarPanelWrapperProps
->(({ isOpen, onClose, title, icon, children }, ref) => {
+  >(({ isOpen, onClose, children }, ref) => {
   const [isClosing, setIsClosing] = useState(false);
   const ANIMATION_DURATION = 100; // ms, khớp với CSS
 
@@ -32,18 +30,14 @@ const SidebarPanelWrapper = forwardRef<
   return (
     <div
       ref={ref}
-      className={`w-[300px] h-full flex flex-col overflow-visible
+      className={`w-[320px] h-full flex flex-col overflow-visible
           ${isClosing ? "sidebar-panel-closing" : "sidebar-panel-opening"}
         `}
     >
       <div className="relative h-full">
         <div className="h-full border-l border-border bg-card flex flex-col">
-          <div className="p-4 border-b border-border flex items-center gap-2 font-medium text-base text-foreground">
-            {icon}
-            {title}
-          </div>
           <div
-            className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent transition-opacity duration-400 ${
+            className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent transition-opacity duration-400 pr-0 ${
               isClosing ? "opacity-0" : "opacity-100"
             }`}
           >
