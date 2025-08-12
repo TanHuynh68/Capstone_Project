@@ -162,11 +162,17 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                 <div className="text-xs text-muted-foreground mb-1">
                   Người gửi
                 </div>
-                <div className="font-medium text-foreground">
+                <div className={`font-medium ${delivery.senderName === user.name
+                  ? "text-primary font-bold"
+                  : "text-foreground"
+                  }`}>
                   <HighlightText
                     text={delivery.senderName}
                     searchTerm={searchTerm}
-                    className="font-medium text-foreground"
+                    className={delivery.senderName === user.name
+                      ? "text-primary font-bold"
+                      : "font-medium text-foreground"
+                    }
                   />
                 </div>
               </div>
@@ -180,11 +186,17 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
                 <div className="text-xs text-muted-foreground mb-1">
                   Người nhận
                 </div>
-                <div className="font-medium text-foreground">
+                <div className={`font-medium ${delivery.receiverName === user.name
+                  ? "text-primary font-bold"
+                  : "text-foreground"
+                  }`}>
                   <HighlightText
                     text={delivery.receiverName}
                     searchTerm={searchTerm}
-                    className="font-medium text-foreground"
+                    className={delivery.receiverName === user.name
+                      ? "text-primary font-bold"
+                      : "font-medium text-foreground"
+                    }
                   />
                 </div>
               </div>
