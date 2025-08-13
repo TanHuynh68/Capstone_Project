@@ -114,9 +114,9 @@ export function ProfilePopup({
       portfolioData.portfolioImages.length === 0
     ) {
       return [
-        { imageUrl: "/images/logo.png", alt: "ảnh giới thiệu" },
-        { imageUrl: "/images/logo.png", alt: "ảnh giới thiệu" },
-        { imageUrl: "/images/logo.png", alt: "ảnh giới thiệu" },
+        { imageUrl: "/images/white.jpg", alt: "ảnh mặc định" },
+        { imageUrl: "/images/white.jpg", alt: "ảnh mặc định" },
+        { imageUrl: "/images/white.jpg", alt: "ảnh mặc định" },
       ];
     }
 
@@ -155,10 +155,10 @@ export function ProfilePopup({
         />
         <div className="font-semibold text-base mt-2">{user.id != designerID ? fullName : `${fullName} (Bạn)`}</div>
         <div className="text-sm text-muted-foreground">
-          {portfolioData?.email || "N/A"}
+          {portfolioData?.email || "Chưa có email"}
         </div>
         <span className="mt-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-          <Phone className="w-3 h-3" /> {portfolioData?.phoneNumber || "N/A"}
+          <Phone className="w-3 h-3" /> {portfolioData?.phoneNumber || "Chưa có số điện thoại"}
         </span>
       </div>
 
@@ -171,7 +171,7 @@ export function ProfilePopup({
               ? portfolioData.yearOfExperience.length > 5
                 ? `${portfolioData.yearOfExperience.substring(0, 5)}...`
                 : portfolioData.yearOfExperience
-              : "N/A",
+              : "Chưa có",
           },
           {
             label: "Chuyên môn",
@@ -179,7 +179,7 @@ export function ProfilePopup({
               ? portfolioData.expertIn.length > 5
                 ? `${portfolioData.expertIn.substring(0, 5)}...`
                 : portfolioData.expertIn
-              : "N/A",
+              : "Chưa có",
           },
           {
             label: "Giới thiệu",
@@ -187,7 +187,7 @@ export function ProfilePopup({
               ? portfolioData.content.length > 5
                 ? `${portfolioData.content.substring(0, 5)}...`
                 : portfolioData.content
-              : "N/A",
+              : "Chưa có",
           },
         ].map((item, index, array) => (
           <div

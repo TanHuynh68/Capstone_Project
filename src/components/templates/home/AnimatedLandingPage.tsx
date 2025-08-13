@@ -22,7 +22,7 @@ import {
 import LoginVideo from "@/components/atoms/auth/login/LoginVideo";
 import { USER_ROUTES } from "@/routes/path";
 import { Link } from "react-router-dom";
-import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
+// import ChatAIHomePage from "@/pages/customer/chat-ai-homepage";
 
 export default function AnimatedLandingPage() {
   const [visibleElements, setVisibleElements] = useState(new Set());
@@ -645,7 +645,7 @@ export default function AnimatedLandingPage() {
         </button>
       )}
 
-      <ChatAIHomePage />
+      {/* <ChatAIHomePage /> */}
     </div>
   );
 }

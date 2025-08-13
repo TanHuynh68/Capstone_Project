@@ -48,7 +48,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import LoadingSpinner from "@/components/atoms/custom/loading-spinner/LoadingSpinner";
 import { AnimatePresence, motion } from "framer-motion";
 import { easeInOut } from "framer-motion";
-import ChatAIHomePage from "../../chat-ai-homepage";
+// import ChatAIHomePage from "../../chat-ai-homepage";
 import AllBenefits from "@/components/molecules/reputation/AllBenefits";
 
 interface Profile {
@@ -1031,7 +1031,7 @@ const Profile = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ChatAIHomePage />
+      {/* <ChatAIHomePage /> */}
     </>
   );
 };
