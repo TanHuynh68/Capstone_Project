@@ -6,7 +6,7 @@ import { PAGE_SIZE } from "@/constants/reports.constants";
 import { filterReportsBySearch } from "@/utils/reports.utils";
 import ReportService from "@/services/ReportService";
 import CustomerReportService from "@/services/CustomerReportService";
-import { ProcessReportFormData } from "@/schemas/updateReportSchema";
+import { ProcessReportFormData } from "@/schemas/report/updateReportSchema";
 
 export const useReportsLogic = () => {
   const [reports, setReports] = useState<Report[]>([]);
@@ -110,7 +110,6 @@ export const useReportsLogic = () => {
           accept: data.accept,
           benefitID: data.benefitID,
         };
-
         const response = await processReport(processData);
         if (response) {
           toast.success("Xử lý báo cáo thành công");

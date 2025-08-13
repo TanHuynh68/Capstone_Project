@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UpdatePostFormValues } from "@/schemas/report/updatePostSchema";
+import { UpdatePostFormValues } from "@/schemas/updatePostSchema";
 import { useState } from "react";
 interface DialogUpdatePostProps {
   children: React.ReactNode;
