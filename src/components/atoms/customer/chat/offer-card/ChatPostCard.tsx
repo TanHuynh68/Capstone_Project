@@ -34,6 +34,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 export interface ChatPostCardProps {
   post: OfferDetail;
@@ -62,8 +63,8 @@ export function ChatPostCard({
       setIsConfirming(true);
       const response = await offerConfirm({ offerID: post?.offer?.offerID });
       if (response) {
+        toast.success('Chấp nhận đề xuất thành công!')
         await fetchOffers();
-        console.log("Offer confirmed successfully");
       }
     } catch (error) {
       console.error("Error confirming offer:", error);

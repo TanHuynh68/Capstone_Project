@@ -39,44 +39,6 @@ interface StatusStep {
   description?: string;
 }
 
-const mainStatuses: StatusStep[] = [
-  {
-    key: "Created",
-    label: "Đã tạo",
-    icon: <Package className="w-4 h-4" />,
-  },
-  {
-    key: "ShippingToDesigner",
-    label: "Đang gửi hàng đến NTK",
-    icon: <Truck className="w-4 h-4" />,
-  },
-  {
-    key: "InProgress",
-    label: "Đang thực hiện",
-    icon: <Wrench className="w-4 h-4" />,
-  },
-  {
-    key: "Completed",
-    label: "Hoàn thành",
-    icon: <CheckCircle className="w-4 h-4" />,
-  },
-  {
-    key: "ShippingToCustomer",
-    label: "NTK trả hàng",
-    icon: <ArrowLeft className="w-4 h-4" />,
-  },
-  {
-    key: "Done",
-    label: "Hoàn tất",
-    icon: <Flag className="w-4 h-4" />,
-  },
-  {
-    key: "Rejected",
-    label: "Đã hủy",
-    icon: <XCircle className="w-4 h-4" />,
-  },
-];
-
 const statusDescriptions: Record<OrderStatus, string> = {
   Created: "Khách hàng cần gửi sản phẩm cần làm đến nhà thiết kế.",
   ShippingToDesigner:
@@ -104,39 +66,104 @@ export default function OrderStatusTimeline({
   order,
   fetchOrderDetail,
 }: OrderStatusTimelineProps) {
+  // Get main statuses with dynamic labels based on order status and oldStatus
+  const getMainStatuses = (): StatusStep[] => {
+    const baseStatuses: StatusStep[] = [
+      {
+        key: "Created",
+        label: "Đã tạo",
+        icon: <Package className="w-4 h-4" />,
+      },
+      {
+        key: "ShippingToDesigner",
+        label: "Đang gửi hàng đến NTK",
+        icon: <Truck className="w-4 h-4" />,
+      },
+      {
+        key: "InProgress",
+        label: "Đang thực hiện",
+        icon: <Wrench className="w-4 h-4" />,
+      },
+      {
+        key: "Completed",
+        label: "Hoàn thành",
+        icon: <CheckCircle className="w-4 h-4" />,
+      },
+      {
+        key: "ShippingToCustomer",
+        label: "NTK trả hàng",
+        icon: <ArrowLeft className="w-4 h-4" />,
+      },
+      {
+        key: "Done",
+        label: "Hoàn tất",
+        icon: <Flag className="w-4 h-4" />,
+      },
+    ];
+
+    // Modify labels based on rejection status
+    if (currentStatus === "Rejected" && order?.oldStatus) {
+      const oldStatus = order.oldStatus;
+
+      if (oldStatus === "DesignerRejected") {
+        baseStatuses[1].label = "Nhà thiết kế đã từ chối";
+      } else if (oldStatus === "CustomerRejected") {
+        baseStatuses[4].label = "Khách hàng đã từ chối";
+      }
+
+      // Change "Hoàn tất" to "Đã hủy" when status is Rejected
+      baseStatuses[5] = {
+        key: "Rejected",
+        label: "Đã hủy",
+        icon: <XCircle className="w-4 h-4" />,
+      };
+    }
+
+    return baseStatuses;
+  };
+
+  const mainStatuses = getMainStatuses();
+
   const getStatusInfo = (status: OrderStatus) => {
     const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
     const isMainStatus = mainStatusIndex !== -1;
 
+    if (status === "Rejected" && order?.oldStatus) {
+      const oldStatus = order.oldStatus;
+      let rejectionIndex = -1;
+
+      if (oldStatus === "DesignerRejected") {
+        rejectionIndex = 1; // ShippingToDesigner index
+      } else if (oldStatus === "CustomerRejected") {
+        rejectionIndex = 4; // ShippingToCustomer index
+      }
+
+      return {
+        currentIndex: 5, // Done/Rejected index
+        completedUntil: rejectionIndex - 1,
+        rejectionStartIndex: rejectionIndex,
+      };
+    }
+
+    // Handle other rejection statuses that are not main statuses
     switch (status) {
       case "DesignerRejected":
         return {
           currentIndex: 1,
-          errorIndex: 1,
-          errorMessage: "Nhà thiết kế đã từ chối",
           completedUntil: 0,
+          rejectionStartIndex: 1,
         };
       case "PendingConflict":
         return {
           currentIndex: 2,
-          errorIndex: 2,
-          errorMessage: "Đang có tranh chấp",
           completedUntil: 1,
+          rejectionStartIndex: 2,
         };
       case "CustomerRejected":
         return {
           currentIndex: 4,
-          errorIndex: 4,
-          errorMessage: "Khách hàng đã từ chối",
           completedUntil: 3,
-          doneError: true,
-        };
-      case "Rejected":
-        return {
-          currentIndex: 6,
-          errorIndex: 6,
-          errorMessage: "Đơn hàng đã bị hủy",
-          completedUntil: -1,
+          rejectionStartIndex: 4,
         };
       default:
         if (isMainStatus) {
@@ -157,10 +184,11 @@ export default function OrderStatusTimeline({
   const getStepStyle = (index: number) => {
     const isCompleted = index <= (statusInfo.completedUntil ?? -1);
     const isCurrent = index === statusInfo.currentIndex;
-    const isError =
-      index === statusInfo.errorIndex || (statusInfo.doneError && index === 5);
+    const isRejected =
+      statusInfo.rejectionStartIndex !== undefined &&
+      index >= statusInfo.rejectionStartIndex;
 
-    if (isError) {
+    if (isRejected) {
       return {
         container: "bg-red-500 border-red-500",
         icon: "text-white",
@@ -168,7 +196,7 @@ export default function OrderStatusTimeline({
       };
     }
 
-    if (isCurrent) {
+    if (isCurrent && !isRejected) {
       return {
         container: "bg-primary border-primary",
         icon: "text-white",
@@ -193,10 +221,11 @@ export default function OrderStatusTimeline({
 
   const getConnectorStyle = (index: number) => {
     const isCompleted = index <= (statusInfo.completedUntil ?? -1);
-    const hasError =
-      statusInfo.errorIndex !== undefined && index >= statusInfo.errorIndex;
+    const isRejected =
+      statusInfo.rejectionStartIndex !== undefined &&
+      index >= statusInfo.rejectionStartIndex;
 
-    if (hasError) {
+    if (isRejected) {
       return "bg-red-200";
     }
 
@@ -205,16 +234,6 @@ export default function OrderStatusTimeline({
     }
 
     return "bg-gray-200";
-  };
-
-  const getErrorMessage = (index: number) => {
-    if (index === statusInfo.errorIndex) {
-      return statusInfo.errorMessage;
-    }
-    if (statusInfo.doneError && index === 5) {
-      return "Đơn hàng đã bị hủy";
-    }
-    return null;
   };
 
   const getDeliveryButtonText = () => {
@@ -227,12 +246,36 @@ export default function OrderStatusTimeline({
     return "";
   };
 
+  const getCurrentStatusLabel = () => {
+    console.log('currentStatus: ',currentStatus)
+    // For rejected status, show the appropriate label
+    if (currentStatus === "Rejected" && order?.oldStatus) {
+      return "Đã hủy";
+    }
+    // For other statuses, find in main statuses or use the status itself
+    const mainStatus = mainStatuses.find((s) => s.key === currentStatus);
+    if (mainStatus) {
+      return mainStatus.label;
+    }
+
+    // Handle non-main statuses
+    switch (currentStatus) {
+      case "DesignerRejected":
+        return "Nhà thiết kế đã từ chối";
+      case "CustomerRejected":
+        return "Khách hàng đã từ chối";
+      case "PendingConflict":
+        return "Đang có tranh chấp";
+      default:
+        return currentStatus;
+    }
+  };
+
   return (
     <div className="w-full py-6">
       <div className="flex items-center justify-between relative">
         {mainStatuses.map((step, index) => {
           const stepStyle = getStepStyle(index);
-          const errorMessage = getErrorMessage(index);
 
           return (
             <div
@@ -269,11 +312,7 @@ export default function OrderStatusTimeline({
               </div>
 
               <div className="mt-1 h-8 flex items-start justify-center">
-                {errorMessage && (
-                  <div className="text-xs text-red-600 text-center max-w-40 leading-tight">
-                    {errorMessage}
-                  </div>
-                )}
+                {/* Empty space for consistency */}
               </div>
             </div>
           );
@@ -283,9 +322,17 @@ export default function OrderStatusTimeline({
       <div className="mt-4 text-center">
         <div className="text-sm">
           Trạng thái hiện tại:{" "}
-          <span className="font-bold text-green-600">
-            {mainStatuses.find((s) => s.key === currentStatus)?.label ||
-              currentStatus}
+          <span
+            className={`font-bold ${
+              currentStatus === "Rejected" ||
+              currentStatus === "DesignerRejected" ||
+              currentStatus === "CustomerRejected" ||
+              currentStatus === "PendingConflict"
+                ? "text-red-600"
+                : "text-green-600"
+            }`}
+          >
+            {getCurrentStatusLabel()}
           </span>
         </div>
         <div className="text-center text-sm mt-1 text-gray-600">
