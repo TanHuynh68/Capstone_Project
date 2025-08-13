@@ -77,7 +77,6 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
                   "Định dạng hình ảnh không được hỗ trợ (chỉ hỗ trợ PNG, JPEG, JPG)"
                 )
               );
-              return;
             }
 
             resolve(imgElement);
@@ -131,35 +130,129 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
       }
 
       const processedBlob = await removeBgResponse.blob();
-      const processedUrl = URL.createObjectURL(processedBlob);
 
-      // Replace the image on canvas
+      // Convert blob to base64 data URL to avoid blob URL issues
+      const reader = new FileReader();
+      const dataUrlPromise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          console.log('Converted blob to data URL, length:', result.length);
+          resolve(result);
+        };
+        reader.onerror = () => reject(new Error('Failed to convert blob to data URL'));
+      });
+      reader.readAsDataURL(processedBlob);
+
+      const processedDataUrl = await dataUrlPromise;
+
+      // Replace the image on canvas with proper error handling
       fabric.Image.fromURL(
-        processedUrl,
+        processedDataUrl,
         (newImg) => {
-          // Copy position and other properties
-          newImg.set({
-            left: img.left,
-            top: img.top,
-            angle: img.angle,
-            selectable: true,
-          });
+          if (!newImg || !canvas) {
+            toast.error("Không thể tải hình ảnh đã xóa nền");
+            return;
+          }
 
-          // Set same scaled size as original image
-          newImg.scaleToWidth(img.getScaledWidth());
-          newImg.scaleToHeight(img.getScaledHeight());
+          try {
+            // Wait for the image to be fully loaded before proceeding
+            const waitForImageLoad = new Promise<void>((resolve) => {
+              const imgElement = newImg.getElement() as HTMLImageElement;
+              if (imgElement && imgElement.complete && imgElement.naturalWidth > 0) {
+                resolve();
+              } else if (imgElement) {
+                imgElement.onload = () => resolve();
+                imgElement.onerror = () => {
+                  toast.error("Không thể tải hình ảnh đã xóa nền");
+                };
+              } else {
+                // If no element, wait a bit and resolve anyway
+                setTimeout(() => resolve(), 100);
+              }
+            });
 
-          // Replace image on canvas
-          canvas?.remove(img);
-          canvas?.add(newImg);
-          canvas?.setActiveObject(newImg);
-          canvas?.requestRenderAll();
-          onSaveState?.();
+            waitForImageLoad.then(() => {
+              // Copy position and other properties from original image
+              newImg.set({
+                left: img.left,
+                top: img.top,
+                angle: img.angle,
+                selectable: true,
+                customId: `img_${Date.now()}_${Math.random()}`, // Add custom ID
+              });
 
-          URL.revokeObjectURL(processedUrl);
-          toast.success("Đã xóa nền thành công!");
+              // Set same scaled size as original image
+              newImg.scaleToWidth(img.getScaledWidth());
+              newImg.scaleToHeight(img.getScaledHeight());
+
+              // Ensure the new image has proper cross-origin settings
+              (newImg as fabric.Image & { crossOrigin?: string }).crossOrigin = "anonymous";
+
+              // Remove the original image and add the new one
+              canvas.remove(img);
+              canvas.add(newImg);
+              canvas.setActiveObject(newImg);
+
+              // Force canvas to render and update
+              canvas.requestRenderAll();
+              canvas.fire('object:modified', { target: newImg });
+
+              // Additional render to ensure everything is displayed
+              setTimeout(() => {
+                canvas.requestRenderAll();
+              }, 50);
+
+              // Debug: Log canvas state after adding new image
+              console.log('Canvas objects after background removal:', canvas.getObjects().length);
+              console.log('New image properties:', {
+                left: newImg.left,
+                top: newImg.top,
+                width: newImg.getScaledWidth(),
+                height: newImg.getScaledHeight(),
+                customId: (newImg as fabric.Image & { customId?: string }).customId
+              });
+
+              // Test if the image can be serialized properly
+              try {
+                const testSerialization = newImg.toObject();
+                console.log('Image serialization test successful:', testSerialization.src ? 'Has src' : 'No src');
+              } catch (serializeError) {
+                console.error('Image serialization test failed:', serializeError);
+              }
+
+              // Ensure all images have proper cross-origin settings
+              const allImages = canvas.getObjects().filter(obj => obj.type === 'image') as fabric.Image[];
+              allImages.forEach(imageObj => {
+                if (imageObj.getElement()) {
+                  const imgElement = imageObj.getElement() as HTMLImageElement;
+                  if (imgElement.crossOrigin !== 'anonymous') {
+                    imgElement.crossOrigin = 'anonymous';
+                  }
+                }
+              });
+
+              // Save the state after successful replacement
+              if (onSaveState) {
+                // Small delay to ensure canvas is fully updated
+                setTimeout(() => {
+                  console.log('Saving canvas state after background removal...');
+                  onSaveState();
+                  console.log('Canvas state saved successfully');
+                }, 200);
+              }
+
+              toast.success("Đã xóa nền thành công!");
+            });
+          } catch (error) {
+            console.error("Error updating canvas:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật canvas");
+          }
         },
-        { crossOrigin: "anonymous" }
+        {
+          crossOrigin: "anonymous",
+          crossOriginPolicy: "anonymous",
+          preserveAspectRatio: true
+        }
       );
     } catch (error) {
       console.error("Error in remove background:", error);

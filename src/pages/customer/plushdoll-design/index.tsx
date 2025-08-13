@@ -853,7 +853,18 @@ const PlushDollDesign: React.FC = () => {
       // ✅ Đánh dấu canvas đã được khởi tạo
       setIsCanvasInitialized(true);
 
+      // Set initial zoom to 60%
+      setZoom(0.6);
+      if (canvasWrapperRef.current) {
+        canvasWrapperRef.current.style.transform = "scale(0.6)";
+        canvasWrapperRef.current.style.transformOrigin = "center center";
+      }
+
       saveInitialState();
+
+      // Set global canvas properties
+      fabric.Object.prototype.transparentCorners = false;
+      fabric.Object.prototype.cornerStyle = 'circle';
 
       // Extend fabric.Object to include custom properties in JSON output
       fabric.Object.prototype.toObject = (function (toObject) {
@@ -1169,6 +1180,13 @@ const PlushDollDesign: React.FC = () => {
 
     canvasWrapperRef.current.style.width = `${widthPx}px`;
     canvasWrapperRef.current.style.height = `${heightPx}px`;
+
+    // Reset zoom to default 60% when creating new canvas
+    setZoom(0.6);
+    if (canvasWrapperRef.current) {
+      canvasWrapperRef.current.style.transform = "scale(0.6)";
+      canvasWrapperRef.current.style.transformOrigin = "center center";
+    }
 
     saveInitialState();
 
@@ -1650,15 +1668,6 @@ const PlushDollDesign: React.FC = () => {
     isRestoringRef.current = true;
     const safeJson = sanitizeCanvasJSON(canvasDescription);
     const jsonObj = JSON.parse(safeJson);
-    canvasRef.current.loadFromJSON(safeJson, () => {
-      if (jsonObj.width && jsonObj.height && canvasRef.current) {
-        canvasRef.current.setWidth(jsonObj.width);
-        canvasRef.current.setHeight(jsonObj.height);
-        setActualCanvasWidth(jsonObj.width.toString());
-        setActualCanvasHeight(jsonObj.height.toString());
-      }
-      // ... các xử lý khác ...
-    });
 
     try {
       canvasRef.current.loadFromJSON(safeJson, () => {
@@ -1693,6 +1702,24 @@ const PlushDollDesign: React.FC = () => {
         }
 
         isRestoringRef.current = false;
+
+        // Set canvas dimensions if specified in JSON
+        if (jsonObj.width && jsonObj.height && canvasRef.current) {
+          canvasRef.current.setWidth(jsonObj.width);
+          canvasRef.current.setHeight(jsonObj.height);
+          setActualCanvasWidth(jsonObj.width.toString());
+          setActualCanvasHeight(jsonObj.height.toString());
+        }
+
+        // Ensure all images have proper cross-origin settings after loading
+        ensureImagesCrossOrigin();
+
+        // Reset zoom to default 60% when loading canvas
+        setZoom(0.6);
+        if (canvasWrapperRef.current) {
+          canvasWrapperRef.current.style.transform = "scale(0.6)";
+          canvasWrapperRef.current.style.transformOrigin = "center center";
+        }
 
         // ✅ Update state
         setCurrentCanvasTitle(canvasTitle);
@@ -1765,6 +1792,9 @@ const PlushDollDesign: React.FC = () => {
           }
         }
 
+        // Ensure all images have proper cross-origin settings after restoration
+        ensureImagesCrossOrigin();
+
         isRestoringRef.current = false;
       });
     }
@@ -1798,6 +1828,9 @@ const PlushDollDesign: React.FC = () => {
           }
         }
 
+        // Ensure all images have proper cross-origin settings after restoration
+        ensureImagesCrossOrigin();
+
         isRestoringRef.current = false;
       });
     }
@@ -1817,6 +1850,10 @@ const PlushDollDesign: React.FC = () => {
           canvasRef.current?.add(img);
           canvasRef.current?.setActiveObject(img);
           canvasRef.current?.bringToFront(img);
+
+          // Ensure cross-origin is set for the new image
+          ensureImagesCrossOrigin();
+
           saveState();
         },
         { crossOrigin: "anonymous" }
@@ -1845,58 +1882,121 @@ const PlushDollDesign: React.FC = () => {
     }
   };
 
+  // Helper function to ensure all images have proper cross-origin settings
+  const ensureImagesCrossOrigin = () => {
+    if (!canvasRef.current) return;
+
+    const images = canvasRef.current.getObjects().filter(obj => obj.type === 'image') as fabric.Image[];
+    images.forEach(img => {
+      if (img.getElement()) {
+        const imgElement = img.getElement() as HTMLImageElement;
+        if (imgElement.crossOrigin !== 'anonymous') {
+          imgElement.crossOrigin = 'anonymous';
+        }
+      }
+    });
+  };
+
   const saveCanvasAsPNG = () => {
-    const dataURL = canvasRef.current?.toDataURL({ format: "png" });
-    if (dataURL) {
-      const link = document.createElement("a");
-      link.href = dataURL;
-      const fileName = currentCanvasTitle
-        ? `${currentCanvasTitle}.png`
-        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.png`;
-      link.download = fileName;
-      link.click();
-      toast.success("Đã xuất thiết kế dưới dạng PNG thành công!");
-    } else {
-      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+    if (!canvasRef.current) {
+      toast.error("Không có canvas để xuất!");
+      return;
+    }
+
+    try {
+      // Ensure all images have proper cross-origin settings
+      ensureImagesCrossOrigin();
+
+      const dataURL = canvasRef.current.toDataURL({
+        format: "png",
+        quality: 1,
+        multiplier: 1
+      });
+
+      if (dataURL) {
+        const link = document.createElement("a");
+        link.href = dataURL;
+        const fileName = currentCanvasTitle
+          ? `${currentCanvasTitle}.png`
+          : `thiết_kế_${new Date().toISOString().slice(0, 10)}.png`;
+        link.download = fileName;
+        link.click();
+        toast.success("Đã xuất thiết kế dưới dạng PNG thành công!");
+      } else {
+        toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Error saving PNG:", error);
+      toast.error("Có lỗi xảy ra khi xuất thiết kế!");
     }
   };
 
   const saveCanvasAsJPEG = () => {
-    const dataURL = canvasRef.current?.toDataURL({
-      format: "jpeg",
-      quality: 0.9,
-    });
-    if (dataURL) {
-      const link = document.createElement("a");
-      link.href = dataURL;
-      const fileName = currentCanvasTitle
-        ? `${currentCanvasTitle}.jpeg`
-        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpeg`;
-      link.download = fileName;
-      link.click();
-      toast.success("Đã xuất thiết kế dưới dạng JPEG thành công!");
-    } else {
-      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+    if (!canvasRef.current) {
+      toast.error("Không có canvas để xuất!");
+      return;
+    }
+
+    try {
+      // Ensure all images have proper cross-origin settings
+      ensureImagesCrossOrigin();
+
+      const dataURL = canvasRef.current.toDataURL({
+        format: "jpeg",
+        quality: 0.9,
+        multiplier: 1
+      });
+
+      if (dataURL) {
+        const link = document.createElement("a");
+        link.href = dataURL;
+        const fileName = currentCanvasTitle
+          ? `${currentCanvasTitle}.jpeg`
+          : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpeg`;
+        link.download = fileName;
+        link.click();
+        toast.success("Đã xuất thiết kế dưới dạng JPEG thành công!");
+      } else {
+        toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Error saving JPEG:", error);
+      toast.error("Có lỗi xảy ra khi xuất thiết kế!");
     }
   };
 
   const saveCanvasAsJPG = () => {
-    const dataURL = canvasRef.current?.toDataURL({
-      format: "jpeg",
-      quality: 0.9,
-    });
-    if (dataURL) {
-      const link = document.createElement("a");
-      link.href = dataURL;
-      const fileName = currentCanvasTitle
-        ? `${currentCanvasTitle}.jpg`
-        : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpg`;
-      link.download = fileName;
-      link.click();
+    if (!canvasRef.current) {
+      toast.error("Không có canvas để xuất!");
+      return;
+    }
 
-      toast.success("Đã xuất thiết kế dưới dạng JPG thành công!");
-    } else {
-      toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+    try {
+      // Ensure all images have proper cross-origin settings
+      ensureImagesCrossOrigin();
+
+      const dataURL = canvasRef.current.toDataURL({
+        format: "jpeg",
+        quality: 0.9,
+        multiplier: 1
+      });
+
+      if (dataURL) {
+        const link = document.createElement("a");
+        link.href = dataURL;
+        const fileName = currentCanvasTitle
+          ? `${currentCanvasTitle}.jpg`
+          : `thiết_kế_${new Date().toISOString().slice(0, 10)}.jpg`;
+        link.download = fileName;
+        link.click();
+
+        toast.success("Đã xuất thiết kế dưới dạng JPG thành công!");
+      } else {
+        toast.error("Không thể xuất thiết kế. Vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error("Error saving JPG:", error);
+      toast.error("Có lỗi xảy ra khi xuất thiết kế!");
     }
   };
 
@@ -2183,6 +2283,10 @@ const PlushDollDesign: React.FC = () => {
         canvasRef.current?.add(img);
         canvasRef.current?.setActiveObject(img);
         canvasRef.current?.bringToFront(img);
+
+        // Ensure cross-origin is set for the new image
+        ensureImagesCrossOrigin();
+
         saveState();
       },
       { crossOrigin: "anonymous" }
@@ -2581,61 +2685,6 @@ const PlushDollDesign: React.FC = () => {
       // toast.error("Không tìm thấy thông tin thiết kế");
     }
   }, [isCanvasInitialized, location.state?.canvasId]);
-
-  // Thêm useEffect để tắt scroll của trang chính
-  // useEffect(() => {
-  //   // Tắt scroll của body và html
-  //   document.body.style.overflow = "hidden";
-  //   document.documentElement.style.overflow = "hidden";
-
-  //   // Cleanup khi component unmount
-  //   return () => {
-  //     document.body.style.overflow = "";
-  //     document.documentElement.style.overflow = "";
-  //   };
-  // }, []);
-
-  // Add useEffect to update group/ungroup button states
-  // useEffect(() => {
-  //   const updateGroupStates = () => {
-  //     setCanGroupState(canGroup());
-  //     setCanUngroupState(canUngroup());
-  //   };
-
-  //   // Update states when canvas selection changes
-  //   if (canvasRef.current) {
-  //     canvasRef.current.on("selection:created", updateGroupStates);
-  //     canvasRef.current.on("selection:updated", updateGroupStates);
-  //     canvasRef.current.on("selection:cleared", updateGroupStates);
-  //   }
-
-  //   return () => {
-  //     if (canvasRef.current) {
-  //       canvasRef.current.off("selection:created", updateGroupStates);
-  //       canvasRef.current.off("selection:updated", updateGroupStates);
-  //       canvasRef.current.off("selection:cleared", updateGroupStates);
-  //     }
-  //   };
-  // }, []);
-
-  // ✅ Component debug để hiển thị thông tin canvas
-  // const CanvasDebugInfo = () => {
-  //   if (!canvasRef.current) return null;
-
-  //   return (
-  //     <div className="fixed top-20 right-4 bg-black/80 text-white p-3 rounded-lg text-xs z-50">
-  //       <div className="font-bold mb-2">Canvas Debug Info:</div>
-  //       <div>Objects: {canvasRef.current.getObjects().length}</div>
-  //       <div>
-  //         Size: {canvasRef.current.width} x {canvasRef.current.height}
-  //       </div>
-  //       <div>Background: {backgroundColor}</div>
-  //       <div>Canvas ID: {currentCanvasId || "New"}</div>
-  //       <div>Title: {currentCanvasTitle}</div>
-  //       <div>Initialized: {isCanvasInitialized ? "Yes" : "No"}</div>
-  //     </div>
-  //   );
-  // };
 
   // Add group/ungroup functions
   const groupObjects = () => {
@@ -4439,6 +4488,15 @@ const PlushDollDesign: React.FC = () => {
                               const newMap = new Map(imageFilterSettings);
                               newMap.delete(imageId);
                               setImageFilterSettings(newMap);
+                            }
+
+                            // Xóa crop history nếu có
+                            if (imageId && cropHistory[imageId]) {
+                              setCropHistory(prev => {
+                                const newHistory = { ...prev };
+                                delete newHistory[imageId];
+                                return newHistory;
+                              });
                             }
 
                             // Reset Image Filters UI
