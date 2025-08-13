@@ -18,6 +18,7 @@ interface SelectFieldProps {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   error?: string;
+  disabled?: boolean;
 }
 
 export function SelectField({
@@ -29,6 +30,7 @@ export function SelectField({
   onValueChange,
   defaultValue,
   error,
+  disabled,
 }: SelectFieldProps) {
   return (
     <div className="space-y-2">
@@ -42,6 +44,7 @@ export function SelectField({
         value={value}
         onValueChange={onValueChange}
         defaultValue={defaultValue}
+        disabled={disabled}
       >
         <SelectTrigger
           className={`border-gray-300 focus:border-primary ${

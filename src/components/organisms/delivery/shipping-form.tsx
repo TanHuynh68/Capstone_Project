@@ -313,6 +313,7 @@ export function ShippingForm({
             </div>
           </div>
           <ProductInfo
+            orderId={orderID}
             onChange={handleProductChange}
             errors={errors}
             setPickShift={handlePickShiftChange}
