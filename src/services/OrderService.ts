@@ -123,6 +123,18 @@ const OrderService = () => {
     [callApi]
   );
 
+  const getOrderDeliveryValue = useCallback(
+    async (id: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.GET_ORDER_DELIVERY_VALUE}?orderId=${id}`);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
 
   return {
     getOrders,
@@ -133,6 +145,7 @@ const OrderService = () => {
     createDepositPhase,
     createDepositListPhase,
     createWithdrawPhase,
+    getOrderDeliveryValue
   };
 };
 
