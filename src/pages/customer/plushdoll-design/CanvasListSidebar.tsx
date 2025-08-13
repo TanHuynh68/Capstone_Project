@@ -1,6 +1,5 @@
 import { forwardRef } from "react";
 import SidebarPanelWrapper from "./SidebarPanelWrapper";
-import { FolderOpen } from "lucide-react";
 import CanvasList from "./get-canvas";
 
 interface CanvasListSidebarProps {
@@ -26,8 +25,6 @@ const CanvasListSidebar = forwardRef<HTMLDivElement, CanvasListSidebarProps>(
         ref={ref}
         isOpen={isOpen}
         onClose={onClose}
-        title="Dự án"
-        icon={<FolderOpen className="w-5 h-5" />}
       >
         <div className="flex-1 overflow-y-auto">
           <CanvasList

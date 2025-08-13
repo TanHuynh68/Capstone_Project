@@ -30,4 +30,5 @@ export { default as ImageUploadWithDescriptions } from "../components/molecules/
 export { default as StaffManagePostsPage } from "./staff/manage-post";
 export { default as PolicyPage } from "./general/policy";
 export { default as AdminManageBenefits } from "./admin/manager-benefit";
+export { default as StaffReportDetailPage } from "./staff/report-detail";
 

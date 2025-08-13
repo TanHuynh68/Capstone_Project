@@ -38,9 +38,25 @@ const ReportService = () => {
     [callApi]
   );
 
+  const getReport = useCallback(
+    async (id: any) => {
+      try {
+        const res = await callApi(
+          HTTP_METHOD.GET,
+          `${API_ROUTES.GET_REPORT_DETAIL}?reportID=${id}`,
+        );
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   return {
     getReportsByStaff,
-    processReport
+    processReport,
+    getReport
   };
 };
 

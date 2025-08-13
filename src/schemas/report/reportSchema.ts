@@ -4,7 +4,7 @@ export const reportSchema = z.object({
   targetID: z.string().optional(),
   reportType: z.number().min(0).max(7, "Loại báo cáo phải từ 0-7"),
   title: z.string().min(1, "Tiêu đề là bắt buộc").max(200, "Tiêu đề không được vượt quá 200 ký tự"),
-  content: z.string().min(10, "Nội dung phải có ít nhất 10 ký tự").max(1000, "Nội dung không được vượt quá 1000 ký tự"),
+  content: z.string().min(10, "Nội dung phải có ít nhất 10 ký tự").max(100, "Nội dung không được vượt quá 100 ký tự"),
   images: z.array(z.instanceof(File)).optional(),
   imagesDescriptions: z.array(z.string()).optional(),
 })

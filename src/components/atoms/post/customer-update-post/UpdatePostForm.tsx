@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import {
   UpdatePostFormValues,
   updatePostSchema,
-} from "@/schemas/report/updatePostSchema";
+} from "@/schemas/updatePostSchema";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import PostService from "@/services/PostService";

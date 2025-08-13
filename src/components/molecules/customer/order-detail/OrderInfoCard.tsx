@@ -25,6 +25,7 @@ import CustomerReportService from "@/services/CustomerReportService";
 
 interface OrderInfoCardProps {
   order: any;
+  phase: any;
   onViewPhases: () => void;
   onViewDepositHistory: () => void;
   onViewActivityLog: () => void;
@@ -35,6 +36,7 @@ interface OrderInfoCardProps {
 
 export default function OrderInfoCard({
   order,
+  phase,
   onViewPhases,
   onViewDepositHistory,
   onViewActivityLog,
@@ -70,6 +72,7 @@ export default function OrderInfoCard({
     onViewDepositHistory();
   };
 
+  console.log('order: ', order)
   return (
     <>
       <Card>
@@ -138,7 +141,7 @@ export default function OrderInfoCard({
             <DollarSign className="h-4 w-4 text-gray-500" />
             <span className=" text-sm text-gray-600">Tổng giá trị:</span>
             <span className="font-semibold text-green-600">
-              {formatCurrencyVND(order.totalPrice)}
+              {formatCurrencyVND(order.totalPrice) + ` (${phase?.length || 0} giai đoạn)`} 
             </span>
           </div>
           <div className="text-gray-500">

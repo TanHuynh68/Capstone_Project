@@ -31,26 +31,25 @@ type ImageType = "all" | "photo" | "illustration" | "vector";
 
 const API_KEY = ENV.PIXABAY_API_KEY;
 
-console.log("API_KEY", API_KEY);
-const PER_PAGE = 20;
+const PER_PAGE = 100; // Tối ưu cho rate limit: 100 requests/60s, cache 24h
 // Rate limiting & caching configuration
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours cache TTL (minimum per Pixabay policy)
-const RATE_LIMIT_MAX_PER_MINUTE = 85; // keep headroom below official 100/min limit
+const RATE_LIMIT_MAX_PER_MINUTE = 80; // Giữ margin an toàn dưới giới hạn 100/min của Pixabay
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_KEY = "pixabay:reqTimes"; // stores recent request timestamps (ms)
 const COOLDOWN_UNTIL_KEY = "pixabay:cooldownUntil"; // stores epoch ms until we should pause requests
 
 const PERSON_WORDS = new Set([
-    "person", "people", "human", "man", "men", "woman", "women", "boy", "girl", "kid", "baby",
-    "portrait", "face", "selfie", "avatar", "model", "elderly", "senior"
+    "người", "con người", "nam", "nữ", "đàn ông", "đàn bà", "phụ nữ", "bé trai", "bé gái", "trẻ em", "em bé",
+    "chân dung", "khuôn mặt", "tự chụp", "hình đại diện", "người mẫu", "người già", "người cao tuổi"
 ]);
 
 const PRESETS: { key: string; label: string; q: string }[] = [
+    { key: "props", label: "Phụ kiện", q: "đồ chơi phụ kiện" },
     { key: "hat", label: "Nón", q: "nón mũ" },
     { key: "eyes", label: "Mắt", q: "mắt" },
-    { key: "glasses", label: "Kính", q: "kính" },
-    { key: "outfit", label: "Outfit", q: "quần áo trang phục" },
-    { key: "props", label: "Props", q: "đồ chơi phụ kiện" },
+    { key: "glasses", label: "Kính", q: "mắt kính" },
+    { key: "outfit", label: "Trang phục", q: "quần áo trang phục" },
     { key: "scarf", label: "Khăn", q: "khăn quàng" },
     { key: "shoes", label: "Giày", q: "giày dép" },
     { key: "bag", label: "Túi", q: "túi xách" },
@@ -59,16 +58,7 @@ const PRESETS: { key: string; label: string; q: string }[] = [
 
 
 
-const guessCategory = (tags: string): LibraryItem["category"] | undefined => {
-    const t = tags.toLowerCase();
-    if (/(hat|cap|beanie|bucket|straw)/.test(t)) return "Hat";
-    if (/(eye|eyes|pupil|eyeball)/.test(t)) return "Eye";
-    if (/(glass|goggle|sunglasses)/.test(t)) return "Glasses";
-    if (/(scarf|shawl)/.test(t)) return "Scarf";
-    if (/(hoodie|shirt|jacket|dress|outfit|clothes)/.test(t)) return "Outfit";
-    if (/(cup|boba|prop|toy)/.test(t)) return "Prop";
-    return undefined;
-};
+
 
 const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     onSelect, isOpen, onDragStart,
@@ -79,14 +69,15 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [totalHits, setTotalHits] = useState(0);
+    const [total, setTotal] = useState(0);
     const [cooldownMsLeft, setCooldownMsLeft] = useState<number | null>(null);
+    const [isLoadingMore, setIsLoadingMore] = useState(false); // Separate loading state for pagination
 
     // filters
-    const [imageType, setImageType] = useState<ImageType>("illustration");
+    const [imageType, setImageType] = useState<ImageType>("all");
     const [onlyTransparent, setOnlyTransparent] = useState(true);
     const [lang] = useState("vi");
-    const [activePreset, setActivePreset] = useState<string | null>("hat");
+    const [activePreset, setActivePreset] = useState<string | null>("props");
 
     // infinite scroll
     const observer = useRef<IntersectionObserver | null>(null);
@@ -97,8 +88,6 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     const cooldownTimerRef = useRef<number | null>(null);
     const requestTimesRef = useRef<number[]>([]);
 
-
-
     // debounce search & reset trang
     useEffect(() => {
         const t = setTimeout(() => {
@@ -106,6 +95,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
             setPage(1);
             setItems([]);
             setHasMore(true);
+            setIsLoadingMore(false);
         }, 400);
         return () => clearTimeout(t);
     }, [searchQuery, imageType, onlyTransparent, activePreset]);
@@ -191,19 +181,29 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
     // initialize request times from localStorage
     useEffect(() => { loadRequestTimes(); }, [loadRequestTimes]);
 
-    const fetchPixabayImages = useCallback(async () => {
-        if (!isOpen || isLoading || !hasMore) return;
+    const fetchPixabayImages = useCallback(async (isLoadMore = false) => {
+        if (!isOpen || (isLoading && !isLoadMore) || (isLoadingMore && isLoadMore)) return;
+
+        // Chỉ check hasMore khi load more, không check khi load initial
+        if (isLoadMore && !hasMore) return;
 
         // lấy cache (with TTL)
         const cachedData = readCache(cacheKey);
         if (cachedData) {
+            console.log("📦 Cache hit:", { cacheKey, cachedDataLength: cachedData.length });
             const pageItems: LibraryItem[] = cachedData;
-            setItems(prev => {
-                const merged = [...prev, ...pageItems];
-                return Array.from(new Map(merged.map(i => [i.id, i])).values());
-            });
-            setHasMore(pageItems.length === PER_PAGE);
+            if (isLoadMore) {
+                setItems(prev => {
+                    const merged = [...prev, ...pageItems];
+                    return Array.from(new Map(merged.map(i => [i.id, i])).values());
+                });
+            } else {
+                setItems(pageItems);
+            }
+            setHasMore(pageItems.length === PER_PAGE); // Với PER_PAGE = 100, sẽ load 100 ảnh/lần
             return;
+        } else {
+            console.log("❌ Cache miss:", { cacheKey });
         }
 
         // hủy request cũ nếu còn
@@ -212,7 +212,11 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
         abortRef.current = controller;
 
         try {
-            setIsLoading(true);
+            if (isLoadMore) {
+                setIsLoadingMore(true);
+            } else {
+                setIsLoading(true);
+            }
 
             // respect global cooldown if set (e.g. after receiving 429)
             const cooldownUntilStr = localStorage.getItem(COOLDOWN_UNTIL_KEY);
@@ -255,7 +259,8 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                 imageType,
                 onlyTransparent,
                 page,
-                lang
+                lang,
+                isLoadMore
             });
             const res = await fetch(url, { signal: controller.signal });
             // Handle rate limiting explicitly
@@ -281,12 +286,15 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
             const data = await res.json();
             console.log("✅ Pixabay API Response:", {
                 status: res.status,
+                total: data?.total,
                 totalHits: data?.totalHits,
                 hitsCount: data?.hits?.length || 0,
-                firstHit: data?.hits?.[0]?.tags || "No hits"
+                firstHit: data?.hits?.[0]?.tags || "No hits",
+                page,
+                isLoadMore
             });
 
-            setTotalHits(Math.min(data?.totalHits ?? 0, 600)); // API truy cập tối đa 600 ảnh/keyword
+            setTotal(data?.total ?? 0); // Tổng số ảnh có sẵn
 
             // lọc bỏ ảnh người qua tags
             const hits: PixabayPhoto[] = (data.hits || []).filter((h: PixabayPhoto) => {
@@ -304,30 +312,35 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                     id: `pixabay-${h.id}-${page}-${i}`,
                     name: h.tags || "Pixabay Asset",
                     imageUrl: bestUrl,
-                    category: guessCategory(h.tags) ?? "Pixabay",
+                    category: "Pixabay",
                     tags: h.tags ? h.tags.split(",").map(s => s.trim()) : [],
-                    source: "pixabay",
-                    metadata: {
-                        user: h.user,
-                        views: h.views,
-                        downloads: h.downloads,
-                        likes: h.likes,
-                        type: h.type,
-                    }
+                    source: "pixabay"
                 };
             });
 
             // cache theo trang (with TTL)
             writeCache(cacheKey, pageItems);
 
-            setItems(prev => {
-                const merged = [...prev, ...pageItems];
-                return Array.from(new Map(merged.map(i => [i.id, i])).values());
-            });
+            if (isLoadMore) {
+                setItems(prev => {
+                    const merged = [...prev, ...pageItems];
+                    return Array.from(new Map(merged.map(i => [i.id, i])).values());
+                });
+            } else {
+                setItems(pageItems);
+            }
 
-            // tính hasMore theo giới hạn 600 ảnh
-            const accessible = Math.min(data.totalHits || 0, 600);
-            const maxPages = Math.max(1, Math.ceil(accessible / PER_PAGE));
+            // tính hasMore theo tổng số ảnh có sẵn
+            const maxPages = Math.max(1, Math.ceil((data.total || 0) / PER_PAGE));
+            console.log("📊 Pagination info:", {
+                page,
+                total: data.total,
+                PER_PAGE,
+                maxPages,
+                hitsAfterFilter: pageItems.length,
+                originalHits: data.hits?.length || 0,
+                hasMore: page < maxPages
+            });
             setHasMore(page < maxPages);
 
             // record successful request for rate limiter
@@ -341,27 +354,55 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
             console.error("❌ Error fetching Pixabay images:", e);
             setHasMore(false);
         } finally {
-            setIsLoading(false);
+            if (isLoadMore) {
+                setIsLoadingMore(false);
+            } else {
+                setIsLoading(false);
+            }
         }
-    }, [isOpen, isLoading, hasMore, cacheKey, qParam, imageType, onlyTransparent, page, lang, getThrottleDelayMs, readCache, writeCache, saveRequestTimes]);
+    }, [isOpen, isLoading, isLoadingMore, hasMore, cacheKey, qParam, imageType, onlyTransparent, page, lang, getThrottleDelayMs, readCache, writeCache, saveRequestTimes]);
 
     // observe for infinite scroll
     const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
         const entry = entries[0];
-        if (entry.isIntersecting && !isLoading && hasMore) {
+        if (entry.isIntersecting && !isLoading && !isLoadingMore && hasMore) {
+            console.log("🔄 Loading more images, current page:", page);
             setPage(p => p + 1);
+        } else if (entry.isIntersecting) {
+            console.log("🚫 Cannot load more:", {
+                isIntersecting: entry.isIntersecting,
+                isLoading,
+                isLoadingMore,
+                hasMore,
+                page
+            });
         }
-    }, [isLoading, hasMore]);
+    }, [isLoading, isLoadingMore, hasMore, page]);
 
     useEffect(() => {
         if (!loadingRef.current) return;
         observer.current?.disconnect();
-        observer.current = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+        observer.current = new IntersectionObserver(handleObserver, {
+            threshold: 0.1,
+            rootMargin: '100px' // Start loading 100px before reaching the bottom
+        });
         observer.current.observe(loadingRef.current);
         return () => observer.current?.disconnect();
     }, [handleObserver]);
 
-    useEffect(() => { fetchPixabayImages(); }, [fetchPixabayImages]);
+    // Fetch initial data
+    useEffect(() => {
+        if (page === 1) {
+            fetchPixabayImages(false);
+        }
+    }, [debouncedQuery, imageType, onlyTransparent, activePreset]);
+
+    // Fetch more data when page changes
+    useEffect(() => {
+        if (page > 1) {
+            fetchPixabayImages(true);
+        }
+    }, [page]);
 
     useEffect(() => {
         return () => {
@@ -376,8 +417,8 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
         ? "Đang tải..."
         : cooldownMsLeft != null
             ? `Tạm dừng do giới hạn tốc độ (${Math.ceil(cooldownMsLeft / 1000)}s)`
-            : totalHits > 0
-                ? `~${totalHits} ảnh${page > 1 ? ` (Trang ${page})` : ""}`
+            : total > 0
+                ? `~${total} ảnh${page > 1 ? ` (Trang ${page})` : ""}`
                 : debouncedQuery || activePreset
                     ? "Không tìm thấy kết quả phù hợp"
                     : "Sẵn sàng tìm kiếm";
@@ -418,37 +459,25 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                                 {p.label}
                             </Button>
                         ))}
-                        <Button
-                            variant={!activePreset ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => {
-                                setActivePreset(null);
-                                setPage(1);
-                                setItems([]);
-                                setHasMore(true);
-                            }}
-                            className="whitespace-nowrap"
-                        >
-                            Tự nhập
-                        </Button>
                     </div>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
 
 
                 <div className="flex flex-wrap items-center gap-2 justify-center">
-                    {/* Segmented control: image_type */}
+                    {/* Image type filter as tags */}
                     <div className="flex gap-2 justify-center items-center">
-                        {(["photo", "illustration", "vector"] as ImageType[]).map(t => (
-                            <Button
+                        {(["all", "photo", "illustration", "vector"] as ImageType[]).map(t => (
+                            <div
                                 key={t}
-                                variant={imageType === t ? "default" : "outline"}
-                                size="sm"
                                 onClick={() => { setImageType(t); setPage(1); setItems([]); setHasMore(true); }}
-                                className="whitespace-nowrap"
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 whitespace-nowrap ${imageType === t
+                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                                    }`}
                             >
-                                {t === "photo" ? "Ảnh chụp" : t === "illustration" ? "Đồ họa" : "Vector"}
-                            </Button>
+                                {t === "all" ? "Tất cả" : t === "photo" ? "Ảnh chụp" : t === "illustration" ? "Đồ họa" : "Vector"}
+                            </div>
                         ))}
                     </div>
 
@@ -464,7 +493,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                                 setHasMore(true);
                             }}
                         />
-                        <span>Chỉ nền trong suốt</span>
+                        <span>Tách nền</span>
                         <span className="ml-auto text-muted-foreground">{status}</span>
                     </label>
 
@@ -474,7 +503,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
             {/* Grid */}
             <ScrollArea className="h-[calc(100vh-340px)]">
                 <div className="p-2">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-3">
                         {items.map((item) => (
                             <div
                                 key={item.id}
@@ -483,7 +512,7 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                                 draggable
                                 onDragStart={(e) => onDragStart(e, item.imageUrl)}
                             >
-                                <div className="aspect-square bg-muted rounded-lg mb-2 overflow-hidden relative">
+                                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative">
                                     <img
                                         src={item.imageUrl}
                                         alt={item.name}
@@ -492,47 +521,31 @@ const PixabayLibrary: React.FC<PixabayLibraryProps> = ({
                                         draggable={false}
                                     />
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors" />
-
-                                    {/* hover metadata */}
-                                    {/* {item.metadata && (
-                                        <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="flex justify-between">
-                                                <span>👤 {item.metadata.user}</span>
-                                                <span>❤️ {item.metadata.likes}</span>
-                                            </div>
-                                            <div className="flex justify-between mt-1">
-                                                <span>👁️ {item.metadata.views}</span>
-                                                <span>⬇️ {item.metadata.downloads}</span>
-                                            </div>
-                                            {item.metadata.type && (
-                                                <div className="mt-1 opacity-80">Type: {String(item.metadata.type)}</div>
-                                            )}
-                                        </div>
-                                    )} */}
                                 </div>
-                                <p className="text-sm text-center text-muted-foreground truncate">
+                                {/* <p className="text-sm text-center text-muted-foreground truncate">
                                     {item.name}
-                                </p>
+                                </p> */}
                             </div>
                         ))}
                     </div>
 
+                    {/* Infinite scroll loading indicator */}
                     <div ref={loadingRef} className="flex justify-center items-center h-24">
-                        {isLoading && (
+                        {isLoadingMore && (
                             <>
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-                                <p className="ml-3 text-muted-foreground">Đang tải...</p>
+                                <p className="ml-3 text-muted-foreground">Đang tải thêm...</p>
                             </>
                         )}
-                        {!isLoading && !hasMore && items.length > 0 && (
+                        {!isLoadingMore && !hasMore && items.length > 0 && (
                             <p className="text-muted-foreground">Đã hết kết quả.</p>
                         )}
-                        {!isLoading && items.length === 0 && (
+                        {!isLoading && !isLoadingMore && items.length === 0 && (
                             <p className="text-muted-foreground">Không tìm thấy kết quả phù hợp.</p>
                         )}
                     </div>
                     <div className="pb-2 text-center text-xs text-muted-foreground">
-                        Kết quả từ Pixabay
+                        Kết quả từ Pixabay • {items.length} ảnh đã tải
                     </div>
                 </div>
             </ScrollArea>

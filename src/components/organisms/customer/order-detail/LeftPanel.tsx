@@ -24,6 +24,7 @@ export default function LeftPanel({
   return (
     <div className="h-full flex flex-col gap-6 overflow-y-auto">
       <OrderInfoCard
+        phase={orderDetail.offerPhases}
         fetchDepositTransaction={fetchDepositTransaction}
         order={orderDetail.order}
         onViewPhases={onViewPhases}
