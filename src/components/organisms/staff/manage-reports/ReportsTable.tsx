@@ -12,7 +12,8 @@ import {
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { PAGE_SIZE } from "@/constants/reports.constants";
 import { highlightMatch } from "@/utils/reports.utils";
-import { Eye, Settings } from "lucide-react";
+import { Eye} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ReportsTableProps {
   reports: Report[];
@@ -31,7 +32,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
   searchTerm,
   actions,
 }) => {
-  // Định nghĩa columns
+  const navigate = useNavigate()
   const columns: Column<Report>[] = [
     {
       header: "STT",
@@ -42,17 +43,6 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
         </span>
       ),
     },
-    // {
-    //   header: "ID Báo cáo",
-    //   accessorKey: "reportID",
-    //   sortable: true,
-    //   className: "text-center",
-    //   cell: (row) => (
-    //     <span className="font-mono text-sm">
-    //       {highlightMatch(row.reportID.slice(0, 8) + "...", searchTerm)}
-    //     </span>
-    //   ),
-    // },
     {
       header: "Người tố cáo",
       accessorKey: "reporter",
@@ -96,25 +86,13 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
       className: "text-center",
       cell: (row) => (
         <div className="flex justify-center">
-          <div className="flex gap-1 w-[180px]">
-            <button
-              onClick={() => actions.onViewDetail(row)}
+          <button
+              onClick={() => navigate(`/staff/report-detail/${row.reportID}`)}
               className="px-3 py-1 bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 text-sm flex items-center gap-1 transition-colors"
             >
               <Eye className="h-3 w-3" />
               Chi tiết
             </button>
-
-            {row.reportStatus !== "Approved" && (
-              <button
-                onClick={() => actions.onProcessReport(row)}
-                className="ml-auto px-3 py-1 bg-primary text-white rounded hover:bg-blue-600 text-sm flex items-center gap-1 transition-colors"
-              >
-                <Settings className="h-3 w-3" />
-                Giải quyết
-              </button>
-            )}
-          </div>
         </div>
       ),
     },

@@ -25,16 +25,13 @@ export default function ProgressStepCard({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   console.log("step: ", step);
+
   const getStepTypeConfig = (type: string) => {
     switch (type) {
       case "NewDesign":
         return { label: "Thiết kế mới", color: "bg-blue-100 text-blue-800" };
-      case "Review":
-        return { label: "Đánh giá", color: "bg-yellow-100 text-yellow-800" };
-      case "Approval":
-        return { label: "Phê duyệt", color: "bg-green-100 text-green-800" };
-      case "Revision":
-        return { label: "Chỉnh sửa", color: "bg-red-100 text-red-800" };
+      case "Rework":
+        return { label: "Làm lại", color: "bg-purple-100 text-purple-800" };
       default:
         return { label: type, color: "bg-gray-100 text-gray-800" };
     }

@@ -8,7 +8,7 @@ export const createFeedbackSchema = z.object({
     .min(1, "Vui lòng chọn ít nhất 1 sao")
     .max(5, "Đánh giá tối đa 5 sao")
     .int("Đánh giá phải là số nguyên"),
-  comment: z.string().min(1, "Vui lòng nhập nhận xét").max(1000, "Nhận xét không được vượt quá 1000 ký tự").trim(),
+  comment: z.string().min(1, "Vui lòng nhập nhận xét").max(100, "Nhận xét không được vượt quá 100 ký tự").trim(),
   image: z
     .custom<File>((file) => {
       if (!(file instanceof File)) return false
@@ -27,7 +27,7 @@ export const createFeedbackSchema = z.object({
 // Designer response schema
 export const createFeedbackResponseSchema = z.object({
   feedbackID: z.string().uuid("ID feedback không hợp lệ"),
-  response: z.string().min(1, "Vui lòng nhập phản hồi").max(500, "Phản hồi không được vượt quá 500 ký tự").trim(),
+  response: z.string().min(1, "Vui lòng nhập phản hồi").max(100, "Phản hồi không được vượt quá 100 ký tự").trim(),
 })
 
 // Feedback data schema (for API responses)

@@ -172,6 +172,7 @@ export enum API_ROUTES {
   POST_NOTIFY_MISSING = `${API_ENDPOINTS.DELIVERY}/notify-missing`,
   // Staff Manage Report
   GET_REPORT = `/staff/${API_ENDPOINTS.REPORT}`,
+  GET_REPORT_DETAIL = `${API_ENDPOINTS.REPORT}/detail`,
   UPDATE_REPORT = `/staff/${API_ENDPOINTS.REPORT}`,
   // Customer Manage Report
   CUSTOMER_GET_REPORT = `${API_ENDPOINTS.REPORT}`,
