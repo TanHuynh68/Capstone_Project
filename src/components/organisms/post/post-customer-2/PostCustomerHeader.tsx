@@ -212,30 +212,32 @@ export default function PostCustomerHeader({
             <Trash2 className="h-4 w-4" />
           </Button>
           {/* <Button variant="ghost" size="icon">
-            <div className="flex items-center space-x-2">
-              <Switch
-                onClick={() => handleUpdateActive(post?.isActive)}
-                defaultChecked={post?.isActive === true ? true : false}
-                id="airplane-mode"
-              />
-            </div>
-          </Button> */}
-          <DialogUpdatePost
-            fetchPosts={fetchPosts}
-            projectPostId={post.projectPostID}
-            children={
-              <Button variant="ghost" size="icon">
-                <Pencil />
-              </Button>
-            }
-            data={{
-              Title: post.title,
-              Description: post.description,
-              FinishDate: new Date(post.finishDate),
-              ItemValue: post.itemValue,
-              SuggestedPrice: post.suggestedPrice,
-            }}
-          />
+             <div className="flex items-center space-x-2">
+               <Switch
+                 onClick={() => handleUpdateActive(post?.isActive)}
+                 defaultChecked={post?.isActive === true ? true : false}
+                 id="airplane-mode"
+               />
+             </div>
+           </Button> */}
+          {post.isActive && (
+            <DialogUpdatePost
+              fetchPosts={fetchPosts}
+              projectPostId={post.projectPostID}
+              children={
+                <Button variant="ghost" size="icon">
+                  <Pencil />
+                </Button>
+              }
+              data={{
+                Title: post.title,
+                Description: post.description,
+                FinishDate: new Date(post.finishDate),
+                ItemValue: post.itemValue,
+                SuggestedPrice: post.suggestedPrice,
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -253,11 +255,19 @@ export default function PostCustomerHeader({
       {/* Thông tin chính */}
       <div className="space-y-4">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-foreground mb-2 break-words overflow-hidden whitespace-normal leading-relaxed max-w-full">
               {post.title}
             </h1>
-            <StatusBadge status={post.postStatus} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={post.postStatus} />
+              <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${post.isActive
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+                }`}>
+                {post.isActive ? "Đang hoạt động" : "Dừng hoạt động"}
+              </div>
+            </div>
           </div>
         </div>
 

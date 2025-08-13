@@ -425,10 +425,20 @@ export default function PostCustomerTemplate({
               isAnimating ? "animate-expand-preview" : ""
             }`}
           >
-            <h3 className="font-medium">{post.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {post.description}
-            </p>
+            <div className="space-y-2">
+              <div>
+                <span className="text-sm font-semibold text-muted-foreground">Tiêu đề: </span>
+                <h3 className="font-medium break-words overflow-hidden whitespace-normal leading-relaxed max-w-full inline">
+                  {post.title}
+                </h3>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-muted-foreground">Mô tả: </span>
+                <p className="text-sm text-muted-foreground line-clamp-2 break-words overflow-hidden whitespace-normal inline">
+                  {post.description}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
