@@ -178,7 +178,6 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
                 top: img.top,
                 angle: img.angle,
                 selectable: true,
-                customId: `img_${Date.now()}_${Math.random()}`, // Add custom ID
               });
 
               // Set same scaled size as original image
@@ -249,9 +248,7 @@ const RemoveBackgroundButton: React.FC<RemoveBackgroundButtonProps> = ({
           }
         },
         {
-          crossOrigin: "anonymous",
-          crossOriginPolicy: "anonymous",
-          preserveAspectRatio: true
+          crossOrigin: "anonymous"
         }
       );
     } catch (error) {

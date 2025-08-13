@@ -266,6 +266,7 @@ const PlushDollDesign: React.FC = () => {
 
   // Add cropping state
   const [isCropping, setIsCropping] = useState(false);
+  const [cropHistory, setCropHistory] = useState<Record<string, unknown>>({});
 
   // Add color replacement state
   const [targetColor, setTargetColor] = useState("#ff0000");
