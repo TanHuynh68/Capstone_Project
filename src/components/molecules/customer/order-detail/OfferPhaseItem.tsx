@@ -62,7 +62,7 @@ export default function OfferPhaseItem({
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-2">
             <div className="flex gap-2 flex-1 items-center">
-              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-primary">
+              <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-primary text-white">
                 {phase.phase}
               </span>
               <p className="text-sm">{phase.phaseName}</p>
