@@ -105,38 +105,37 @@ export default function OrderHistoryTemplate({
     }
 
     // Apply sorting
-    if (sort.column) {
-      result.sort((a, b) => {
-        let aValue: any = a[sort.column as keyof Order];
-        let bValue: any = b[sort.column as keyof Order];
+    // if (sort.column) {
+    //   result.sort((a, b) => {
+    //     let aValue: any = a[sort.column as keyof Order];
+    //     let bValue: any = b[sort.column as keyof Order];
 
-        // Handle date sorting
-        if (
-          sort.column === "createdAt" ||
-          sort.column === "updatedAt" ||
-          sort.column === "startDate" ||
-          sort.column === "deadlineAt" ||
-          sort.column === "endDate"
-        ) {
-          aValue = new Date(aValue).getTime();
-          bValue = new Date(bValue).getTime();
-        }
+    //     // Handle date sorting
+    //     if (
+    //       sort.column === "createdAt" ||
+    //       sort.column === "startDate" ||
+    //       sort.column === "deadlineAt" ||
 
-        // Handle numeric sorting
-        if (typeof aValue === "number" && typeof bValue === "number") {
-          return sort.direction === "asc" ? aValue - bValue : bValue - aValue;
-        }
+    //     ) {
+    //       aValue = new Date(aValue).getTime();
+    //       bValue = new Date(bValue).getTime();
+    //     }
 
-        // Handle string sorting
-        if (typeof aValue === "string" && typeof bValue === "string") {
-          return sort.direction === "asc"
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
-        }
+    //     // Handle numeric sorting
+    //     if (typeof aValue === "number" && typeof bValue === "number") {
+    //       return sort.direction === "asc" ? aValue - bValue : bValue - aValue;
+    //     }
 
-        return 0;
-      });
-    }
+    //     // Handle string sorting
+    //     if (typeof aValue === "string" && typeof bValue === "string") {
+    //       return sort.direction === "asc"
+    //         ? aValue.localeCompare(bValue)
+    //         : bValue.localeCompare(aValue);
+    //     }
+
+    //     return 0;
+    //   });
+    // }
 
     setFilteredOrders(result);
   }, [orders, filters, sort]);
