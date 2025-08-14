@@ -54,22 +54,19 @@ export default function OrderCard({
             <span className="text-sm text-muted-foreground">Tổng tiền:</span>
             <PriceDisplay amount={order?.totalPrice} size="md" />
           </div>
-
+        </div>
+        <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              Đặt cọc yêu cầu:
-            </span>
-            <PriceDisplay amount={order?.requiredDepositAmount} size="sm" />
+            <span className="text-sm text-muted-foreground">Tên khác hàng:</span>
+            <div className="text-md text-foreground">{order.customerName}</div>
           </div>
+        </div>
 
-          {order?.designerDepositAmount >= 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Designer đã cọc:
-              </span>
-              <PriceDisplay amount={order?.designerDepositAmount} size="sm" />
-            </div>
-          )}
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Tên khác hàng:</span>
+            <div className="text-md text-foreground">{order.designerName}</div>
+          </div>
         </div>
 
         {/* Timeline */}

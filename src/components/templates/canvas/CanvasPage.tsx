@@ -544,14 +544,14 @@ export default function CanvasPage() {
                     handlePresetSelect({
                       width: 1008,
                       height: 1008,
-                      imageUrl: "/images/labubu-400%.png",
+                      imageUrl: "/images/chopper-400.png",
                     });
                   }}
                 >
                   <CardContent className="p-3 text-center">
                     <div className="w-28 h-28 mx-auto mb-2">
                       <img
-                        src="/images/labubu-400%.png"
+                        src="/images/chopper-400.png"
                         alt="Labubu 400%"
                         className="w-full h-full object-contain"
                       />
@@ -660,7 +660,7 @@ export default function CanvasPage() {
                           : imageDimensions && imageDimensions.width === 1400
                           ? "/images/labubu-vua.png"
                           : imageDimensions && imageDimensions.width === 1008
-                          ? "/images/labubu-400%.png"
+                          ? "/images/chopper-400.png"
                           : imageDimensions && imageDimensions.width === 2268
                           ? "/images/labubu-1000%.png"
                           : "/placeholder.svg"

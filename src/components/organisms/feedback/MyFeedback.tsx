@@ -12,6 +12,7 @@ import {
 import FeedbackService from "@/services/FeedbackService";
 import type { FeedbackData } from "@/types/feedback";
 import { formatVietnamDateHoursWithSuffix } from "@/utils/date";
+import SingleImageGallery from "@/components/molecules/post/post-detail/SingleImageGallery";
 
 // Custom hook to use FeedbackService
 const useFeedbackService = () => {
@@ -300,11 +301,12 @@ export function MyFeedback() {
                 </p>
 
                 {feedback.imageURL && (
-                  <div>
-                    <img
-                      src={feedback.imageURL}
+                  <div className="flex justify-start items-start">
+                    <SingleImageGallery
+                      imageUrl={feedback.imageURL}
+                      title=""
                       alt="Feedback image"
-                      className="max-w-full h-auto max-h-48 rounded-lg object-cover border border-border"
+                      className="max-w-full"
                     />
                   </div>
                 )}

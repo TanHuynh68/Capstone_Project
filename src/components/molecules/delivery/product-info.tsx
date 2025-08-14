@@ -2,28 +2,71 @@
 import type React from "react";
 import { Input } from "../../atoms/delivery/input";
 import { Camera } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import ImageGalleryOrder from "../post/post-detail/ImageGalleryOrder";
 import { PickShift } from "./pick-shift";
+import OrderService from "@/services/OrderService";
 
 interface ProductInfoProps {
   onChange?: (data: Record<string, unknown>) => void;
   errors?: Record<string, string>;
   setPickShift: (shift: Record<string, unknown>) => void;
+  orderId?: string; // Add orderId prop to fetch delivery value
 }
 
 export function ProductInfo({
   onChange,
   errors = {},
   setPickShift,
+  orderId,
 }: ProductInfoProps) {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [form, setForm] = useState<Record<string, unknown>>({ images: [] });
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   // const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
   //   {}
   // );
+  const orderService = OrderService();
+
+  // Fetch delivery value data when orderId is provided
+  useEffect(() => {
+    const fetchDeliveryValue = async () => {
+      if (!orderId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await orderService.getOrderDeliveryValue(orderId);
+
+        if (response?.isSuccess && response?.responseRequestModel) {
+          const data = response.responseRequestModel;
+
+          // Update form with fetched data
+          const updatedForm = {
+            ...form,
+            weight: data.weight || "",
+            length: data.length || "",
+            width: data.width || "",
+            height: data.height || "",
+          };
+
+          setForm(updatedForm);
+
+          // Call onChange to notify parent component
+          if (onChange) {
+            onChange(updatedForm);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching delivery value:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDeliveryValue();
+  }, [orderId]);
 
   // Separate onChange handler for ProductInfo
   const handleProductInfoChange = (
@@ -114,24 +157,32 @@ export function ProductInfo({
     <div className="">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Thông tin sản phẩm</h3>
+        {isLoading && (
+          <div className="text-sm text-gray-500 flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            Đang tải thông tin sản phẩm...
+          </div>
+        )}
       </div>
 
       <div className="border rounded-lg p-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <Input
-                 required
+              required
               label="Tên sản phẩm"
               placeholder="Nhập tên sản phẩm"
+              value={form.content as string || ""}
               onChange={(e) => {
                 const updatedForm = { ...form, content: e.target.value };
                 handleProductInfoChange(updatedForm, "content");
               }}
               error={errors?.content}
+              disabled={isLoading}
             />
           </div>
           <div>
-            <PickShift onChange={setPickShift} errors={errors} />
+            <PickShift onChange={setPickShift} errors={errors} disabled={isLoading} />
             {errors["pickShift.pickShiftId"] && (
               <span className="text-destructive text-sm mt-1">
                 {errors["pickShift.pickShiftId"]}
@@ -145,52 +196,56 @@ export function ProductInfo({
             <Input
               required
               label="KL (gram)"
-              defaultValue="0"
+              value={form.weight as string || "0"}
               type="number"
               onChange={(e) => {
                 const updatedForm = { ...form, weight: e.target.value };
                 handleProductInfoChange(updatedForm, "weight");
               }}
               error={errors?.weight}
+              disabled={isLoading}
             />
           </div>
           <div>
             <Input
               label="Dài (cm)"
-                   required
-              defaultValue="0"
+              required
+              value={form.length as string || "0"}
               type="number"
               onChange={(e) => {
                 const updatedForm = { ...form, length: e.target.value };
                 handleProductInfoChange(updatedForm, "length");
               }}
               error={errors?.length}
+              disabled={isLoading}
             />
           </div>
           <div>
             <Input
-                 required
+              required
               label="Rộng (cm)"
-              defaultValue="0"
+              value={form.width as string || "0"}
               type="number"
               onChange={(e) => {
                 const updatedForm = { ...form, width: e.target.value };
                 handleProductInfoChange(updatedForm, "width");
               }}
               error={errors?.width}
+              disabled={isLoading}
             />
           </div>
           <div>
             <Input
-                 required
+              required
               label="Cao (cm)"
-              defaultValue="0"
+              value={form.height as string || "0"}
               type="number"
               onChange={(e) => {
                 const updatedForm = { ...form, height: e.target.value };
                 handleProductInfoChange(updatedForm, "height");
               }}
               error={errors?.height}
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -211,9 +266,12 @@ export function ProductInfo({
           {/* Upload area, chỉ hiện nếu < 3 ảnh */}
           {(form.images as File[]).length < 3 && (
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors mt-6"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
+              className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors mt-6 ${isLoading
+                ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                : 'hover:border-primary cursor-pointer'
+                }`}
+              onDrop={isLoading ? undefined : handleDrop}
+              onDragOver={isLoading ? undefined : handleDragOver}
             >
               <input
                 type="file"
@@ -222,21 +280,29 @@ export function ProductInfo({
                 onChange={handleImageUpload}
                 className="hidden"
                 id="image-upload"
-                disabled={((form.images as File[]) || []).length >= 3}
+                disabled={((form.images as File[]) || []).length >= 3 || isLoading}
               />
 
-              <label htmlFor="image-upload" className="cursor-pointer">
+              <label htmlFor="image-upload" className={`${isLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                 <div className="flex flex-col items-center space-y-2">
-                  <Camera className="w-8 h-8 text-gray-400" />
-                  <div className="text-sm text-gray-600">
-                    <span className="text-primary font-medium">
-                      Nhấp để tải ảnh lên
-                    </span>{" "}
-                    hoặc kéo thả ảnh vào đây
+                  <Camera className={`w-8 h-8 ${isLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                  <div className={`text-sm ${isLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {isLoading ? (
+                      "Đang tải thông tin sản phẩm..."
+                    ) : (
+                      <>
+                        <span className="text-primary font-medium">
+                          Nhấp để tải ảnh lên
+                        </span>{" "}
+                        hoặc kéo thả ảnh vào đây
+                      </>
+                    )}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    PNG, JPG, GIF tối đa 1MB, tối đa 3 ảnh
-                  </div>
+                  {!isLoading && (
+                    <div className="text-xs text-gray-500">
+                      PNG, JPG, GIF tối đa 1MB, tối đa 3 ảnh
+                    </div>
+                  )}
                 </div>
               </label>
             </div>
@@ -265,10 +331,12 @@ export function ProductInfo({
               id="notes"
               placeholder="Nhập ghi chú"
               className="min-h-[120px] border-gray-300 focus:border-primary"
+              value={form.note as string || ""}
               onChange={(e) => {
                 const updatedForm = { ...form, note: e.target.value };
                 handleProductInfoChange(updatedForm, "note");
               }}
+              disabled={isLoading}
             />
             {errors?.note && (
               <div className="text-red-500 text-sm mt-1">{errors.note}</div>

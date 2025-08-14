@@ -9,21 +9,21 @@ export default function PostManagementPage() {
   const [loading, setLoading] = useState(true);
   const { getPosts } = PostService();
 
+  const fetchPosts = async () => {
+    const response = await getPosts();
+    setLoading(true);
+    console.log("fetchPosts: ", response);
+    if (response) {
+      console.log();
+      setPosts(response?.responseRequestModel?.responseList?.items);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     // Simulate API call
-    const fetchPosts = async () => {
-      const response = await getPosts();
-      setLoading(true);
-      console.log('fetchPosts: ',response )
-      if (response) {
-        console.log()
-        setPosts(response?.responseRequestModel?.responseList?.items);
-      }
-      setLoading(false);
-    };
-
     fetchPosts();
   }, []);
 
-  return <PostManagementTemplate initialPosts={posts} isLoading={loading} />;
+  return <PostManagementTemplate fetchPosts={fetchPosts} initialPosts={posts} isLoading={loading} />;
 }

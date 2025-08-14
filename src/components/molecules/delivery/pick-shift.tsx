@@ -5,6 +5,7 @@ interface PickShiftProps {
   onChange?: (data: Record<string, unknown>) => void;
   errors?: Record<string, string>;
   selected?: number;
+  disabled?: boolean;
 }
 
 interface Shift {
@@ -16,7 +17,7 @@ interface Shift {
 
 const GHN_TOKEN = import.meta.env.VITE_GHN_TOKEN;
 
-export function PickShift({ onChange, errors, selected }: PickShiftProps) {
+export function PickShift({ onChange, errors, selected, disabled }: PickShiftProps) {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selectedShift, setSelectedShift] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +78,7 @@ export function PickShift({ onChange, errors, selected }: PickShiftProps) {
         placeholder="Chọn ca lấy hàng"
         value={selectedShift || (selected ? String(selected) : "")}
         required
+        disabled={disabled}
         options={shifts.map((shift) => ({
           value: String(shift.id),
           label: shift.title,

@@ -7,6 +7,10 @@ const PostService = () => {
   const createPost = useCallback(
     async (data: any) => {
       const formData = new FormData();
+      formData.append("Length", data.Length);
+      formData.append("Width", data.Width);
+      formData.append("Weight", data.Weight);
+      formData.append("Height", data.Height);
       formData.append("Title", data.Title);
       formData.append("Description", data.Description);
       formData.append("ItemValue", String(data.ItemValue));

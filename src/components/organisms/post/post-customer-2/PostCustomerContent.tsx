@@ -13,10 +13,10 @@ export default function PostCustomerContent({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Mô tả */}
-      <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6">
+      <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6 mt-10">
         <h2 className="text-xl font-semibold mb-4">Mô tả</h2>
         <div className="prose max-w-none">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="text-muted-foreground leading-relaxed break-words overflow-hidden">
             {post.description}
           </p>
         </div>
@@ -31,7 +31,7 @@ export default function PostCustomerContent({
           </div>
 
           <div className="bg-primary/10 text-priceHighlight-foreground rounded-lg p-4">
-            <PriceDisplay value={post.suggestedPrice} label="Giá đề xuất" />
+            <PriceDisplay value={post.suggestedPrice} label="Ngân sách" />
           </div>
         </div>
       </div>
