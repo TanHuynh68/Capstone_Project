@@ -27,6 +27,7 @@ export default function LeftPanel({
         phase={orderDetail.offerPhases}
         fetchDepositTransaction={fetchDepositTransaction}
         order={orderDetail.order}
+        offer={orderDetail.offer}
         onViewPhases={onViewPhases}
         onViewDepositHistory={onViewDepositHistory}
         onViewActivityLog={onViewActivityLog}

@@ -62,7 +62,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[420px] p-0">
+      <PopoverContent className="w-[530px] p-0">
         <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b ">
           <div className="flex items-center justify-between">
             <div>
@@ -112,12 +112,12 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                               <Banknote className="w-5 h-5 text-red-600" />
                             </div>
 
-                            <div className="flex-1 min-w-0">
+                            <div className="">
                               <div className="font-semibold text-gray-900 truncate">
                                 Đặt cọc {formatCurrencyVND(deposit.amount)} cho
                                 đơn hàng #{deposit.orderID.slice(0, 8)}
                               </div>
-                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-3">
                                 {deposit.orderTitle}
                               </p>
                             </div>
