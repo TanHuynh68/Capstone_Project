@@ -13,7 +13,7 @@ export default function PostCustomerContent({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Mô tả */}
-      <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6">
+      <div className="bg-card text-card-foreground rounded-lg shadow-sm border p-6 mt-10">
         <h2 className="text-xl font-semibold mb-4">Mô tả</h2>
         <div className="prose max-w-none">
           <p className="text-muted-foreground leading-relaxed break-words overflow-hidden">

@@ -250,13 +250,13 @@ export default function PostManagementTemplate({
         )}
 
         {/* Load More */}
-        {!isLoading && filteredPosts.length > 0 && (
+        {/* {!isLoading && filteredPosts.length > 0 && (
           <div className="text-center mt-12">
             <button className="px-6 py-2 border border-border text-foreground hover:bg-accent hover:text-accent-foreground rounded-md">
               Tải thêm
             </button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
