@@ -1,24 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import PostFilters from "@/components/molecules/post/post-page/PostFilters";
 import PostGrid from "@/components/organisms/post/post-page/PostGrid";
 import PostList from "@/components/organisms/post/post-page/PostList";
-import { Link } from "react-router-dom";
-import { PATH } from "@/routes/path";
 import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
+import CreatePostDialog from "@/components/molecules/post/customer-upload-post-dialog/CreatePostDialog";
 
 interface PostManagementTemplateProps {
   initialPosts: Post[];
   isLoading?: boolean;
+  fetchPosts: any
 }
 
 export default function PostManagementTemplate({
   initialPosts,
   isLoading = false,
+  fetchPosts
 }: PostManagementTemplateProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts || []);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>(
@@ -26,6 +25,7 @@ export default function PostManagementTemplate({
   );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const currentUser = useCurrentUser();
+
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     status: "",
@@ -181,6 +181,12 @@ export default function PostManagementTemplate({
     console.log("Navigate to post:", postId);
   };
 
+  const handlePostCreated = () => {
+    // Refresh posts list after creating new post
+    // In a real app, you would refetch the posts
+    console.log("Post created, refreshing list...");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -192,16 +198,11 @@ export default function PostManagementTemplate({
               <h1 className="text-2xl font-bold text-foreground">Bài đăng</h1>
             </div>
 
-            {
-             currentUser?.role === ROLE.CUSTOMER && <div className="flex items-center gap-4">
-              <Link to={PATH.CUSTOMER_UPLOAD_PAGE}>
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Tạo bài đăng
-                </Button>
-              </Link>
-            </div>
-            }
+            {currentUser?.role === ROLE.CUSTOMER && (
+              <div className="flex items-center gap-4">
+                <CreatePostDialog fetchPosts={fetchPosts} onPostCreated={handlePostCreated} />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -251,13 +252,9 @@ export default function PostManagementTemplate({
         {/* Load More */}
         {!isLoading && filteredPosts.length > 0 && (
           <div className="text-center mt-12">
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
-            >
+            <button className="px-6 py-2 border border-border text-foreground hover:bg-accent hover:text-accent-foreground rounded-md">
               Tải thêm
-            </Button>
+            </button>
           </div>
         )}
       </div>
