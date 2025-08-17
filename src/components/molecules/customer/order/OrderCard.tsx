@@ -56,6 +56,7 @@ export default function OrderCard({
           </div>
         </div>
 
+
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
@@ -74,6 +75,7 @@ export default function OrderCard({
             <div className="text-foreground text-sm">
               {order.customerName}
             </div>
+
           </div>
         </div>
         {/* Timeline */}

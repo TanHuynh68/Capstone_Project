@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +23,18 @@ import {
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
 import CustomerReportService from "@/services/CustomerReportService";
+import BenefitService from "@/services/BenefitService";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface OrderInfoCardProps {
   order: any;
   phase: any;
+  offer: any;
   onViewPhases: () => void;
   onViewDepositHistory: () => void;
   onViewActivityLog: () => void;
@@ -38,6 +46,7 @@ interface OrderInfoCardProps {
 export default function OrderInfoCard({
   order,
   phase,
+  offer,
   onViewPhases,
   onViewDepositHistory,
   onViewActivityLog,
@@ -48,6 +57,8 @@ export default function OrderInfoCard({
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
   const { createReport } = CustomerReportService();
+  const { getBenefitDoneOrder } = BenefitService();
+  const [desBenefit, setDesBenefit] = useState<string>("");
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -57,6 +68,22 @@ export default function OrderInfoCard({
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+  useEffect(() => {
+    fetchBenefitDoneOrder();
+  }, [order, offer]);
+
+  const fetchBenefitDoneOrder = async () => {
+    console.log("a: ", order.totalPrice, order.designerDepositAmount);
+    if (order) {
+      const response = await getBenefitDoneOrder(
+        order.totalPrice,
+        order.designerDepositAmount
+      );
+      if (response && response.responseRequestModel) {
+        setDesBenefit(response.responseRequestModel.receiveMoney);
+      }
+    }
   };
 
   const handleReportSubmit = async (data: any): Promise<boolean> => {
@@ -73,7 +100,7 @@ export default function OrderInfoCard({
     onViewDepositHistory();
   };
 
-  console.log('order: ', order)
+  console.log("order: ", order);
   return (
     <>
       <Card>
@@ -82,7 +109,8 @@ export default function OrderInfoCard({
             <CardTitle className="text-lg font-semibold">
               Thông tin đơn hàng
             </CardTitle>
-            {(order.orderStatus === "InProgress" || order.orderStatus === "Created") && (
+            {(order.orderStatus === "InProgress" ||
+              order.orderStatus === "Created") && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -116,13 +144,6 @@ export default function OrderInfoCard({
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Mã đơn hàng:</span>
-            <span className="text-sm font-mono">
-              {order.orderID.slice(0, 8)}...
-            </span>
-          </div>
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">Tên đơn hàng:</span>
@@ -140,17 +161,49 @@ export default function OrderInfoCard({
           </div>
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-gray-500" />
-            <span className=" text-sm text-gray-600">Tổng giá trị:</span>
-            <span className="font-semibold text-green-600">
-              {formatCurrencyVND(order.totalPrice) + ` (${phase?.length || 0} giai đoạn)`} 
+            <span className=" text-sm text-gray-600">Giá trị đơn hàng:</span>
+            <span className="font-semibold text-gray-500">
+              {formatCurrencyVND(order.totalPrice) +
+                ` (${phase?.length || 0} giai đoạn)`}
             </span>
           </div>
           <div className="text-gray-500">
             <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 " />
+              <span className=" text-sm text-gray-600">Giá trị sản phẩm:</span>
+              <span className="font-semibold">
+                {formatCurrencyVND(offer.itemValue)}
+              </span>
+            </div>
+          </div>
+          <div className="text-gray-500">
+            <div className="flex items-center gap-2">
               <LockKeyhole className="h-4 w-4 " />
-              <span className=" text-sm text-gray-600"> Đã cọc:</span>
+              <span className=" text-sm text-gray-600"> NTK đã cọc:</span>
               <span className="font-semibold">
                 {formatCurrencyVND(order.designerDepositAmount)}
+              </span>
+            </div>
+          </div>
+          <div className="text-gray-500">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 " />
+              <span className=" text-sm text-gray-600 flex gap-2 items-center">
+                Số tiền hoàn lại:
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {/* <p>Số tiền cọc mà nhà thiết kế yêu cầu</p> */}
+                      <p>Số tiền hoàn lại: = Tiền cọc - Giá trị đơn hàng * 10% </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </span>
+              <span className="font-semibold text-green-600">
+                {formatCurrencyVND(parseInt(desBenefit))}
               </span>
             </div>
           </div>
@@ -162,10 +215,9 @@ export default function OrderInfoCard({
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">Ngày hết hạn:</span>
-            <span className="text-sm font-medium text-red-600">
-              {formatDate(order.deadlineAt)}
-            </span>
+            <span className="text-sm  ">{formatDate(order.deadlineAt)}</span>
           </div>
+          <div></div>
         </CardContent>
       </Card>
 
