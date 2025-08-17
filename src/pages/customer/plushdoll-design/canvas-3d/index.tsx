@@ -28,8 +28,8 @@ import {
     EyeOff,
     Plus,
 } from "lucide-react"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter"
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 const DEFAULT_ANCHOR_POINTS = {
     head: { x: 0, y: 1.2, z: 0.3, label: "🗣️ Đầu" },
@@ -73,8 +73,8 @@ interface LabubuModelProps {
     isAttached?: boolean
     anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
     showAnchorPoints?: boolean
-    textMeshRef?: React.MutableRefObject<THREE.Mesh | null>
-    textureMeshRef?: React.MutableRefObject<THREE.Mesh | null>
+    textMeshRef?: React.RefObject<HTMLDivElement | null>
+    textureMeshRef?: React.RefObject<THREE.Mesh | null>
     appliedTexts?: Array<{
         id: string
         text: string
@@ -131,7 +131,7 @@ function AccessoryModel({ modelPath, position, scale, rotation }: {
     const { scene } = useGLTF(modelPath)
 
     // Xử lý scale để tránh lật ngược khi scale âm
-    let finalScale: number[]
+    let finalScale: [number, number, number]
 
     if (scale === 0) {
         // Scale 0 = ẩn hoàn toàn
@@ -178,7 +178,7 @@ function LabubuModel({
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
 
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
         if (groupRef.current && isRotating) {
             groupRef.current.rotation.y += delta * 0.8 // Tăng tốc độ quay và sửa reference
         }
@@ -394,7 +394,7 @@ export default function PlushDollDesign3D() {
     const [showAnchorPoints, setShowAnchorPoints] = useState(false)
     const [showAxes, setShowAxes] = useState(true)
 
-    const textMeshRef = useRef<THREE.Mesh | null>(null)
+    const textMeshRef = useRef<HTMLDivElement | null>(null)
     const textureMeshRef = useRef<THREE.Mesh | null>(null)
 
     const handleGLBUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -569,7 +569,7 @@ export default function PlushDollDesign3D() {
 
         try {
             // Load the main model
-            const gltf = await new Promise<any>((resolve, reject) => {
+            const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
                 loader.load(getCurrentModel().url, resolve, undefined, reject)
             })
 
@@ -635,7 +635,7 @@ export default function PlushDollDesign3D() {
             // Load and add accessories
             const accessoryPromises = accessories.map(async (accessory) => {
                 try {
-                    const gltf = await new Promise<any>((resolve, reject) => {
+                    const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
                         loader.load(accessory.url, resolve, undefined, reject)
                     })
                     const accessoryModel = gltf.scene.clone()
