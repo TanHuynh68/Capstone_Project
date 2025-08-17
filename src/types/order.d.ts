@@ -10,9 +10,11 @@ interface Order {
   deadlineAt: string;
   startDate: string;
   createdAt: string;
-  oldStatus: string | null;
-  designerName: string;
-  customerName: string;
+
+  designerName: string
+  customerName: string
+  oldStatus: string | null
+
 }
 
 interface OrderFilterState {
@@ -28,15 +30,17 @@ interface OrderFilterState {
   };
 }
 const ORDER_STATUSES = {
-  Created: "Đã tạo mới", // 1
-  ShippingToDesigner: "Đang giao cho NTK", // 2
-  DesignerRejected: "NTK từ chối", // 2.1
-  InProgress: "Đang thực hiện", // 3
-  Completed: "Đã hoàn thành", // 4
-  ShippingToCustomer: "Đang giao cho khách", // 5
-  CustomerRejected: "Khách từ chối", // 5.1
-  Done: "Hoàn tất", // 6
-  PendingConflict: "Đang xử lý tranh chấp", // 7
+
+  Created: "Đã tạo mới",                        // 1
+  ShippingToDesigner: "Đang giao cho NTK",// 2
+  DesignerRejected: "NTK từ chối",        // 2.1
+  InProgress: "Đang thực hiện",                // 3
+  Completed: "Đã hoàn thành",                  // 4
+  ShippingToCustomer: "Đang giao cho khách",   // 5
+  CustomerRejected: "Khách từ chối",           // 5.1
+  Done: "Hoàn tất",                            // 6
+  PendingConflict: "Đang xử lý tranh chấp",    // 7
+
   Rejected: "Bị từ chối",
 } as const;
 

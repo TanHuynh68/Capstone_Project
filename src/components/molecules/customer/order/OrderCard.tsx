@@ -51,24 +51,33 @@ export default function OrderCard({
         {/* Price Info */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tổng tiền:</span>
+            <span className="text-sm text-muted-foreground">Tổng giá trị:</span>
             <PriceDisplay amount={order?.totalPrice} size="md" />
           </div>
         </div>
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tên khác hàng:</span>
-            <div className="text-md text-foreground">{order.customerName}</div>
-          </div>
-        </div>
+
 
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tên khác hàng:</span>
-            <div className="text-md text-foreground">{order.designerName}</div>
+            <span className="text-sm text-muted-foreground">
+              Tên nhà thiết kế:
+            </span>
+            <div className="text-foreground text-sm">
+              {order.designerName}
+            </div>
           </div>
         </div>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Tên nhà khách hàng:
+            </span>
+            <div className="text-foreground text-sm">
+              {order.customerName}
+            </div>
 
+          </div>
+        </div>
         {/* Timeline */}
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div className="flex items-center gap-2">
