@@ -24,6 +24,7 @@ export default function OrderManagementPage() {
     createDepositListPhase,
     createWithdrawPhase,
     getOrderDeposited,
+    orderRefundPhase,
   } = OrderService();
   const {
     getProgress,
@@ -57,6 +58,15 @@ export default function OrderManagementPage() {
     setProgressSteps([]);
   }, [id]);
 
+  const handleRefundPhase = async (ids: string[]) => {
+    const response = await orderRefundPhase({ offerPhaseIDs: ids });
+    if (response) {
+      toast.success("Rút cọc thành công");
+      fetchOrderDetail();
+      return response;
+    }
+    return null;
+  };
   // fetch deposited history
   const fetchOrdersDeposited = async () => {
     if (id) {
@@ -194,6 +204,7 @@ export default function OrderManagementPage() {
 
   return (
     <OrderManagementTemplate
+      onRefundDeposit={handleRefundPhase}
       fetchDepositTransaction={fetchDepositTransaction}
       fetchOrdersDeposited={fetchOrdersDeposited}
       ordersDeposited={ordersDeposited}
