@@ -6,7 +6,7 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest", "vite/client"],
+    "types": ["vitest", "vite/client", "src/types/three-jsx.d.ts"],
     "paths": {
       "@/*": ["./src/*"]
     }

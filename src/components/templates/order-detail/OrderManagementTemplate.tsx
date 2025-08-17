@@ -23,6 +23,7 @@ import OrderStatusTimeline from "@/components/molecules/customer/order-detail/Or
 import { useCurrentUser } from "@/utils";
 
 interface OrderManagementTemplateProps {
+  onRefundDeposit?: (phaseIds: string[]) => Promise<void>
   orderDetail: OrderDetail;
   onFetchProgressSteps: any;
   progressStep: ProgressStepResponse[];
@@ -42,6 +43,7 @@ interface OrderManagementTemplateProps {
 }
 
 export default function OrderManagementTemplate({
+  onRefundDeposit,
   orderDetail,
   onFetchProgressSteps,
   progressStep,
@@ -245,6 +247,7 @@ export default function OrderManagementTemplate({
                     onPhaseSelect={handlePhaseSelect}
                     onCreateProgressStep={onCreateProgressStep}
                     onSelectPhases={onSelectPhases}
+                    onRefundDeposit={onRefundDeposit}
                   />
                 </div>
               )}

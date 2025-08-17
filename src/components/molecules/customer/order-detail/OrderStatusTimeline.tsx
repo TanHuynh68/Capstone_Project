@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { ROLE } from "@/constants";
 import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
+import { Button } from "@/components/ui/button";
+import { USER_ROUTES } from "@/routes/path";
+import { useNavigate } from "react-router-dom";
 
 type OrderStatus =
   | "Created"
@@ -44,7 +47,8 @@ const statusDescriptions: Record<OrderStatus, string> = {
   ShippingToDesigner:
     "Nhà thiết kế cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
   DesignerRejected:
-    "Nhà thiết kế cần báo cáo để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết",
+    "Nhà thiết kế cần báo cáo đơn giao hàng để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết.",
+
   InProgress:
     "Khách hàng cần thanh toán cho từng giai đoạn. Nhà thiết kế sẽ rút tiền để tiến hành làm. Sau mỗi giai đoạn, khách hàng cần đánh giá.",
   Completed:
@@ -52,7 +56,8 @@ const statusDescriptions: Record<OrderStatus, string> = {
   ShippingToCustomer:
     "Khách hàng cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
   CustomerRejected:
-    "Khách hàng cần báo cáo để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết.",
+    "Khách hàng cần báo cáo đơn giao hàng để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết.",
+
   Done: "Đơn hàng đã hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
   PendingConflict:
     "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
@@ -66,7 +71,7 @@ export default function OrderStatusTimeline({
   order,
   fetchOrderDetail,
 }: OrderStatusTimelineProps) {
-  // Get main statuses with dynamic labels based on order status and oldStatus
+  const navigate = useNavigate();
   const getMainStatuses = (): StatusStep[] => {
     const baseStatuses: StatusStep[] = [
       {
@@ -247,7 +252,7 @@ export default function OrderStatusTimeline({
   };
 
   const getCurrentStatusLabel = () => {
-    console.log('currentStatus: ',currentStatus)
+    console.log("currentStatus: ", currentStatus);
     // For rejected status, show the appropriate label
     if (currentStatus === "Rejected" && order?.oldStatus) {
       return "Đã hủy";
@@ -269,6 +274,12 @@ export default function OrderStatusTimeline({
       default:
         return currentStatus;
     }
+  };
+
+  const handleNavigateToProfile = (tab?: string) => {
+    navigate(`/${USER_ROUTES.PROFILE}`, {
+      state: { activeTab: tab },
+    });
   };
 
   return (
@@ -350,6 +361,21 @@ export default function OrderStatusTimeline({
               orderID={order?.orderID}
               order={order}
             />
+          </div>
+        </div>
+      )}
+
+      {(currentStatus === "ShippingToDesigner" ||
+        currentStatus === "ShippingToCustomer") && (
+        <div className="flex justify-center items-center">
+          <div className="mt-4 text-center w-[200px]">
+            <Button
+              onClick={() => handleNavigateToProfile("delivery")}
+              variant="default"
+              size="sm"
+            >
+              Xem giao hàng
+            </Button>
           </div>
         </div>
       )}

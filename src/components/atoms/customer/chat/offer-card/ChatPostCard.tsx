@@ -62,8 +62,8 @@ export function ChatPostCard({
     try {
       setIsConfirming(true);
       const response = await offerConfirm({ offerID: post?.offer?.offerID });
-      if (response) {
-        toast.success('Chấp nhận đề xuất thành công!')
+      if (response && response.message) {
+        toast.success(response.message);
         await fetchOffers();
       }
     } catch (error) {
@@ -182,7 +182,7 @@ export function ChatPostCard({
             </div>
             {/* Price Info */}
             <div className="bg-gray-50 p-3 rounded-lg">
-              <div className="text-sm text-gray-600 mb-1">Giá cuối cùng</div>
+              <div className="text-sm text-gray-600 mb-1">Giá trị đơn hàng</div>
               <div className="font-bold text-lg text-green-600">
                 {post?.offer?.finalPrice === null
                   ? "Chưa có"
@@ -336,7 +336,8 @@ export function ChatPostCard({
                           <TooltipContent>
                             {/* <p>Số tiền cọc mà nhà thiết kế yêu cầu</p> */}
                             <p>
-                              Tiền cọc = (Giá cuối cùng + Giá trị vật phẩm ) / 2
+                              Tiền cọc = (Giá trị đơn hàng + Giá trị vật phẩm )
+                              / 2
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -349,7 +350,8 @@ export function ChatPostCard({
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 flex gap-1 items-center">Giá cuối cùng
+                    <div className="text-sm text-gray-600 flex gap-1 items-center">
+                      Giá trị đơn hàng
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -357,7 +359,7 @@ export function ChatPostCard({
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>
-                              Giá cuối cùng bằng tổng giá trị các giai đoạn
+                              Giá trị đơn hàng bằng tổng giá trị các giai đoạn
                             </p>
                           </TooltipContent>
                         </Tooltip>

@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Loader2, Upload, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Player } from "@lottiefiles/react-lottie-player";
@@ -57,27 +56,6 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
 
   const handleImagesChange = (newImages: MediaUploadData[]) => {
     setImages(newImages);
-  };
-
-  const handleLottieClick = () => {
-    if (!isConfirm) {
-      setIsConfirm(true);
-      lottieRef.current?.play();
-      // Khi tick checkbox, kiểm tra validation
-      if (images.length > 0) {
-        setShowValidation(true);
-      }
-    } else {
-      setIsConfirm(false);
-      lottieRef.current?.stop();
-      lottieRef.current?.setSeeker(0, false);
-    }
-  };
-
-  const handleLottieEvent = (event: string) => {
-    if (event === "complete") {
-      // setShowChecked(true); // This line was removed as per the edit hint
-    }
   };
 
   const validateForm = (): boolean => {
@@ -163,46 +141,18 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
               validationErrors={
                 showValidation
                   ? images.map((img, index) =>
-                    !img.description.trim()
-                      ? `Vui lòng nhập mô tả cho ${img.type === "video" ? "video" : "ảnh"
-                      } ${index + 1}`
-                      : ""
-                  )
+                      !img.description.trim()
+                        ? `Vui lòng nhập mô tả cho ${
+                            img.type === "video" ? "video" : "ảnh"
+                          } ${index + 1}`
+                        : ""
+                    )
                   : []
               }
             />
 
             {/* Confirmation Checkbox and Submit Button */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              {/* Confirmation Checkbox */}
-              <div className="flex items-center gap-4">
-                <div
-                  className="relative flex items-center justify-center w-8 h-8 cursor-pointer transition-transform hover:scale-110"
-                  onClick={handleLottieClick}
-                >
-                  <Player
-                    ref={lottieRef}
-                    src="/lottiefiles/checkbox.json"
-                    className="w-10 h-10"
-                    loop={false}
-                    autoplay={false}
-                    keepLastFrame={true}
-                    onEvent={handleLottieEvent}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <Label
-                    onClick={handleLottieClick}
-                    className="text-base font-semibold text-gray-800 cursor-pointer hover:text-blue-700 transition-colors"
-                  >
-                    Xác nhận rằng người gửi đã gửi đúng hàng
-                  </Label>
-                  {/* <span className="text-sm text-gray-600">
-                    Không đúng hàng/ Đúng hàng?
-                  </span> */}
-                </div>
-              </div>
-
+            <div className="flex items-center justify-end pt-4 border-t">
               {/* Submit Button */}
               <Button
                 onClick={handleSubmit}
@@ -211,12 +161,13 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
                   images.length < 1 ||
                   !images.every((img) => img.description.trim() !== "")
                 }
-                className={`min-w-[120px] transition-all duration-200 ${isUploading ||
+                className={`min-w-[120px] transition-all duration-200 ${
+                  isUploading ||
                   images.length < 1 ||
                   !images.every((img) => img.description.trim() !== "")
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:scale-105 bg-blue-600 hover:bg-blue-700"
-                  }`}
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-105 bg-blue-600 hover:bg-blue-700"
+                }`}
               >
                 {isUploading ? (
                   <>

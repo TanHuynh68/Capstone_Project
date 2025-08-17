@@ -162,7 +162,6 @@ export default function CreatePostDialog({
           onChange={(e) => handleFileUpload(e.target.files, type)}
           className="hidden"
           id={`${type}-upload`}
-          
         />
         <label
           htmlFor={`${type}-upload`}
@@ -213,12 +212,12 @@ export default function CreatePostDialog({
     </div>
   );
 
-  const onClose = ()=>{
-    setIsOpen(!isOpen)
-    setOriginalFiles([])
-    setRequestedFiles([])
-    form.reset()
-  }
+  const onClose = () => {
+    setIsOpen(!isOpen);
+    setOriginalFiles([]);
+    setRequestedFiles([]);
+    form.reset();
+  };
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -228,67 +227,48 @@ export default function CreatePostDialog({
             Tạo bài đăng
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-[850px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Tạo bài đăng mới</DialogTitle>
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Title */}
-              <FormField
-                control={form.control}
-                name="Title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Tiêu đề <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Nhập tiêu đề bài đăng" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="Description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Mô tả <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="Nhập mô tả chi tiết"
-                        rows={4}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* ItemValue & SuggestedPrice */}
-              <div className="grid grid-cols-2 gap-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className="space-y-6">
+                {/* Title */}
                 <FormField
                   control={form.control}
-                  name="ItemValue"
+                  name="Title"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Giá trị sản phẩm<span className="text-red-500">*</span>
+                        Tiêu đề <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
+                        <Input {...field} placeholder="Nhập tiêu đề bài đăng" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Description */}
+                <FormField
+                  control={form.control}
+                  name="Description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Mô tả <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
                           {...field}
-                          type="number"
-                          step={1000}
-                          defaultValue={1000}
+                          placeholder="Nhập mô tả chi tiết"
+                          rows={4}
                         />
                       </FormControl>
                       <FormMessage />
@@ -296,101 +276,24 @@ export default function CreatePostDialog({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="SuggestedPrice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Giá đề xuất <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" step={1000} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* FinishDate */}
-              <FormField
-                control={form.control}
-                name="FinishDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>
-                      Ngày hoàn thành <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Popover>
-                      <PopoverTrigger>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy", { locale: vi })
-                            ) : (
-                              <span>Chọn ngày hoàn thành</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => {
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            return date < today;
-                          }}
-                          initialFocus
-                          locale={vi}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* File Uploads */}
-              <FileUploadSection
-                title="Ảnh gốc sản phẩm"
-                files={originalFiles}
-                type="original"
-                required
-              />
-
-              <FileUploadSection
-                title="Ảnh yêu cầu"
-                files={requestedFiles}
-                type="requested"
-                required
-              />
-
-              {/* Optional Dimensions */}
-              <div className="space-y-4">
-                <Label className="text-sm font-medium">
-                  Kích thước
-                </Label>
+                {/* ItemValue & SuggestedPrice */}
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
-                  
                     control={form.control}
-                    name="Length"
+                    name="ItemValue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Chiều dài (cm)</FormLabel>
+                        <FormLabel>
+                          Giá trị sản phẩm
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} type="number" placeholder="0" />
+                          <Input
+                            {...field}
+                            type="number"
+                            step={1000}
+                            defaultValue={1000}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -399,61 +302,164 @@ export default function CreatePostDialog({
 
                   <FormField
                     control={form.control}
-                    name="Width"
+                    name="SuggestedPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Chiều rộng (cm)</FormLabel>
+                        <FormLabel>
+                          Giá đề xuất <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} type="number" placeholder="0" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="Height"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Chiều cao (cm)</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" placeholder="0" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="Weight"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cân nặng (gram)</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" />
+                          <Input {...field} type="number" step={1000} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                {/* FinishDate */}
+                <FormField
+                  control={form.control}
+                  name="FinishDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Ngày hoàn thành <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Popover>
+                        <PopoverTrigger>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy", {
+                                  locale: vi,
+                                })
+                              ) : (
+                                <span>Chọn ngày hoàn thành</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return date < today;
+                            }}
+                            initialFocus
+                            locale={vi}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Optional Dimensions */}
+                <div className="space-y-4">
+                  <Label className="text-sm font-medium">Kích thước</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="Length"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Chiều dài (cm)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="0" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="Width"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Chiều rộng (cm)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="0" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="Height"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Chiều cao (cm)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="0" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="Weight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cân nặng (gram)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Hủy
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Đang tạo..." : "Tạo bài đăng"}
-                </Button>
+              <div className="space-y-6">
+                {/* File Uploads */}
+                <FileUploadSection
+                  title="Ảnh gốc sản phẩm"
+                  files={originalFiles}
+                  type="original"
+                  required
+                />
+
+                <FileUploadSection
+                  title="Ảnh yêu cầu"
+                  files={requestedFiles}
+                  type="requested"
+                  required
+                />
+
+                {/* Submit Button */}
+                <div className="flex justify-end items-end  gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsOpen(false)}
+                    disabled={isSubmitting}
+                  >
+                    Hủy
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Đang tạo..." : "Tạo bài đăng"}
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>
