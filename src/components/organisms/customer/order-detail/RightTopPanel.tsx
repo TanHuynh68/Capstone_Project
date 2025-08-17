@@ -1,16 +1,15 @@
-"use client";
-
 import type { OfferPhase, OrderDetail } from "@/types/orderManagement";
 import OfferPhaseItem from "@/components/molecules/customer/order-detail/OfferPhaseItem";
 import SelectPhasesDialog from "@/components/molecules/customer/order-detail/SelectPhasesDialog";
 import WithdrawDepositDialog from "@/components/molecules/customer/order-detail/WithdrawDepositDialog";
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import { Button } from "@/components/ui/button";
-import { CheckSquare, Wallet } from "lucide-react";
+import { CheckSquare, Wallet, RefreshCw } from "lucide-react";
 import { useRef, useState } from "react";
 import { useCurrentUser } from "@/utils";
 import { ROLE } from "@/constants";
 import "./RightTop.css";
+import RefundDepositDialog from "@/components/molecules/customer/order-detail/RefundDepositDialog";
 
 interface RightTopPanelProps {
   orderDetail: OrderDetail;
@@ -21,6 +20,7 @@ interface RightTopPanelProps {
   onCreateProgressStep?: (data: CreateProgressStepFormData) => Promise<void>;
   onSelectPhases?: (phaseIds: string[]) => Promise<void>;
   onWithdrawDeposit: (phaseIds: string[]) => Promise<void>;
+  onRefundDeposit?: (phaseIds: string[]) => Promise<any>;
 }
 
 export default function RightTopPanel({
@@ -31,15 +31,17 @@ export default function RightTopPanel({
   onCreateProgressStep,
   onSelectPhases,
   onWithdrawDeposit,
+  onRefundDeposit,
   orderDetail,
 }: RightTopPanelProps) {
   const [isSelectPhasesDialogOpen, setIsSelectPhasesDialogOpen] =
     useState(false);
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false);
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
   const currentUser = useCurrentUser();
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
+  console.log('orderDetail: ', orderDetail)
   const handlePhaseSelect = (phaseId: string) => {
     onPhaseSelect(phaseId);
     const container = containerRef.current;
@@ -68,21 +70,39 @@ export default function RightTopPanel({
     }
   };
 
+  const handleRefundDeposit = async (phaseIds: string[]) => {
+    if (onRefundDeposit) {
+      const response = await onRefundDeposit(phaseIds);
+      if (response) {
+        setIsRefundDialogOpen(false);
+      }
+    }
+  };
+
   // Filter phases for withdrawal (Deposited status and has deposit amount)
   const withdrawablePhases = phases.filter(
     (phase) =>
       phase.offerPhaseStatus === "Deposited" && phase.offerPhasePrice > 0
   );
 
-  const isStatusDealedExisted = orderDetail.offerPhases.filter(item=>item.offerPhaseStatus === 'Dealed')
-  console.log('isStatusDealedExisted: ', isStatusDealedExisted)
+  // Filter phases for refund (Deposited status when order is rejected)
+  const refundablePhases = phases.filter(
+    (phase) =>
+      phase.offerPhaseStatus === "Deposited" && phase.offerPhasePrice > 0
+  );
+
+  const isStatusDealedExisted = orderDetail.offerPhases.filter(
+    (item) => item.offerPhaseStatus === "Dealed"
+  );
+
   return (
     <>
       <div className="flex flex-col max-h-[242px]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Giai đoạn thực hiện</h3>
           <div className="flex items-center gap-2">
-            {currentUser?.role === ROLE.CUSTOMER && isStatusDealedExisted.length > 0 &&
+            {currentUser?.role === ROLE.CUSTOMER &&
+              isStatusDealedExisted.length > 0 &&
               orderDetail.order.orderStatus === "InProgress" && (
                 <Button
                   variant="outline"
@@ -92,6 +112,20 @@ export default function RightTopPanel({
                 >
                   <CheckSquare className="h-4 w-4" />
                   Đặt cọc
+                </Button>
+              )}
+
+            {currentUser?.role === ROLE.CUSTOMER &&
+              refundablePhases.length > 0 &&
+              orderDetail.order.orderStatus === "Rejected" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsRefundDialogOpen(true)}
+                  className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Hoàn tiền cọc
                 </Button>
               )}
 
@@ -147,6 +181,13 @@ export default function RightTopPanel({
         onClose={() => setIsWithdrawDialogOpen(false)}
         phases={withdrawablePhases}
         onSubmit={handleWithdrawDeposit}
+      />
+
+      <RefundDepositDialog
+        isOpen={isRefundDialogOpen}
+        onClose={() => setIsRefundDialogOpen(false)}
+        phases={refundablePhases}
+        onSubmit={handleRefundDeposit}
       />
     </>
   );

@@ -98,7 +98,7 @@ const OrderService = () => {
         const res = await callApi(
           HTTP_METHOD.POST,
           `${API_ROUTES.CREATE_WITHDRAW_PHASE}`,
-          {OfferPhaseIDs: id}
+          { OfferPhaseIDs: id }
         );
         return res;
       } catch (err: any) {
@@ -108,7 +108,7 @@ const OrderService = () => {
     [callApi]
   );
 
-   const getOrderDeposited = useCallback(
+  const getOrderDeposited = useCallback(
     async (id: any) => {
       try {
         const res = await callApi(
@@ -135,6 +135,17 @@ const OrderService = () => {
     [callApi]
   );
 
+  const orderRefundPhase = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.ORDER_REFUND_PHASE}`,values);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
 
   return {
     getOrders,
@@ -145,7 +156,8 @@ const OrderService = () => {
     createDepositPhase,
     createDepositListPhase,
     createWithdrawPhase,
-    getOrderDeliveryValue
+    getOrderDeliveryValue,
+    orderRefundPhase
   };
 };
 

@@ -19,6 +19,7 @@ import {
   LockKeyhole,
   Flag,
   ShoppingBag,
+  Info,
 } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
