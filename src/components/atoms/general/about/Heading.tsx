@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type { JSX } from "react";
 
 interface HeadingProps {
   level: 1 | 2 | 3 | 4 | 5 | 6;
@@ -23,11 +22,25 @@ export default function Heading({
     6: "text-base md:text-lg mb-2",
   };
 
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const props = {
+    className: `${baseStyles} ${sizeStyles[level]} ${className}`,
+    children,
+  };
 
-  return (
-    <Tag className={`${baseStyles} ${sizeStyles[level]} ${className}`}>
-      {children}
-    </Tag>
-  );
+  switch (level) {
+    case 1:
+      return <h1 {...props} />;
+    case 2:
+      return <h2 {...props} />;
+    case 3:
+      return <h3 {...props} />;
+    case 4:
+      return <h4 {...props} />;
+    case 5:
+      return <h5 {...props} />;
+    case 6:
+      return <h6 {...props} />;
+    default:
+      return <h1 {...props} />;
+  }
 }
