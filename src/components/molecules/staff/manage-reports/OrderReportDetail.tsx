@@ -361,7 +361,7 @@ export default function OrderReportDetail({
             </div>
             <div>
               <Label className="text-sm font-semibold text-gray-700">
-                Giá cuối cùng
+                Giá trị đơn hàng
               </Label>
               <p className="text-sm bg-green-50 p-2 rounded mt-1 flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-green-500" />

@@ -9,9 +9,10 @@ interface Order {
   note: string;
   deadlineAt: string;
   startDate: string;
-  endDate: string | null;
   createdAt: string;
-  updatedAt: string;
+  designerName: string
+  customerName: string
+  oldStatus: string | null
 }
 
 interface OrderFilterState {
@@ -36,7 +37,7 @@ const ORDER_STATUSES = {
   CustomerRejected: "Khách từ chối",           // 5.1
   Done: "Hoàn tất",                            // 6
   PendingConflict: "Đang xử lý tranh chấp",    // 7
-  Rejected: "Bị từ chối", 
+  Rejected: "Bị từ chối",
 } as const;
 
 interface OrderSortState {

@@ -55,7 +55,7 @@ export default function OfferInfoCard({ offer }: OfferInfoCardProps) {
       <CardContent className="space-y-2">
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">Giá cuối cùng:</span>
+          <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
           <span className="text-sm font-semibold text-green-600">
             {formatCurrencyVND(offer.finalPrice)}
           </span>

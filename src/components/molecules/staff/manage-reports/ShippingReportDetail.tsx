@@ -255,7 +255,7 @@ export default function ShippingReportDetail({
                 </Label>
                 <p className="text-sm bg-orange-50 p-2 rounded flex items-center gap-2">
                   <Weight className="h-3 w-3 text-orange-500" />
-                  {targetDetail.weight} kg
+                  {targetDetail.weight} gram
                 </p>
               </div>
             </div>

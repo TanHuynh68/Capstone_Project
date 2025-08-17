@@ -51,27 +51,31 @@ export default function OrderCard({
         {/* Price Info */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tổng tiền:</span>
+            <span className="text-sm text-muted-foreground">Tổng giá trị:</span>
             <PriceDisplay amount={order?.totalPrice} size="md" />
           </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              Đặt cọc yêu cầu:
-            </span>
-            <PriceDisplay amount={order?.requiredDepositAmount} size="sm" />
-          </div>
-
-          {order?.designerDepositAmount >= 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Designer đã cọc:
-              </span>
-              <PriceDisplay amount={order?.designerDepositAmount} size="sm" />
-            </div>
-          )}
         </div>
 
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Tên nhà thiết kế:
+            </span>
+            <div className="text-foreground text-sm">
+              {order.designerName}
+            </div>
+          </div>
+        </div>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Tên nhà khách hàng:
+            </span>
+            <div className="text-foreground text-sm">
+              {order.customerName}
+            </div>
+          </div>
+        </div>
         {/* Timeline */}
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div className="flex items-center gap-2">
