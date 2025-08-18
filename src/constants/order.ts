@@ -8,4 +8,6 @@ export const ACTIVITY_TYPE_VI = {
     Check: "Kiểm tra",
     Pending: "Khiếu nại",
     Done: "Hoàn thành",
+    Rework: "Làm lại",
+    Fail: "Thất bại",
 } as const; 

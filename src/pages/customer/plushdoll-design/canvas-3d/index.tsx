@@ -4,9 +4,11 @@ import type React from "react"
 import * as THREE from "three"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Environment, useGLTF, Html } from "@react-three/drei"
+import * as SliderPrimitive from "@radix-ui/react-slider"
 import { Suspense, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+// Local rotation slider styling for this page only
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -205,11 +207,11 @@ function LabubuModel({
                     <group>
                         <mesh position={[0, 1.0, 0]}>
                             <cylinderGeometry args={[0.03, 0.03, 2.0]} />
-                            <meshBasicMaterial color="#00ff00" />
+                            <meshBasicMaterial color="#0000ff" />
                         </mesh>
                         <Html position={[0, 2.2, 0]} distanceFactor={8}>
-                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
-                                Y
+                            <div className="text-blue-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-blue-200">
+                                Z
                             </div>
                         </Html>
                     </group>
@@ -218,11 +220,11 @@ function LabubuModel({
                     <group>
                         <mesh position={[0, 0, 1.0]} rotation={[Math.PI / 2, 0, 0]}>
                             <cylinderGeometry args={[0.03, 0.03, 2.0]} />
-                            <meshBasicMaterial color="#0000ff" />
+                            <meshBasicMaterial color="#00ff00" />
                         </mesh>
                         <Html position={[0, 0, 2.2]} distanceFactor={8}>
-                            <div className="text-blue-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-blue-200">
-                                Z
+                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
+                                Y
                             </div>
                         </Html>
                     </group>
@@ -316,27 +318,27 @@ function LabubuModel({
                     </div>
                 </Html>
             ))}
-                         {showAnchorPoints && (
-                 <>
-                     {Object.entries(anchorPoints).map(([key, anchor]) => (
-                         <AnchorPoint key={key} position={anchor} label={anchor.label} />
-                     ))}
-                 </>
-             )}
-             
-             {/* Render accessories */}
-             {accessories.map((accessory) => (
-                 <AccessoryModel
-                     key={accessory.id}
-                     modelPath={accessory.url}
-                     position={accessory.position}
-                     scale={accessory.scale}
-                     rotation={accessory.rotation}
-                 />
-             ))}
-         </group>
-     )
- }
+            {showAnchorPoints && (
+                <>
+                    {Object.entries(anchorPoints).map(([key, anchor]) => (
+                        <AnchorPoint key={key} position={anchor} label={anchor.label} />
+                    ))}
+                </>
+            )}
+
+            {/* Render accessories */}
+            {accessories.map((accessory) => (
+                <AccessoryModel
+                    key={accessory.id}
+                    modelPath={accessory.url}
+                    position={accessory.position}
+                    scale={accessory.scale}
+                    rotation={accessory.rotation}
+                />
+            ))}
+        </group>
+    )
+}
 
 export default function PlushDollDesign3D() {
     const [glbModels, setGlbModels] = useState<GLBModel[]>([
@@ -397,6 +399,11 @@ export default function PlushDollDesign3D() {
     const textMeshRef = useRef<HTMLDivElement | null>(null)
     const textureMeshRef = useRef<THREE.Mesh | null>(null)
 
+    // Clearable inputs and slider snap-to-zero detent
+    const [textPositionInput, setTextPositionInput] = useState({ x: "0.00", y: "1.00", z: "0.50" })
+    const [texturePositionInput, setTexturePositionInput] = useState({ x: "0.00", y: "0.00", z: "0.30" })
+    const snapToZero = (value: number, threshold = 0.05) => (Math.abs(value) < threshold ? 0 : value)
+
     const handleGLBUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
         if (file && file.name.toLowerCase().endsWith(".glb")) {
@@ -456,6 +463,7 @@ export default function PlushDollDesign3D() {
             if (!customText) {
                 console.log("[v0] Warning: customText is empty when selecting anchor")
             }
+            setTextPositionInput({ x: anchor.x.toFixed(2), y: anchor.y.toFixed(2), z: anchor.z.toFixed(2) })
         }
     }
 
@@ -464,6 +472,7 @@ export default function PlushDollDesign3D() {
         if (anchor) {
             setTexturePosition({ x: anchor.x, y: anchor.y, z: anchor.z })
             setSelectedTextureAnchor(anchorKey)
+            setTexturePositionInput({ x: anchor.x.toFixed(2), y: anchor.y.toFixed(2), z: anchor.z.toFixed(2) })
         }
     }
 
@@ -507,6 +516,7 @@ export default function PlushDollDesign3D() {
         setTextSize(1)
         setTextPosition({ x: 0, y: 1, z: 0.5 })
         setSelectedTextAnchor("")
+        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
 
         console.log("[v0] Text applied and controls reset:", newText)
     }
@@ -530,6 +540,7 @@ export default function PlushDollDesign3D() {
         setTexturePosition({ x: 0, y: 0, z: 0.3 })
         setTextureScale(1)
         setSelectedTextureAnchor("")
+        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
     }
 
     const handleRemoveAppliedText = (id: string) => {
@@ -554,6 +565,8 @@ export default function PlushDollDesign3D() {
         setIsAttached(false)
         setSelectedTextAnchor("")
         setSelectedTextureAnchor("")
+        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
+        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
         setShowAnchorPoints(false)
         setAppliedTexts([])
         setAppliedTextures([]) // Cũng reset textures đã áp dụng
@@ -756,25 +769,52 @@ export default function PlushDollDesign3D() {
     }
 
     const handleAccessoryPositionChange = (accessoryId: string, axis: "x" | "y" | "z", value: number) => {
-        setAccessories(prev => prev.map(acc => 
-            acc.id === accessoryId 
+        setAccessories(prev => prev.map(acc =>
+            acc.id === accessoryId
                 ? { ...acc, position: { ...acc.position, [axis]: value } }
                 : acc
         ))
     }
 
     const handleAccessoryScaleChange = (accessoryId: string, value: number) => {
-        setAccessories(prev => prev.map(acc => 
-            acc.id === accessoryId 
+        setAccessories(prev => prev.map(acc =>
+            acc.id === accessoryId
                 ? { ...acc, scale: value }
                 : acc
         ))
     }
 
+    const clampAngleRad0ToTwoPi = (angle: number) => {
+        const twoPi = Math.PI * 2
+        if (angle < 0) return 0
+        if (angle > twoPi) return twoPi
+        return angle
+    }
+
+    // Ensure sliders snap to exact 0° and 360°
+    const degreesToRadiansSnap = (degrees: number, epsilon = 0.5) => {
+        if (degrees <= epsilon) return 0
+        if (degrees >= 360 - epsilon) return Math.PI * 2
+        return (degrees * Math.PI) / 180
+    }
+
+    const radiansToDegreesRounded = (radians: number) => {
+        const deg = (radians * 180) / Math.PI
+        if (deg < 0) return 0
+        if (deg > 360) return 360
+        return Math.round(deg)
+    }
+
     const handleAccessoryRotationChange = (accessoryId: string, axis: "x" | "y" | "z", value: number) => {
-        setAccessories(prev => prev.map(acc => 
-            acc.id === accessoryId 
-                ? { ...acc, rotation: { ...acc.rotation, [axis]: value } }
+        setAccessories(prev => prev.map(acc =>
+            acc.id === accessoryId
+                ? {
+                    ...acc,
+                    rotation: {
+                        ...acc.rotation,
+                        [axis]: (axis === "x" || axis === "y" || axis === "z") ? clampAngleRad0ToTwoPi(value) : value
+                    }
+                }
                 : acc
         ))
     }
@@ -782,10 +822,10 @@ export default function PlushDollDesign3D() {
     const handleAccessoryAnchorSelect = (accessoryId: string, anchorKey: string) => {
         const anchor = anchorPoints[anchorKey as keyof typeof anchorPoints]
         if (anchor) {
-            setAccessories(prev => prev.map(acc => 
-                acc.id === accessoryId 
-                    ? { 
-                        ...acc, 
+            setAccessories(prev => prev.map(acc =>
+                acc.id === accessoryId
+                    ? {
+                        ...acc,
                         position: { x: anchor.x, y: anchor.y, z: anchor.z },
                         anchorPoint: anchorKey
                     }
@@ -826,16 +866,16 @@ export default function PlushDollDesign3D() {
                         >
                             {showAxes ? "Ẩn trục XYZ" : "Hiện trục XYZ"}
                         </Button>
-                                                 <div className="flex gap-2">
-                             <Button
-                                 variant={isRotating ? "default" : "outline"}
-                                 size="sm"
-                                 onClick={handleToggleRotation}
-                                 className={`text-white border-white/20 ${isRotating ? "bg-green-600 hover:bg-green-700" : ""}`}
-                             >
-                                 {isRotating ? "🔄 Dừng quay" : "▶️ Bắt đầu quay"}
-                             </Button>
-                         </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant={isRotating ? "default" : "outline"}
+                                size="sm"
+                                onClick={handleToggleRotation}
+                                className={`text-white border-white/20 ${isRotating ? "bg-green-600 hover:bg-green-700" : ""}`}
+                            >
+                                {isRotating ? "🔄 Dừng quay" : "▶️ Bắt đầu quay"}
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -863,24 +903,24 @@ export default function PlushDollDesign3D() {
                                                 </>
                                             )}
                                         </Button>
-                                                                                 <Button 
-                                             variant={isRotating ? "default" : "outline"} 
-                                             size="sm" 
-                                             onClick={handleToggleRotation}
-                                             className={isRotating ? "bg-green-600 hover:bg-green-700" : ""}
-                                         >
-                                             {isRotating ? (
-                                                 <>
-                                                     <Pause className="w-4 h-4 mr-1" />
-                                                     Dừng quay
-                                                 </>
-                                             ) : (
-                                                 <>
-                                                     <Play className="w-4 h-4 mr-1" />
-                                                     Bắt đầu quay
-                                                 </>
-                                             )}
-                                         </Button>
+                                        <Button
+                                            variant={isRotating ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={handleToggleRotation}
+                                            className={isRotating ? "bg-green-600 hover:bg-green-700" : ""}
+                                        >
+                                            {isRotating ? (
+                                                <>
+                                                    <Pause className="w-4 h-4 mr-1" />
+                                                    Dừng quay
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Play className="w-4 h-4 mr-1" />
+                                                    Bắt đầu quay
+                                                </>
+                                            )}
+                                        </Button>
                                         <Button
                                             variant={isAttached ? "default" : "outline"}
                                             size="sm"
@@ -904,36 +944,36 @@ export default function PlushDollDesign3D() {
                             <CardContent className="h-[500px] p-0">
                                 <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
                                     <Canvas className="w-full h-full" camera={{ position: [0, 0, 5], fov: 50 }}>
-                                            <ambientLight intensity={0.5} />
-                                            <directionalLight position={[10, 10, 5]} intensity={1} />
-                                                                                         {/* Removed duplicate axesHelper - using custom axes instead */}
-                                            <Suspense fallback={<LoadingSpinner />}>
-                                                                                                 <LabubuModel
-                                                     modelPath={getCurrentModel().url}
-                                                     customTexture={customTexture || uploadedImage}
-                                                     customText={customText}
-                                                     textColor={textColor}
-                                                     textBackgroundColor={textBackgroundColor}
-                                                     textSize={textSize}
-                                                     textPosition={textPosition}
-                                                     texturePosition={texturePosition}
-                                                     textureScale={textureScale}
-                                                     isRotating={isRotating}
-                                                     isAttached={isAttached}
-                                                     anchorPoints={anchorPoints}
-                                                     showAnchorPoints={showAnchorPoints}
-                                                     textMeshRef={textMeshRef}
-                                                     textureMeshRef={textureMeshRef}
-                                                     appliedTexts={appliedTexts}
-                                                     appliedTextures={appliedTextures}
-                                                     accessories={accessories}
-                                                     showAxes={showAxes}
-                                                 />
-                                                <Environment preset="studio" />
-                                            </Suspense>
-                                            <OrbitControls enablePan={true} enableZoom={true} enableRotate={!isRotating} />
-                                        </Canvas>
-                                    </div>
+                                        <ambientLight intensity={0.5} />
+                                        <directionalLight position={[10, 10, 5]} intensity={1} />
+                                        {/* Removed duplicate axesHelper - using custom axes instead */}
+                                        <Suspense fallback={<LoadingSpinner />}>
+                                            <LabubuModel
+                                                modelPath={getCurrentModel().url}
+                                                customTexture={customTexture || uploadedImage}
+                                                customText={customText}
+                                                textColor={textColor}
+                                                textBackgroundColor={textBackgroundColor}
+                                                textSize={textSize}
+                                                textPosition={textPosition}
+                                                texturePosition={texturePosition}
+                                                textureScale={textureScale}
+                                                isRotating={isRotating}
+                                                isAttached={isAttached}
+                                                anchorPoints={anchorPoints}
+                                                showAnchorPoints={showAnchorPoints}
+                                                textMeshRef={textMeshRef}
+                                                textureMeshRef={textureMeshRef}
+                                                appliedTexts={appliedTexts}
+                                                appliedTextures={appliedTextures}
+                                                accessories={accessories}
+                                                showAxes={showAxes}
+                                            />
+                                            <Environment preset="studio" />
+                                        </Suspense>
+                                        <OrbitControls enablePan={true} enableZoom={true} enableRotate={!isRotating} />
+                                    </Canvas>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -987,28 +1027,28 @@ export default function PlushDollDesign3D() {
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="models" className="w-full">
-                                                                         <TabsList className="grid w-full grid-cols-5">
-                                         <TabsTrigger value="models" className="flex items-center gap-1">
-                                             <Box className="w-4 h-4" />
-                                             Models
-                                         </TabsTrigger>
-                                         <TabsTrigger value="texture" className="flex items-center gap-1">
-                                             <ImageIcon className="w-4 h-4" />
-                                             Texture
-                                         </TabsTrigger>
-                                         <TabsTrigger value="text" className="flex items-center gap-1">
-                                             <Type className="w-4 h-4" />
-                                             Text
-                                         </TabsTrigger>
-                                         <TabsTrigger value="accessories" className="flex items-center gap-1">
-                                             <Plus className="w-4 h-4" />
-                                             Phụ kiện
-                                         </TabsTrigger>
-                                         <TabsTrigger value="anchors" className="flex items-center gap-1">
-                                             <Settings className="w-4 h-4" />
-                                             Điểm neo
-                                         </TabsTrigger>
-                                     </TabsList>
+                                    <TabsList className="grid w-full grid-cols-5">
+                                        <TabsTrigger value="models" className="flex items-center gap-1">
+                                            <Box className="w-4 h-4" />
+                                            Models
+                                        </TabsTrigger>
+                                        <TabsTrigger value="texture" className="flex items-center gap-1">
+                                            <ImageIcon className="w-4 h-4" />
+                                            Texture
+                                        </TabsTrigger>
+                                        <TabsTrigger value="text" className="flex items-center gap-1">
+                                            <Type className="w-4 h-4" />
+                                            Text
+                                        </TabsTrigger>
+                                        <TabsTrigger value="accessories" className="flex items-center gap-1">
+                                            <Plus className="w-4 h-4" />
+                                            Phụ kiện
+                                        </TabsTrigger>
+                                        <TabsTrigger value="anchors" className="flex items-center gap-1">
+                                            <Settings className="w-4 h-4" />
+                                            Điểm neo
+                                        </TabsTrigger>
+                                    </TabsList>
 
                                     <TabsContent value="models" className="space-y-4">
                                         <div>
@@ -1207,15 +1247,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
+                                                        step="0.01"
                                                         value={texturePosition.x}
                                                         onChange={(e) => {
-                                                            setTexturePosition((prev) => ({ ...prev, x: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTexturePosition((prev) => ({ ...prev, x: snapped }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, x: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.x.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={texturePositionInput.x}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTexturePositionInput((prev) => ({ ...prev, x: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTexturePosition((prev) => ({ ...prev, x: snapped }))
+                                                            }
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (texturePositionInput.x.trim() === "") {
+                                                                setTexturePosition((prev) => ({ ...prev, x: 0 }))
+                                                                setTexturePositionInput((prev) => ({ ...prev, x: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="texture-y" className="text-xs">
@@ -1226,15 +1289,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={texturePosition.y}
+                                                        step="0.01"
+                                                        value={texturePosition.z}
                                                         onChange={(e) => {
-                                                            setTexturePosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTexturePosition((prev) => ({ ...prev, z: snapped }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.y.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={texturePositionInput.z}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTexturePositionInput((prev) => ({ ...prev, z: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTexturePosition((prev) => ({ ...prev, z: snapped }))
+                                                            }
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (texturePositionInput.z.trim() === "") {
+                                                                setTexturePosition((prev) => ({ ...prev, z: 0 }))
+                                                                setTexturePositionInput((prev) => ({ ...prev, z: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="texture-z" className="text-xs">
@@ -1245,15 +1331,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={texturePosition.z}
+                                                        step="0.01"
+                                                        value={texturePosition.y}
                                                         onChange={(e) => {
-                                                            setTexturePosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTexturePosition((prev) => ({ ...prev, y: snapped }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.z.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={texturePositionInput.y}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTexturePositionInput((prev) => ({ ...prev, y: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTexturePosition((prev) => ({ ...prev, y: snapped }))
+                                                            }
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (texturePositionInput.y.trim() === "") {
+                                                                setTexturePosition((prev) => ({ ...prev, y: 0 }))
+                                                                setTexturePositionInput((prev) => ({ ...prev, y: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1308,205 +1417,256 @@ export default function PlushDollDesign3D() {
                                                     ))}
                                                 </div>
                                             </div>
-                                                                                 )}
-                                     </TabsContent>
+                                        )}
+                                    </TabsContent>
 
-                                     <TabsContent value="accessories" className="space-y-4">
-                                         <div>
-                                             <Label htmlFor="accessory-upload">Upload file GLB phụ kiện</Label>
-                                             <div className="mt-2">
-                                                 <Input
-                                                     id="accessory-upload"
-                                                     type="file"
-                                                     accept=".glb"
-                                                     onChange={handleAccessoryUpload}
-                                                     className="cursor-pointer"
-                                                 />
-                                             </div>
-                                             <p className="text-xs text-gray-500 mt-1">
-                                                 Chỉ hỗ trợ file .glb. Phụ kiện sẽ được thêm vào model chính.
-                                             </p>
-                                         </div>
+                                    <TabsContent value="accessories" className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="accessory-upload">Upload file GLB phụ kiện</Label>
+                                            <div className="mt-2">
+                                                <Input
+                                                    id="accessory-upload"
+                                                    type="file"
+                                                    accept=".glb"
+                                                    onChange={handleAccessoryUpload}
+                                                    className="cursor-pointer"
+                                                />
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Chỉ hỗ trợ file .glb. Phụ kiện sẽ được thêm vào model chính.
+                                            </p>
+                                        </div>
 
-                                         {accessories.length > 0 && (
-                                             <div>
-                                                 <Label className="text-sm font-medium">Phụ kiện đã thêm ({accessories.length})</Label>
-                                                 <div className="mt-2 space-y-3 max-h-64 overflow-y-auto">
-                                                     {accessories.map((accessory) => (
-                                                         <div key={accessory.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                                             <div className="flex items-center justify-between mb-2">
-                                                                 <div className="font-medium text-sm text-blue-800">
-                                                                     {accessory.name}
-                                                                 </div>
-                                                                 <div className="flex gap-1">
-                                                                     <Button
-                                                                         variant={selectedAccessory === accessory.id ? "default" : "outline"}
-                                                                         size="sm"
-                                                                         onClick={() => setSelectedAccessory(selectedAccessory === accessory.id ? "" : accessory.id)}
-                                                                         className="h-6 w-6 p-0 text-xs"
-                                                                     >
-                                                                         {selectedAccessory === accessory.id ? "✓" : "⚙️"}
-                                                                     </Button>
-                                                                     <Button
-                                                                         variant="ghost"
-                                                                         size="sm"
-                                                                         onClick={() => handleRemoveAccessory(accessory.id)}
-                                                                         className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                                                     >
-                                                                         ✕
-                                                                     </Button>
-                                                                 </div>
-                                                             </div>
+                                        {accessories.length > 0 && (
+                                            <div>
+                                                <Label className="text-sm font-medium">Phụ kiện đã thêm ({accessories.length})</Label>
+                                                <div className="mt-2 space-y-3 max-h-64 overflow-y-auto">
+                                                    {accessories.map((accessory) => (
+                                                        <div key={accessory.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <div className="font-medium text-sm text-blue-800">
+                                                                    {accessory.name}
+                                                                </div>
+                                                                <div className="flex gap-1">
+                                                                    <Button
+                                                                        variant={selectedAccessory === accessory.id ? "default" : "outline"}
+                                                                        size="sm"
+                                                                        onClick={() => setSelectedAccessory(selectedAccessory === accessory.id ? "" : accessory.id)}
+                                                                        className="h-6 w-6 p-0 text-xs"
+                                                                    >
+                                                                        {selectedAccessory === accessory.id ? "✓" : "⚙️"}
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        onClick={() => handleRemoveAccessory(accessory.id)}
+                                                                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                                                    >
+                                                                        ✕
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
 
-                                                             {selectedAccessory === accessory.id && (
-                                                                 <div className="space-y-3">
-                                                                     {/* Anchor Point Selection */}
-                                                                     <div>
-                                                                         <Label className="text-xs font-medium">Điểm neo:</Label>
-                                                                         <div className="grid grid-cols-2 gap-1 mt-1">
-                                                                             {Object.entries(anchorPoints).map(([key, anchor]) => (
-                                                                                 <Button
-                                                                                     key={key}
-                                                                                     variant={accessory.anchorPoint === key ? "default" : "outline"}
-                                                                                     size="sm"
-                                                                                     onClick={() => handleAccessoryAnchorSelect(accessory.id, key)}
-                                                                                     className="text-xs h-6"
-                                                                                 >
-                                                                                     {anchor.label}
-                                                                                 </Button>
-                                                                             ))}
-                                                                         </div>
-                                                                     </div>
+                                                            {selectedAccessory === accessory.id && (
+                                                                <div className="space-y-3">
+                                                                    {/* Anchor Point Selection */}
+                                                                    <div>
+                                                                        <Label className="text-xs font-medium">Điểm neo:</Label>
+                                                                        <div className="grid grid-cols-2 gap-1 mt-1">
+                                                                            {Object.entries(anchorPoints).map(([key, anchor]) => (
+                                                                                <Button
+                                                                                    key={key}
+                                                                                    variant={accessory.anchorPoint === key ? "default" : "outline"}
+                                                                                    size="sm"
+                                                                                    onClick={() => handleAccessoryAnchorSelect(accessory.id, key)}
+                                                                                    className="text-xs h-6"
+                                                                                >
+                                                                                    {anchor.label}
+                                                                                </Button>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
 
-                                                                     {/* Position Controls */}
-                                                                     <div>
-                                                                         <Label className="text-xs font-medium">Vị trí (X, Y, Z):</Label>
-                                                                         <div className="grid grid-cols-3 gap-2 mt-1">
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-x`} className="text-xs">X</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-x`}
-                                                                                     type="range"
-                                                                                     min="-3"
-                                                                                     max="3"
-                                                                                     step="0.1"
-                                                                                     value={accessory.position.x}
-                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "x", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{accessory.position.x.toFixed(1)}</div>
-                                                                             </div>
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs">Y</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-y`}
-                                                                                     type="range"
-                                                                                     min="-3"
-                                                                                     max="3"
-                                                                                     step="0.1"
-                                                                                     value={accessory.position.y}
-                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "y", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{accessory.position.y.toFixed(1)}</div>
-                                                                             </div>
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-z`}
-                                                                                     type="range"
-                                                                                     min="-3"
-                                                                                     max="3"
-                                                                                     step="0.1"
-                                                                                     value={accessory.position.z}
-                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "z", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{accessory.position.z.toFixed(1)}</div>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
+                                                                    {/* Position Controls */}
+                                                                    <div>
+                                                                        <Label className="text-xs font-medium">Vị trí (X, Y, Z):</Label>
+                                                                        <div className="grid grid-cols-3 gap-2 mt-1">
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-x`} className="text-xs">X</Label>
+                                                                                <Input
+                                                                                    id={`acc-${accessory.id}-x`}
+                                                                                    type="range"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    step="0.01"
+                                                                                    value={accessory.position.x}
+                                                                                    onChange={(e) => {
+                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "x", Math.abs(raw) < 0.05 ? 0 : raw)
+                                                                                    }}
+                                                                                    className="h-6"
+                                                                                />
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="0.01"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    value={Number(accessory.position.x.toFixed(2))}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "x", Number.isNaN(val) ? accessory.position.x : val)
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs"
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs">Y</Label>
+                                                                                <Input
+                                                                                    id={`acc-${accessory.id}-y`}
+                                                                                    type="range"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    step="0.01"
+                                                                                    value={accessory.position.z}
+                                                                                    onChange={(e) => {
+                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "z", Math.abs(raw) < 0.05 ? 0 : raw)
+                                                                                    }}
+                                                                                    className="h-6"
+                                                                                />
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="0.01"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    value={Number(accessory.position.z.toFixed(2))}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "z", Number.isNaN(val) ? accessory.position.z : val)
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs"
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
+                                                                                <Input
+                                                                                    id={`acc-${accessory.id}-z`}
+                                                                                    type="range"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    step="0.01"
+                                                                                    value={accessory.position.y}
+                                                                                    onChange={(e) => {
+                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "y", Math.abs(raw) < 0.05 ? 0 : raw)
+                                                                                    }}
+                                                                                    className="h-6"
+                                                                                />
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="0.01"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    value={Number(accessory.position.y.toFixed(2))}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "y", Number.isNaN(val) ? accessory.position.y : val)
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
 
-                                                                     {/* Scale Control */}
-                                                                     <div>
-                                                                         <Label htmlFor={`acc-${accessory.id}-scale`} className="text-xs font-medium">Kích thước:</Label>
-                                                                         <Input
-                                                                             id={`acc-${accessory.id}-scale`}
-                                                                             type="range"
-                                                                             min="-5"
-                                                                             max="5"
-                                                                             step="0.1"
-                                                                             value={accessory.scale}
-                                                                             onChange={(e) => handleAccessoryScaleChange(accessory.id, Number.parseFloat(e.target.value))}
-                                                                             className="mt-1"
-                                                                         />
-                                                                         <div className="text-xs text-center">{accessory.scale.toFixed(1)}x</div>
-                                                                     </div>
+                                                                    {/* Scale Control */}
+                                                                    <div>
+                                                                        <Label htmlFor={`acc-${accessory.id}-scale`} className="text-xs font-medium">Kích thước:</Label>
+                                                                        <Input
+                                                                            id={`acc-${accessory.id}-scale`}
+                                                                            type="range"
+                                                                            min="-5"
+                                                                            max="5"
+                                                                            step="0.1"
+                                                                            value={accessory.scale}
+                                                                            onChange={(e) => handleAccessoryScaleChange(accessory.id, Number.parseFloat(e.target.value))}
+                                                                            className="mt-1"
+                                                                        />
+                                                                        <div className="text-xs text-center">{accessory.scale.toFixed(1)}x</div>
+                                                                    </div>
 
-                                                                     {/* Rotation Controls */}
-                                                                     <div>
-                                                                         <Label className="text-xs font-medium">Xoay (X, Y, Z):</Label>
-                                                                         <div className="grid grid-cols-3 gap-2 mt-1">
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-rot-x`} className="text-xs">X</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-rot-x`}
-                                                                                     type="range"
-                                                                                     min="-Math.PI"
-                                                                                     max="Math.PI"
-                                                                                     step="0.1"
-                                                                                     value={accessory.rotation.x}
-                                                                                     onChange={(e) => handleAccessoryRotationChange(accessory.id, "x", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{(accessory.rotation.x * 180 / Math.PI).toFixed(0)}°</div>
-                                                                             </div>
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-rot-y`} className="text-xs">Y</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-rot-y`}
-                                                                                     type="range"
-                                                                                     min="-Math.PI"
-                                                                                     max="Math.PI"
-                                                                                     step="0.1"
-                                                                                     value={accessory.rotation.y}
-                                                                                     onChange={(e) => handleAccessoryRotationChange(accessory.id, "y", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{(accessory.rotation.y * 180 / Math.PI).toFixed(0)}°</div>
-                                                                             </div>
-                                                                             <div>
-                                                                                 <Label htmlFor={`acc-${accessory.id}-rot-z`} className="text-xs">Z</Label>
-                                                                                 <Input
-                                                                                     id={`acc-${accessory.id}-rot-z`}
-                                                                                     type="range"
-                                                                                     min="-Math.PI"
-                                                                                     max="Math.PI"
-                                                                                     step="0.1"
-                                                                                     value={accessory.rotation.z}
-                                                                                     onChange={(e) => handleAccessoryRotationChange(accessory.id, "z", Number.parseFloat(e.target.value))}
-                                                                                     className="h-6"
-                                                                                 />
-                                                                                 <div className="text-xs text-center">{(accessory.rotation.z * 180 / Math.PI).toFixed(0)}°</div>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div>
-                                                                 </div>
-                                                             )}
-                                                         </div>
-                                                     ))}
-                                                 </div>
-                                             </div>
-                                         )}
+                                                                    {/* Rotation Controls */}
+                                                                    <div>
+                                                                        <Label className="text-xs font-medium">Xoay (X, Y, Z):</Label>
+                                                                        <div className="grid grid-cols-3 gap-2 mt-1">
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-rot-x`} className="text-xs">X</Label>
+                                                                                <SliderPrimitive.Root
+                                                                                    value={[radiansToDegreesRounded(accessory.rotation.x)]}
+                                                                                    onValueChange={(v) => handleAccessoryRotationChange(accessory.id, "x", degreesToRadiansSnap(v[0]))}
+                                                                                    min={0}
+                                                                                    max={360}
+                                                                                    step={1}
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
+                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.x).toFixed(0)}°</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-rot-y`} className="text-xs">Y</Label>
+                                                                                <SliderPrimitive.Root
+                                                                                    value={[radiansToDegreesRounded(accessory.rotation.y)]}
+                                                                                    onValueChange={(v) => handleAccessoryRotationChange(accessory.id, "y", degreesToRadiansSnap(v[0]))}
+                                                                                    min={0}
+                                                                                    max={360}
+                                                                                    step={1}
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
+                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.y).toFixed(0)}°</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-rot-z`} className="text-xs">Z</Label>
+                                                                                <SliderPrimitive.Root
+                                                                                    value={[radiansToDegreesRounded(accessory.rotation.z)]}
+                                                                                    onValueChange={(v) => handleAccessoryRotationChange(accessory.id, "z", degreesToRadiansSnap(v[0]))}
+                                                                                    min={0}
+                                                                                    max={360}
+                                                                                    step={1}
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
+                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.z).toFixed(0)}°</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
 
-                                         {accessories.length === 0 && (
-                                             <div className="text-center p-4 text-gray-500 text-sm">
-                                                 📦 Chưa có phụ kiện nào. Upload file GLB để thêm phụ kiện vào model!
-                                             </div>
-                                         )}
-                                     </TabsContent>
+                                        {accessories.length === 0 && (
+                                            <div className="text-center p-4 text-gray-500 text-sm">
+                                                📦 Chưa có phụ kiện nào. Upload file GLB để thêm phụ kiện vào model!
+                                            </div>
+                                        )}
+                                    </TabsContent>
 
-                                     <TabsContent value="text" className="space-y-4">
+                                    <TabsContent value="text" className="space-y-4">
                                         <div>
                                             <Label htmlFor="custom-text">Nội dung text</Label>
                                             <Textarea
@@ -1666,15 +1826,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
+                                                        step="0.01"
                                                         value={textPosition.x}
                                                         onChange={(e) => {
-                                                            setTextPosition((prev) => ({ ...prev, x: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTextPosition((prev) => ({ ...prev, x: snapped }))
+                                                            setTextPositionInput((prev) => ({ ...prev, x: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.x.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={textPositionInput.x}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTextPositionInput((prev) => ({ ...prev, x: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTextPosition((prev) => ({ ...prev, x: snapped }))
+                                                            }
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (textPositionInput.x.trim() === "") {
+                                                                setTextPosition((prev) => ({ ...prev, x: 0 }))
+                                                                setTextPositionInput((prev) => ({ ...prev, x: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="text-y" className="text-xs">
@@ -1685,15 +1868,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={textPosition.y}
+                                                        step="0.01"
+                                                        value={textPosition.z}
                                                         onChange={(e) => {
-                                                            setTextPosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTextPosition((prev) => ({ ...prev, z: snapped }))
+                                                            setTextPositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.y.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={textPositionInput.z}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTextPositionInput((prev) => ({ ...prev, z: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTextPosition((prev) => ({ ...prev, z: snapped }))
+                                                            }
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (textPositionInput.z.trim() === "") {
+                                                                setTextPosition((prev) => ({ ...prev, z: 0 }))
+                                                                setTextPositionInput((prev) => ({ ...prev, z: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="text-z" className="text-xs">
@@ -1704,15 +1910,38 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={textPosition.z}
+                                                        step="0.01"
+                                                        value={textPosition.y}
                                                         onChange={(e) => {
-                                                            setTextPosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
+                                                            const raw = Number.parseFloat(e.target.value)
+                                                            const snapped = snapToZero(raw)
+                                                            setTextPosition((prev) => ({ ...prev, y: snapped }))
+                                                            setTextPositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.z.toFixed(1)}</div>
+                                                    <Input
+                                                        type="text"
+                                                        value={textPositionInput.y}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setTextPositionInput((prev) => ({ ...prev, y: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setTextPosition((prev) => ({ ...prev, y: snapped }))
+                                                            }
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (textPositionInput.y.trim() === "") {
+                                                                setTextPosition((prev) => ({ ...prev, y: 0 }))
+                                                                setTextPositionInput((prev) => ({ ...prev, y: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1807,16 +2036,25 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].x}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "x", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
                                                             />
-                                                            <div className="text-xs text-center">
-                                                                {anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(1)}
-                                                            </div>
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "x", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].x : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
+                                                            />
                                                         </div>
                                                         <div>
                                                             <Label htmlFor={`anchor-${editingAnchor}-y`} className="text-xs">
@@ -1827,16 +2065,25 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].y}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "y", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
                                                             />
-                                                            <div className="text-xs text-center">
-                                                                {anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(1)}
-                                                            </div>
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "y", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].y : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
+                                                            />
                                                         </div>
                                                         <div>
                                                             <Label htmlFor={`anchor-${editingAnchor}-z`} className="text-xs">
@@ -1847,12 +2094,24 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].z}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "z", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
+                                                            />
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "z", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].z : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
                                                             />
                                                             <div className="text-xs text-center">
                                                                 {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(1)}
@@ -1891,13 +2150,13 @@ export default function PlushDollDesign3D() {
                                 <div>
                                     <strong>Texture:</strong> {customTexture ? "✅ Đã áp dụng" : "❌ Chưa có"}
                                 </div>
-                                                                 <div>
-                                     <strong>Text:</strong> {customText ? `"${customText}"` : "❌ Chưa có"}
-                                 </div>
-                                 <div>
-                                     <strong>Phụ kiện:</strong> {accessories.length > 0 ? `✅ ${accessories.length} phụ kiện` : "❌ Chưa có"}
-                                 </div>
-                                 {selectedTextAnchor && (
+                                <div>
+                                    <strong>Text:</strong> {customText ? `"${customText}"` : "❌ Chưa có"}
+                                </div>
+                                <div>
+                                    <strong>Phụ kiện:</strong> {accessories.length > 0 ? `✅ ${accessories.length} phụ kiện` : "❌ Chưa có"}
+                                </div>
+                                {selectedTextAnchor && (
                                     <div>
                                         <strong>Điểm neo text:</strong>{" "}
                                         {anchorPoints[selectedTextAnchor as keyof typeof anchorPoints].label}

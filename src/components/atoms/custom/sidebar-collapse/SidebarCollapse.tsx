@@ -22,7 +22,7 @@ export interface SidebarCollapseProps {
 
 const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const handleFetch = async (fetchFn: () => Promise<any>) => {
     try {
@@ -55,6 +55,7 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
     <div className="w-full">
       <SidebarMenu>
         <Collapsible
+
           open={isOpen}
           onOpenChange={handleToggle}
           className="group/collapsible"

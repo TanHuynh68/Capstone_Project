@@ -16,7 +16,7 @@ import { DialogUpdatePost } from "@/components/molecules/post/customer-update-po
 const offerVisibilityMap = new Map<string, boolean>();
 
 interface PostCustomerHeaderProps {
-  post: Post;
+  post: any;
   onBack?: () => void;
   className?: string;
   onViewOffers?: () => void;
@@ -45,7 +45,7 @@ export default function PostCustomerHeader({
       ? offerVisibilityMap.get(post.projectPostID) ?? false
       : isSelected;
   });
-
+  console.log('PostCustomerHeader: ', post)
   // Update global state when local state changes
   useEffect(() => {
     // Store the actual visibility state (true = offers visible)
@@ -96,7 +96,7 @@ export default function PostCustomerHeader({
       try {
         if (onDelete) {
           const response = await onDelete(postToDelete);
-          console.log('response: ', response)
+          console.log("response: ", response);
           // Show success toast
           if (response && response.isSuccess) {
             toast.success("Xóa bài đăng thành công");
@@ -230,11 +230,17 @@ export default function PostCustomerHeader({
                 </Button>
               }
               data={{
-                Title: post.title,
-                Description: post.description,
-                FinishDate: new Date(post.finishDate),
-                ItemValue: post.itemValue,
-                SuggestedPrice: post.suggestedPrice,
+                title: post.title,
+                description: post.description,
+                itemValue: post.itemValue,
+                finishDate: post.finishDate,
+                suggestedPrice: post.suggestedPrice,
+                originalAttachmentFiles: post.originalImages,
+                requestedAttachmentFiles: post.requestedImages,
+                length: post.length,
+                width: post.width,
+                height: post.height,
+                weight: post.weight,
               }}
             />
           )}
@@ -261,10 +267,13 @@ export default function PostCustomerHeader({
             </h1>
             <div className="flex items-center gap-2">
               <StatusBadge status={post.postStatus} />
-              <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${post.isActive
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-                }`}>
+              <div
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  post.isActive
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
                 {post.isActive ? "Đang hoạt động" : "Dừng hoạt động"}
               </div>
             </div>

@@ -26,7 +26,8 @@ type OrderStatus =
   | "DesignerRejected"
   | "PendingConflict"
   | "CustomerRejected"
-  | "Rejected";
+  | "Rejected"
+  | "RequestShipToCus";
 
 interface OrderStatusTimelineProps {
   currentStatus: OrderStatus;
@@ -63,6 +64,7 @@ const statusDescriptions: Record<OrderStatus, string> = {
     "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
   Rejected:
     "Đơn hàng đã bị hủy kèm quyền lợi. Xin lỗi vì trải nghiệm không được tốt này.",
+  RequestShipToCus: "Đơn hàng đã tạm dừng, nhà thiết kế cần gửi lại sản phẩm cho khách hàng",
 };
 
 export default function OrderStatusTimeline({
@@ -245,6 +247,9 @@ export default function OrderStatusTimeline({
     if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
       return "Giao hàng cho NTK";
     }
+    if (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) {
+      return "Trả hàng cho KH";
+    }
     if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
       return "Giao hàng cho KH";
     }
@@ -269,6 +274,8 @@ export default function OrderStatusTimeline({
         return "Nhà thiết kế đã từ chối";
       case "CustomerRejected":
         return "Khách hàng đã từ chối";
+      case "RequestShipToCus":
+        return "Yêu cầu trả hàng cho KH";
       case "PendingConflict":
         return "Đang có tranh chấp";
       default:
@@ -335,6 +342,7 @@ export default function OrderStatusTimeline({
           Trạng thái hiện tại:{" "}
           <span
             className={`font-bold ${
+              currentStatus === "RequestShipToCus" ||
               currentStatus === "Rejected" ||
               currentStatus === "DesignerRejected" ||
               currentStatus === "CustomerRejected" ||
@@ -352,6 +360,7 @@ export default function OrderStatusTimeline({
       </div>
 
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
+        (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
         <div className="flex justify-center items-center">
           <div className="mt-4 text-center w-[200px]">

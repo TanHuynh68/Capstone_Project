@@ -15,7 +15,7 @@ const PolicyPage = () => {
     const response = await getBenefits({
       title: "",
       page: 1,
-      size: 10,
+      size: 30,
     });
     setData(response.responseRequestModel.responseList.items);
     const groupPolicy =  response.responseRequestModel.responseList.items.reduce(
