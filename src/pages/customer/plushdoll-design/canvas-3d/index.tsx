@@ -18,16 +18,12 @@ import {
     ImageIcon,
     Download,
     RotateCcw,
-    Play,
-    Pause,
     Link,
     Target,
     Settings,
     Upload,
     Trash2,
     Box,
-    Eye,
-    EyeOff,
     Plus,
 } from "lucide-react"
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -846,8 +842,7 @@ export default function PlushDollDesign3D() {
             <div className="container mx-auto p-4">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-3xl font-bold text-white">3D Model Editor</h1>
-                        <div className="text-sm text-gray-300">Model: {getCurrentModel().name}</div>
+                        <h1 className="text-3xl font-bold text-white">🎨 3D Preview - {getCurrentModel().name}</h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
@@ -876,72 +871,30 @@ export default function PlushDollDesign3D() {
                                 {isRotating ? "🔄 Dừng quay" : "▶️ Bắt đầu quay"}
                             </Button>
                         </div>
+                        <Button
+                            variant={isAttached ? "default" : "outline"}
+                            size="sm"
+                            onClick={handleAttach}
+                            disabled={isAttached}
+                        >
+                            <Link className="w-4 h-4 mr-1" />
+                            {isAttached ? "Đã ghép" : "Ghép"}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleReset}>
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </Button>
+                        <Button onClick={handleExport} className="bg-purple-600 hover:bg-purple-700 text-white">
+                            <Download className="w-4 h-4 mr-2" />
+                            Xuất GLB
+                        </Button>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
-                        <Card className="h-[600px]">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <span>🎨 3D Preview - {getCurrentModel().name}</span>
-                                    <div className="ml-auto flex gap-2">
-                                        <Button
-                                            variant={showAnchorPoints ? "default" : "outline"}
-                                            size="sm"
-                                            onClick={() => setShowAnchorPoints(!showAnchorPoints)}
-                                        >
-                                            {showAnchorPoints ? (
-                                                <>
-                                                    <EyeOff className="w-4 h-4 mr-1" />
-                                                    Ẩn điểm neo
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Eye className="w-4 h-4 mr-1" />
-                                                    Hiện điểm neo
-                                                </>
-                                            )}
-                                        </Button>
-                                        <Button
-                                            variant={isRotating ? "default" : "outline"}
-                                            size="sm"
-                                            onClick={handleToggleRotation}
-                                            className={isRotating ? "bg-green-600 hover:bg-green-700" : ""}
-                                        >
-                                            {isRotating ? (
-                                                <>
-                                                    <Pause className="w-4 h-4 mr-1" />
-                                                    Dừng quay
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Play className="w-4 h-4 mr-1" />
-                                                    Bắt đầu quay
-                                                </>
-                                            )}
-                                        </Button>
-                                        <Button
-                                            variant={isAttached ? "default" : "outline"}
-                                            size="sm"
-                                            onClick={handleAttach}
-                                            disabled={isAttached}
-                                        >
-                                            <Link className="w-4 h-4 mr-1" />
-                                            {isAttached ? "Đã ghép" : "Ghép"}
-                                        </Button>
-                                        <Button variant="outline" size="sm" onClick={handleReset}>
-                                            <RotateCcw className="w-4 h-4 mr-1" />
-                                            Reset
-                                        </Button>
-                                        <Button onClick={handleExport} className="bg-purple-600 hover:bg-purple-700 text-white">
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Xuất GLB
-                                        </Button>
-                                    </div>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-[500px] p-0">
+                        <Card className="h-[500px] p-0">
+                            <CardContent className="h-full p-0">
                                 <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
                                     <Canvas className="w-full h-full" camera={{ position: [0, 0, 5], fov: 50 }}>
                                         <ambientLight intensity={0.5} />
@@ -979,48 +932,6 @@ export default function PlushDollDesign3D() {
                     </div>
 
                     <div className="space-y-4">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>🎯 Trạng thái</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <span>Model:</span>
-                                    <span
-                                        className={`px-2 py-1 rounded text-xs ${isRotating ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}
-                                    >
-                                        {isRotating ? "🔄 Đang quay" : "⏸️ Đứng yên"}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span>Text/Texture:</span>
-                                    <span
-                                        className={`px-2 py-1 rounded text-xs ${isAttached ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
-                                    >
-                                        {isAttached ? "🔗 Đã ghép" : "📝 Chỉnh sửa"}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span>Điểm neo:</span>
-                                    <span
-                                        className={`px-2 py-1 rounded text-xs ${showAnchorPoints ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
-                                    >
-                                        {showAnchorPoints ? "👁️ Hiển thị" : "🙈 Ẩn"}
-                                    </span>
-                                </div>
-                                {!isAttached && (customText || customTexture) && (
-                                    <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                                        💡 Điều chỉnh tọa độ xong, nhấn "Ghép" để gắn vào model
-                                    </div>
-                                )}
-                                {showAnchorPoints && (
-                                    <div className="mt-2 p-2 bg-green-50 rounded text-xs text-green-700">
-                                        🎯 Các điểm neo màu xanh hiển thị vị trí có thể đặt text/texture
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-
                         <Card>
                             <CardHeader>
                                 <CardTitle>🛠️ Công cụ chỉnh sửa</CardTitle>
@@ -2199,60 +2110,7 @@ export default function PlushDollDesign3D() {
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>📋 Thông tin</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                <div>
-                                    <strong>Model:</strong> {getCurrentModel().name}
-                                </div>
-                                <div>
-                                    <strong>Texture:</strong> {customTexture ? "✅ Đã áp dụng" : "❌ Chưa có"}
-                                </div>
-                                <div>
-                                    <strong>Text:</strong> {customText ? `"${customText}"` : "❌ Chưa có"}
-                                </div>
-                                <div>
-                                    <strong>Phụ kiện:</strong> {accessories.length > 0 ? `✅ ${accessories.length} phụ kiện` : "❌ Chưa có"}
-                                </div>
-                                {selectedTextAnchor && (
-                                    <div>
-                                        <strong>Điểm neo text:</strong>{" "}
-                                        {anchorPoints[selectedTextAnchor as keyof typeof anchorPoints].label}
-                                    </div>
-                                )}
-                                {selectedTextureAnchor && (
-                                    <div>
-                                        <strong>Điểm neo texture:</strong>{" "}
-                                        {anchorPoints[selectedTextureAnchor as keyof typeof anchorPoints].label}
-                                    </div>
-                                )}
-                                {customText && (
-                                    <div>
-                                        <strong>Vị trí text:</strong> ({textPosition.x.toFixed(1)}, {textPosition.y.toFixed(1)},{" "}
-                                        {textPosition.z.toFixed(1)})
-                                    </div>
-                                )}
-                                {customTexture && (
-                                    <div>
-                                        <strong>Vị trí texture:</strong> ({texturePosition.x.toFixed(1)}, {texturePosition.y.toFixed(1)},{" "}
-                                        {texturePosition.z.toFixed(1)})
-                                    </div>
-                                )}
-                                {editingAnchor && (
-                                    <div>
-                                        <strong>Đang chỉnh sửa:</strong> {anchorPoints[editingAnchor as keyof typeof anchorPoints].label}
-                                    </div>
-                                )}
-                                <div className="pt-2 border-t">
-                                    <p className="text-xs text-gray-500">
-                                        💡 Tip:{" "}
-                                        {isRotating ? "Model đang tự động quay" : "Chọn điểm neo hoặc sử dụng chuột để xoay, zoom model 3D"}
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
+
                     </div>
                 </div>
             </div>
