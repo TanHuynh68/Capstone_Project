@@ -73,6 +73,7 @@ export const ORDER_STATUSES = {
   Done: "Hoàn tất",                            // 6
   PendingConflict: "Đang xử lý tranh chấp",    // 7
   Rejected: "Bị từ chối",
+  RequestShipToCus: 'Yêu cầu trả hàng cho KH',
 };
 export enum MESSAGE_TYPE {
   Text = 0,

@@ -25,6 +25,8 @@ const getStatusColor = (status: string): string => {
       return "bg-green-100 text-green-800 hover:bg-green-200";
     case "PendingConflict":
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+    case "RequestShipToCus":
+      return "bg-orange-100 text-orange-800 hover:bg-orange-200";
     default:
       return "bg-muted text-muted-foreground hover:bg-muted/80";
   }

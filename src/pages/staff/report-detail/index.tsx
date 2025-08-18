@@ -518,7 +518,7 @@ export default function ReportDetailPage() {
 
                       {/* Info message for reject state */}
                       {!formData.accept && (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg ">
                           <p className="text-sm text-amber-700 flex items-center gap-2">
                             <Award className="h-4 w-4" />
                             Khi từ chối tố cáo, chỉ có thể áp dụng quyền lợi
@@ -539,38 +539,32 @@ export default function ReportDetailPage() {
                         >
                           <SelectValue placeholder="Chọn quyền lợi phù hợp" />
                         </SelectTrigger>
-                        <SelectContent className="max-h-60">
+                        <SelectContent className="">
                           {benefitsLoading ? (
                             <div className="flex items-center justify-center p-4">
                               <Loader2 className="h-4 w-4 animate-spin" />
                               <span className="ml-2">Đang tải...</span>
                             </div>
                           ) : benefits.length > 0 ? (
-                            benefits
-                              // .filter((item) =>
-                              //   reportDetail.reportType
-                              //     .toLowerCase()
-                              //     .includes(item.benefitType.toLowerCase())
-                              // )
-                              .map((benefit) => (
-                                <SelectItem
-                                  key={benefit.benefitID}
-                                  value={benefit.benefitID}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Award className="h-4 w-4 text-blue-500" />
-                                    <div>
-                                      <div className="font-medium">
-                                        {benefit.title}
-                                      </div>
-                                      <div className="text-xs text-gray-500">
-                                        {mapBenefitType(benefit.benefitType)} -
-                                        v{benefit.version}
-                                      </div>
+                            benefits.map((benefit) => (
+                              <SelectItem
+                                key={benefit.benefitID}
+                                value={benefit.benefitID}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <Award className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
+                                  <div className="flex flex-col">
+                                    <div className="font-medium break-words">
+                                      {benefit.title}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {mapBenefitType(benefit.benefitType)} - v
+                                      {benefit.version}
                                     </div>
                                   </div>
-                                </SelectItem>
-                              ))
+                                </div>
+                              </SelectItem>
+                            ))
                           ) : (
                             <div className="p-4 text-center text-gray-500">
                               {!formData.accept

@@ -45,7 +45,7 @@ const BenefitService = () => {
     const getBenefitDoneOrder = useCallback(
         async (orderPrice: any, designerDeposit: any) => {
             try {
-                const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.BENEFIT_DONE_ORDER}?orderPrice=${orderPrice}&designerDeposit=${designerDeposit}`);
+                const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.BENEFIT_DONE_ORDER}`, {orderPrice, designerDeposit});
                 return res;
             } catch (err: any) {
                 toast.error(err?.response?.data);

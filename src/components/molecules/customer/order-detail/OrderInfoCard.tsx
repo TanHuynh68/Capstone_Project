@@ -9,7 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import OrderStatusBadge from "@/components/atoms/customer/order-detail/OrderStatusBadge";
 import DepositDialogContainer from "./DepositDialogContainer";
 import {
   MoreHorizontal,
@@ -31,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
 
 interface OrderInfoCardProps {
   order: any;
@@ -82,7 +82,7 @@ export default function OrderInfoCard({
         order.designerDepositAmount
       );
       if (response && response.responseRequestModel) {
-        setDesBenefit(response.responseRequestModel.receiveMoney);
+        setDesBenefit(response.responseRequestModel.systemDepositRefund || 0);
       }
     }
   };

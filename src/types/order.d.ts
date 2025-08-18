@@ -30,7 +30,6 @@ interface OrderFilterState {
   };
 }
 const ORDER_STATUSES = {
-
   Created: "Đã tạo mới",                        // 1
   ShippingToDesigner: "Đang giao cho NTK",// 2
   DesignerRejected: "NTK từ chối",        // 2.1
@@ -40,7 +39,7 @@ const ORDER_STATUSES = {
   CustomerRejected: "Khách từ chối",           // 5.1
   Done: "Hoàn tất",                            // 6
   PendingConflict: "Đang xử lý tranh chấp",    // 7
-
+  RequestShipToCus: 'Yêu cầu trả hàng cho KH', 
   Rejected: "Bị từ chối",
 } as const;
 
