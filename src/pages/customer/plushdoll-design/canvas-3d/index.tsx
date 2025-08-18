@@ -1242,22 +1242,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="texture-x" className="text-xs">
                                                         X
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="texture-x"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={texturePosition.x}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[texturePosition.x]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTexturePosition((prev) => ({ ...prev, x: snapped }))
                                                             setTexturePositionInput((prev) => ({ ...prev, x: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={texturePositionInput.x}
@@ -1284,22 +1288,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="texture-y" className="text-xs">
                                                         Y
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="texture-y"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={texturePosition.z}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[texturePosition.z]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTexturePosition((prev) => ({ ...prev, z: snapped }))
                                                             setTexturePositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={texturePositionInput.z}
@@ -1326,22 +1334,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="texture-z" className="text-xs">
                                                         Z
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="texture-z"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={texturePosition.y}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[texturePosition.y]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTexturePosition((prev) => ({ ...prev, y: snapped }))
                                                             setTexturePositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={texturePositionInput.y}
@@ -1369,16 +1381,20 @@ export default function PlushDollDesign3D() {
 
                                         <div>
                                             <Label htmlFor="texture-scale">Kích thước texture</Label>
-                                            <Input
+                                            <SliderPrimitive.Root
                                                 id="texture-scale"
-                                                type="range"
-                                                min="0.1"
-                                                max="3"
-                                                step="0.1"
-                                                value={textureScale}
-                                                onChange={(e) => setTextureScale(Number.parseFloat(e.target.value))}
-                                                className="mt-2"
-                                            />
+                                                min={0.1}
+                                                max={3}
+                                                step={0.1}
+                                                value={[textureScale]}
+                                                onValueChange={(v) => setTextureScale(v[0])}
+                                                className="relative flex w-full touch-none select-none items-center mt-2"
+                                            >
+                                                <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                    <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                </SliderPrimitive.Track>
+                                                <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                            </SliderPrimitive.Root>
                                             <div className="text-sm text-gray-500 mt-1">Kích thước: {textureScale}x</div>
                                         </div>
 
@@ -1493,19 +1509,23 @@ export default function PlushDollDesign3D() {
                                                                         <div className="grid grid-cols-3 gap-2 mt-1">
                                                                             <div>
                                                                                 <Label htmlFor={`acc-${accessory.id}-x`} className="text-xs">X</Label>
-                                                                                <Input
+                                                                                <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-x`}
-                                                                                    type="range"
-                                                                                    min="-3"
-                                                                                    max="3"
-                                                                                    step="0.01"
-                                                                                    value={accessory.position.x}
-                                                                                    onChange={(e) => {
-                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                    min={-3}
+                                                                                    max={3}
+                                                                                    step={0.01}
+                                                                                    value={[accessory.position.x]}
+                                                                                    onValueChange={(v) => {
+                                                                                        const raw = v[0]
                                                                                         handleAccessoryPositionChange(accessory.id, "x", Math.abs(raw) < 0.05 ? 0 : raw)
                                                                                     }}
-                                                                                    className="h-6"
-                                                                                />
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
                                                                                 <Input
                                                                                     type="number"
                                                                                     step="0.01"
@@ -1521,19 +1541,23 @@ export default function PlushDollDesign3D() {
                                                                             </div>
                                                                             <div>
                                                                                 <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs">Y</Label>
-                                                                                <Input
+                                                                                <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-y`}
-                                                                                    type="range"
-                                                                                    min="-3"
-                                                                                    max="3"
-                                                                                    step="0.01"
-                                                                                    value={accessory.position.z}
-                                                                                    onChange={(e) => {
-                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                    min={-3}
+                                                                                    max={3}
+                                                                                    step={0.01}
+                                                                                    value={[accessory.position.z]}
+                                                                                    onValueChange={(v) => {
+                                                                                        const raw = v[0]
                                                                                         handleAccessoryPositionChange(accessory.id, "z", Math.abs(raw) < 0.05 ? 0 : raw)
                                                                                     }}
-                                                                                    className="h-6"
-                                                                                />
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
                                                                                 <Input
                                                                                     type="number"
                                                                                     step="0.01"
@@ -1549,19 +1573,23 @@ export default function PlushDollDesign3D() {
                                                                             </div>
                                                                             <div>
                                                                                 <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
-                                                                                <Input
+                                                                                <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-z`}
-                                                                                    type="range"
-                                                                                    min="-3"
-                                                                                    max="3"
-                                                                                    step="0.01"
-                                                                                    value={accessory.position.y}
-                                                                                    onChange={(e) => {
-                                                                                        const raw = Number.parseFloat(e.target.value)
+                                                                                    min={-3}
+                                                                                    max={3}
+                                                                                    step={0.01}
+                                                                                    value={[accessory.position.y]}
+                                                                                    onValueChange={(v) => {
+                                                                                        const raw = v[0]
                                                                                         handleAccessoryPositionChange(accessory.id, "y", Math.abs(raw) < 0.05 ? 0 : raw)
                                                                                     }}
-                                                                                    className="h-6"
-                                                                                />
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
                                                                                 <Input
                                                                                     type="number"
                                                                                     step="0.01"
@@ -1581,16 +1609,20 @@ export default function PlushDollDesign3D() {
                                                                     {/* Scale Control */}
                                                                     <div>
                                                                         <Label htmlFor={`acc-${accessory.id}-scale`} className="text-xs font-medium">Kích thước:</Label>
-                                                                        <Input
+                                                                        <SliderPrimitive.Root
                                                                             id={`acc-${accessory.id}-scale`}
-                                                                            type="range"
-                                                                            min="-5"
-                                                                            max="5"
-                                                                            step="0.1"
-                                                                            value={accessory.scale}
-                                                                            onChange={(e) => handleAccessoryScaleChange(accessory.id, Number.parseFloat(e.target.value))}
-                                                                            className="mt-1"
-                                                                        />
+                                                                            min={-5}
+                                                                            max={5}
+                                                                            step={0.1}
+                                                                            value={[accessory.scale]}
+                                                                            onValueChange={(v) => handleAccessoryScaleChange(accessory.id, v[0])}
+                                                                            className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                        >
+                                                                            <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                            </SliderPrimitive.Track>
+                                                                            <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                        </SliderPrimitive.Root>
                                                                         <div className="text-xs text-center">{accessory.scale.toFixed(1)}x</div>
                                                                     </div>
 
@@ -1721,16 +1753,20 @@ export default function PlushDollDesign3D() {
 
                                         <div>
                                             <Label htmlFor="text-size">Kích thước text</Label>
-                                            <Input
+                                            <SliderPrimitive.Root
                                                 id="text-size"
-                                                type="range"
-                                                min="0.5"
-                                                max="2"
-                                                step="0.1"
-                                                value={textSize}
-                                                onChange={(e) => setTextSize(Number.parseFloat(e.target.value))}
-                                                className="mt-2"
-                                            />
+                                                min={0.5}
+                                                max={2}
+                                                step={0.1}
+                                                value={[textSize]}
+                                                onValueChange={(v) => setTextSize(v[0])}
+                                                className="relative flex w-full touch-none select-none items-center mt-2"
+                                            >
+                                                <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                    <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                </SliderPrimitive.Track>
+                                                <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                            </SliderPrimitive.Root>
                                             <div className="text-sm text-gray-500 mt-1">Kích thước: {textSize}x</div>
                                         </div>
 
@@ -1821,22 +1857,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="text-x" className="text-xs">
                                                         X
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="text-x"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={textPosition.x}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[textPosition.x]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTextPosition((prev) => ({ ...prev, x: snapped }))
                                                             setTextPositionInput((prev) => ({ ...prev, x: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={textPositionInput.x}
@@ -1863,22 +1903,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="text-y" className="text-xs">
                                                         Y
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="text-y"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={textPosition.z}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[textPosition.z]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTextPosition((prev) => ({ ...prev, z: snapped }))
                                                             setTextPositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={textPositionInput.z}
@@ -1905,22 +1949,26 @@ export default function PlushDollDesign3D() {
                                                     <Label htmlFor="text-z" className="text-xs">
                                                         Z
                                                     </Label>
-                                                    <Input
+                                                    <SliderPrimitive.Root
                                                         id="text-z"
-                                                        type="range"
-                                                        min="-2"
-                                                        max="2"
-                                                        step="0.01"
-                                                        value={textPosition.y}
-                                                        onChange={(e) => {
-                                                            const raw = Number.parseFloat(e.target.value)
+                                                        min={-2}
+                                                        max={2}
+                                                        step={0.01}
+                                                        value={[textPosition.y]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
                                                             const snapped = snapToZero(raw)
                                                             setTextPosition((prev) => ({ ...prev, y: snapped }))
                                                             setTextPositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
                                                             setSelectedTextAnchor("")
                                                         }}
-                                                        className="mt-1"
-                                                    />
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
                                                         value={textPositionInput.y}
@@ -2031,18 +2079,22 @@ export default function PlushDollDesign3D() {
                                                             <Label htmlFor={`anchor-${editingAnchor}-x`} className="text-xs">
                                                                 X
                                                             </Label>
-                                                            <Input
+                                                            <SliderPrimitive.Root
                                                                 id={`anchor-${editingAnchor}-x`}
-                                                                type="range"
-                                                                min="-2"
-                                                                max="2"
-                                                                step="0.01"
-                                                                value={anchorPoints[editingAnchor as keyof typeof anchorPoints].x}
-                                                                onChange={(e) =>
-                                                                    handleAnchorPositionChange(editingAnchor, "x", Number.parseFloat(e.target.value))
+                                                                min={-2}
+                                                                max={2}
+                                                                step={0.01}
+                                                                value={[anchorPoints[editingAnchor as keyof typeof anchorPoints].x]}
+                                                                onValueChange={(v) =>
+                                                                    handleAnchorPositionChange(editingAnchor, "x", v[0])
                                                                 }
-                                                                className="mt-1"
-                                                            />
+                                                                className="relative flex w-full touch-none select-none items-center mt-1"
+                                                            >
+                                                                <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                    <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                </SliderPrimitive.Track>
+                                                                <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                            </SliderPrimitive.Root>
                                                             <Input
                                                                 type="number"
                                                                 step="0.01"
@@ -2060,18 +2112,22 @@ export default function PlushDollDesign3D() {
                                                             <Label htmlFor={`anchor-${editingAnchor}-y`} className="text-xs">
                                                                 Y
                                                             </Label>
-                                                            <Input
+                                                            <SliderPrimitive.Root
                                                                 id={`anchor-${editingAnchor}-y`}
-                                                                type="range"
-                                                                min="-2"
-                                                                max="2"
-                                                                step="0.01"
-                                                                value={anchorPoints[editingAnchor as keyof typeof anchorPoints].y}
-                                                                onChange={(e) =>
-                                                                    handleAnchorPositionChange(editingAnchor, "y", Number.parseFloat(e.target.value))
+                                                                min={-2}
+                                                                max={2}
+                                                                step={0.01}
+                                                                value={[anchorPoints[editingAnchor as keyof typeof anchorPoints].y]}
+                                                                onValueChange={(v) =>
+                                                                    handleAnchorPositionChange(editingAnchor, "y", v[0])
                                                                 }
-                                                                className="mt-1"
-                                                            />
+                                                                className="relative flex w-full touch-none select-none items-center mt-1"
+                                                            >
+                                                                <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                    <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                </SliderPrimitive.Track>
+                                                                <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                            </SliderPrimitive.Root>
                                                             <Input
                                                                 type="number"
                                                                 step="0.01"
@@ -2089,18 +2145,22 @@ export default function PlushDollDesign3D() {
                                                             <Label htmlFor={`anchor-${editingAnchor}-z`} className="text-xs">
                                                                 Z
                                                             </Label>
-                                                            <Input
+                                                            <SliderPrimitive.Root
                                                                 id={`anchor-${editingAnchor}-z`}
-                                                                type="range"
-                                                                min="-2"
-                                                                max="2"
-                                                                step="0.01"
-                                                                value={anchorPoints[editingAnchor as keyof typeof anchorPoints].z}
-                                                                onChange={(e) =>
-                                                                    handleAnchorPositionChange(editingAnchor, "z", Number.parseFloat(e.target.value))
+                                                                min={-2}
+                                                                max={2}
+                                                                step={0.01}
+                                                                value={[anchorPoints[editingAnchor as keyof typeof anchorPoints].z]}
+                                                                onValueChange={(v) =>
+                                                                    handleAnchorPositionChange(editingAnchor, "z", v[0])
                                                                 }
-                                                                className="mt-1"
-                                                            />
+                                                                className="relative flex w-full touch-none select-none items-center mt-1"
+                                                            >
+                                                                <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                    <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                </SliderPrimitive.Track>
+                                                                <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                            </SliderPrimitive.Root>
                                                             <Input
                                                                 type="number"
                                                                 step="0.01"
