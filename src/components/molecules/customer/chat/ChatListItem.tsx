@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import ChatAvatar from "@/components/atoms/customer/chat/ChatAvatar";
-import { formatDateTimeVN, useCurrentUser } from "@/utils";
+import { useCurrentUser } from "@/utils";
 
 interface ChatListItemProps {
   id: string;
@@ -12,11 +12,20 @@ interface ChatListItemProps {
   usersInChatSection: UserChat;
   isActive?: boolean;
 }
-
-// Helper function to calculate relative time
+// Helper function to calculate relative time (UTC+7)
 const getRelativeTime = (updatedAt: string): string => {
+  console.log("updatedAt: ", updatedAt);
   const now = new Date();
-  const messageTime = new Date(formatDateTimeVN(updatedAt));
+
+  // parse ISO string
+  const rawDate = new Date(updatedAt);
+  if (isNaN(rawDate.getTime())) {
+    return ""; // fallback nếu dữ liệu không hợp lệ
+  }
+
+  // ép về UTC+7 (cộng thêm 7 giờ)
+  const messageTime = new Date(rawDate.getTime() + 7 * 60 * 60 * 1000);
+
   const diffInMs = now.getTime() - messageTime.getTime();
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
@@ -25,11 +34,11 @@ const getRelativeTime = (updatedAt: string): string => {
   if (diffInMinutes < 1) {
     return "Vừa xong";
   } else if (diffInMinutes < 60) {
-    return `${diffInMinutes}m`;
+    return `${diffInMinutes} phút`;
   } else if (diffInHours < 24) {
-    return `${diffInHours}h`;
+    return `${diffInHours} giờ`;
   } else if (diffInDays < 7) {
-    return `${diffInDays}d`;
+    return `${diffInDays} ngày`;
   } else {
     return messageTime.toLocaleDateString("vi-VN", {
       day: "2-digit",
@@ -71,7 +80,7 @@ export default function ChatListItem({
 
   // Get relative time
   const relativeTime = getRelativeTime(usersInChatSection.updatedAt);
-
+  console.log("relativeTime: ", relativeTime);
   return (
     <div className="p-1 ">
       <button

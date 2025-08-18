@@ -61,7 +61,7 @@ export function ShippingFormDialog({
       <DialogTrigger asChild>
         <Button
           variant={
-            text === "Giao hàng cho NTK" || text === "Giao hàng cho KH"
+            text === "Giao hàng cho NTK" || text === "Giao hàng cho KH" || 'Trả hàng cho KH'
               ? "default"
               : "outline"
           }

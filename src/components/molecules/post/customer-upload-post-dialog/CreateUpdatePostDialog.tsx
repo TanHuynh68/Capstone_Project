@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import type React from "react";
+
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -28,7 +30,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Upload, X, Eye, CalendarIcon } from "lucide-react";
+import { Plus, Upload, X, Eye, CalendarIcon, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -38,23 +40,33 @@ import {
   type CreatePostFormValues,
   createPostSchema,
 } from "@/schemas/postSchema";
+import { UpdatePostFormValues } from "@/schemas/updatePostSchema";
 
 interface CreatePostDialogProps {
   onPostCreated?: () => void;
-  fetchPosts: any;
+  fetchPosts?: any;
+  // Update mode props
+  isUpdateMode?: boolean;
+  updateData?: UpdatePostFormValues;
+  projectPostId?: string;
+  children?: React.ReactNode;
 }
 
-export default function CreatePostDialog({
+export default function CreateUpdatePostDialog({
   onPostCreated,
   fetchPosts,
+  isUpdateMode = false,
+  updateData,
+  projectPostId,
+  children,
 }: CreatePostDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [originalFiles, setOriginalFiles] = useState<File[]>([]);
   const [requestedFiles, setRequestedFiles] = useState<File[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  const { createPost } = PostService();
+  console.log('updateData; ', updateData)
+  const { createPost, updatePost } = PostService();
 
   const form = useForm<CreatePostFormValues>({
     resolver: zodResolver(createPostSchema),
@@ -72,6 +84,39 @@ export default function CreatePostDialog({
       Weight: 1,
     },
   });
+
+  // Populate form with update data
+  useEffect(() => {
+  console.log('updateData: ', updateData)
+  if (isUpdateMode && updateData) {
+    form.setValue("Title", updateData.title || "");
+    form.setValue("Description", updateData.description || "");
+    form.setValue("ItemValue", updateData.itemValue || 1000);
+    form.setValue("SuggestedPrice", updateData.suggestedPrice || 1000);
+    form.setValue("Length", Number(updateData.length) || 1);
+    form.setValue("Width", Number(updateData.width) || 1);
+    form.setValue("Height", Number(updateData.height) || 1);
+    form.setValue("Weight", Number(updateData.weight) || 1);
+
+    // Convert finishDate string to Date object
+    if (updateData.finishDate) {
+      const finishDate = new Date(updateData.finishDate);
+      form.setValue("FinishDate", finishDate);
+    }
+
+    // 🟢 Map hình ảnh từ API sang form field
+    // if (updateData.originalImages) {
+    //   const originalUrls = updateData.originalImages.map((img: any) => img.imageUrl);
+    //   form.setValue("OriginalAttachmentFiles", originalUrls);
+    // }
+
+    // if (updateData.requestedImages) {
+    //   const requestedUrls = updateData.requestedImages.map((img: any) => img.imageUrl);
+    //   form.setValue("RequestedAttachmentFiles", requestedUrls);
+    // }
+  }
+}, [isUpdateMode, updateData, form]);
+
 
   const handleFileUpload = (
     files: FileList | null,
@@ -120,19 +165,49 @@ export default function CreatePostDialog({
   const onSubmit = async (data: CreatePostFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await createPost(data);
+      let response;
+
+      if (isUpdateMode && projectPostId) {
+        // Update mode
+        const updatePayload = {
+          projectPostId,
+          title: data.Title,
+          description: data.Description,
+          itemValue: data.ItemValue,
+          finishDate: data.FinishDate.toISOString(),
+          suggestedPrice: data.SuggestedPrice,
+          originalAttachmentFiles: updateData?.originalAttachmentFiles || [],
+          requestedAttachmentFiles: updateData?.requestedAttachmentFiles || [],
+          length: data.Length,
+          width: data.Width,
+          height: data.Height,
+          weight: data.Weight,
+        };
+        response = await updatePost(updatePayload);
+        toast.success("Cập nhật bài đăng thành công!");
+      } else {
+        // Create mode
+        response = await createPost(data);
+        toast.success("Tạo bài đăng thành công!");
+      }
 
       if (response) {
-        toast.success("Tạo bài đăng thành công!");
         setIsOpen(false);
         form.reset();
         setOriginalFiles([]);
         setRequestedFiles([]);
         onPostCreated?.();
-        await fetchPosts();
+        if (fetchPosts) {
+          await fetchPosts();
+        }
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      toast.error(
+        isUpdateMode
+          ? "Có lỗi xảy ra khi cập nhật bài đăng"
+          : "Có lỗi xảy ra khi tạo bài đăng"
+      );
+      console.error("Error submitting post:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -151,7 +226,8 @@ export default function CreatePostDialog({
   }) => (
     <div className="space-y-3">
       <Label className="text-sm font-medium">
-        {title} {required && <span className="text-red-500">*</span>}
+        {title}{" "}
+        {required && !isUpdateMode && <span className="text-red-500">*</span>}
       </Label>
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -169,7 +245,9 @@ export default function CreatePostDialog({
         >
           <Upload className="h-8 w-8 text-gray-400 mb-2" />
           <span className="text-sm text-gray-600">
-            Nhấn để chọn ảnh (tối đa 3 ảnh)
+            {isUpdateMode
+              ? "Nhấn để thay đổi ảnh (tối đa 3 ảnh)"
+              : "Nhấn để chọn ảnh (tối đa 3 ảnh)"}
           </span>
         </label>
       </div>
@@ -183,7 +261,7 @@ export default function CreatePostDialog({
                 alt={`Preview ${index + 1}`}
                 className="w-full h-20 object-cover rounded border"
               />
-              <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded flex items-center justify-center">
+              <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 flex gap-1">
                   <Button
                     type="button"
@@ -209,6 +287,52 @@ export default function CreatePostDialog({
           ))}
         </div>
       )}
+
+      {/* Show existing images for update mode */}
+      {isUpdateMode && (
+        <div className="space-y-2">
+          {type === "original" &&
+            updateData?.originalAttachmentFiles &&
+            updateData.originalAttachmentFiles.length > 0 && (
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Ảnh gốc hiện tại:</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {updateData.originalAttachmentFiles.map(
+                    (imageUrl: any, index) => (
+                      <img
+                        key={index}
+                        src={imageUrl || "/placeholder.svg"}
+                        alt={`Current original ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border"
+                      />
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          {type === "requested" &&
+            updateData?.requestedAttachmentFiles &&
+            updateData.requestedAttachmentFiles.length > 0 && (
+              <div>
+                <p className="text-sm text-gray-600 mb-2">
+                  Ảnh yêu cầu hiện tại:
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {updateData.requestedAttachmentFiles.map(
+                    (imageUrl: any, index) => (
+                      <img
+                        key={index}
+                        src={imageUrl || "/placeholder.svg"}
+                        alt={`Current requested ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border"
+                      />
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+        </div>
+      )}
     </div>
   );
 
@@ -216,20 +340,36 @@ export default function CreatePostDialog({
     setIsOpen(!isOpen);
     setOriginalFiles([]);
     setRequestedFiles([]);
-    form.reset();
+    if (!isUpdateMode) {
+      form.reset();
+    }
   };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogTrigger>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            <Plus className="h-4 w-4 mr-2" />
-            Tạo bài đăng
-          </Button>
+        <DialogTrigger asChild>
+          {children || (
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              {isUpdateMode ? (
+                <>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Cập nhật bài đăng
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Tạo bài đăng
+                </>
+              )}
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="min-w-[850px] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Tạo bài đăng mới</DialogTitle>
+            <DialogTitle>
+              {isUpdateMode ? "Cập nhật bài đăng" : "Tạo bài đăng mới"}
+            </DialogTitle>
           </DialogHeader>
 
           <Form {...form}>
@@ -288,12 +428,7 @@ export default function CreatePostDialog({
                           <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            step={1000}
-                            defaultValue={1000}
-                          />
+                          <Input {...field} type="number" step={1000} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -306,7 +441,7 @@ export default function CreatePostDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Giá đề xuất <span className="text-red-500">*</span>
+                          Ngân sách <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input {...field} type="number" step={1000} />
@@ -327,7 +462,7 @@ export default function CreatePostDialog({
                         Ngày hoàn thành <span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover>
-                        <PopoverTrigger>
+                        <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
@@ -436,18 +571,18 @@ export default function CreatePostDialog({
                   title="Ảnh gốc sản phẩm"
                   files={originalFiles}
                   type="original"
-                  required
+                  required={!isUpdateMode}
                 />
 
                 <FileUploadSection
                   title="Ảnh yêu cầu"
                   files={requestedFiles}
                   type="requested"
-                  required
+                  required={!isUpdateMode}
                 />
 
                 {/* Submit Button */}
-                <div className="flex justify-end items-end  gap-3 pt-4">
+                <div className="flex justify-end items-end gap-3 pt-4">
                   <Button
                     type="button"
                     variant="outline"
@@ -457,7 +592,13 @@ export default function CreatePostDialog({
                     Hủy
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Đang tạo..." : "Tạo bài đăng"}
+                    {isSubmitting
+                      ? isUpdateMode
+                        ? "Đang cập nhật..."
+                        : "Đang tạo..."
+                      : isUpdateMode
+                      ? "Cập nhật bài đăng"
+                      : "Tạo bài đăng"}
                   </Button>
                 </div>
               </div>
