@@ -205,11 +205,11 @@ function LabubuModel({
                     <group>
                         <mesh position={[0, 1.0, 0]}>
                             <cylinderGeometry args={[0.03, 0.03, 2.0]} />
-                            <meshBasicMaterial color="#00ff00" />
+                            <meshBasicMaterial color="#0000ff" />
                         </mesh>
                         <Html position={[0, 2.2, 0]} distanceFactor={8}>
-                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
-                                Y
+                            <div className="text-blue-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-blue-200">
+                                Z
                             </div>
                         </Html>
                     </group>
@@ -218,11 +218,11 @@ function LabubuModel({
                     <group>
                         <mesh position={[0, 0, 1.0]} rotation={[Math.PI / 2, 0, 0]}>
                             <cylinderGeometry args={[0.03, 0.03, 2.0]} />
-                            <meshBasicMaterial color="#0000ff" />
+                            <meshBasicMaterial color="#00ff00" />
                         </mesh>
                         <Html position={[0, 0, 2.2]} distanceFactor={8}>
-                            <div className="text-blue-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-blue-200">
-                                Z
+                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
+                                Y
                             </div>
                         </Html>
                     </group>
@@ -1207,7 +1207,7 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
+                                                        step="0.01"
                                                         value={texturePosition.x}
                                                         onChange={(e) => {
                                                             setTexturePosition((prev) => ({ ...prev, x: Number.parseFloat(e.target.value) }))
@@ -1215,7 +1215,19 @@ export default function PlushDollDesign3D() {
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.x.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(texturePosition.x.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTexturePosition((prev) => ({ ...prev, x: Number.isNaN(val) ? prev.x : val }))
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="texture-y" className="text-xs">
@@ -1226,15 +1238,27 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={texturePosition.y}
+                                                        step="0.01"
+                                                        value={texturePosition.z}
                                                         onChange={(e) => {
-                                                            setTexturePosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
+                                                            setTexturePosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.y.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(texturePosition.z.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTexturePosition((prev) => ({ ...prev, z: Number.isNaN(val) ? prev.z : val }))
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="texture-z" className="text-xs">
@@ -1245,15 +1269,27 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={texturePosition.z}
+                                                        step="0.01"
+                                                        value={texturePosition.y}
                                                         onChange={(e) => {
-                                                            setTexturePosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
+                                                            setTexturePosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{texturePosition.z.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(texturePosition.y.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTexturePosition((prev) => ({ ...prev, y: Number.isNaN(val) ? prev.y : val }))
+                                                            setSelectedTextureAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1389,12 +1425,23 @@ export default function PlushDollDesign3D() {
                                                                                      type="range"
                                                                                      min="-3"
                                                                                      max="3"
-                                                                                     step="0.1"
+                                                                                     step="0.01"
                                                                                      value={accessory.position.x}
                                                                                      onChange={(e) => handleAccessoryPositionChange(accessory.id, "x", Number.parseFloat(e.target.value))}
                                                                                      className="h-6"
                                                                                  />
-                                                                                 <div className="text-xs text-center">{accessory.position.x.toFixed(1)}</div>
+                                                                                 <Input
+                                                                                     type="number"
+                                                                                     step="0.01"
+                                                                                     min="-3"
+                                                                                     max="3"
+                                                                                     value={Number(accessory.position.x.toFixed(2))}
+                                                                                     onChange={(e) => {
+                                                                                         const val = Number.parseFloat(e.target.value)
+                                                                                         handleAccessoryPositionChange(accessory.id, "x", Number.isNaN(val) ? accessory.position.x : val)
+                                                                                     }}
+                                                                                     className="mt-1 h-7 text-xs"
+                                                                                 />
                                                                              </div>
                                                                              <div>
                                                                                  <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs">Y</Label>
@@ -1403,12 +1450,23 @@ export default function PlushDollDesign3D() {
                                                                                      type="range"
                                                                                      min="-3"
                                                                                      max="3"
-                                                                                     step="0.1"
-                                                                                     value={accessory.position.y}
-                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "y", Number.parseFloat(e.target.value))}
+                                                                                     step="0.01"
+                                                                                     value={accessory.position.z}
+                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "z", Number.parseFloat(e.target.value))}
                                                                                      className="h-6"
                                                                                  />
-                                                                                 <div className="text-xs text-center">{accessory.position.y.toFixed(1)}</div>
+                                                                                 <Input
+                                                                                     type="number"
+                                                                                     step="0.01"
+                                                                                     min="-3"
+                                                                                     max="3"
+                                                                                     value={Number(accessory.position.z.toFixed(2))}
+                                                                                     onChange={(e) => {
+                                                                                         const val = Number.parseFloat(e.target.value)
+                                                                                         handleAccessoryPositionChange(accessory.id, "z", Number.isNaN(val) ? accessory.position.z : val)
+                                                                                     }}
+                                                                                     className="mt-1 h-7 text-xs"
+                                                                                 />
                                                                              </div>
                                                                              <div>
                                                                                  <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
@@ -1417,12 +1475,23 @@ export default function PlushDollDesign3D() {
                                                                                      type="range"
                                                                                      min="-3"
                                                                                      max="3"
-                                                                                     step="0.1"
-                                                                                     value={accessory.position.z}
-                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "z", Number.parseFloat(e.target.value))}
+                                                                                     step="0.01"
+                                                                                     value={accessory.position.y}
+                                                                                     onChange={(e) => handleAccessoryPositionChange(accessory.id, "y", Number.parseFloat(e.target.value))}
                                                                                      className="h-6"
                                                                                  />
-                                                                                 <div className="text-xs text-center">{accessory.position.z.toFixed(1)}</div>
+                                                                                 <Input
+                                                                                     type="number"
+                                                                                     step="0.01"
+                                                                                     min="-3"
+                                                                                     max="3"
+                                                                                     value={Number(accessory.position.y.toFixed(2))}
+                                                                                     onChange={(e) => {
+                                                                                         const val = Number.parseFloat(e.target.value)
+                                                                                         handleAccessoryPositionChange(accessory.id, "y", Number.isNaN(val) ? accessory.position.y : val)
+                                                                                     }}
+                                                                                     className="mt-1 h-7 text-xs"
+                                                                                 />
                                                                              </div>
                                                                          </div>
                                                                      </div>
@@ -1666,7 +1735,7 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
+                                                        step="0.01"
                                                         value={textPosition.x}
                                                         onChange={(e) => {
                                                             setTextPosition((prev) => ({ ...prev, x: Number.parseFloat(e.target.value) }))
@@ -1674,7 +1743,19 @@ export default function PlushDollDesign3D() {
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.x.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(textPosition.x.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTextPosition((prev) => ({ ...prev, x: Number.isNaN(val) ? prev.x : val }))
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="text-y" className="text-xs">
@@ -1685,15 +1766,27 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={textPosition.y}
+                                                        step="0.01"
+                                                        value={textPosition.z}
                                                         onChange={(e) => {
-                                                            setTextPosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
+                                                            setTextPosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
                                                             setSelectedTextAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.y.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(textPosition.z.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTextPosition((prev) => ({ ...prev, z: Number.isNaN(val) ? prev.z : val }))
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="text-z" className="text-xs">
@@ -1704,15 +1797,27 @@ export default function PlushDollDesign3D() {
                                                         type="range"
                                                         min="-2"
                                                         max="2"
-                                                        step="0.1"
-                                                        value={textPosition.z}
+                                                        step="0.01"
+                                                        value={textPosition.y}
                                                         onChange={(e) => {
-                                                            setTextPosition((prev) => ({ ...prev, z: Number.parseFloat(e.target.value) }))
+                                                            setTextPosition((prev) => ({ ...prev, y: Number.parseFloat(e.target.value) }))
                                                             setSelectedTextAnchor("")
                                                         }}
                                                         className="mt-1"
                                                     />
-                                                    <div className="text-xs text-center">{textPosition.z.toFixed(1)}</div>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="-2"
+                                                        max="2"
+                                                        value={Number(textPosition.y.toFixed(2))}
+                                                        onChange={(e) => {
+                                                            const val = Number.parseFloat(e.target.value)
+                                                            setTextPosition((prev) => ({ ...prev, y: Number.isNaN(val) ? prev.y : val }))
+                                                            setSelectedTextAnchor("")
+                                                        }}
+                                                        className="mt-1 h-8 text-xs"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1807,16 +1912,25 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].x}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "x", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
                                                             />
-                                                            <div className="text-xs text-center">
-                                                                {anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(1)}
-                                                            </div>
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "x", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].x : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
+                                                            />
                                                         </div>
                                                         <div>
                                                             <Label htmlFor={`anchor-${editingAnchor}-y`} className="text-xs">
@@ -1827,16 +1941,25 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].y}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "y", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
                                                             />
-                                                            <div className="text-xs text-center">
-                                                                {anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(1)}
-                                                            </div>
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "y", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].y : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
+                                                            />
                                                         </div>
                                                         <div>
                                                             <Label htmlFor={`anchor-${editingAnchor}-z`} className="text-xs">
@@ -1847,12 +1970,24 @@ export default function PlushDollDesign3D() {
                                                                 type="range"
                                                                 min="-2"
                                                                 max="2"
-                                                                step="0.1"
+                                                                step="0.01"
                                                                 value={anchorPoints[editingAnchor as keyof typeof anchorPoints].z}
                                                                 onChange={(e) =>
                                                                     handleAnchorPositionChange(editingAnchor, "z", Number.parseFloat(e.target.value))
                                                                 }
                                                                 className="mt-1"
+                                                            />
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="-2"
+                                                                max="2"
+                                                                value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = Number.parseFloat(e.target.value)
+                                                                    handleAnchorPositionChange(editingAnchor, "z", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].z : val)
+                                                                }}
+                                                                className="mt-1 h-8 text-xs"
                                                             />
                                                             <div className="text-xs text-center">
                                                                 {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(1)}

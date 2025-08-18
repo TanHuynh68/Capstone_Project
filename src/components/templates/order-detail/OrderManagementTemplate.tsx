@@ -111,11 +111,11 @@ export default function OrderManagementTemplate({
       case "General":
         return "info";
       case "Deposit":
-        return "banknote";
+        return "deposit";
       case "Withdraw":
-        return "banknote";
+        return "withdraw";
       case "Refund":
-        return "banknote";
+        return "refund";
       case "Ship":
         return "ship";
       case "Progress":
@@ -126,6 +126,10 @@ export default function OrderManagementTemplate({
         return "pending";
       case "Done":
         return "done";
+      case "Rework":
+        return "rework";
+      case "Fail":
+        return "fail";
       default:
         return "info";
     }
