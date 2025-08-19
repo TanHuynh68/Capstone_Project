@@ -30,26 +30,26 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 const DEFAULT_ANCHOR_POINTS = {
-    head: { x: 0, y: 1.2, z: 0.3, label: "🗣️ Đầu" },
-    chest: { x: 0, y: 0.6, z: 0.4, label: "💗 Ngực" },
-    belly: { x: 0, y: 0.2, z: 0.5, label: "🤰 Bụng" },
-    back: { x: 0, y: 0.4, z: -0.4, label: "🔙 Lưng" },
-    left_hand: { x: -0.6, y: 0.4, z: 0.2, label: "🤚 Tay trái" },
-    right_hand: { x: 0.6, y: 0.4, z: 0.2, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.24, y: -1.46, z: 0.02, label: "🦶 Chân trái" },
-    right_foot: { x: -0.24, y: 0.02, z: -1.46, label: "🦵 Chân phải" },
+    head: { x: 0, y: -0.05, z: 0.55, label: "🗣️ Đầu" },
+    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
+    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
+    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
+    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
+    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
+    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
 }
 
 // Thêm điểm neo cho model thứ hai (model nhỏ hơn, dạng keychain)
 const SMALL_MODEL_ANCHOR_POINTS = {
-    head: { x: 0, y: 0.8, z: 0.2, label: "🗣️ Đầu" },
-    chest: { x: 0, y: 0.4, z: 0.3, label: "💗 Ngực" },
-    belly: { x: 0, y: 0.1, z: 0.4, label: "🤰 Bụng" },
-    back: { x: 0, y: 0.3, z: -0.3, label: "🔙 Lưng" },
-    left_hand: { x: -0.4, y: 0.3, z: 0.15, label: "🤚 Tay trái" },
-    right_hand: { x: 0.4, y: 0.3, z: 0.15, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.2, y: -0.6, z: 0.15, label: "🦶 Chân trái" },
-    right_foot: { x: 0.2, y: -0.6, z: 0.15, label: "🦵 Chân phải" },
+    head: { x: 0, y: -0.2, z: 0.8, label: "🗣️ Đầu" },
+    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
+    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
+    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
+    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
+    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
+    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
 }
 
 interface GLBModel {
@@ -1063,9 +1063,9 @@ export default function PlushDollDesign3D() {
                                             enablePan={true}
                                             enableZoom={true}
                                             enableRotate={!isRotating}
-                                            // Giới hạn camera xoay quanh trục XY
+                                            // Cho phép xoay camera 360° không giới hạn
                                             minPolarAngle={0} // Góc dọc tối thiểu (0°)
-                                            maxPolarAngle={Math.PI / 2} // Góc dọc tối đa (90°)
+                                            maxPolarAngle={Math.PI} // Góc dọc tối đa (180°)
                                             // Cho phép xoay ngang 360° quanh trục Z
                                             minAzimuthAngle={-Infinity}
                                             maxAzimuthAngle={Infinity}
@@ -1768,38 +1768,6 @@ export default function PlushDollDesign3D() {
                                                                                     min={-3}
                                                                                     max={3}
                                                                                     step={0.01}
-                                                                                    value={[accessory.position.z]}
-                                                                                    onValueChange={(v) => {
-                                                                                        const raw = v[0]
-                                                                                        handleAccessoryPositionChange(accessory.id, "z", Math.abs(raw) < 0.05 ? 0 : raw)
-                                                                                    }}
-                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
-                                                                                >
-                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
-                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
-                                                                                    </SliderPrimitive.Track>
-                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
-                                                                                </SliderPrimitive.Root>
-                                                                                <Input
-                                                                                    type="number"
-                                                                                    step="0.01"
-                                                                                    min="-3"
-                                                                                    max="3"
-                                                                                    value={Number(accessory.position.z.toFixed(2))}
-                                                                                    onChange={(e) => {
-                                                                                        const val = Number.parseFloat(e.target.value)
-                                                                                        handleAccessoryPositionChange(accessory.id, "z", Number.isNaN(val) ? accessory.position.z : val)
-                                                                                    }}
-                                                                                    className="mt-1 h-7 text-xs"
-                                                                                />
-                                                                            </div>
-                                                                            <div>
-                                                                                <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
-                                                                                <SliderPrimitive.Root
-                                                                                    id={`acc-${accessory.id}-z`}
-                                                                                    min={-3}
-                                                                                    max={3}
-                                                                                    step={0.01}
                                                                                     value={[accessory.position.y]}
                                                                                     onValueChange={(v) => {
                                                                                         const raw = v[0]
@@ -1821,6 +1789,38 @@ export default function PlushDollDesign3D() {
                                                                                     onChange={(e) => {
                                                                                         const val = Number.parseFloat(e.target.value)
                                                                                         handleAccessoryPositionChange(accessory.id, "y", Number.isNaN(val) ? accessory.position.y : val)
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs"
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
+                                                                                <SliderPrimitive.Root
+                                                                                    id={`acc-${accessory.id}-z`}
+                                                                                    min={-3}
+                                                                                    max={3}
+                                                                                    step={0.01}
+                                                                                    value={[accessory.position.z]}
+                                                                                    onValueChange={(v) => {
+                                                                                        const raw = v[0]
+                                                                                        handleAccessoryPositionChange(accessory.id, "z", Math.abs(raw) < 0.05 ? 0 : raw)
+                                                                                    }}
+                                                                                    className="relative flex w-full touch-none select-none items-center mt-1"
+                                                                                >
+                                                                                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                                                        <SliderPrimitive.Range className="absolute h-full bg-blue-600" />
+                                                                                    </SliderPrimitive.Track>
+                                                                                    <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                                                </SliderPrimitive.Root>
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="0.01"
+                                                                                    min="-3"
+                                                                                    max="3"
+                                                                                    value={Number(accessory.position.z.toFixed(2))}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryPositionChange(accessory.id, "z", Number.isNaN(val) ? accessory.position.z : val)
                                                                                     }}
                                                                                     className="mt-1 h-7 text-xs"
                                                                                 />
