@@ -298,6 +298,7 @@ function LabubuModel({
                     ref={textureMeshRef}
                     position={[texturePosition.x, texturePosition.y, texturePosition.z]}
                     scale={[textureScale, textureScale, 1]}
+                    rotation={[Math.PI / 2, 0, 0]}
                 >
                     <planeGeometry args={[1, 1]} />
                     <meshBasicMaterial>
@@ -311,6 +312,7 @@ function LabubuModel({
                     key={texture.id}
                     position={[texture.position.x, texture.position.y, texture.position.z]}
                     scale={[texture.scale, texture.scale, 1]}
+                    rotation={[Math.PI / 2, 0, 0]}
                 >
                     <planeGeometry args={[1, 1]} />
                     <meshBasicMaterial>
@@ -736,6 +738,7 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(textureData.position.x, textureData.position.y, textureData.position.z)
                     mesh.scale.set(textureData.scale, textureData.scale, 1)
+                    mesh.rotation.x = Math.PI / 2
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load texture:", textureData.texture, error)
@@ -754,6 +757,7 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(texturePosition.x, texturePosition.y, texturePosition.z)
                     mesh.scale.set(textureScale, textureScale, 1)
+                    mesh.rotation.x = Math.PI / 2
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load current texture:", error)
@@ -1565,8 +1569,8 @@ export default function PlushDollDesign3D() {
                                                         onValueChange={(v) => {
                                                             const raw = v[0]
                                                             const snapped = snapToZero(raw)
-                                                            setTexturePosition((prev) => ({ ...prev, y: snapped }))
-                                                            setTexturePositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
+                                                            setTexturePosition((prev) => ({ ...prev, z: snapped }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="relative flex w-full touch-none select-none items-center mt-1"
@@ -1578,21 +1582,21 @@ export default function PlushDollDesign3D() {
                                                     </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
-                                                        value={texturePositionInput.y}
+                                                        value={texturePositionInput.z}
                                                         onChange={(e) => {
                                                             const val = e.target.value
-                                                            setTexturePositionInput((prev) => ({ ...prev, y: val }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, z: val }))
                                                             const parsed = Number.parseFloat(val)
                                                             if (!Number.isNaN(parsed)) {
                                                                 const snapped = snapToZero(parsed)
-                                                                setTexturePosition((prev) => ({ ...prev, y: snapped }))
+                                                                setTexturePosition((prev) => ({ ...prev, z: snapped }))
                                                             }
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         onBlur={() => {
-                                                            if (texturePositionInput.y.trim() === "") {
-                                                                setTexturePosition((prev) => ({ ...prev, y: 0 }))
-                                                                setTexturePositionInput((prev) => ({ ...prev, y: "0.00" }))
+                                                            if (texturePositionInput.z.trim() === "") {
+                                                                setTexturePosition((prev) => ({ ...prev, z: 0 }))
+                                                                setTexturePositionInput((prev) => ({ ...prev, z: "0.00" }))
                                                             }
                                                         }}
                                                         className="mt-1 h-8 text-xs"
