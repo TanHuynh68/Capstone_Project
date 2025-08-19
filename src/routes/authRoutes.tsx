@@ -2,7 +2,9 @@ import { AUTH_ROUTES } from "./path";
 import {
   ForgotPasswordPage,
   LoginPage,
+  PrivacyPolicyPage,
   RegisterPage,
+  TermPage,
   VerifyAccountPage,
 } from "@/pages";
 import PublicRoute from "./public";
@@ -49,6 +51,22 @@ export const authRoutes = [
         element: (
           <PublicRoute>
             <RereverifyAccount />
+          </PublicRoute>
+        ),
+      },
+      {
+        path: AUTH_ROUTES.PRIVACY_POLICY,
+        element: (
+          <PublicRoute>
+            <PrivacyPolicyPage />
+          </PublicRoute>
+        ),
+      },
+      {
+        path: AUTH_ROUTES.TERM,
+        element: (
+          <PublicRoute>
+            <TermPage />
           </PublicRoute>
         ),
       },

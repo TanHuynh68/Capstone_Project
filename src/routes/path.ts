@@ -40,7 +40,9 @@ export enum AUTH_ROUTES {
   REGISTER = "register",
   FORGOT_PASSWORD = "forgot-password",
   VERIFY_ACCOUNT = "verify-account",
-  REVERIFY_ACCOUNT = "reverify-account"
+  REVERIFY_ACCOUNT = "reverify-account",
+  TERM = "term",
+  PRIVACY_POLICY = 'privacy-policy'
 }
 
 export enum DESIGNER_ROUTES {
@@ -69,6 +71,8 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  TERM = "/auth/term",
+  PRIVACY_POLICY = '/auth/privacy-policy',
   MY_WALLET = "my-wallet",
   MY_POST = "my-post",
   CUSTOMER_UPLOAD_PAGE = "upload-post",
