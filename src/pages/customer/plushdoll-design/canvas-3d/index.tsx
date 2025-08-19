@@ -684,6 +684,7 @@ export default function PlushDollDesign3D() {
 
     const handleExport = async () => {
         const scene = new THREE.Scene()
+        scene.up.set(0, 0, 1)
 
         const loader = new GLTFLoader()
 
@@ -706,8 +707,8 @@ export default function PlushDollDesign3D() {
             }
             const modelScale = getExportModelScale()
             model.scale.set(modelScale, modelScale, modelScale)
-            // Áp dụng rotation để chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
-            model.rotation.x = -Math.PI / 2 + Math.PI
+            // Giữ Z-up (mặt phẳng XY) khi xuất
+            model.rotation.set(0, 0, 0)
             scene.add(model)
 
             // Helper function to load texture properly
@@ -739,7 +740,8 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(textureData.position.x, textureData.position.y, textureData.position.z)
                     mesh.scale.set(textureData.scale, textureData.scale, 1)
-                    mesh.rotation.x = Math.PI / 2
+                    // Giữ mặt phẳng XY
+                    mesh.rotation.x = 0
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load texture:", textureData.texture, error)
@@ -759,7 +761,8 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(texturePosition.x, texturePosition.y, texturePosition.z)
                     mesh.scale.set(textureScale, textureScale, 1)
-                    mesh.rotation.x = Math.PI / 2
+                    // Giữ mặt phẳng XY
+                    mesh.rotation.x = 0
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load current texture:", error)
@@ -778,9 +781,9 @@ export default function PlushDollDesign3D() {
                     const accessoryModel = gltf.scene.clone()
                     accessoryModel.position.set(accessory.position.x, accessory.position.y, accessory.position.z)
                     accessoryModel.scale.set(accessory.scale, accessory.scale, accessory.scale)
-                    // Áp dụng rotation từ Blender Z-up sang Three.js Y-up + lộn ngược 180° + rotation tùy chỉnh
+                    // Giữ Z-up (mặt phẳng XY)
                     accessoryModel.rotation.set(
-                        accessory.rotation.x - Math.PI / 2 + Math.PI,
+                        accessory.rotation.x,
                         accessory.rotation.y,
                         accessory.rotation.z
                     )
@@ -792,6 +795,13 @@ export default function PlushDollDesign3D() {
 
             // Wait for all accessories to load
             await Promise.allSettled(accessoryPromises)
+
+            // Thêm camera Z-up để lưu trong GLB
+            const exportCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
+            exportCamera.position.set(5, 0, 0)
+            exportCamera.up.set(0, 0, 1)
+            exportCamera.lookAt(new THREE.Vector3(0, 0, 0))
+            scene.add(exportCamera)
 
             // Export to GLB
             const exporter = new GLTFExporter()
