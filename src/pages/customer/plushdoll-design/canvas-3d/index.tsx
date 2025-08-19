@@ -234,7 +234,7 @@ function LabubuModel({
 
     useFrame((_, delta) => {
         if (groupRef.current && isRotating) {
-            groupRef.current.rotation.y += delta * 0.8 // Tăng tốc độ quay và sửa reference
+            groupRef.current.rotation.z += delta * 0.8 // Quay quanh trục Z để quay theo mặt phẳng XY
         }
     })
 
@@ -734,6 +734,7 @@ export default function PlushDollDesign3D() {
                     const material = new THREE.MeshBasicMaterial({
                         map: texture,
                         transparent: true,
+                        side: THREE.DoubleSide,
                     })
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(textureData.position.x, textureData.position.y, textureData.position.z)
@@ -753,6 +754,7 @@ export default function PlushDollDesign3D() {
                     const material = new THREE.MeshBasicMaterial({
                         map: texture,
                         transparent: true,
+                        side: THREE.DoubleSide,
                     })
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(texturePosition.x, texturePosition.y, texturePosition.z)
