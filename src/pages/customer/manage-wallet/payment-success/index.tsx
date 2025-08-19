@@ -1,75 +1,154 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrencyVND } from "@/utils";
 import { PATH } from "@/routes/path";
 import { Link } from "react-router-dom";
+import { CheckCircle, CreditCard, Hash, Calendar } from "lucide-react";
 
 export default function PaymentSuccess() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const depositMoney = urlParams.get("depositMoney");
-  const vnp_TransactionNo = urlParams.get("vnp_TransactionNo");
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] gap-8 px-4 md:px-6">
-      <div className="bg-background rounded-lg shadow-lg p-8 w-full max-w-md">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <CircleCheckIcon className="text-green-500 w-12 h-12" />
-          <h1 className="text-2xl font-bold">Thanh toán thành công</h1>
-          <p className="text-muted-foreground">
-            Cảm ơn bạn đã thanh toán! Đơn hàng của bạn đang được xử lý.
-          </p>
-        </div>
-        <Separator className="my-6" />
-        <div className="grid gap-4">
-          {vnp_TransactionNo ? (
-            <div>
-              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Tổng tiền</p>
-                <p>{formatCurrencyVND(parseInt(depositMoney + "") || 0)}</p>
-              </div>
-              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Phương thức thanh toán</p>
-                <p>VNPay</p>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                <p className="text-muted-foreground">Phương thức thanh toán</p>
-                <p>PayOs</p>
-              </div>
-            </div>
-          )}
-        </div>
-        <Separator className="my-6" />
-        <div className="flex justify-center">
-          <Link
-            to={`/${PATH.MY_WALLET}`}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-          >
-            Quay về ví
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+  const [paymentDetails, setPaymentDetails] = useState<any>(null);
 
-function CircleCheckIcon(props: any) {
+  useEffect(() => {
+    // Get payment details from URL params
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    const details = {
+      depositMoney: urlParams.get("depositMoney"),
+      vnp_TransactionNo: urlParams.get("vnp_TransactionNo"),
+      vnp_BankCode: urlParams.get("vnp_BankCode"),
+      vnp_PayDate: urlParams.get("vnp_PayDate"),
+      paymentMethod: urlParams.get("vnp_TransactionNo") ? "VNPay" : "PayOs",
+      transactionId:
+        urlParams.get("vnp_TransactionNo") ||
+        urlParams.get("orderCode") ||
+        "N/A",
+      bankCode: urlParams.get("vnp_BankCode") || "SYSTEM",
+      payDate: new Date().toLocaleString("vi-VN"),
+    };
+
+    setPaymentDetails(details);
+  }, []);
+
+  if (!paymentDetails) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
+    <div className="min-h-screen bg-gradient-to-br from-teal-600 via-teal-700 to-blue-800 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white shadow-2xl">
+        <CardHeader className="text-center pb-4">
+          <div className="flex justify-center mb-4">
+            <div className="bg-green-100 rounded-full p-3">
+              <CheckCircle className="h-12 w-12 text-green-600" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-green-600 mb-2">
+            Thanh toán thành công
+          </h1>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Payment Details */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-600">
+                <CreditCard className="h-4 w-4" />
+                <span className="text-sm">Loại thanh toán</span>
+              </div>
+              <span className="font-medium">Net banking</span>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Amount Section */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold text-gray-700">
+                Số tiền đã nạp
+              </span>
+              <span className="text-2xl font-bold text-gray-900">
+                {paymentDetails.depositMoney
+                  ? formatCurrencyVND(
+                      Number.parseInt(paymentDetails.depositMoney)
+                    )
+                  : "500.00"}
+              </span>
+            </div>
+          </div>
+
+          {/* Transaction Details */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Hash className="h-4 w-4" />
+                <span className="text-sm">Mã giao dịch</span>
+              </div>
+              <span className="font-mono text-sm">
+                {paymentDetails.transactionId}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Calendar className="h-4 w-4" />
+                <span className="text-sm">Thời gian</span>
+              </div>
+              <span className="text-sm">{paymentDetails.payDate}</span>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
+            <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+              <Link
+                to={`/${PATH.MY_WALLET}`}
+                className="t text-sm font-medium "
+              >
+                Quay về ví của tôi
+              </Link>
+            </Button>
+            <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+              <Link to={`${PATH.HOME}`} className=" text-sm font-medium ">
+                Quay về trang chủ
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-area,
+          .print-area * {
+            visibility: visible;
+          }
+          .print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
