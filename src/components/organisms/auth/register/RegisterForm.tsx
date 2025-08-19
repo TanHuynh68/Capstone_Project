@@ -5,7 +5,14 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormItem as FormItemAlias,
+  FormControl as FormControlAlias,
+  FormMessage as FormMessageAlias,
+  FormField as FormFieldAlias,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import RegisterFormField from "@/components/molecules/auth/register/FormField";
 import FormFieldController from "@/components/molecules/auth/register/FormFieldController";
 import PasswordInput from "@/components/molecules/auth/register/PasswordInput";
@@ -36,9 +43,10 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
       email: "",
       gender: "0",
       role: "0",
+      agreeToTerms: false,
     },
-    mode: "onBlur", // Validate khi người dùng rời khỏi trường input
-    reValidateMode: "onChange", // Validate lại khi người dùng thay đổi giá trị
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
 
   const handleSubmit = async (data: RegisterFormValues) => {
@@ -189,6 +197,45 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                       </div>
                     </div>
                   </div>
+
+                  {/* Terms and Conditions Checkbox */}
+                  <FormFieldAlias
+                    control={form.control}
+                    name="agreeToTerms"
+                    render={({ field }) => (
+                      <FormItemAlias className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControlAlias>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControlAlias>
+                        <div className="space-y-1 leading-none">
+                          <p className="text-sm text-muted-foreground">
+                            Tôi đồng ý với{" "}
+                            <Link
+                              to={PATH.TERM}
+                              className="text-primary hover:underline font-medium"
+                              target="_blank"
+                            >
+                              Điều khoản và Điều kiện
+                            </Link>{" "}
+                            và{" "}
+                            <Link
+                              to={PATH.PRIVACY_POLICY}
+                              className="text-primary hover:underline font-medium"
+                              target="_blank"
+                            >
+                              Chính sách bảo mật
+                            </Link>{" "}
+                            của PlushDollCustom
+                          </p>
+                          <FormMessageAlias />
+                        </div>
+                      </FormItemAlias>
+                    )}
+                  />
+
                   {/* Nút tạo tài khoản full width, tách hàng riêng */}
                   <div>
                     <Button

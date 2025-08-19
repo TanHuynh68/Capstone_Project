@@ -54,10 +54,13 @@ export const registerSchema = z
       .email({ message: "Email không hợp lệ" }),
     gender: z.string().min(1, { message: "Vui lòng chọn giới tính" }),
     role: z.string().min(1, { message: "Vui lòng chọn vai trò" }),
+     agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: "Bạn phải đồng ý với Điều khoản và Chính sách để tiếp tục",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
-  });
+  })
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
