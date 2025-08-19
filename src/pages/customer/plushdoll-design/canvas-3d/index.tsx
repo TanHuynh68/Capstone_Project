@@ -36,8 +36,20 @@ const DEFAULT_ANCHOR_POINTS = {
     back: { x: 0, y: 0.4, z: -0.4, label: "🔙 Lưng" },
     left_hand: { x: -0.6, y: 0.4, z: 0.2, label: "🤚 Tay trái" },
     right_hand: { x: 0.6, y: 0.4, z: 0.2, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.3, y: -0.8, z: 0.2, label: "🦶 Chân trái" },
-    right_foot: { x: 0.3, y: -0.8, z: 0.2, label: "🦵 Chân phải" },
+    left_foot: { x: -0.24, y: -1.46, z: 0.02, label: "🦶 Chân trái" },
+    right_foot: { x: -0.24, y: 0.02, z: -1.46, label: "🦵 Chân phải" },
+}
+
+// Thêm điểm neo cho model thứ hai (model nhỏ hơn, dạng keychain)
+const SMALL_MODEL_ANCHOR_POINTS = {
+    head: { x: 0, y: 0.8, z: 0.2, label: "🗣️ Đầu" },
+    chest: { x: 0, y: 0.4, z: 0.3, label: "💗 Ngực" },
+    belly: { x: 0, y: 0.1, z: 0.4, label: "🤰 Bụng" },
+    back: { x: 0, y: 0.3, z: -0.3, label: "🔙 Lưng" },
+    left_hand: { x: -0.4, y: 0.3, z: 0.15, label: "🤚 Tay trái" },
+    right_hand: { x: 0.4, y: 0.3, z: 0.15, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.2, y: -0.6, z: 0.15, label: "🦶 Chân trái" },
+    right_foot: { x: 0.2, y: -0.6, z: 0.15, label: "🦵 Chân phải" },
 }
 
 interface GLBModel {
@@ -59,6 +71,7 @@ interface AccessoryModel {
 
 interface LabubuModelProps {
     modelPath: string
+    modelId?: string
     customTexture?: string
     customText?: string
     textColor?: string
@@ -71,6 +84,8 @@ interface LabubuModelProps {
     isAttached?: boolean
     anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
     showAnchorPoints?: boolean
+    selectedTextAnchor?: string
+    selectedTextureAnchor?: string
     textMeshRef?: React.RefObject<HTMLDivElement | null>
     textureMeshRef?: React.RefObject<THREE.Mesh | null>
     appliedTexts?: Array<{
@@ -89,23 +104,46 @@ interface LabubuModelProps {
     }>
     accessories?: AccessoryModel[]
     showAxes?: boolean
+    modelPosition?: { x: number; y: number; z: number }
 }
 
-function AnchorPoint({ position, label }: { position: { x: number; y: number; z: number }; label: string }) {
+function AnchorPoint({ position, label, isSelected = false }: { position: { x: number; y: number; z: number }; label: string; isSelected?: boolean }) {
     const [isHovered, setIsHovered] = useState(false)
+
+    // Xác định màu sắc dựa trên trạng thái
+    let color: string
+    let emissive: string
+    let emissiveIntensity: number
+
+    if (isSelected) {
+        // Điểm neo được chọn - màu xanh dương
+        color = "#0066ff"
+        emissive = "#0033cc"
+        emissiveIntensity = 0.6
+    } else if (isHovered) {
+        // Điểm neo được hover - màu xanh lá
+        color = "#00ff44"
+        emissive = "#006633"
+        emissiveIntensity = 0.4
+    } else {
+        // Điểm neo bình thường - màu xanh lá nhạt
+        color = "#00ff88"
+        emissive = "#004422"
+        emissiveIntensity = 0.2
+    }
 
     return (
         <group position={[position.x, position.y, position.z]}>
             <mesh onPointerEnter={() => setIsHovered(true)} onPointerLeave={() => setIsHovered(false)}>
                 <sphereGeometry args={[0.12, 32, 32]} />
                 <meshStandardMaterial
-                    color={isHovered ? "#00ff44" : "#00ff88"}
+                    color={color}
                     transparent
-                    opacity={isHovered ? 1 : 0.9}
+                    opacity={isHovered || isSelected ? 1 : 0.9}
                     roughness={0.3}
                     metalness={0.1}
-                    emissive={isHovered ? "#006633" : "#004422"}
-                    emissiveIntensity={isHovered ? 0.4 : 0.2}
+                    emissive={emissive}
+                    emissiveIntensity={emissiveIntensity}
                 />
             </mesh>
 
@@ -148,13 +186,17 @@ function AccessoryModel({ modelPath, position, scale, rotation }: {
             scale={finalScale}
             rotation={[rotation.x, rotation.y, rotation.z]}
         >
-            <primitive object={scene} />
+            <primitive
+                object={scene}
+                rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+            />
         </group>
     )
 }
 
 function LabubuModel({
     modelPath,
+    modelId = "default-labubu",
     customTexture,
     customText,
     textColor = "#000000",
@@ -166,15 +208,29 @@ function LabubuModel({
     isRotating = false,
     anchorPoints = DEFAULT_ANCHOR_POINTS,
     showAnchorPoints = false,
+    selectedTextAnchor,
+    selectedTextureAnchor,
     textMeshRef,
     textureMeshRef,
     appliedTexts = [],
     appliedTextures = [],
     accessories = [],
     showAxes = true,
+    modelPosition = { x: 0, y: 0, z: 0 },
 }: LabubuModelProps) {
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
+
+    // Xác định scale dựa trên model ID
+    const getModelScale = () => {
+        switch (modelId) {
+            case "small-labubu":
+                return 1.5 // Model nhỏ hơn
+            case "default-labubu":
+            default:
+                return 2 // Model chuẩn
+        }
+    }
 
     useFrame((_, delta) => {
         if (groupRef.current && isRotating) {
@@ -183,7 +239,7 @@ function LabubuModel({
     })
 
     return (
-        <group ref={groupRef}>
+        <group ref={groupRef} position={[modelPosition.x, modelPosition.y, modelPosition.z]}>
             {showAxes && (
                 <group position={[0, 0, 0]}>
                     {/* X axis - Red */}
@@ -199,34 +255,40 @@ function LabubuModel({
                         </Html>
                     </group>
 
-                    {/* Y axis - Green */}
+                    {/* Y axis - Green (Lên/Xuống) */}
                     <group>
-                        <mesh position={[0, 1.0, 0]}>
+                        <mesh position={[0, -1.0, 0]}>
+                            <cylinderGeometry args={[0.03, 0.03, 2.0]} />
+                            <meshBasicMaterial color="#00ff00" />
+                        </mesh>
+                        <Html position={[0, -2.2, 0]} distanceFactor={8}>
+                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
+                                Y
+                            </div>
+                        </Html>
+                    </group>
+
+                    {/* Z axis - Blue (Gần/Xa) */}
+                    <group>
+                        <mesh position={[0, 0, 1.0]} rotation={[Math.PI / 2, 0, 0]}>
                             <cylinderGeometry args={[0.03, 0.03, 2.0]} />
                             <meshBasicMaterial color="#0000ff" />
                         </mesh>
-                        <Html position={[0, 2.2, 0]} distanceFactor={8}>
+                        <Html position={[0, 0, 2.2]} distanceFactor={8}>
                             <div className="text-blue-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-blue-200">
                                 Z
                             </div>
                         </Html>
                     </group>
 
-                    {/* Z axis - Blue */}
-                    <group>
-                        <mesh position={[0, 0, 1.0]} rotation={[Math.PI / 2, 0, 0]}>
-                            <cylinderGeometry args={[0.03, 0.03, 2.0]} />
-                            <meshBasicMaterial color="#00ff00" />
-                        </mesh>
-                        <Html position={[0, 0, 2.2]} distanceFactor={8}>
-                            <div className="text-green-500 font-bold text-sm bg-white/95 px-2 py-1 rounded-lg shadow-lg border border-green-200">
-                                Y
-                            </div>
-                        </Html>
-                    </group>
+
                 </group>
             )}
-            <primitive object={scene} scale={2} />
+            <primitive
+                object={scene}
+                scale={getModelScale()}
+                rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+            />
             <ambientLight intensity={0.6} />
             <directionalLight position={[10, 10, 5]} intensity={1} />
             <pointLight position={[-10, -10, -5]} intensity={0.5} />
@@ -317,7 +379,12 @@ function LabubuModel({
             {showAnchorPoints && (
                 <>
                     {Object.entries(anchorPoints).map(([key, anchor]) => (
-                        <AnchorPoint key={key} position={anchor} label={anchor.label} />
+                        <AnchorPoint
+                            key={key}
+                            position={anchor}
+                            label={anchor.label}
+                            isSelected={selectedTextAnchor === key || selectedTextureAnchor === key}
+                        />
                     ))}
                 </>
             )}
@@ -343,6 +410,12 @@ export default function PlushDollDesign3D() {
             name: "Labubu Keychain (Mặc định)",
             url: "/model/plush_labubu_keychain_character.glb",
             isDefault: true,
+        },
+        {
+            id: "small-labubu",
+            name: "Labubu Mini (Nhỏ)",
+            url: "/model/plush_labubu_keychain_character.glb", // Sử dụng cùng model nhưng scale khác
+            isDefault: false,
         },
     ])
     const [currentModelId, setCurrentModelId] = useState<string>("default-labubu")
@@ -387,10 +460,38 @@ export default function PlushDollDesign3D() {
     const [selectedTextAnchor, setSelectedTextAnchor] = useState<string>("")
     const [selectedTextureAnchor, setSelectedTextureAnchor] = useState<string>("")
 
+    // Cập nhật anchorPoints dựa trên model được chọn
+    const getCurrentAnchorPoints = () => {
+        if (currentModelId === "small-labubu") {
+            return SMALL_MODEL_ANCHOR_POINTS
+        }
+        return DEFAULT_ANCHOR_POINTS
+    }
+
     const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
+
+    // Cập nhật anchorPoints khi thay đổi model
+    const handleModelChange = (modelId: string) => {
+        setCurrentModelId(modelId)
+        if (modelId === "small-labubu") {
+            setAnchorPoints(SMALL_MODEL_ANCHOR_POINTS)
+        } else {
+            setAnchorPoints(DEFAULT_ANCHOR_POINTS)
+        }
+        // Reset các vị trí về mặc định khi đổi model
+        setTextPosition({ x: 0, y: 1, z: 0.5 })
+        setTexturePosition({ x: 0, y: 0, z: 0.3 })
+        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
+        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
+        setModelPosition({ x: 0, y: 0, z: 0 })
+        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
+        setSelectedTextAnchor("")
+        setSelectedTextureAnchor("")
+    }
+
     const [editingAnchor, setEditingAnchor] = useState<string>("")
     const [showAnchorPoints, setShowAnchorPoints] = useState(false)
-    const [showAxes, setShowAxes] = useState(true)
+    const [showAxes, setShowAxes] = useState(false)
 
     const textMeshRef = useRef<HTMLDivElement | null>(null)
     const textureMeshRef = useRef<THREE.Mesh | null>(null)
@@ -398,6 +499,11 @@ export default function PlushDollDesign3D() {
     // Clearable inputs and slider snap-to-zero detent
     const [textPositionInput, setTextPositionInput] = useState({ x: "0.00", y: "1.00", z: "0.50" })
     const [texturePositionInput, setTexturePositionInput] = useState({ x: "0.00", y: "0.00", z: "0.30" })
+
+    // State cho vị trí model chính
+    const [modelPosition, setModelPosition] = useState({ x: 0, y: 0, z: 0 })
+    const [modelPositionInput, setModelPositionInput] = useState({ x: "0.00", y: "0.00", z: "0.00" })
+
     const snapToZero = (value: number, threshold = 0.05) => (Math.abs(value) < threshold ? 0 : value)
 
     const handleGLBUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -483,7 +589,8 @@ export default function PlushDollDesign3D() {
     }
 
     const handleResetAnchorPoints = () => {
-        setAnchorPoints(DEFAULT_ANCHOR_POINTS)
+        const currentPoints = getCurrentAnchorPoints()
+        setAnchorPoints(currentPoints)
         setEditingAnchor("")
     }
 
@@ -563,6 +670,8 @@ export default function PlushDollDesign3D() {
         setSelectedTextureAnchor("")
         setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
         setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
+        setModelPosition({ x: 0, y: 0, z: 0 })
+        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
         setShowAnchorPoints(false)
         setAppliedTexts([])
         setAppliedTextures([]) // Cũng reset textures đã áp dụng
@@ -583,7 +692,20 @@ export default function PlushDollDesign3D() {
             })
 
             const model = gltf.scene.clone()
-            model.scale.set(2, 2, 2)
+            // Xác định scale dựa trên model ID
+            const getExportModelScale = () => {
+                switch (currentModelId) {
+                    case "small-labubu":
+                        return 1.5 // Model nhỏ hơn
+                    case "default-labubu":
+                    default:
+                        return 2 // Model chuẩn
+                }
+            }
+            const modelScale = getExportModelScale()
+            model.scale.set(modelScale, modelScale, modelScale)
+            // Áp dụng rotation để chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+            model.rotation.x = -Math.PI / 2 + Math.PI
             scene.add(model)
 
             // Helper function to load texture properly
@@ -650,7 +772,12 @@ export default function PlushDollDesign3D() {
                     const accessoryModel = gltf.scene.clone()
                     accessoryModel.position.set(accessory.position.x, accessory.position.y, accessory.position.z)
                     accessoryModel.scale.set(accessory.scale, accessory.scale, accessory.scale)
-                    accessoryModel.rotation.set(accessory.rotation.x, accessory.rotation.y, accessory.rotation.z)
+                    // Áp dụng rotation từ Blender Z-up sang Three.js Y-up + lộn ngược 180° + rotation tùy chỉnh
+                    accessoryModel.rotation.set(
+                        accessory.rotation.x - Math.PI / 2 + Math.PI,
+                        accessory.rotation.y,
+                        accessory.rotation.z
+                    )
                     scene.add(accessoryModel)
                 } catch (error) {
                     console.warn("[v0] Failed to load accessory:", accessory.name, error)
@@ -896,13 +1023,18 @@ export default function PlushDollDesign3D() {
                         <Card className="h-[500px] p-0">
                             <CardContent className="h-full p-0">
                                 <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
-                                    <Canvas className="w-full h-full" camera={{ position: [0, 0, 5], fov: 50 }}>
+                                    <Canvas className="w-full h-full" camera={{
+                                        position: [5, 0, 0], // Camera ở trên cao, nhìn xuống
+                                        fov: 50,
+                                        up: [0, 0, 1] // Định hướng "up" của camera
+                                    }}>
                                         <ambientLight intensity={0.5} />
                                         <directionalLight position={[10, 10, 5]} intensity={1} />
                                         {/* Removed duplicate axesHelper - using custom axes instead */}
                                         <Suspense fallback={<LoadingSpinner />}>
                                             <LabubuModel
                                                 modelPath={getCurrentModel().url}
+                                                modelId={currentModelId}
                                                 customTexture={customTexture || uploadedImage}
                                                 customText={customText}
                                                 textColor={textColor}
@@ -915,16 +1047,31 @@ export default function PlushDollDesign3D() {
                                                 isAttached={isAttached}
                                                 anchorPoints={anchorPoints}
                                                 showAnchorPoints={showAnchorPoints}
+                                                selectedTextAnchor={selectedTextAnchor}
+                                                selectedTextureAnchor={selectedTextureAnchor}
                                                 textMeshRef={textMeshRef}
                                                 textureMeshRef={textureMeshRef}
                                                 appliedTexts={appliedTexts}
                                                 appliedTextures={appliedTextures}
                                                 accessories={accessories}
                                                 showAxes={showAxes}
+                                                modelPosition={modelPosition}
                                             />
                                             <Environment preset="studio" />
                                         </Suspense>
-                                        <OrbitControls enablePan={true} enableZoom={true} enableRotate={!isRotating} />
+                                        <OrbitControls
+                                            enablePan={true}
+                                            enableZoom={true}
+                                            enableRotate={!isRotating}
+                                            // Giới hạn camera xoay quanh trục XY
+                                            minPolarAngle={0} // Góc dọc tối thiểu (0°)
+                                            maxPolarAngle={Math.PI / 2} // Góc dọc tối đa (90°)
+                                            // Cho phép xoay ngang 360° quanh trục Z
+                                            minAzimuthAngle={-Infinity}
+                                            maxAzimuthAngle={Infinity}
+                                            // Điểm trung tâm camera nhìn vào
+                                            target={[0, 0, 0]}
+                                        />
                                     </Canvas>
                                 </div>
                             </CardContent>
@@ -938,10 +1085,14 @@ export default function PlushDollDesign3D() {
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="models" className="w-full">
-                                    <TabsList className="grid w-full grid-cols-5">
+                                    <TabsList className="grid w-full grid-cols-6">
                                         <TabsTrigger value="models" className="flex items-center gap-1">
                                             <Box className="w-4 h-4" />
                                             Models
+                                        </TabsTrigger>
+                                        <TabsTrigger value="position" className="flex items-center gap-1">
+                                            <Target className="w-4 h-4" />
+                                            Vị trí
                                         </TabsTrigger>
                                         <TabsTrigger value="texture" className="flex items-center gap-1">
                                             <ImageIcon className="w-4 h-4" />
@@ -991,7 +1142,7 @@ export default function PlushDollDesign3D() {
                                                             <Button
                                                                 variant={currentModelId === model.id ? "default" : "outline"}
                                                                 size="sm"
-                                                                onClick={() => setCurrentModelId(model.id)}
+                                                                onClick={() => handleModelChange(model.id)}
                                                                 className="text-xs"
                                                             >
                                                                 {currentModelId === model.id ? "✅" : "📦"}
@@ -999,6 +1150,8 @@ export default function PlushDollDesign3D() {
                                                             <div>
                                                                 <div className="font-medium text-sm">{model.name}</div>
                                                                 {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
+                                                                {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ 8 điểm neo</div>}
+                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 8 điểm neo</div>}
                                                             </div>
                                                         </div>
                                                         {!model.isDefault && (
@@ -1016,6 +1169,21 @@ export default function PlushDollDesign3D() {
                                             </div>
                                         </div>
 
+                                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <div className="flex items-start gap-2">
+                                                <Box className="w-4 h-4 text-blue-600 mt-0.5" />
+                                                <div className="text-sm">
+                                                    <div className="font-medium text-blue-800">Thông tin về các model:</div>
+                                                    <ul className="text-blue-700 text-xs mt-1 space-y-1">
+                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 8 điểm neo cơ bản</li>
+                                                        <li>• <strong>Labubu Mini:</strong> Model nhỏ với 8 điểm neo (tối ưu cho kích thước nhỏ)</li>
+                                                        <li>• Mỗi model có các điểm neo được tối ưu cho kích thước tương ứng</li>
+                                                        <li>• Có thể upload thêm model tùy chỉnh</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                             <div className="flex items-start gap-2">
                                                 <Upload className="w-4 h-4 text-yellow-600 mt-0.5" />
@@ -1028,6 +1196,185 @@ export default function PlushDollDesign3D() {
                                                     </ul>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="position" className="space-y-4">
+                                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <div className="flex items-start gap-2">
+                                                <Target className="w-4 h-4 text-blue-600 mt-0.5" />
+                                                <div className="text-sm">
+                                                    <div className="font-medium text-blue-800">Điều chỉnh vị trí model chính:</div>
+                                                    <ul className="text-blue-700 text-xs mt-1 space-y-1">
+                                                        <li>• <strong>X (đỏ):</strong> Trục ngang - trái (-) / phải (+)</li>
+                                                        <li>• <strong>Y (xanh lá):</strong> Trục dọc - xuống (-) / lên (+)</li>
+                                                        <li>• <strong>Z (xanh dương):</strong> Trục sâu - gần (-) / xa (+)</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <Label>Vị trí model (X, Y, Z)</Label>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <div>
+                                                    <Label htmlFor="model-x" className="text-xs text-red-600 font-medium">
+                                                        X (Trái/Phải)
+                                                    </Label>
+                                                    <SliderPrimitive.Root
+                                                        id="model-x"
+                                                        min={-3}
+                                                        max={3}
+                                                        step={0.01}
+                                                        value={[modelPosition.x]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
+                                                            const snapped = snapToZero(raw)
+                                                            setModelPosition((prev) => ({ ...prev, x: snapped }))
+                                                            setModelPositionInput((prev) => ({ ...prev, x: snapped.toFixed(2) }))
+                                                        }}
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-red-500" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-red-500 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
+                                                    <Input
+                                                        type="text"
+                                                        value={modelPositionInput.x}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setModelPositionInput((prev) => ({ ...prev, x: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setModelPosition((prev) => ({ ...prev, x: snapped }))
+                                                            }
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (modelPositionInput.x.trim() === "") {
+                                                                setModelPosition((prev) => ({ ...prev, x: 0 }))
+                                                                setModelPositionInput((prev) => ({ ...prev, x: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs border-red-200 focus:border-red-500"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="model-y" className="text-xs text-green-600 font-medium">
+                                                        Y (Xuống/Lên)
+                                                    </Label>
+                                                    <SliderPrimitive.Root
+                                                        id="model-y"
+                                                        min={-3}
+                                                        max={3}
+                                                        step={0.01}
+                                                        value={[modelPosition.y]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
+                                                            const snapped = snapToZero(raw)
+                                                            setModelPosition((prev) => ({ ...prev, y: snapped }))
+                                                            setModelPositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
+                                                        }}
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-green-500" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-green-500 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
+                                                    <Input
+                                                        type="text"
+                                                        value={modelPositionInput.y}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setModelPositionInput((prev) => ({ ...prev, y: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setModelPosition((prev) => ({ ...prev, y: snapped }))
+                                                            }
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (modelPositionInput.y.trim() === "") {
+                                                                setModelPosition((prev) => ({ ...prev, y: 0 }))
+                                                                setModelPositionInput((prev) => ({ ...prev, y: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs border-green-200 focus:border-green-500"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="model-z" className="text-xs text-blue-600 font-medium">
+                                                        Z (Gần/Xa)
+                                                    </Label>
+                                                    <SliderPrimitive.Root
+                                                        id="model-z"
+                                                        min={-3}
+                                                        max={3}
+                                                        step={0.01}
+                                                        value={[modelPosition.z]}
+                                                        onValueChange={(v) => {
+                                                            const raw = v[0]
+                                                            const snapped = snapToZero(raw)
+                                                            setModelPosition((prev) => ({ ...prev, z: snapped }))
+                                                            setModelPositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
+                                                        }}
+                                                        className="relative flex w-full touch-none select-none items-center mt-1"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-blue-500" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-500 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
+                                                    <Input
+                                                        type="text"
+                                                        value={modelPositionInput.z}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value
+                                                            setModelPositionInput((prev) => ({ ...prev, z: val }))
+                                                            const parsed = Number.parseFloat(val)
+                                                            if (!Number.isNaN(parsed)) {
+                                                                const snapped = snapToZero(parsed)
+                                                                setModelPosition((prev) => ({ ...prev, z: snapped }))
+                                                            }
+                                                        }}
+                                                        onBlur={() => {
+                                                            if (modelPositionInput.z.trim() === "") {
+                                                                setModelPosition((prev) => ({ ...prev, z: 0 }))
+                                                                setModelPositionInput((prev) => ({ ...prev, z: "0.00" }))
+                                                            }
+                                                        }}
+                                                        className="mt-1 h-8 text-xs border-blue-200 focus:border-blue-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <Button
+                                                onClick={() => {
+                                                    setModelPosition({ x: 0, y: 0, z: 0 })
+                                                    setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
+                                                }}
+                                                variant="outline"
+                                                className="flex-1"
+                                            >
+                                                <RotateCcw className="w-4 h-4 mr-2" />
+                                                Reset vị trí
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    setModelPosition({ x: 0, y: 0, z: 0 })
+                                                    setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
+                                                }}
+                                                variant="outline"
+                                                className="flex-1"
+                                            >
+                                                <Target className="w-4 h-4 mr-2" />
+                                                Vị trí gốc
+                                            </Button>
                                         </div>
                                     </TabsContent>
 
@@ -1054,17 +1401,6 @@ export default function PlushDollDesign3D() {
                                             )}
                                         </div>
 
-                                        <div>
-                                            <Label htmlFor="texture-url">Hoặc nhập URL ảnh</Label>
-                                            <Input
-                                                id="texture-url"
-                                                type="url"
-                                                placeholder="https://example.com/image.jpg"
-                                                value={customTexture}
-                                                onChange={(e) => setCustomTexture(e.target.value)}
-                                                className="mt-2"
-                                            />
-                                        </div>
 
                                         <div>
                                             <Label className="flex items-center gap-2">
@@ -1118,32 +1454,7 @@ export default function PlushDollDesign3D() {
                                                 ))}
                                             </div>
 
-                                            <div className="flex gap-2 mt-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleTextureAnchorSelect("head")}
-                                                    className="flex-1 text-xs"
-                                                >
-                                                    🗣️ Đầu
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleTextureAnchorSelect("chest")}
-                                                    className="flex-1 text-xs"
-                                                >
-                                                    💗 Ngực
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleTextureAnchorSelect("belly")}
-                                                    className="flex-1 text-xs"
-                                                >
-                                                    🤰 Bụng
-                                                </Button>
-                                            </div>
+
                                         </div>
 
                                         <div className="space-y-3">
@@ -1204,12 +1515,12 @@ export default function PlushDollDesign3D() {
                                                         min={-2}
                                                         max={2}
                                                         step={0.01}
-                                                        value={[texturePosition.z]}
+                                                        value={[texturePosition.y]}
                                                         onValueChange={(v) => {
                                                             const raw = v[0]
                                                             const snapped = snapToZero(raw)
-                                                            setTexturePosition((prev) => ({ ...prev, z: snapped }))
-                                                            setTexturePositionInput((prev) => ({ ...prev, z: snapped.toFixed(2) }))
+                                                            setTexturePosition((prev) => ({ ...prev, y: snapped }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, y: snapped.toFixed(2) }))
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         className="relative flex w-full touch-none select-none items-center mt-1"
@@ -1221,21 +1532,21 @@ export default function PlushDollDesign3D() {
                                                     </SliderPrimitive.Root>
                                                     <Input
                                                         type="text"
-                                                        value={texturePositionInput.z}
+                                                        value={texturePositionInput.y}
                                                         onChange={(e) => {
                                                             const val = e.target.value
-                                                            setTexturePositionInput((prev) => ({ ...prev, z: val }))
+                                                            setTexturePositionInput((prev) => ({ ...prev, y: val }))
                                                             const parsed = Number.parseFloat(val)
                                                             if (!Number.isNaN(parsed)) {
                                                                 const snapped = snapToZero(parsed)
-                                                                setTexturePosition((prev) => ({ ...prev, z: snapped }))
+                                                                setTexturePosition((prev) => ({ ...prev, y: snapped }))
                                                             }
                                                             setSelectedTextureAnchor("")
                                                         }}
                                                         onBlur={() => {
-                                                            if (texturePositionInput.z.trim() === "") {
-                                                                setTexturePosition((prev) => ({ ...prev, z: 0 }))
-                                                                setTexturePositionInput((prev) => ({ ...prev, z: "0.00" }))
+                                                            if (texturePositionInput.y.trim() === "") {
+                                                                setTexturePosition((prev) => ({ ...prev, y: 0 }))
+                                                                setTexturePositionInput((prev) => ({ ...prev, y: "0.00" }))
                                                             }
                                                         }}
                                                         className="mt-1 h-8 text-xs"
@@ -1250,7 +1561,7 @@ export default function PlushDollDesign3D() {
                                                         min={-2}
                                                         max={2}
                                                         step={0.01}
-                                                        value={[texturePosition.y]}
+                                                        value={[texturePosition.z]}
                                                         onValueChange={(v) => {
                                                             const raw = v[0]
                                                             const snapped = snapToZero(raw)
@@ -2075,8 +2386,8 @@ export default function PlushDollDesign3D() {
                                                             <Input
                                                                 type="number"
                                                                 step="0.01"
-                                                                min="-2"
-                                                                max="2"
+                                                                min={-2}
+                                                                max={2}
                                                                 value={Number(anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(2))}
                                                                 onChange={(e) => {
                                                                     const val = Number.parseFloat(e.target.value)
@@ -2093,9 +2404,9 @@ export default function PlushDollDesign3D() {
 
                                                 <div className="text-xs text-gray-600 bg-white p-2 rounded">
                                                     <strong>Vị trí hiện tại:</strong> (
-                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(1)},
-                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(1)},
-                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(1)})
+                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(2)},
+                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(2)},
+                                                    {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(2)})
                                                 </div>
                                             </div>
                                         )}
