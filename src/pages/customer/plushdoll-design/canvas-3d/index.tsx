@@ -684,6 +684,8 @@ export default function PlushDollDesign3D() {
 
     const handleExport = async () => {
         const scene = new THREE.Scene()
+        // Root group for export so we can apply a final orientation transform
+        const exportRoot = new THREE.Group()
         // Keep default Y-up (Three.js) to match viewport
 
         const loader = new GLTFLoader()
@@ -711,7 +713,7 @@ export default function PlushDollDesign3D() {
             model.rotation.set(-Math.PI / 2 + Math.PI, 0, 0)
             // Áp dụng vị trí model hiện tại
             model.position.set(modelPosition.x, modelPosition.y, modelPosition.z)
-            scene.add(model)
+            exportRoot.add(model)
 
             // Helper function to load texture properly
             const loadTexture = (url: string): Promise<THREE.Texture> => {
@@ -744,7 +746,7 @@ export default function PlushDollDesign3D() {
                     mesh.scale.set(textureData.scale, textureData.scale, 1)
                     // Xoay giống viewport
                     mesh.rotation.set(Math.PI / 2, 0, 0)
-                    scene.add(mesh)
+                    exportRoot.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load texture:", textureData.texture, error)
                 }
@@ -765,7 +767,7 @@ export default function PlushDollDesign3D() {
                     mesh.scale.set(textureScale, textureScale, 1)
                     // Xoay giống viewport
                     mesh.rotation.set(Math.PI / 2, 0, 0)
-                    scene.add(mesh)
+                    exportRoot.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load current texture:", error)
                 }
@@ -789,7 +791,7 @@ export default function PlushDollDesign3D() {
                         accessory.rotation.y,
                         accessory.rotation.z
                     )
-                    scene.add(accessoryModel)
+                    exportRoot.add(accessoryModel)
                 } catch (error) {
                     console.warn("[v0] Failed to load accessory:", accessory.name, error)
                 }
@@ -831,15 +833,19 @@ export default function PlushDollDesign3D() {
             appliedTexts.forEach((t) => {
                 const textMesh = createTextPlane(t.text, t.color, t.size)
                 textMesh.position.set(t.position.x, t.position.y, t.position.z)
-                scene.add(textMesh)
+                exportRoot.add(textMesh)
             })
 
             // Áp dụng text hiện tại (nếu có)
             if (customText && customText.trim() !== "") {
                 const currentTextMesh = createTextPlane(customText, textColor, textSize)
                 currentTextMesh.position.set(textPosition.x, textPosition.y, textPosition.z)
-                scene.add(currentTextMesh)
+                exportRoot.add(currentTextMesh)
             }
+
+            // Apply final X flip of -90° for exported GLB
+            exportRoot.rotation.x -= Math.PI / 2
+            scene.add(exportRoot)
 
             // Export to GLB
             const exporter = new GLTFExporter()
