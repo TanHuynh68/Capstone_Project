@@ -684,7 +684,7 @@ export default function PlushDollDesign3D() {
 
     const handleExport = async () => {
         const scene = new THREE.Scene()
-        scene.up.set(0, 0, 1)
+        // Keep default Y-up (Three.js) to match viewport
 
         const loader = new GLTFLoader()
 
@@ -707,8 +707,10 @@ export default function PlushDollDesign3D() {
             }
             const modelScale = getExportModelScale()
             model.scale.set(modelScale, modelScale, modelScale)
-            // Giữ Z-up (mặt phẳng XY) khi xuất
-            model.rotation.set(0, 0, 0)
+            // Áp dụng cùng xoay như viewport (chuyển từ Blender Z-up sang Three.js Y-up + lộn 180°)
+            model.rotation.set(-Math.PI / 2 + Math.PI, 0, 0)
+            // Áp dụng vị trí model hiện tại
+            model.position.set(modelPosition.x, modelPosition.y, modelPosition.z)
             scene.add(model)
 
             // Helper function to load texture properly
@@ -740,8 +742,8 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(textureData.position.x, textureData.position.y, textureData.position.z)
                     mesh.scale.set(textureData.scale, textureData.scale, 1)
-                    // Giữ mặt phẳng XY
-                    mesh.rotation.x = 0
+                    // Xoay giống viewport
+                    mesh.rotation.set(Math.PI / 2, 0, 0)
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load texture:", textureData.texture, error)
@@ -761,8 +763,8 @@ export default function PlushDollDesign3D() {
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.position.set(texturePosition.x, texturePosition.y, texturePosition.z)
                     mesh.scale.set(textureScale, textureScale, 1)
-                    // Giữ mặt phẳng XY
-                    mesh.rotation.x = 0
+                    // Xoay giống viewport
+                    mesh.rotation.set(Math.PI / 2, 0, 0)
                     scene.add(mesh)
                 } catch (error) {
                     console.warn("[v0] Failed to load current texture:", error)
@@ -781,9 +783,9 @@ export default function PlushDollDesign3D() {
                     const accessoryModel = gltf.scene.clone()
                     accessoryModel.position.set(accessory.position.x, accessory.position.y, accessory.position.z)
                     accessoryModel.scale.set(accessory.scale, accessory.scale, accessory.scale)
-                    // Giữ Z-up (mặt phẳng XY)
+                    // Áp dụng xoay người dùng và quy đổi sang viewport
                     accessoryModel.rotation.set(
-                        accessory.rotation.x,
+                        accessory.rotation.x + (-Math.PI / 2 + Math.PI),
                         accessory.rotation.y,
                         accessory.rotation.z
                     )
@@ -796,12 +798,48 @@ export default function PlushDollDesign3D() {
             // Wait for all accessories to load
             await Promise.allSettled(accessoryPromises)
 
-            // Thêm camera Z-up để lưu trong GLB
-            const exportCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000)
-            exportCamera.position.set(5, 0, 0)
-            exportCamera.up.set(0, 0, 1)
-            exportCamera.lookAt(new THREE.Vector3(0, 0, 0))
-            scene.add(exportCamera)
+            // Render text (áp dụng text đã thêm và text hiện tại) bằng canvas texture
+            const createTextPlane = (text: string, color: string, size: number) => {
+                const canvas = document.createElement("canvas")
+                const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
+                const fontPx = Math.max(16, Math.round(size * 64))
+                ctx.font = `${fontPx}px Arial`
+                const metrics = ctx.measureText(text)
+                const padding = Math.round(fontPx * 0.5)
+                canvas.width = Math.ceil(metrics.width) + padding * 2
+                canvas.height = fontPx + padding * 2
+                const ctx2 = canvas.getContext("2d") as CanvasRenderingContext2D
+                ctx2.clearRect(0, 0, canvas.width, canvas.height)
+                ctx2.font = `${fontPx}px Arial`
+                ctx2.fillStyle = color
+                ctx2.textBaseline = "middle"
+                ctx2.textAlign = "left"
+                ctx2.fillText(text, padding, canvas.height / 2)
+                const texture = new THREE.CanvasTexture(canvas)
+                texture.flipY = false
+                texture.needsUpdate = true
+                const aspect = canvas.width / canvas.height
+                const geometry = new THREE.PlaneGeometry(1 * aspect, 1)
+                const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide })
+                const mesh = new THREE.Mesh(geometry, material)
+                // Xoay giống viewport
+                mesh.rotation.set(Math.PI / 2, 0, 0)
+                return mesh
+            }
+
+            // Áp dụng danh sách text đã apply
+            appliedTexts.forEach((t) => {
+                const textMesh = createTextPlane(t.text, t.color, t.size)
+                textMesh.position.set(t.position.x, t.position.y, t.position.z)
+                scene.add(textMesh)
+            })
+
+            // Áp dụng text hiện tại (nếu có)
+            if (customText && customText.trim() !== "") {
+                const currentTextMesh = createTextPlane(customText, textColor, textSize)
+                currentTextMesh.position.set(textPosition.x, textPosition.y, textPosition.z)
+                scene.add(currentTextMesh)
+            }
 
             // Export to GLB
             const exporter = new GLTFExporter()
