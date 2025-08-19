@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DepositDialogContainer from "./DepositDialogContainer";
+import BenefitDisplay from "./BenefitDisplay";
 import {
   MoreHorizontal,
   User,
@@ -18,19 +19,24 @@ import {
   LockKeyhole,
   Flag,
   ShoppingBag,
-  Info,
 } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
 import CustomerReportService from "@/services/CustomerReportService";
 import BenefitService from "@/services/BenefitService";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+interface BenefitData {
+  depositAmount: number;
+  depositAmountMessage: string;
+  systemUsageFee: number;
+  systemUsageFeeMessage: string;
+  systemDepositRefund: number;
+  systemDepositRefundMessage: string;
+  netAmountFromCustomer: number;
+  netAmountFromCustomerMessage: string;
+  totalNetIncome: number;
+  totalNetIncomeMessage: string;
+}
 
 interface OrderInfoCardProps {
   order: any;
@@ -48,7 +54,6 @@ export default function OrderInfoCard({
   order,
   phase,
   offer,
-  onViewPhases,
   onViewDepositHistory,
   onViewActivityLog,
   depositHistory = [],
@@ -57,9 +62,10 @@ export default function OrderInfoCard({
 }: OrderInfoCardProps) {
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
+  const [benefitData, setBenefitData] = useState<BenefitData | null>(null);
+
   const { createReport } = CustomerReportService();
   const { getBenefitDoneOrder } = BenefitService();
-  const [desBenefit, setDesBenefit] = useState<string>("");
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -70,19 +76,19 @@ export default function OrderInfoCard({
       minute: "2-digit",
     });
   };
+
   useEffect(() => {
     fetchBenefitDoneOrder();
   }, [order, offer]);
 
   const fetchBenefitDoneOrder = async () => {
-    console.log("a: ", order.totalPrice, order.designerDepositAmount);
     if (order) {
       const response = await getBenefitDoneOrder(
         order.totalPrice,
         order.designerDepositAmount
       );
       if (response && response.responseRequestModel) {
-        setDesBenefit(response.responseRequestModel.systemDepositRefund || 0);
+        setBenefitData(response.responseRequestModel);
       }
     }
   };
@@ -101,10 +107,15 @@ export default function OrderInfoCard({
     onViewDepositHistory();
   };
 
-  console.log("order: ", order);
   return (
     <>
       <Card>
+        {/* Benefit Display Section */}
+        {benefitData && (
+          <div className="pt-4 border-t mx-6">
+            <BenefitDisplay benefitData={benefitData} />
+          </div>
+        )}
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-2">
             <CardTitle className="text-lg font-semibold">
@@ -130,9 +141,6 @@ export default function OrderInfoCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onViewPhases}>
-                  Giai đoạn
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleViewDepositHistory}>
                   Lịch sử cọc
                 </DropdownMenuItem>
@@ -144,81 +152,56 @@ export default function OrderInfoCard({
             <OrderStatusBadge status={order.orderStatus} />
           </div>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Tên đơn hàng:</span>
-            <span className="text-sm font-medium">{order.note}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Khách hàng:</span>
-            <span className="text-sm font-medium">{order.customerName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Nhà thiết kế:</span>
-            <span className="text-sm font-medium">{order.designerName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-gray-500" />
-            <span className=" text-sm text-gray-600">Giá trị đơn hàng:</span>
-            <span className="font-semibold text-gray-500">
-              {formatCurrencyVND(order.totalPrice) +
-                ` (${phase?.length || 0} giai đoạn)`}
-            </span>
-          </div>
-          <div className="text-gray-500">
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 " />
-              <span className=" text-sm text-gray-600">Giá trị sản phẩm:</span>
-              <span className="font-semibold">
+              <ShoppingBag className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Tên đơn hàng:</span>
+              <span className="text-sm font-medium">{order.note}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Khách hàng:</span>
+              <span className="text-sm font-medium">{order.customerName}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Nhà thiết kế:</span>
+              <span className="text-sm font-medium">{order.designerName}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
+              <span className="font-semibold text-gray-500">
+                {formatCurrencyVND(order.totalPrice) +
+                  ` (${phase?.length || 0} giai đoạn)`}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Giá trị sản phẩm:</span>
+              <span className="font-semibold text-gray-500">
                 {formatCurrencyVND(offer.itemValue)}
               </span>
             </div>
-          </div>
-          <div className="text-gray-500">
             <div className="flex items-center gap-2">
-              <LockKeyhole className="h-4 w-4 " />
-              <span className=" text-sm text-gray-600"> NTK đã cọc:</span>
-              <span className="font-semibold">
+              <LockKeyhole className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">NTK đã cọc:</span>
+              <span className="font-semibold text-gray-500">
                 {formatCurrencyVND(order.designerDepositAmount)}
               </span>
             </div>
-          </div>
-          <div className="text-gray-500">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 " />
-              <span className=" text-sm text-gray-600 flex gap-2 items-center">
-                Số tiền hoàn lại:
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {/* <p>Số tiền cọc mà nhà thiết kế yêu cầu</p> */}
-                      <p>Số tiền hoàn lại: = Tiền cọc - Giá trị đơn hàng * 10% </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </span>
-              <span className="font-semibold text-green-600">
-                {formatCurrencyVND(parseInt(desBenefit))}
-              </span>
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Ngày bắt đầu:</span>
+              <span className="text-sm">{formatDate(order.startDate)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Ngày hết hạn:</span>
+              <span className="text-sm">{formatDate(order.deadlineAt)}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Ngày bắt đầu:</span>
-            <span className="text-sm">{formatDate(order.startDate)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Ngày hết hạn:</span>
-            <span className="text-sm  ">{formatDate(order.deadlineAt)}</span>
-          </div>
-          <div></div>
         </CardContent>
       </Card>
 

@@ -11,7 +11,6 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import {
@@ -51,6 +50,7 @@ import {
 import ReportImages from "@/components/atoms/staff/manage-reports/ReportImages";
 import { PATH } from "@/routes/path";
 import { useReportsLogic } from "@/hooks/useReportsLogic";
+import { SelectTrigger } from "./select";
 
 const mapReportType = (type: string) => {
   switch (type) {

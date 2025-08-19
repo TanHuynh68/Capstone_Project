@@ -31,4 +31,5 @@ export { default as StaffManagePostsPage } from "./staff/manage-post";
 export { default as PolicyPage } from "./general/policy";
 export { default as AdminManageBenefits } from "./admin/manager-benefit";
 export { default as StaffReportDetailPage } from "./staff/report-detail";
-
+export { default as PrivacyPolicyPage } from "./auth/privacy-policy";
+export { default as TermPage } from "./auth/term";

@@ -109,6 +109,7 @@ export default function OrderCard({
         <div
           className={`grid gap-2 ${
             order?.orderStatus === "Created" ||
+            order?.orderStatus === "RequestShipToCus" ||
             order?.orderStatus === "Completed"
               ? "grid-cols-2"
               : "grid-cols-1"
