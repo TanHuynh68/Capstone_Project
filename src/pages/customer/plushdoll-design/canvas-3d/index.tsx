@@ -5,7 +5,7 @@ import * as THREE from "three"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Environment, useGLTF, Html } from "@react-three/drei"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { Suspense, useState, useRef } from "react"
+import { Suspense, useState, useRef, useEffect, forwardRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // Local rotation slider styling for this page only
@@ -28,11 +28,53 @@ import {
 } from "lucide-react"
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+
+
+// Component để render texture với tỷ lệ khung hình đúng (contain)
+const TexturePlane = forwardRef<THREE.Mesh, {
+    position: [number, number, number];
+    scale: number;
+    rotation: [number, number, number];
+    textureUrl: string;
+}>(({ position, scale, rotation, textureUrl }, ref) => {
+    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+        const loader = new THREE.TextureLoader();
+        loader.load(textureUrl, (loadedTexture) => {
+            loadedTexture.anisotropy = 8;
+            loadedTexture.minFilter = THREE.LinearFilter;
+            loadedTexture.magFilter = THREE.LinearFilter;
+            setTexture(loadedTexture);
+        });
+    }, [textureUrl]);
+
+    if (!texture) return null;
+
+    // Tạo hình vuông cố định - ảnh sẽ được contain trong ô vuông
+    const squareSize = scale;
+
+    return (
+        <mesh
+            ref={ref}
+            position={position}
+            scale={[squareSize, squareSize, 1]}
+            rotation={rotation}
+        >
+            <planeGeometry args={[1, 1]} />
+            <meshBasicMaterial map={texture} transparent />
+        </mesh>
+    );
+});
+
+TexturePlane.displayName = 'TexturePlane';
 
 const DEFAULT_ANCHOR_POINTS = {
     head: { x: 0, y: -0.05, z: 0.55, label: "🗣️ Đầu" },
     chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
     belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
+    chest_belly: { x: 0, y: -0.39, z: -0.93, label: "💗🤰 Ngực + Bụng" },
     back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
     left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
     right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
@@ -45,6 +87,7 @@ const SMALL_MODEL_ANCHOR_POINTS = {
     head: { x: 0, y: -0.2, z: 0.8, label: "🗣️ Đầu" },
     chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
     belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
+    chest_belly: { x: 0, y: -0.39, z: -0.93, label: "💗🤰 Ngực + Bụng" },
     back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
     left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
     right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
@@ -221,6 +264,12 @@ function LabubuModel({
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
 
+    // Decal for chest logo
+    const [chestDecalGeometry, setChestDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
+    const [chestDecalMaterial, setChestDecalMaterial] = useState<THREE.Material | null>(null)
+    const [bellyDecalGeometry, setBellyDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
+    const [bellyDecalMaterial, setBellyDecalMaterial] = useState<THREE.Material | null>(null)
+
     // Xác định scale dựa trên model ID
     const getModelScale = () => {
         switch (modelId) {
@@ -237,6 +286,122 @@ function LabubuModel({
             groupRef.current.rotation.z += delta * 0.8 // Quay quanh trục Z để quay theo mặt phẳng XY
         }
     })
+
+    // Generate decal geometry for chest/belly/combined when using respective anchors
+    useEffect(() => {
+        // Cleanup previous
+        return () => {
+            if (chestDecalGeometry) chestDecalGeometry.dispose()
+            if (chestDecalMaterial) chestDecalMaterial.dispose()
+            if (bellyDecalGeometry) bellyDecalGeometry.dispose()
+            if (bellyDecalMaterial) bellyDecalMaterial.dispose()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        if (!groupRef.current) return
+        if (!customTexture) {
+            setChestDecalGeometry(null)
+            setChestDecalMaterial(null)
+            setBellyDecalGeometry(null)
+            setBellyDecalMaterial(null)
+            return
+        }
+        const wantsChest = selectedTextureAnchor === "chest" || selectedTextureAnchor === "chest_belly"
+        const wantsBelly = selectedTextureAnchor === "belly" || selectedTextureAnchor === "chest_belly"
+
+        const createSmallDecal = (
+            anchor: { x: number; y: number; z: number },
+            scaleMultiplier: number
+        ) => {
+            // Position - đặt hơi ra phía trước một chút để tránh z-fighting
+            const localPos = new THREE.Vector3(anchor.x, anchor.y, anchor.z + 0.1)
+            const worldPos = localPos.clone()
+            groupRef.current!.localToWorld(worldPos)
+
+            // Tìm mesh gần nhất để tạo decal
+            scene.updateMatrixWorld(true)
+            let closestMesh: THREE.Mesh | null = null
+            let minDistance = Infinity
+            scene.traverse((obj) => {
+                if (obj instanceof THREE.Mesh && obj.geometry) {
+                    const bbox = new THREE.Box3().setFromObject(obj)
+                    const center = bbox.getCenter(new THREE.Vector3())
+                    const dist = center.distanceTo(worldPos)
+                    if (dist < minDistance) {
+                        minDistance = dist
+                        closestMesh = obj
+                    }
+                }
+            })
+            if (!closestMesh) return { geometry: null as THREE.BufferGeometry | null, material: null as THREE.Material | null }
+
+            // Orientation - hướng thẳng ra phía trước
+            const modelWorldCenter = groupRef.current!.getWorldPosition(new THREE.Vector3())
+            const direction = worldPos.clone().sub(modelWorldCenter).normalize()
+            const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), direction)
+            const orientation = new THREE.Euler().setFromQuaternion(quat)
+
+            // Kích thước decal vuông - có thể nhỏ hoặc lớn tùy theo scaleMultiplier
+            const baseSize = 0.3 * textureScale * getModelScale() * scaleMultiplier
+            const sizeVec = new THREE.Vector3(baseSize, baseSize, baseSize * 0.1)
+
+            // Load texture
+            const textureLoader = new THREE.TextureLoader()
+            const map = textureLoader.load(customTexture)
+            map.anisotropy = 8
+            map.minFilter = THREE.LinearFilter
+            map.magFilter = THREE.LinearFilter
+
+            try {
+                const decalGeo = new DecalGeometry(closestMesh, worldPos, orientation, sizeVec) as unknown as THREE.BufferGeometry
+                const decalMat = new THREE.MeshPhongMaterial({
+                    map,
+                    transparent: true,
+                    depthTest: true,
+                    depthWrite: false,
+                    polygonOffset: true,
+                    polygonOffsetFactor: -4,
+                })
+                return { geometry: decalGeo, material: decalMat as THREE.Material }
+            } catch (e) {
+                console.error("Failed to create small decal:", e)
+                return { geometry: null, material: null }
+            }
+        }
+
+        // Chest small decal
+        if (wantsChest && selectedTextureAnchor !== "chest_belly") {
+            const { geometry, material } = createSmallDecal(anchorPoints.chest, 1.0)
+            setChestDecalGeometry(geometry)
+            setChestDecalMaterial(material)
+        } else {
+            setChestDecalGeometry(null)
+            setChestDecalMaterial(null)
+        }
+
+        // Belly small decal
+        if (wantsBelly && selectedTextureAnchor !== "chest_belly") {
+            const { geometry, material } = createSmallDecal(anchorPoints.belly, 1.0)
+            setBellyDecalGeometry(geometry)
+            setBellyDecalMaterial(material)
+        } else {
+            setBellyDecalGeometry(null)
+            setBellyDecalMaterial(null)
+        }
+
+        // Combined chest_belly large decal (single large decal covering both chest and belly)
+        if (selectedTextureAnchor === "chest_belly") {
+            // Use the chest_belly anchor point for a single large decal covering both areas
+            const { geometry, material } = createSmallDecal(anchorPoints.chest_belly, 3.5)
+            setChestDecalGeometry(geometry)
+            setChestDecalMaterial(material)
+            setBellyDecalGeometry(null)
+            setBellyDecalMaterial(null)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scene, customTexture, selectedTextureAnchor, textureScale, modelId, anchorPoints])
 
     return (
         <group ref={groupRef} position={[modelPosition.x, modelPosition.y, modelPosition.z]}>
@@ -293,32 +458,36 @@ function LabubuModel({
             <directionalLight position={[10, 10, 5]} intensity={1} />
             <pointLight position={[-10, -10, -5]} intensity={0.5} />
 
-            {customTexture && (
-                <mesh
+            {customTexture && !((selectedTextureAnchor === "chest" && chestDecalGeometry) || (selectedTextureAnchor === "belly" && bellyDecalGeometry) || (selectedTextureAnchor === "chest_belly" && (chestDecalGeometry || bellyDecalGeometry))) && (
+                <TexturePlane
                     ref={textureMeshRef}
                     position={[texturePosition.x, texturePosition.y, texturePosition.z]}
-                    scale={[textureScale, textureScale, 1]}
+                    scale={textureScale}
                     rotation={[Math.PI / 2, 0, 0]}
-                >
-                    <planeGeometry args={[1, 1]} />
-                    <meshBasicMaterial>
-                        <primitive object={new THREE.TextureLoader().load(customTexture)} attach="map" />
-                    </meshBasicMaterial>
-                </mesh>
+                    textureUrl={customTexture}
+                />
+            )}
+
+            {selectedTextureAnchor === "chest" && chestDecalGeometry && chestDecalMaterial && (
+                <mesh geometry={chestDecalGeometry} material={chestDecalMaterial as THREE.Material} />
+            )}
+
+            {selectedTextureAnchor === "belly" && bellyDecalGeometry && bellyDecalMaterial && (
+                <mesh geometry={bellyDecalGeometry} material={bellyDecalMaterial as THREE.Material} />
+            )}
+
+            {selectedTextureAnchor === "chest_belly" && chestDecalGeometry && chestDecalMaterial && (
+                <mesh geometry={chestDecalGeometry} material={chestDecalMaterial as THREE.Material} />
             )}
 
             {appliedTextures.map((texture) => (
-                <mesh
+                <TexturePlane
                     key={texture.id}
                     position={[texture.position.x, texture.position.y, texture.position.z]}
-                    scale={[texture.scale, texture.scale, 1]}
+                    scale={texture.scale}
                     rotation={[Math.PI / 2, 0, 0]}
-                >
-                    <planeGeometry args={[1, 1]} />
-                    <meshBasicMaterial>
-                        <primitive object={new THREE.TextureLoader().load(texture.texture)} attach="map" />
-                    </meshBasicMaterial>
-                </mesh>
+                    textureUrl={texture.texture}
+                />
             ))}
             {customText && customText.trim() !== "" && (
                 <Html
