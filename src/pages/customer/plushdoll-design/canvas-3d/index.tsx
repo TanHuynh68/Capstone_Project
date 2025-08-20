@@ -1084,7 +1084,7 @@ export default function PlushDollDesign3D() {
                             <CardContent className="h-full p-0">
                                 <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
                                     <Canvas className="w-full h-full" camera={{
-                                        position: [5, 0, 0], // Camera ở trên cao, nhìn xuống
+                                        position: [0, -5, 0], // Camera ở trên cao, nhìn xuống
                                         fov: 50,
                                         up: [0, 0, 1] // Định hướng "up" của camera
                                     }}>
