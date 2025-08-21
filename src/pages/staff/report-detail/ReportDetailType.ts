@@ -124,9 +124,25 @@ export interface ReportDetail {
     processNote?: string;
     resolvedAt?: string;
     reportImages: ReportImage[];
+    benefit: ReportBenefit;
     targetDetail?:
     | ShippingTargetDetail
     | PostTargetDetail
     | OrderTargetDetail
     | null;
+}
+
+export interface ReportBenefit {
+  benefitID: string;
+  benefitType: number;
+  title: string;
+  description: string;
+  version: number;
+  customerScoreChange: number;
+  designerScoreChange: number;
+  customerCompensationRate: number;
+  designerCompensationRate: number;
+  isActive: boolean;
+  createdByAdminID: string;
+  createdAt: string; // or Date if you parse it
 }
