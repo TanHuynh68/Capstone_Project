@@ -216,7 +216,7 @@ export default function ChatTemplate({
                 isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
             >
-              <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-4 pb-4">
+              <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px- pb-4">
                 <InfoAboutTheConversationTab
                   fetchOffers={fetchOffers}
                   offersPhase={offersPhase}

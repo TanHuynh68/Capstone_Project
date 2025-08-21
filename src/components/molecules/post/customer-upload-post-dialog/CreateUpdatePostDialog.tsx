@@ -462,7 +462,7 @@ export default function CreateUpdatePostDialog({
                         Ngày hoàn thành <span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger>
                           <FormControl>
                             <Button
                               variant={"outline"}
