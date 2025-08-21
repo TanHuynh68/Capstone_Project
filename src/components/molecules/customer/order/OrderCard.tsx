@@ -9,6 +9,8 @@ import OrderDate from "@/components/atoms/customer/order/OrderDate";
 import { Link } from "react-router-dom";
 import { PATH } from "@/routes/path";
 import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
+import { useCurrentUser } from "@/utils";
+import { ROLE } from "@/constants";
 
 interface OrderCardProps {
   order: Order;
@@ -26,6 +28,8 @@ export default function OrderCard({
   const isOverdue =
     new Date(order?.deadlineAt) < new Date() &&
     order?.orderStatus !== "Completed";
+  const currentUser = useCurrentUser();
+  console.log("currentUser: ", currentUser);
   return (
     <Card className="hover:shadow-md hover:bg-primary/5 border hover:border-primary transition-all duration-200 p-0">
       <CardContent className="p-6">
@@ -108,9 +112,12 @@ export default function OrderCard({
         {/* Actions */}
         <div
           className={`grid gap-2 ${
-            order?.orderStatus === "Created" ||
-            order?.orderStatus === "RequestShipToCus" ||
-            order?.orderStatus === "Completed"
+            (order?.orderStatus === "Created" &&
+              currentUser.role === ROLE.CUSTOMER) ||
+            (order?.orderStatus === "RequestShipToCus" &&
+              currentUser.role === ROLE.DESIGNER) ||
+            (order?.orderStatus === "Completed" &&
+              currentUser.role === ROLE.DESIGNER)
               ? "grid-cols-2"
               : "grid-cols-1"
           }`}
@@ -129,9 +136,12 @@ export default function OrderCard({
               Chi tiết
             </Button>
           </Link>
-          {(order?.orderStatus === "Created" ||
-            order?.orderStatus === "RequestShipToCus" ||
-            order?.orderStatus === "Completed") && (
+          {((order?.orderStatus === "Created" &&
+            currentUser.role === ROLE.CUSTOMER) ||
+            (order?.orderStatus === "RequestShipToCus" &&
+              currentUser.role === ROLE.DESIGNER) ||
+            (order?.orderStatus === "Completed" &&
+              currentUser.role === ROLE.DESIGNER)) && (
             <ShippingFormDialog
               text="Giao hàng"
               orderID={order?.orderID}

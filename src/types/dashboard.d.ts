@@ -53,8 +53,16 @@ interface ChartDataPoint {
 
 // Growth rate
 interface GrowthRates {
+  oldUser: number
+  newUser: number
   userGrowthRate: number
+
+  oldOrder: number
+  newOrder: number
   orderGrowthRate: number
+
+  oldReport: number
+  newReport: number
   reportGrowthRate: number
 }
 

@@ -17,10 +17,24 @@ interface ReportDetail {
     createdAt: string
     resolver?: string
     processNote?: string
-    resolvedAt?: string
+    resolvedAt?: string;
+    benefit: UserReportBenefit;
     reportImages: ReportImages[]
 }
-
+interface UserReportBenefit {
+  benefitID: string;
+  benefitType: number;
+  title: string;
+  description: string;
+  version: number;
+  customerScoreChange: number;
+  designerScoreChange: number;
+  customerCompensationRate: number;
+  designerCompensationRate: number;
+  isActive: boolean;
+  createdByAdminID: string;
+  createdAt: string;
+}
 interface ReportImages {
     reportImageID: string,
     imageURL: string,
