@@ -9,7 +9,7 @@ import {
 } from "@/components/atoms/customer-reports/CustomerReportBadges"
 import { formatFullDateWithDistance2 } from "@/utils/date"
 import { CUSTOMER_PAGE_SIZE } from "@/constants/customerReports.constants"
-import { Eye, Trash2 } from "lucide-react"
+import { Eye} from "lucide-react"
 
 interface CustomerReportsTableProps {
   reports: CustomerReport[]
@@ -87,7 +87,7 @@ const CustomerReportsTable: React.FC<CustomerReportsTableProps> = ({
             <Eye className="h-4 w-4" />
             Chi tiết
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={() => actions.onDeleteReport(row)}
@@ -95,7 +95,7 @@ const CustomerReportsTable: React.FC<CustomerReportsTableProps> = ({
           >
             <Trash2 className="h-4 w-4" />
             Xóa
-          </Button>
+          </Button> */}
         </div>
       ),
     },
