@@ -12,9 +12,6 @@ import {
 } from "lucide-react";
 import { ROLE } from "@/constants";
 import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
-import { Button } from "@/components/ui/button";
-import { USER_ROUTES } from "@/routes/path";
-import { useNavigate } from "react-router-dom";
 
 type OrderStatus =
   | "Created"
@@ -43,101 +40,88 @@ interface StatusStep {
   description?: string;
 }
 
-const statusDescriptions: Record<OrderStatus, string> = {
-  Created: "Khách hàng cần gửi sản phẩm cần làm đến nhà thiết kế.",
-  ShippingToDesigner:
-    "Nhà thiết kế cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
-  DesignerRejected:
-    "Nhà thiết kế cần báo cáo đơn giao hàng để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết.",
-
-  InProgress:
-    "Khách hàng cần thanh toán cho từng giai đoạn. Nhà thiết kế sẽ rút tiền để tiến hành làm. Sau mỗi giai đoạn, khách hàng cần đánh giá.",
-  Completed:
-    "Đơn đã hoàn thành. Nhà thiết kế cần giao sản phẩm đã hoàn thành cho khách hàng.",
-  ShippingToCustomer:
-    "Khách hàng cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
-  CustomerRejected:
-    "Khách hàng cần báo cáo đơn giao hàng để đảm bảo quyền lợi của mình và chờ nhân viên xem xét hướng giải quyết.",
-
-  Done: "Đơn hàng đã hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
-  PendingConflict:
-    "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
-  Rejected:
-    "Đơn hàng đã bị hủy kèm quyền lợi. Xin lỗi vì trải nghiệm không được tốt này.",
-  RequestShipToCus: "Đơn hàng đã tạm dừng, nhà thiết kế cần gửi lại sản phẩm cho khách hàng",
-};
-
 export default function OrderStatusTimeline({
   currentStatus,
   userRole,
   order,
   fetchOrderDetail,
 }: OrderStatusTimelineProps) {
-  const navigate = useNavigate();
-  const getMainStatuses = (): StatusStep[] => {
-    const baseStatuses: StatusStep[] = [
-      {
-        key: "Created",
-        label: "Đã tạo",
-        icon: <Package className="w-4 h-4" />,
-      },
-      {
-        key: "ShippingToDesigner",
-        label: "Đang gửi hàng đến NTK",
-        icon: <Truck className="w-4 h-4" />,
-      },
-      {
-        key: "InProgress",
-        label: "Đang thực hiện",
-        icon: <Wrench className="w-4 h-4" />,
-      },
-      {
-        key: "Completed",
-        label: "Hoàn thành",
-        icon: <CheckCircle className="w-4 h-4" />,
-      },
-      {
-        key: "ShippingToCustomer",
-        label: "NTK trả hàng",
-        icon: <ArrowLeft className="w-4 h-4" />,
-      },
-      {
-        key: "Done",
-        label: "Hoàn tất",
-        icon: <Flag className="w-4 h-4" />,
-      },
-    ];
+  // Base statuses that are always shown
+  const baseStatuses: StatusStep[] = [
+    {
+      key: "Created",
+      label: "Đã tạo",
+      icon: <Package className="w-4 h-4" />,
+    },
+    {
+      key: "ShippingToDesigner",
+      label: "Đang gửi hàng đến NTK",
+      icon: <Truck className="w-4 h-4" />,
+    },
+    {
+      key: "InProgress",
+      label: "Đang thực hiện",
+      icon: <Wrench className="w-4 h-4" />,
+    },
+    {
+      key: "Completed",
+      label: "Hoàn thành",
+      icon: <CheckCircle className="w-4 h-4" />,
+    },
+    {
+      key: "ShippingToCustomer",
+      label: "NTK trả hàng",
+      icon: <ArrowLeft className="w-4 h-4" />,
+    },
+    {
+      key: "Done",
+      label: "Hoàn tất",
+      icon: <Flag className="w-4 h-4" />,
+    },
+  ];
 
-    // Modify labels based on rejection status
-    if (currentStatus === "Rejected" && order?.oldStatus) {
-      const oldStatus = order.oldStatus;
+  // Modify labels based on rejection status
+  if (currentStatus === "Rejected" && order?.oldStatus) {
+    const oldStatus = order.oldStatus;
 
-      if (oldStatus === "DesignerRejected") {
-        baseStatuses[1].label = "Nhà thiết kế đã từ chối";
-      } else if (oldStatus === "CustomerRejected") {
-        baseStatuses[4].label = "Khách hàng đã từ chối";
-      }
-
-      // Change "Hoàn tất" to "Đã hủy" when status is Rejected
-      baseStatuses[5] = {
-        key: "Rejected",
-        label: "Đã hủy",
-        icon: <XCircle className="w-4 h-4" />,
-      };
+    if (oldStatus === "DesignerRejected") {
+      baseStatuses[1].label = "Nhà thiết kế đã từ chối";
+    } else if (oldStatus === "CustomerRejected") {
+      baseStatuses[4].label = "Khách hàng đã từ chối";
     }
 
-    return baseStatuses;
+    // Change the last status to "Đã hủy" when rejected
+    baseStatuses[5].label = "Đã hủy";
+    baseStatuses[5].icon = <XCircle className="w-4 h-4" />;
+  }
+
+  const statusDescriptions: Record<OrderStatus, string> = {
+    Created: "Khách hàng cần gửi sản phẩm cần làm đến nhà thiết kế.",
+    ShippingToDesigner:
+      "Nhà thiết kế cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
+    DesignerRejected:
+      "Nhà thiết kế đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
+    InProgress:
+      "Khách hàng cần thanh toán cho từng giai đoạn. Nhà thiết kế sẽ rút tiền để tiến hành làm. Sau mỗi giai đoạn, khách hàng cần đánh giá.",
+    Completed:
+      "Đơn đã hoàn thành. Nhà thiết kế cần giao sản phẩm đã hoàn thành cho khách hàng.",
+    ShippingToCustomer:
+      "Khách hàng cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
+    CustomerRejected:
+      "Khách hàng đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
+    Done: "Đơn hàng đã hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
+    PendingConflict:
+      "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
+    Rejected:
+      "Đơn hàng đã bị hủy kèm quyền lợi. Xin lỗi vì trải nghiệm không được tốt này.",
+    RequestShipToCus: "Đơn hàng đang chờ gửi đến khách hàng.",
   };
 
-  const mainStatuses = getMainStatuses();
-
   const getStatusInfo = (status: OrderStatus) => {
-    const mainStatusIndex = mainStatuses.findIndex((s) => s.key === status);
-    const isMainStatus = mainStatusIndex !== -1;
-
+    // Handle rejected status with oldStatus
     if (status === "Rejected" && order?.oldStatus) {
       const oldStatus = order.oldStatus;
-      let rejectionIndex = -1;
+      let rejectionIndex = 0;
 
       if (oldStatus === "DesignerRejected") {
         rejectionIndex = 1; // ShippingToDesigner index
@@ -146,13 +130,13 @@ export default function OrderStatusTimeline({
       }
 
       return {
-        currentIndex: 5, // Done/Rejected index
+        currentIndex: 5, // Done/Cancelled index
         completedUntil: rejectionIndex - 1,
         rejectionStartIndex: rejectionIndex,
       };
     }
 
-    // Handle other rejection statuses that are not main statuses
+    // Handle other rejection statuses
     switch (status) {
       case "DesignerRejected":
         return {
@@ -172,8 +156,16 @@ export default function OrderStatusTimeline({
           completedUntil: 3,
           rejectionStartIndex: 4,
         };
+      case "RequestShipToCus":
+        return {
+          currentIndex: 3,
+          completedUntil: 2,
+          rejectionStartIndex: 3,
+        };
       default:
-        if (isMainStatus) {
+        // Handle main statuses
+        const mainStatusIndex = baseStatuses.findIndex((s) => s.key === status);
+        if (mainStatusIndex !== -1) {
           return {
             currentIndex: mainStatusIndex,
             completedUntil: mainStatusIndex - 1,
@@ -194,6 +186,32 @@ export default function OrderStatusTimeline({
     const isRejected =
       statusInfo.rejectionStartIndex !== undefined &&
       index >= statusInfo.rejectionStartIndex;
+
+    // Special handling for RequestShipToCus status
+    if (currentStatus === "RequestShipToCus") {
+      if (index <= 2) {
+        // Created, ShippingToDesigner, InProgress
+        return {
+          container: "bg-white border-primary",
+          icon: "text-primary",
+          text: "text-primary",
+        };
+      } else if (index === 3) {
+        // Completed - show as red/problematic
+        return {
+          container: "bg-red-500 border-red-500",
+          icon: "text-white",
+          text: "text-red-600",
+        };
+      } else {
+        // ShippingToCustomer, Done - show as incomplete
+        return {
+          container: "bg-gray-100 border-gray-300",
+          icon: "text-gray-400",
+          text: "text-gray-400",
+        };
+      }
+    }
 
     if (isRejected) {
       return {
@@ -232,6 +250,20 @@ export default function OrderStatusTimeline({
       statusInfo.rejectionStartIndex !== undefined &&
       index >= statusInfo.rejectionStartIndex;
 
+    // Special handling for RequestShipToCus status
+    if (currentStatus === "RequestShipToCus") {
+      if (index <= 1) {
+        // Connectors between Created->ShippingToDesigner and ShippingToDesigner->InProgress
+        return "bg-primary";
+      } else if (index === 2) {
+        // Connector between InProgress->Completed
+        return "bg-red-200";
+      } else {
+        // Remaining connectors
+        return "bg-gray-200";
+      }
+    }
+
     if (isRejected) {
       return "bg-red-200";
     }
@@ -243,56 +275,32 @@ export default function OrderStatusTimeline({
     return "bg-gray-200";
   };
 
+  const getCurrentStatusLabel = () => {
+    if (currentStatus === "Rejected" && order?.oldStatus) {
+      return baseStatuses[5].label; // "Đã hủy"
+    }
+
+    const currentStep = baseStatuses.find((s) => s.key === currentStatus);
+    return currentStep?.label || currentStatus;
+  };
+
   const getDeliveryButtonText = () => {
     if (currentStatus === "Created" && userRole === ROLE.CUSTOMER) {
       return "Giao hàng cho NTK";
     }
-    if (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) {
-      return "Trả hàng cho KH";
-    }
     if (currentStatus === "Completed" && userRole === ROLE.DESIGNER) {
+      return "Giao hàng cho KH";
+    }
+    if (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) {
       return "Giao hàng cho KH";
     }
     return "";
   };
 
-  const getCurrentStatusLabel = () => {
-    console.log("currentStatus: ", currentStatus);
-    // For rejected status, show the appropriate label
-    if (currentStatus === "Rejected" && order?.oldStatus) {
-      return "Đã hủy";
-    }
-    // For other statuses, find in main statuses or use the status itself
-    const mainStatus = mainStatuses.find((s) => s.key === currentStatus);
-    if (mainStatus) {
-      return mainStatus.label;
-    }
-
-    // Handle non-main statuses
-    switch (currentStatus) {
-      case "DesignerRejected":
-        return "Nhà thiết kế đã từ chối";
-      case "CustomerRejected":
-        return "Khách hàng đã từ chối";
-      case "RequestShipToCus":
-        return "Yêu cầu trả hàng cho KH";
-      case "PendingConflict":
-        return "Đang có tranh chấp";
-      default:
-        return currentStatus;
-    }
-  };
-
-  const handleNavigateToProfile = (tab?: string) => {
-    navigate(`/${USER_ROUTES.PROFILE}`, {
-      state: { activeTab: tab },
-    });
-  };
-
   return (
     <div className="w-full py-6">
       <div className="flex items-center justify-between relative">
-        {mainStatuses.map((step, index) => {
+        {baseStatuses.map((step, index) => {
           const stepStyle = getStepStyle(index);
 
           return (
@@ -300,7 +308,7 @@ export default function OrderStatusTimeline({
               key={step.key}
               className="flex flex-col items-center relative flex-1 min-h-[120px]"
             >
-              {index < mainStatuses.length - 1 && (
+              {index < baseStatuses.length - 1 && (
                 <div
                   className={`absolute top-6 h-0.5 ${getConnectorStyle(
                     index
@@ -328,10 +336,6 @@ export default function OrderStatusTimeline({
               >
                 {step.label}
               </div>
-
-              <div className="mt-1 h-8 flex items-start justify-center">
-                {/* Empty space for consistency */}
-              </div>
             </div>
           );
         })}
@@ -342,13 +346,7 @@ export default function OrderStatusTimeline({
           Trạng thái hiện tại:{" "}
           <span
             className={`font-bold ${
-              currentStatus === "RequestShipToCus" ||
-              currentStatus === "Rejected" ||
-              currentStatus === "DesignerRejected" ||
-              currentStatus === "CustomerRejected" ||
-              currentStatus === "PendingConflict"
-                ? "text-red-600"
-                : "text-green-600"
+              currentStatus === "Rejected" ? "text-red-600" : "text-green-600"
             }`}
           >
             {getCurrentStatusLabel()}
@@ -360,8 +358,9 @@ export default function OrderStatusTimeline({
       </div>
 
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
-        (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) ||
-        (currentStatus === "Completed" && userRole === ROLE.DESIGNER)) && (
+        (currentStatus === "Completed" && userRole === ROLE.DESIGNER) ||
+        (currentStatus === "RequestShipToCus" &&
+          userRole === ROLE.DESIGNER)) && (
         <div className="flex justify-center items-center">
           <div className="mt-4 text-center w-[200px]">
             <ShippingFormDialog
@@ -370,21 +369,6 @@ export default function OrderStatusTimeline({
               orderID={order?.orderID}
               order={order}
             />
-          </div>
-        </div>
-      )}
-
-      {(currentStatus === "ShippingToDesigner" ||
-        currentStatus === "ShippingToCustomer") && (
-        <div className="flex justify-center items-center">
-          <div className="mt-4 text-center w-[200px]">
-            <Button
-              onClick={() => handleNavigateToProfile("delivery")}
-              variant="default"
-              size="sm"
-            >
-              Xem giao hàng
-            </Button>
           </div>
         </div>
       )}
