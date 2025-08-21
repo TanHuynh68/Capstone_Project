@@ -83,21 +83,18 @@ const BenefitManager: React.FC = () => {
 
   const mapBenefitType = (type: number | string) => {
     switch (type) {
-      case 0:
       case "General":
         return "Chung";
-      case 1:
       case "Deposit":
         return "Đặt cọc";
-      case 2:
       case "Delivery":
         return "Giao hàng";
-      case 3:
       case "Penalty":
         return "Phạt";
-      case 4:
       case "Warranty":
         return "Bảo hành";
+      case "OrderAndProgress":
+        return "Đặt hàng và Tiến độ";
       default:
         return type;
     }

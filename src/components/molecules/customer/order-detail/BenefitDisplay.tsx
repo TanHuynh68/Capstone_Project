@@ -31,25 +31,25 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
       label: "Tiền cọc NTK",
       amount: benefitData.depositAmount,
       message: benefitData.depositAmountMessage,
-      color: "bg-blue-500 hover:bg-blue-600",
+      color: "bg-blue-700 hover:bg-blue-600",
     },
     {
       label: "Phí hệ thống",
       amount: benefitData.systemUsageFee,
       message: benefitData.systemUsageFeeMessage,
-      color: "bg-red-500 hover:bg-red-600",
+      color: "bg-red-700 hover:bg-red-600",
     },
     {
       label: "Tiền từ khách hàng",
       amount: benefitData.netAmountFromCustomer,
       message: benefitData.netAmountFromCustomerMessage,
-      color: "bg-green-500 hover:bg-green-600",
+      color: "bg-green-700 hover:bg-green-600",
     },
     {
       label: "Tổng thu nhập",
       amount: benefitData.totalNetIncome,
       message: benefitData.totalNetIncomeMessage,
-      color: "bg-purple-500 hover:bg-purple-600",
+      color: "bg-purple-700 hover:bg-purple-600",
     },
   ];
 

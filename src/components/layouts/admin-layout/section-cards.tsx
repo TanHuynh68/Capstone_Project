@@ -84,11 +84,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
       const response = await getGrowthRates(comparisonRange);
       console.log('fetchGrowthRates: ', response)
       if (response && response.responseRequestModel) {
-        setGrowthRates({
-          userGrowthRate: response.responseRequestModel.userGrowthRate,
-          orderGrowthRate: response.responseRequestModel.orderGrowthRate,
-          reportGrowthRate: response.responseRequestModel.reportGrowthRate,
-        });
+        setGrowthRates(response.responseRequestModel);
       }
     } catch (error) {
       console.error("Error fetching growth rates:", error);
@@ -120,7 +116,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
           maximumFractionDigits: 0,
         }).format(value);
       case "percentage":
-        return `${value.toFixed(1)}%`;
+        return `${value.toFixed(1)}`;
       default:
         return value.toLocaleString("vi-VN");
     }
@@ -140,22 +136,22 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     const isPositive = rate >= 0;
     const absRate = Math.abs(rate);
 
-    if (absRate === 0) return `No change in ${type.toLowerCase()}`;
+    if (absRate === 0) return `Không có thay đổi trong ${type.toLowerCase()}`;
     if (isPositive) {
       return absRate > 10
-        ? `Strong growth in ${type.toLowerCase()}`
-        : `Steady growth in ${type.toLowerCase()}`;
+        ? `Tăng trưởng mạnh mẽ ${type.toLowerCase()}`
+        : `Tăng trưởng ổn định  ${type.toLowerCase()}`;
     } else {
       return absRate > 10
-        ? `Significant decline in ${type.toLowerCase()}`
-        : `Slight decline in ${type.toLowerCase()}`;
+        ? `Sự suy giảm đáng kể về ${type.toLowerCase()}`
+        : `Suy giảm nhẹ ${type.toLowerCase()}`;
     }
   };
 
   // Card data configuration
   const cardData = [
     {
-      title: "Total Revenue",
+      title: "Tổng doanh thu",
       description: "Tổng doanh thu",
       value: dashboardStats?.order.totalRevenue || 0,
       type: "currency" as const,
@@ -164,31 +160,27 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
       color: "text-green-600",
     },
     {
-      title: "New Customers",
+      title: "Khách hàng mới",
       description: "Khách hàng mới",
-      value: dashboardStats?.account.newCustomerInFilter || 0,
+      value: growthRates?.newUser || 0,
       type: "number" as const,
       icon: <Users className="size-4" />,
       growthRate: growthRates?.userGrowthRate || 0,
       color: "text-blue-600",
     },
     {
-      title: "Active Orders",
+      title: "Đơn hàng hoạt động",
       description: "Đơn hàng hoạt động",
-      value: dashboardStats?.order.orderInProgress || 0,
+      value:  growthRates?.newOrder || 0,
       type: "number" as const,
       icon: <ShoppingCart className="size-4" />,
       growthRate: growthRates?.orderGrowthRate || 0,
       color: "text-orange-600",
     },
     {
-      title: "Reports Rate",
+      title: "Tỷ lệ báo cáo",
       description: "Tỷ lệ báo cáo",
-      value: dashboardStats?.report.totalReport
-        ? (dashboardStats.report.reportResolved /
-            dashboardStats.report.totalReport) *
-          100
-        : 0,
+      value: growthRates?.newReport || 0,
       type: "percentage" as const,
       icon: <Flag className="size-4" />,
       growthRate: growthRates?.reportGrowthRate || 0,
@@ -272,9 +264,9 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
                   <div className="absolute right-4 top-4">
                     <Badge
                       variant={
-                        growth.variant === "destructive"
-                          ? "destructive"
-                          : "outline"
+                        growth.variant === "default"
+                          ? "default"
+                          : "destructive"
                       }
                       className="flex gap-1 rounded-lg text-xs"
                     >
@@ -298,7 +290,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
                 ) : (
                   <>
                     <div className="line-clamp-1 flex gap-2 font-medium">
-                      Current period data
+                      Dữ liệu kỳ hiện tại
                     </div>
                     <div className="text-muted-foreground">
                       {card.description}
