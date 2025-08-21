@@ -34,7 +34,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -112,8 +111,8 @@ function StaffActionsMenu({ staff }: { staff: Staff }) {
             ? "Vô hiệu hóa"
             : "Kích hoạt"}
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+        {/* <DropdownMenuSeparator />
+        <DropdownMenuItem>Xem chi tiết</DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
