@@ -150,7 +150,7 @@ const InfoAboutTheConversationTab = ({
           />
 
           {/* Content with Staggered Animation */}
-          <div className="relative z-10 p-4">{renderContent()}</div>
+          <div className="relative z-10 p-4 pr-0">{renderContent()}</div>
 
           {/* Loading Overlay */}
           {isTransitioning && (

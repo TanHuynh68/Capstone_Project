@@ -39,10 +39,11 @@ import PaymentReportDetail from "@/components/molecules/staff/manage-reports/Pay
 import ShippingReportDetail from "@/components/molecules/staff/manage-reports/ShippingReportDetail";
 import PostReportDetail from "@/components/molecules/staff/manage-reports/PostReportDetail";
 import OrderReportDetail from "@/components/molecules/staff/manage-reports/OrderReportDetail";
+import BenefitResultDisplay from "@/components/molecules/staff/manage-reports/BenefitResultDisplay";
 import { useNavigate, useParams } from "react-router-dom";
 import ReportService from "@/services/ReportService";
 
-import {
+import type {
   OrderTargetDetail,
   PostTargetDetail,
   ShippingTargetDetail,
@@ -51,6 +52,21 @@ import {
 import ReportImages from "@/components/atoms/staff/manage-reports/ReportImages";
 import { PATH } from "@/routes/path";
 import { useReportsLogic } from "@/hooks/useReportsLogic";
+
+interface Benefit {
+  benefitID: string;
+  benefitType: number;
+  title: string;
+  description: string;
+  version: number;
+  customerScoreChange: number;
+  designerScoreChange: number;
+  customerCompensationRate: number;
+  designerCompensationRate: number;
+  isActive: boolean;
+  createdByAdminID: string;
+  createdAt: string;
+}
 
 const mapReportType = (type: string) => {
   switch (type) {
@@ -98,6 +114,7 @@ export default function ReportDetailPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { getReport } = ReportService();
   const { handleProcessSubmit } = useReportsLogic();
+
   // Form states
   const [formData, setFormData] = useState<ProcessReportFormData>({
     reportID: "",
@@ -109,7 +126,7 @@ export default function ReportDetailPage() {
   // Benefit states
   const [benefits, setBenefits] = useState<Benefit[]>([]);
   const [benefitsLoading, setBenefitsLoading] = useState(false);
-  const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
+  const [selectedBenefit, setSelectedBenefit] = useState<any | null>(null);
 
   const { getBenefits, getBenefitDetail } = BenefitService();
 
@@ -273,6 +290,12 @@ export default function ReportDetailPage() {
         return null;
     }
   };
+
+  // Check if report is resolved and has benefit data
+  const isReportResolved =
+    reportDetail?.reportStatus === "Approved" ||
+    reportDetail?.reportStatus === "Rejected";
+  const hasBenefitData = reportDetail?.benefit;
 
   if (loading) {
     return (
@@ -459,108 +482,109 @@ export default function ReportDetailPage() {
             )}
           </div>
 
-          {/* Right Column - Process Form (1/3 width) */}
-          {reportDetail.reportStatus === "Pending" && (
-            <div className="">
-              <div className="sticky top-6 space-y-6">
-                {/* Process Form */}
-                <Card className="shadow-sm border-gray-200 ">
-                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                      Quyết định xử lý
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6 pt-6">
-                    {/* Accept/Reject Decision */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold text-gray-700">
-                        Quyết định <span className="text-red-500">*</span>
-                      </Label>
-                      <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          {formData.accept ? (
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <XCircle className="h-5 w-5 text-red-500" />
-                          )}
-                          <Label
-                            htmlFor="accept-switch"
-                            className="text-sm font-medium"
-                          >
-                            {formData.accept
-                              ? "Chấp nhận tố cáo"
-                              : "Từ chối tố cáo"}
-                          </Label>
+          {/* Right Column - Process Form or Benefit Display (1/3 width) */}
+          <div className="">
+            <div className="sticky top-6 space-y-6">
+              {/* Show Benefit Result if report is resolved, otherwise show Process Form */}
+              {isReportResolved && hasBenefitData ? (
+                <BenefitResultDisplay
+                  benefit={reportDetail.benefit}
+                  reportStatus={reportDetail.reportStatus}
+                />
+              ) : reportDetail.reportStatus === "Pending" ? (
+                <>
+                  {/* Process Form */}
+                  <Card className="shadow-sm border-gray-200">
+                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                        Quyết định xử lý
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                      {/* Accept/Reject Decision */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold text-gray-700">
+                          Quyết định <span className="text-red-500">*</span>
+                        </Label>
+                        <div className="flex items-center space-x-4 p-4 border rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            {formData.accept ? (
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-red-500" />
+                            )}
+                            <Label
+                              htmlFor="accept-switch"
+                              className="text-sm font-medium"
+                            >
+                              {formData.accept
+                                ? "Chấp nhận tố cáo"
+                                : "Từ chối tố cáo"}
+                            </Label>
+                          </div>
+                          <Switch
+                            id="accept-switch"
+                            checked={formData.accept}
+                            onCheckedChange={(checked) =>
+                              handleInputChange("accept", checked)
+                            }
+                          />
                         </div>
-                        <Switch
-                          id="accept-switch"
-                          checked={formData.accept}
-                          onCheckedChange={(checked) =>
-                            handleInputChange("accept", checked)
-                          }
-                        />
-                      </div>
-                      {errors.accept && (
-                        <p className="text-sm text-red-500 flex items-center gap-1">
-                          <X className="h-3 w-3" />
-                          {errors.accept}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Benefit Selection */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold text-gray-700">
-                        Chọn quyền lợi áp dụng{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-
-                      {/* Info message for reject state */}
-                      {!formData.accept && (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-sm text-amber-700 flex items-center gap-2">
-                            <Award className="h-4 w-4" />
-                            Khi từ chối tố cáo, chỉ có thể áp dụng quyền lợi
-                            loại "Chung"
+                        {errors.accept && (
+                          <p className="text-sm text-red-500 flex items-center gap-1">
+                            <X className="h-3 w-3" />
+                            {errors.accept}
                           </p>
-                        </div>
-                      )}
+                        )}
+                      </div>
 
-                      {/* Benefit Select */}
-                      <Select
-                        value={formData.benefitID}
-                        onValueChange={(value) =>
-                          handleInputChange("benefitID", value)
-                        }
-                      >
-                        <SelectTrigger
-                          className={errors.benefitID ? "border-red-500" : ""}
+                      {/* Benefit Selection */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold text-gray-700">
+                          Chọn quyền lợi áp dụng{" "}
+                          <span className="text-red-500">*</span>
+                        </Label>
+
+                        {/* Info message for reject state */}
+                        {!formData.accept && (
+                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-sm text-amber-700 flex items-center gap-2">
+                              <Award className="h-4 w-4" />
+                              Khi từ chối tố cáo, chỉ có thể áp dụng quyền lợi
+                              loại "Chung"
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Benefit Select */}
+                        <Select
+                          value={formData.benefitID}
+                          onValueChange={(value) =>
+                            handleInputChange("benefitID", value)
+                          }
                         >
-                          <SelectValue placeholder="Chọn quyền lợi phù hợp" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {benefitsLoading ? (
-                            <div className="flex items-center justify-center p-4">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              <span className="ml-2">Đang tải...</span>
-                            </div>
-                          ) : benefits.length > 0 ? (
-                            benefits
-                              // .filter((item) =>
-                              //   reportDetail.reportType
-                              //     .toLowerCase()
-                              //     .includes(item.benefitType.toLowerCase())
-                              // )
-                              .map((benefit) => (
+                          <SelectTrigger
+                            className={errors.benefitID ? "border-red-500" : ""}
+                          >
+                            <SelectValue placeholder="Chọn quyền lợi phù hợp" />
+                          </SelectTrigger>
+                          <SelectContent className="">
+                            {benefitsLoading ? (
+                              <div className="flex items-center justify-center p-4">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span className="ml-2">Đang tải...</span>
+                              </div>
+                            ) : benefits.length > 0 ? (
+                              benefits.map((benefit: any) => (
                                 <SelectItem
                                   key={benefit.benefitID}
                                   value={benefit.benefitID}
                                 >
-                                  <div className="flex items-center gap-2">
-                                    <Award className="h-4 w-4 text-blue-500" />
-                                    <div>
-                                      <div className="font-medium">
+                                  <div className="flex items-start gap-2">
+                                    <Award className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
+                                    <div className="flex flex-col">
+                                      <div className="font-medium break-words">
                                         {benefit.title}
                                       </div>
                                       <div className="text-xs text-gray-500">
@@ -571,188 +595,189 @@ export default function ReportDetailPage() {
                                   </div>
                                 </SelectItem>
                               ))
-                          ) : (
-                            <div className="p-4 text-center text-gray-500">
-                              {!formData.accept
-                                ? "Không tìm thấy quyền lợi loại 'Chung' nào"
-                                : "Không tìm thấy quyền lợi nào"}
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
+                            ) : (
+                              <div className="p-4 text-center text-gray-500">
+                                {!formData.accept
+                                  ? "Không tìm thấy quyền lợi loại 'Chung' nào"
+                                  : "Không tìm thấy quyền lợi nào"}
+                              </div>
+                            )}
+                          </SelectContent>
+                        </Select>
 
-                      {errors.benefitID && (
-                        <p className="text-sm text-red-500 flex items-center gap-1">
-                          <X className="h-3 w-3" />
-                          {errors.benefitID}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Process Note */}
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="processNote"
-                        className="text-sm font-semibold text-gray-700"
-                      >
-                        Ghi chú xử lý <span className="text-red-500">*</span>
-                      </Label>
-                      <Textarea
-                        id="processNote"
-                        value={formData.processNote}
-                        onChange={(e) =>
-                          handleInputChange("processNote", e.target.value)
-                        }
-                        placeholder={
-                          formData.accept
-                            ? "Nhập lý do chấp nhận tố cáo và các hành động đã thực hiện..."
-                            : "Nhập lý do từ chối tố cáo..."
-                        }
-                        rows={4}
-                        className={`resize-none ${
-                          errors.processNote
-                            ? "border-red-500 focus:border-red-500 bg-red-50"
-                            : "focus:border-blue-500"
-                        }`}
-                      />
-                      {errors.processNote && (
-                        <p className="text-sm text-red-500 flex items-center gap-1">
-                          <X className="h-3 w-3" />
-                          {errors.processNote}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Submit Button */}
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className={`w-full ${
-                        formData.accept
-                          ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                          : "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
-                      }`}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Đang xử lý...
-                        </>
-                      ) : formData.accept ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Chấp nhận tố cáo
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Từ chối tố cáo
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Selected Benefit Preview */}
-                {selectedBenefit && (
-                  <Card className="shadow-sm border-gray-200 ">
-                    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Award className="h-5 w-5 text-purple-600" />
-                        Chi tiết quyền lợi
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-6">
-                      <div>
-                        <h3 className="font-semibold text-lg text-purple-700">
-                          {selectedBenefit.title}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {mapBenefitType(selectedBenefit.benefitType)}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            Version {selectedBenefit.version}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {selectedBenefit.description && (
-                        <div>
-                          <Label className="text-sm font-medium text-gray-700">
-                            Mô tả:
-                          </Label>
-                          <p className="text-sm text-gray-600 mt-1 p-2 bg-gray-50 rounded">
-                            {selectedBenefit.description}
+                        {errors.benefitID && (
+                          <p className="text-sm text-red-500 flex items-center gap-1">
+                            <X className="h-3 w-3" />
+                            {errors.benefitID}
                           </p>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-1 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium text-blue-700">
-                            Khách hàng
-                          </Label>
-                          <div className="p-2 bg-blue-50 rounded text-sm">
-                            <div className="flex justify-between">
-                              <span>Điểm:</span>
-                              <span
-                                className={`font-medium ${
-                                  selectedBenefit.customerScoreChange >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {selectedBenefit.customerScoreChange > 0
-                                  ? "+"
-                                  : ""}
-                                {selectedBenefit.customerScoreChange}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Bồi thường:</span>
-                              <span className="font-medium text-blue-600">
-                                {selectedBenefit.customerCompensationRate}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium text-purple-700">
-                            Nhà thiết kế
-                          </Label>
-                          <div className="p-2 bg-purple-50 rounded text-sm">
-                            <div className="flex justify-between">
-                              <span>Điểm:</span>
-                              <span
-                                className={`font-medium ${
-                                  selectedBenefit.designerScoreChange >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {selectedBenefit.designerScoreChange > 0
-                                  ? "+"
-                                  : ""}
-                                {selectedBenefit.designerScoreChange}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Bồi thường:</span>
-                              <span className="font-medium text-purple-600">
-                                {selectedBenefit.designerCompensationRate}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        )}
                       </div>
+
+                      {/* Process Note */}
+                      <div className="space-y-3">
+                        <Label
+                          htmlFor="processNote"
+                          className="text-sm font-semibold text-gray-700"
+                        >
+                          Ghi chú xử lý <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                          id="processNote"
+                          value={formData.processNote}
+                          onChange={(e) =>
+                            handleInputChange("processNote", e.target.value)
+                          }
+                          placeholder={
+                            formData.accept
+                              ? "Nhập lý do chấp nhận tố cáo và các hành động đã thực hiện..."
+                              : "Nhập lý do từ chối tố cáo..."
+                          }
+                          rows={4}
+                          className={`resize-none ${
+                            errors.processNote
+                              ? "border-red-500 focus:border-red-500 bg-red-50"
+                              : "focus:border-blue-500"
+                          }`}
+                        />
+                        {errors.processNote && (
+                          <p className="text-sm text-red-500 flex items-center gap-1">
+                            <X className="h-3 w-3" />
+                            {errors.processNote}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className={`w-full ${
+                          formData.accept
+                            ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                            : "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
+                        }`}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Đang xử lý...
+                          </>
+                        ) : formData.accept ? (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Chấp nhận tố cáo
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Từ chối tố cáo
+                          </>
+                        )}
+                      </Button>
                     </CardContent>
                   </Card>
-                )}
-              </div>
+
+                  {/* Selected Benefit Preview */}
+                  {selectedBenefit && (
+                    <Card className="shadow-sm border-gray-200">
+                      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Award className="h-5 w-5 text-purple-600" />
+                          Chi tiết quyền lợi
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        <div>
+                          <h3 className="font-semibold text-lg text-purple-700">
+                            {selectedBenefit.title}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {mapBenefitType(selectedBenefit.benefitType)}
+                            </Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              Version {selectedBenefit.version}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {selectedBenefit.description && (
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700">
+                              Mô tả:
+                            </Label>
+                            <p className="text-sm text-gray-600 mt-1 p-2 bg-gray-50 rounded">
+                              {selectedBenefit.description}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-blue-700">
+                              Khách hàng
+                            </Label>
+                            <div className="p-2 bg-blue-50 rounded text-sm">
+                              <div className="flex justify-between">
+                                <span>Điểm:</span>
+                                <span
+                                  className={`font-medium ${
+                                    selectedBenefit.customerScoreChange >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {selectedBenefit.customerScoreChange > 0
+                                    ? "+"
+                                    : ""}
+                                  {selectedBenefit.customerScoreChange}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Bồi thường:</span>
+                                <span className="font-medium text-blue-600">
+                                  {selectedBenefit.customerCompensationRate}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-purple-700">
+                              Nhà thiết kế
+                            </Label>
+                            <div className="p-2 bg-purple-50 rounded text-sm">
+                              <div className="flex justify-between">
+                                <span>Điểm:</span>
+                                <span
+                                  className={`font-medium ${
+                                    selectedBenefit.designerScoreChange >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {selectedBenefit.designerScoreChange > 0
+                                    ? "+"
+                                    : ""}
+                                  {selectedBenefit.designerScoreChange}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Bồi thường:</span>
+                                <span className="font-medium text-purple-600">
+                                  {selectedBenefit.designerCompensationRate}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              ) : null}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

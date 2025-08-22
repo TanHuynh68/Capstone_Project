@@ -11,6 +11,7 @@ export default function PostOfferPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>();
 
   const { posts, fetchPosts } = usePosts();
+  console.log('posts: ',posts)
   const {
     offers,
     loading: offersLoading,

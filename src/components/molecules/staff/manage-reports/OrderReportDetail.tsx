@@ -18,6 +18,7 @@ import {
 import { formatFullDateWithDistance2 } from "@/utils/date";
 import { useRef, useState } from "react";
 import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
+import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
 
 interface Order {
   orderID: string;
@@ -161,7 +162,6 @@ export default function OrderReportDetail({
 
   const orderStatusInfo = mapOrderStatus(order.orderStatus);
   const offerStatusInfo = mapOfferStatus(offer.offerStatus);
-  const OrderStatusIcon = orderStatusInfo.icon;
   const OfferStatusIcon = offerStatusInfo.icon;
 
   const handlePhaseClick = (phaseId: string) => {
@@ -227,8 +227,7 @@ export default function OrderReportDetail({
               </Label>
               <div className="mt-1">
                 <Badge className={orderStatusInfo.color}>
-                  <OrderStatusIcon className="h-3 w-3 mr-1" />
-                  {orderStatusInfo.label}
+                  <OrderStatusBadge status={order.orderStatus}/>
                 </Badge>
               </div>
             </div>
