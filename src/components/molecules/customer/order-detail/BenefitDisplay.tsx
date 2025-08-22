@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/tooltip";
 
 interface BenefitData {
-  depositAmount: number;
-  depositAmountMessage: string;
+  systemDepositRefund: number;
+  systemDepositRefundMessage: string;
   systemUsageFee: number;
   systemUsageFeeMessage: string;
   netAmountFromCustomer: number;
@@ -28,28 +28,28 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
 
   const benefitItems = [
     {
-      label: "Tiền cọc NTK",
-      amount: benefitData.depositAmount,
-      message: benefitData.depositAmountMessage,
-      color: "bg-blue-700 hover:bg-blue-600",
+      label: "Hoàn tiền",
+      amount: benefitData.systemDepositRefund,
+      message: benefitData.systemDepositRefundMessage,
+      color: "bg-blue-50 border border-blue-200",
     },
     {
       label: "Phí hệ thống",
       amount: benefitData.systemUsageFee,
       message: benefitData.systemUsageFeeMessage,
-      color: "bg-red-700 hover:bg-red-600",
+      color: "bg-blue-50 border border-blue-200",
     },
     {
-      label: "Tiền từ khách hàng",
+      label: "Tiền đơn hàng",
       amount: benefitData.netAmountFromCustomer,
       message: benefitData.netAmountFromCustomerMessage,
-      color: "bg-green-700 hover:bg-green-600",
+      color: "bg-blue-50 border border-blue-200",
     },
     {
       label: "Tổng thu nhập",
       amount: benefitData.totalNetIncome,
       message: benefitData.totalNetIncomeMessage,
-      color: "bg-purple-700 hover:bg-purple-600",
+      color: "bg-green-50 border border-green-200",
     },
   ];
 
@@ -61,10 +61,10 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  className={`${item.color} text-white px-3 py-2 rounded-md text-center cursor-help transition-colors `}
+                  className={item.label != 'Tổng thu nhập' ? `${item.color} text-blue-600 px-3 py-2 rounded-md text-center cursor-help transition-colors ` : `${item.color} text-green-600  px-3 py-2 rounded-md text-center cursor-help transition-colors `}
                 >
                   <div className="text-xs font-medium">{item.label}</div>
-                  <div className="text-sm font-bold">
+                  <div className="text-sm font-bold ">
                     {formatCurrencyVND(item.amount)}
                   </div>
                 </div>
