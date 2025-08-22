@@ -71,28 +71,24 @@ const TexturePlane = forwardRef<THREE.Mesh, {
 TexturePlane.displayName = 'TexturePlane';
 
 const DEFAULT_ANCHOR_POINTS = {
-    head: { x: 0, y: -0.05, z: 0.55, label: "🗣️ Đầu" },
-    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
-    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
-    chest_belly: { x: 0, y: -0.39, z: -0.93, label: "💗🤰 Ngực + Bụng" },
-    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
-    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
-    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
-    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
+    head: { x: 0, y: -0.025, z: 0.275, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.195, z: -0.465, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.25, z: -0.4, label: "🔙 Lưng" },
+    left_hand: { x: -0.38, y: -0.04, z: -0.485, label: "🤚 Tay trái" },
+    right_hand: { x: 0.38, y: -0.04, z: -0.485, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.15, y: -0.02, z: -1.0, label: "🦶 Chân trái" },
+    right_foot: { x: 0.15, y: -0.02, z: -1.0, label: "🦵 Chân phải" },
 }
 
 // Thêm điểm neo cho model thứ hai (model nhỏ hơn, dạng keychain)
 const SMALL_MODEL_ANCHOR_POINTS = {
-    head: { x: 0, y: -0.2, z: 0.8, label: "🗣️ Đầu" },
-    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
-    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
-    chest_belly: { x: 0, y: -0.39, z: -0.93, label: "💗🤰 Ngực + Bụng" },
-    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
-    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
-    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
-    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
+    head: { x: 0, y: -0.1, z: 0.4, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.195, z: -0.465, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.25, z: -0.4, label: "🔙 Lưng" },
+    left_hand: { x: -0.38, y: -0.04, z: -0.485, label: "🤚 Tay trái" },
+    right_hand: { x: 0.38, y: -0.04, z: -0.485, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.15, y: -0.02, z: -1.0, label: "🦶 Chân trái" },
+    right_foot: { x: 0.15, y: -0.02, z: -1.0, label: "🦵 Chân phải" },
 }
 
 interface GLBModel {
@@ -123,6 +119,8 @@ interface LabubuModelProps {
     textPosition?: { x: number; y: number; z: number }
     texturePosition?: { x: number; y: number; z: number }
     textureScale?: number
+    chestBellyDecalScale?: number
+    showTextureOnBack?: boolean
     isRotating?: boolean
     isAttached?: boolean
     anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
@@ -148,6 +146,7 @@ interface LabubuModelProps {
     accessories?: AccessoryModel[]
     showAxes?: boolean
     modelPosition?: { x: number; y: number; z: number }
+    onDimensionsChange?: (dims: { width: number; height: number; depth: number }) => void
 }
 
 function AnchorPoint({ position, label, isSelected = false }: { position: { x: number; y: number; z: number }; label: string; isSelected?: boolean }) {
@@ -248,6 +247,8 @@ function LabubuModel({
     textPosition = { x: 0, y: 1, z: 0.5 },
     texturePosition = { x: 0, y: 0, z: 0.3 },
     textureScale = 1,
+    chestBellyDecalScale = 8.0,
+    showTextureOnBack = false,
     isRotating = false,
     anchorPoints = DEFAULT_ANCHOR_POINTS,
     showAnchorPoints = false,
@@ -260,24 +261,26 @@ function LabubuModel({
     accessories = [],
     showAxes = true,
     modelPosition = { x: 0, y: 0, z: 0 },
+    onDimensionsChange,
 }: LabubuModelProps) {
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
+    const modelRef = useRef<THREE.Group>(null)
 
-    // Decal for chest logo
-    const [chestDecalGeometry, setChestDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
-    const [chestDecalMaterial, setChestDecalMaterial] = useState<THREE.Material | null>(null)
-    const [bellyDecalGeometry, setBellyDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
-    const [bellyDecalMaterial, setBellyDecalMaterial] = useState<THREE.Material | null>(null)
+
+    // Decal for chest_belly logo
+    const [chestBellyDecalGeometry, setChestBellyDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
+    const [chestBellyDecalMaterial, setChestBellyDecalMaterial] = useState<THREE.Material | null>(null)
 
     // Xác định scale dựa trên model ID
     const getModelScale = () => {
         switch (modelId) {
             case "small-labubu":
-                return 1.5 // Model nhỏ hơn
+                return 1
             case "default-labubu":
+                return 1
             default:
-                return 2 // Model chuẩn
+                return 1
         }
     }
 
@@ -287,31 +290,75 @@ function LabubuModel({
         }
     })
 
-    // Generate decal geometry for chest/belly/combined when using respective anchors
+    // Generate decal geometry for chest_belly when using respective anchor
     useEffect(() => {
         // Cleanup previous
         return () => {
-            if (chestDecalGeometry) chestDecalGeometry.dispose()
-            if (chestDecalMaterial) chestDecalMaterial.dispose()
-            if (bellyDecalGeometry) bellyDecalGeometry.dispose()
-            if (bellyDecalMaterial) bellyDecalMaterial.dispose()
+            if (chestBellyDecalGeometry) chestBellyDecalGeometry.dispose()
+            if (chestBellyDecalMaterial) chestBellyDecalMaterial.dispose()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Tính kích thước (W, H, D) của model chính theo bounding box sau khi áp dụng scale/rotation
+    useEffect(() => {
+        if (!modelRef.current) return
+        try {
+            modelRef.current.updateMatrixWorld(true)
+            const bbox = new THREE.Box3().setFromObject(modelRef.current)
+            const size = bbox.getSize(new THREE.Vector3())
+            const dims = { width: size.x, height: size.y, depth: size.z }
+            if (onDimensionsChange) onDimensionsChange(dims)
+        } catch {
+            // ignore
+        }
+    }, [scene, modelId, textureScale, textSize, onDimensionsChange])
+
     useEffect(() => {
         if (!groupRef.current) return
         if (!customTexture) {
-            setChestDecalGeometry(null)
-            setChestDecalMaterial(null)
-            setBellyDecalGeometry(null)
-            setBellyDecalMaterial(null)
+            setChestBellyDecalGeometry(null)
+            setChestBellyDecalMaterial(null)
             return
         }
-        const wantsChest = selectedTextureAnchor === "chest" || selectedTextureAnchor === "chest_belly"
-        const wantsBelly = selectedTextureAnchor === "belly" || selectedTextureAnchor === "chest_belly"
 
-        const createSmallDecal = (
+        const createDecal = (mesh: THREE.Mesh, position: THREE.Vector3, scaleMultiplier: number) => {
+            // Tạo orientation đơn giản - hướng thẳng ra phía trước
+            const orientation = new THREE.Euler(0, 0, 0)
+
+            // Kích thước decal dựa trên scale và model
+            const baseSize = 0.3 * textureScale * getModelScale() * scaleMultiplier
+            const size = new THREE.Vector3(baseSize, baseSize, baseSize * 0.1)
+
+            // Load texture
+            const textureLoader = new THREE.TextureLoader()
+            const map = textureLoader.load(customTexture)
+            map.anisotropy = 8
+            map.minFilter = THREE.LinearFilter
+            map.magFilter = THREE.LinearFilter
+
+            // Tạo material với culling để kiểm soát hiển thị
+            const decalMaterial = new THREE.MeshPhongMaterial({
+                map,
+                transparent: true,
+                depthTest: true,
+                depthWrite: false,
+                polygonOffset: true,
+                polygonOffsetFactor: -4,
+                side: showTextureOnBack ? THREE.DoubleSide : THREE.FrontSide, // Chọn hiển thị một mặt hay cả hai mặt
+                alphaTest: 0.1, // Loại bỏ pixel trong suốt
+            })
+
+            try {
+                const decalGeometry = new DecalGeometry(mesh, position, orientation, size) as unknown as THREE.BufferGeometry
+                return { geometry: decalGeometry, material: decalMaterial }
+            } catch (e) {
+                console.error("Failed to create decal:", e)
+                return { geometry: null, material: null }
+            }
+        }
+
+        const createChestBellyDecal = (
             anchor: { x: number; y: number; z: number },
             scaleMultiplier: number
         ) => {
@@ -337,71 +384,23 @@ function LabubuModel({
             })
             if (!closestMesh) return { geometry: null as THREE.BufferGeometry | null, material: null as THREE.Material | null }
 
-            // Orientation - hướng thẳng ra phía trước
-            const modelWorldCenter = groupRef.current!.getWorldPosition(new THREE.Vector3())
-            const direction = worldPos.clone().sub(modelWorldCenter).normalize()
-            const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), direction)
-            const orientation = new THREE.Euler().setFromQuaternion(quat)
-
-            // Kích thước decal vuông - có thể nhỏ hoặc lớn tùy theo scaleMultiplier
-            const baseSize = 0.3 * textureScale * getModelScale() * scaleMultiplier
-            const sizeVec = new THREE.Vector3(baseSize, baseSize, baseSize * 0.1)
-
-            // Load texture
-            const textureLoader = new THREE.TextureLoader()
-            const map = textureLoader.load(customTexture)
-            map.anisotropy = 8
-            map.minFilter = THREE.LinearFilter
-            map.magFilter = THREE.LinearFilter
-
-            try {
-                const decalGeo = new DecalGeometry(closestMesh, worldPos, orientation, sizeVec) as unknown as THREE.BufferGeometry
-                const decalMat = new THREE.MeshPhongMaterial({
-                    map,
-                    transparent: true,
-                    depthTest: true,
-                    depthWrite: false,
-                    polygonOffset: true,
-                    polygonOffsetFactor: -4,
-                })
-                return { geometry: decalGeo, material: decalMat as THREE.Material }
-            } catch (e) {
-                console.error("Failed to create small decal:", e)
-                return { geometry: null, material: null }
-            }
+            // Sử dụng function createDecal đơn giản
+            return createDecal(closestMesh, worldPos, scaleMultiplier)
         }
 
-        // Chest small decal
-        if (wantsChest && selectedTextureAnchor !== "chest_belly") {
-            const { geometry, material } = createSmallDecal(anchorPoints.chest, 1.0)
-            setChestDecalGeometry(geometry)
-            setChestDecalMaterial(material)
-        } else {
-            setChestDecalGeometry(null)
-            setChestDecalMaterial(null)
-        }
-
-        // Belly small decal
-        if (wantsBelly && selectedTextureAnchor !== "chest_belly") {
-            const { geometry, material } = createSmallDecal(anchorPoints.belly, 1.0)
-            setBellyDecalGeometry(geometry)
-            setBellyDecalMaterial(material)
-        } else {
-            setBellyDecalGeometry(null)
-            setBellyDecalMaterial(null)
-        }
-
-        // Combined chest_belly large decal (single large decal covering both chest and belly)
+        // Combined chest_belly large decal (single large decal covering both chest and belly areas)
         if (selectedTextureAnchor === "chest_belly") {
             // Use the chest_belly anchor point for a single large decal covering both areas
-            const { geometry, material } = createSmallDecal(anchorPoints.chest_belly, 3.5)
-            setChestDecalGeometry(geometry)
-            setChestDecalMaterial(material)
-            setBellyDecalGeometry(null)
-            setBellyDecalMaterial(null)
+            // Sử dụng chestBellyDecalScale để người dùng có thể điều chỉnh kích thước
+            const { geometry, material } = createChestBellyDecal(anchorPoints.chest_belly, chestBellyDecalScale)
+            setChestBellyDecalGeometry(geometry)
+            setChestBellyDecalMaterial(material)
+        } else {
+            setChestBellyDecalGeometry(null)
+            setChestBellyDecalMaterial(null)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [scene, customTexture, selectedTextureAnchor, textureScale, modelId, anchorPoints])
+    }, [scene, customTexture, selectedTextureAnchor, textureScale, modelId, anchorPoints, chestBellyDecalScale, showTextureOnBack])
 
     return (
         <group ref={groupRef} position={[modelPosition.x, modelPosition.y, modelPosition.z]}>
@@ -453,12 +452,15 @@ function LabubuModel({
                 object={scene}
                 scale={getModelScale()}
                 rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+                ref={modelRef}
             />
             <ambientLight intensity={0.6} />
             <directionalLight position={[10, 10, 5]} intensity={1} />
             <pointLight position={[-10, -10, -5]} intensity={0.5} />
 
-            {customTexture && !((selectedTextureAnchor === "chest" && chestDecalGeometry) || (selectedTextureAnchor === "belly" && bellyDecalGeometry) || (selectedTextureAnchor === "chest_belly" && (chestDecalGeometry || bellyDecalGeometry))) && (
+            {/* Overlay moved to Canvas root */}
+
+            {customTexture && !(selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry) && (
                 <TexturePlane
                     ref={textureMeshRef}
                     position={[texturePosition.x, texturePosition.y, texturePosition.z]}
@@ -468,16 +470,8 @@ function LabubuModel({
                 />
             )}
 
-            {selectedTextureAnchor === "chest" && chestDecalGeometry && chestDecalMaterial && (
-                <mesh geometry={chestDecalGeometry} material={chestDecalMaterial as THREE.Material} />
-            )}
-
-            {selectedTextureAnchor === "belly" && bellyDecalGeometry && bellyDecalMaterial && (
-                <mesh geometry={bellyDecalGeometry} material={bellyDecalMaterial as THREE.Material} />
-            )}
-
-            {selectedTextureAnchor === "chest_belly" && chestDecalGeometry && chestDecalMaterial && (
-                <mesh geometry={chestDecalGeometry} material={chestDecalMaterial as THREE.Material} />
+            {selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry && chestBellyDecalMaterial && (
+                <mesh geometry={chestBellyDecalGeometry} material={chestBellyDecalMaterial as THREE.Material} />
             )}
 
             {appliedTextures.map((texture) => (
@@ -584,8 +578,8 @@ export default function PlushDollDesign3D() {
         },
         {
             id: "small-labubu",
-            name: "Labubu Mini (Nhỏ)",
-            url: "/model/plush_labubu_keychain_character.glb", // Sử dụng cùng model nhưng scale khác
+            name: "Labubu Classic",
+            url: "/model/labubu_classic.glb",
             isDefault: false,
         },
     ])
@@ -624,6 +618,8 @@ export default function PlushDollDesign3D() {
     const [textPosition, setTextPosition] = useState({ x: 0, y: 1, z: 0.5 })
     const [texturePosition, setTexturePosition] = useState({ x: 0, y: 0, z: 0.3 })
     const [textureScale, setTextureScale] = useState(1)
+    const [chestBellyDecalScale, setChestBellyDecalScale] = useState(8.0)
+    const [showTextureOnBack, setShowTextureOnBack] = useState(false)
 
     const [isRotating, setIsRotating] = useState(false)
     const [isAttached, setIsAttached] = useState(false)
@@ -674,6 +670,9 @@ export default function PlushDollDesign3D() {
     // State cho vị trí model chính
     const [modelPosition, setModelPosition] = useState({ x: 0, y: 0, z: 0 })
     const [modelPositionInput, setModelPositionInput] = useState({ x: "0.00", y: "0.00", z: "0.00" })
+
+    // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
+    const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
 
     const snapToZero = (value: number, threshold = 0.05) => (Math.abs(value) < threshold ? 0 : value)
 
@@ -848,6 +847,8 @@ export default function PlushDollDesign3D() {
         setAppliedTextures([]) // Cũng reset textures đã áp dụng
         setAccessories([]) // Reset accessories
         setSelectedAccessory("")
+        setChestBellyDecalScale(8.0) // Reset về giá trị mặc định
+        setShowTextureOnBack(false) // Reset về không hiển thị ở phía sau
         console.log("Reset completed - rotation stopped")
     }
 
@@ -870,10 +871,10 @@ export default function PlushDollDesign3D() {
             const getExportModelScale = () => {
                 switch (currentModelId) {
                     case "small-labubu":
-                        return 1.5 // Model nhỏ hơn
+                        return 1
                     case "default-labubu":
                     default:
-                        return 2 // Model chuẩn
+                        return 1
                 }
             }
             const modelScale = getExportModelScale()
@@ -1249,10 +1250,32 @@ export default function PlushDollDesign3D() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
-                        <Card className="h-[500px] p-0">
+                        <Card className="h-[70vh] p-0">
                             <CardContent className="h-full p-0">
-                                <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
-                                    <Canvas className="w-full h-full" camera={{
+                                <div className="relative bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
+                                    {canvasModelDims && (
+                                        <div className="absolute top-2 left-2 z-10 min-w-[220px] pointer-events-none bg-black/60 text-white text-xs px-3 py-2 rounded shadow border border-white/20 space-y-1">
+                                            <div className="font-semibold text-[11px] opacity-90">Vị trí:</div>
+                                            <div className="grid grid-cols-7 gap-x-2">
+                                                <div className="col-span-2 opacity-75">X</div>
+                                                <div className="col-span-5">{modelPosition.x.toFixed(2)} m ({(modelPosition.x * 100).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Y</div>
+                                                <div className="col-span-5">{modelPosition.y.toFixed(2)} m ({(modelPosition.y * 100).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Z</div>
+                                                <div className="col-span-5">{modelPosition.z.toFixed(2)} m ({(modelPosition.z * 100).toFixed(1)} cm)</div>
+                                            </div>
+                                            <div className="font-semibold text-[11px] opacity-90 mt-1">Kích thước:</div>
+                                            <div className="grid grid-cols-7 gap-x-2">
+                                                <div className="col-span-2 opacity-75">X</div>
+                                                <div className="col-span-5">{(canvasModelDims?.width ?? 0).toFixed(3)} m ({(((canvasModelDims?.width ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Y</div>
+                                                <div className="col-span-5">{(canvasModelDims?.depth ?? 0).toFixed(3)} m ({(((canvasModelDims?.depth ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Z</div>
+                                                <div className="col-span-5">{(canvasModelDims?.height ?? 0).toFixed(3)} m ({(((canvasModelDims?.height ?? 0) * 100)).toFixed(1)} cm)</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <Canvas className="w-full h-full relative" camera={{
                                         position: [0, -5, 0], // Camera ở trên cao, nhìn xuống
                                         fov: 50,
                                         up: [0, 0, 1] // Định hướng "up" của camera
@@ -1260,6 +1283,8 @@ export default function PlushDollDesign3D() {
                                         <ambientLight intensity={0.5} />
                                         <directionalLight position={[10, 10, 5]} intensity={1} />
                                         {/* Removed duplicate axesHelper - using custom axes instead */}
+
+
                                         <Suspense fallback={<LoadingSpinner />}>
                                             <LabubuModel
                                                 modelPath={getCurrentModel().url}
@@ -1272,6 +1297,8 @@ export default function PlushDollDesign3D() {
                                                 textPosition={textPosition}
                                                 texturePosition={texturePosition}
                                                 textureScale={textureScale}
+                                                chestBellyDecalScale={chestBellyDecalScale}
+                                                showTextureOnBack={showTextureOnBack}
                                                 isRotating={isRotating}
                                                 isAttached={isAttached}
                                                 anchorPoints={anchorPoints}
@@ -1285,6 +1312,7 @@ export default function PlushDollDesign3D() {
                                                 accessories={accessories}
                                                 showAxes={showAxes}
                                                 modelPosition={modelPosition}
+                                                onDimensionsChange={setCanvasModelDims}
                                             />
                                             <Environment preset="studio" />
                                         </Suspense>
@@ -1379,8 +1407,8 @@ export default function PlushDollDesign3D() {
                                                             <div>
                                                                 <div className="font-medium text-sm">{model.name}</div>
                                                                 {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
-                                                                {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ 8 điểm neo</div>}
-                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 8 điểm neo</div>}
+                                                                {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ Labubu Classic - tỷ lệ thực</div>}
+                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 7 điểm neo</div>}
                                                             </div>
                                                         </div>
                                                         {!model.isDefault && (
@@ -1404,9 +1432,10 @@ export default function PlushDollDesign3D() {
                                                 <div className="text-sm">
                                                     <div className="font-medium text-blue-800">Thông tin về các model:</div>
                                                     <ul className="text-blue-700 text-xs mt-1 space-y-1">
-                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 8 điểm neo cơ bản</li>
-                                                        <li>• <strong>Labubu Mini:</strong> Model nhỏ với 8 điểm neo (tối ưu cho kích thước nhỏ)</li>
+                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 7 điểm neo cơ bản</li>
+                                                        <li>• <strong>Labubu Classic:</strong> Model với tỷ lệ thực tế và 7 điểm neo</li>
                                                         <li>• Mỗi model có các điểm neo được tối ưu cho kích thước tương ứng</li>
+                                                        <li>• Ngực và bụng được gộp thành 1 điểm neo duy nhất</li>
                                                         <li>• Có thể upload thêm model tùy chỉnh</li>
                                                     </ul>
                                                 </div>
@@ -1848,6 +1877,51 @@ export default function PlushDollDesign3D() {
                                             </SliderPrimitive.Root>
                                             <div className="text-sm text-gray-500 mt-1">Kích thước: {textureScale}x</div>
                                         </div>
+
+                                        {selectedTextureAnchor === "chest_belly" && (
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <Label htmlFor="chest-belly-decal-scale" className="flex items-center gap-2">
+                                                        <Target className="w-4 h-4" />
+                                                        Kích thước decal ngực + bụng
+                                                    </Label>
+                                                    <SliderPrimitive.Root
+                                                        id="chest-belly-decal-scale"
+                                                        min={2}
+                                                        max={15}
+                                                        step={0.5}
+                                                        value={[chestBellyDecalScale]}
+                                                        onValueChange={(v) => setChestBellyDecalScale(v[0])}
+                                                        className="relative flex w-full touch-none select-none items-center mt-2"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-green-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-green-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
+                                                    <div className="text-sm text-gray-500 mt-1">
+                                                        Kích thước: {chestBellyDecalScale}x - Texture sẽ phủ toàn bộ ngực và bụng
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center space-x-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="show-texture-back"
+                                                        checked={showTextureOnBack}
+                                                        onChange={(e) => setShowTextureOnBack(e.target.checked)}
+                                                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                                    />
+                                                    <Label htmlFor="show-texture-back" className="text-sm">
+                                                        Hiển thị texture ở phía sau lưng
+                                                    </Label>
+                                                </div>
+                                                <div className="text-xs text-gray-500 bg-yellow-50 p-2 rounded border border-yellow-200">
+                                                    💡 <strong>Mặc định:</strong> Texture chỉ hiển thị ở mặt trước (ngực + bụng).
+                                                    Bật tùy chọn này nếu muốn texture xuất hiện ở cả phía sau lưng.
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <Button onClick={handleApplyTexture} className="w-full" disabled={!customTexture && !uploadedImage}>
                                             <Plus className="w-4 h-4 mr-2" />
