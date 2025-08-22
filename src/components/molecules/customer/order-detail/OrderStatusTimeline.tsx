@@ -46,7 +46,7 @@ export default function OrderStatusTimeline({
   order,
   fetchOrderDetail,
 }: OrderStatusTimelineProps) {
-  // Base statuses that are always shown
+ console.log('userRole: ', userRole)
   const baseStatuses: StatusStep[] = [
     {
       key: "Created",
@@ -88,6 +88,8 @@ export default function OrderStatusTimeline({
       baseStatuses[1].label = "Nhà thiết kế đã từ chối";
     } else if (oldStatus === "CustomerRejected") {
       baseStatuses[4].label = "Khách hàng đã từ chối";
+    }else if (oldStatus === "RequestShipToCus") {
+      baseStatuses[4].label = "Yêu cầu giao đến KH";
     }
 
     // Change the last status to "Đã hủy" when rejected
@@ -279,7 +281,9 @@ export default function OrderStatusTimeline({
     if (currentStatus === "Rejected" && order?.oldStatus) {
       return baseStatuses[5].label; // "Đã hủy"
     }
-
+    if (currentStatus === "RequestShipToCus" ) {
+      return 'Yêu cầu giao hàng đến KH'
+    }
     const currentStep = baseStatuses.find((s) => s.key === currentStatus);
     return currentStep?.label || currentStatus;
   };
@@ -292,7 +296,7 @@ export default function OrderStatusTimeline({
       return "Giao hàng cho KH";
     }
     if (currentStatus === "RequestShipToCus" && userRole === ROLE.DESIGNER) {
-      return "Giao hàng cho KH";
+      return "Hãy giao hàng cho KH";
     }
     return "";
   };
