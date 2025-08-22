@@ -3,7 +3,7 @@ import SidebarPanelWrapper from "./SidebarPanelWrapper";
 import CanvasList from "./get-canvas";
 
 interface CanvasListSidebarProps {
-  onSelect: (desc: string, title: string, id: string) => void;
+  onSelect: (desc: string, title: string, id: string, canvas3D?: string) => void;
   isOpen: boolean;
   onClose: () => void;
   initialCanvasState?: {

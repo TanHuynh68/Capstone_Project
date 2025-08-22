@@ -23,6 +23,7 @@ interface CanvasFolder {
     canvasInfoId?: string;
     canvasTitle?: string;
     canvasDescription?: string;
+    canvas3D?: string;
     previewUrl?: string;
   } | null;
   previewUrl?: string;
@@ -33,8 +34,7 @@ interface CanvasListProps {
     canvasDescription: string,
     folderName: string,
     canvasId: string,
-    folderId?: string,
-    hasExistingCanvas?: boolean
+    canvas3D?: string
   ) => void;
   initialCanvasState?: {
     canvasId: string;
@@ -192,10 +192,9 @@ const CanvasList: React.FC<CanvasListProps> = ({
     description: string,
     title: string,
     id: string,
-    folderId?: string,
-    hasExistingCanvas?: boolean
+    canvas3D?: string
   ) => {
-    onSelect(description, title, id, folderId, hasExistingCanvas);
+    onSelect(description, title, id, canvas3D);
   };
 
   const handleSearch = () => {
@@ -362,7 +361,6 @@ const CanvasList: React.FC<CanvasListProps> = ({
         onSelect(
           initialCanvasState.canvasDescription,
           initialCanvasState.folderName,
-          initialCanvasState.canvasId,
           initialCanvasState.canvasId
         );
         setHasAutoSelected(true);
@@ -457,15 +455,13 @@ const CanvasList: React.FC<CanvasListProps> = ({
                       item.latestCanvasInfo.canvasDescription,
                       item.latestCanvasInfo.canvasTitle || item.folderName,
                       item.latestCanvasInfo.canvasInfoId || item.canvasFolderId,
-                      item.canvasFolderId
+                      item.latestCanvasInfo.canvas3D
                     );
                   } else {
                     onSelect(
                       "",
                       item.folderName,
-                      "",
-                      item.canvasFolderId,
-                      false
+                      ""
                     );
                   }
                 }}

@@ -7,16 +7,19 @@ import { API_ROUTES, HTTP_METHOD, MESSAGE } from "@/constants";
 
 // Types for the new canvas structure
 interface CreateCanvasRequest {
-    canvasFolderId: string;
+    canvasFolderId?: string;
     canvasTitle: string;
     canvasDescription: string;
+    canvas3D?: string;
 }
 
 interface UpdateCanvasRequest {
     canvasInfoId: string;
     canvasTitle: string;
     canvasDescription: string;
+    canvas3D?: string;
     isLatest: boolean;
+    canvasFolderId?: string;
 }
 
 interface GetCanvasRequest {
@@ -30,6 +33,7 @@ interface CanvasResponse {
     canvasInfoId: string;
     canvasTitle: string;
     canvasDescription: string;
+    canvas3D?: string;
     canvasFolderId?: string;
     isLatest?: boolean;
     createdAt?: string;
