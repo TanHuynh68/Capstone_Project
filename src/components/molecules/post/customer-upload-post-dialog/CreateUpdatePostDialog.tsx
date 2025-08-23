@@ -30,7 +30,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Upload, X, Eye, CalendarIcon, Edit } from "lucide-react";
+import { Plus, X, Eye, CalendarIcon, Edit, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -41,13 +41,17 @@ import {
   createPostSchema,
 } from "@/schemas/postSchema";
 import { UpdatePostFormValues } from "@/schemas/updatePostSchema";
+import CanvasInOfferModal from "@/components/molecules/customer/chat/CanvasInOfferModal";
 
 interface CreatePostDialogProps {
   onPostCreated?: () => void;
-  fetchPosts?: any;
+  fetchPosts?: () => Promise<void>;
   // Update mode props
   isUpdateMode?: boolean;
-  updateData?: UpdatePostFormValues;
+  updateData?: UpdatePostFormValues & {
+    originalAttachmentFiles?: (File | string)[];
+    requestedAttachmentFiles?: (File | string)[];
+  };
   projectPostId?: string;
   children?: React.ReactNode;
 }
@@ -65,8 +69,44 @@ export default function CreateUpdatePostDialog({
   const [originalFiles, setOriginalFiles] = useState<File[]>([]);
   const [requestedFiles, setRequestedFiles] = useState<File[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isImageSelectorModalOpen, setIsImageSelectorModalOpen] = useState(false);
+  const [imageSelectorType, setImageSelectorType] = useState<"original" | "requested">("original");
   console.log('updateData; ', updateData)
   const { createPost, updatePost } = PostService();
+
+  // Xử lý khi chọn hình ảnh từ Image Selector Modal (CanvasInOfferModal)
+  const handleImageSelect = (data: {
+    imageUrl: string;
+    title: string;
+    id?: string;
+    description?: string;
+    isCanvas?: boolean;
+  }) => {
+    // Convert base64 thành File (cả canvas và upload từ máy đều trả về base64)
+    const byteString = atob(data.imageUrl.split(',')[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    // Tạo file với tên phù hợp
+    const fileName = data.isCanvas ? `${data.title}.png` : data.title;
+    const file = new File([ab], fileName, { type: "image/png" });
+
+    // Thêm vào danh sách tương ứng
+    if (imageSelectorType === "original") {
+      const newFiles = [...originalFiles, file].slice(0, 3);
+      setOriginalFiles(newFiles);
+      form.setValue("OriginalAttachmentFiles", newFiles);
+    } else {
+      const newFiles = [...requestedFiles, file].slice(0, 3);
+      setRequestedFiles(newFiles);
+      form.setValue("RequestedAttachmentFiles", newFiles);
+    }
+
+    setIsImageSelectorModalOpen(false);
+  };
 
   const form = useForm<CreatePostFormValues>({
     resolver: zodResolver(createPostSchema),
@@ -117,33 +157,17 @@ export default function CreateUpdatePostDialog({
   }
 }, [isUpdateMode, updateData, form]);
 
+  // Cleanup preview URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
 
-  const handleFileUpload = (
-    files: FileList | null,
-    type: "original" | "requested"
-  ) => {
-    if (!files) return;
 
-    const fileArray = Array.from(files);
-    const imageFiles = fileArray.filter((file) =>
-      file.type.startsWith("image/")
-    );
 
-    if (imageFiles.length === 0) {
-      toast.error("Vui lòng chọn file ảnh hợp lệ");
-      return;
-    }
-
-    if (type === "original") {
-      const newFiles = [...originalFiles, ...imageFiles].slice(0, 3);
-      setOriginalFiles(newFiles);
-      form.setValue("OriginalAttachmentFiles", newFiles);
-    } else {
-      const newFiles = [...requestedFiles, ...imageFiles].slice(0, 3);
-      setRequestedFiles(newFiles);
-      form.setValue("RequestedAttachmentFiles", newFiles);
-    }
-  };
 
   const removeFile = (index: number, type: "original" | "requested") => {
     if (type === "original") {
@@ -188,7 +212,9 @@ export default function CreateUpdatePostDialog({
       } else {
         // Create mode
         response = await createPost(data);
-        toast.success("Tạo bài đăng thành công!");
+        if (response?.statusCode === 200) {
+          toast.success("Tạo bài đăng thành công!");
+        }
       }
 
       if (response) {
@@ -196,6 +222,7 @@ export default function CreateUpdatePostDialog({
         form.reset();
         setOriginalFiles([]);
         setRequestedFiles([]);
+        setIsImageSelectorModalOpen(false);
         onPostCreated?.();
         if (fetchPosts) {
           await fetchPosts();
@@ -230,26 +257,46 @@ export default function CreateUpdatePostDialog({
         {required && !isUpdateMode && <span className="text-red-500">*</span>}
       </Label>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => handleFileUpload(e.target.files, type)}
-          className="hidden"
-          id={`${type}-upload`}
-        />
-        <label
-          htmlFor={`${type}-upload`}
-          className="flex flex-col items-center justify-center cursor-pointer"
+      {/* Nút chọn ảnh đẹp với gradient và shadow */}
+      <div className="relative group">
+        <div className="absolute inset-0 bg-gradient-to-r  rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setImageSelectorType(type);
+            setIsImageSelectorModalOpen(true);
+          }}
+          className="relative w-full h-20 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform cursor-pointer"
         >
-          <Upload className="h-8 w-8 text-gray-400 mb-2" />
-          <span className="text-sm text-gray-600">
-            {isUpdateMode
-              ? "Nhấn để thay đổi ảnh (tối đa 3 ảnh)"
-              : "Nhấn để chọn ảnh (tối đa 3 ảnh)"}
-          </span>
-        </label>
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="flex items-center space-x-4">
+              {/* Icon với background đẹp */}
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+                <Palette className="h-6 w-6 text-white" />
+              </div>
+
+              {/* Text content */}
+              <div className="text-left">
+                <div className="text-lg font-semibold text-gray-800">
+                  {isUpdateMode
+                    ? "Thay đổi ảnh"
+                    : "Chọn ảnh"}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  Từ máy hoặc Canvas • Tối đa 3 ảnh
+                </div>
+              </div>
+
+              {/* Arrow icon */}
+              <div className="ml-4 text-gray-400 group-hover:text-blue-500 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </Button>
       </div>
 
       {files.length > 0 && (
@@ -259,7 +306,7 @@ export default function CreateUpdatePostDialog({
               <img
                 src={URL.createObjectURL(file) || "/placeholder.svg"}
                 alt={`Preview ${index + 1}`}
-                className="w-full h-20 object-cover rounded border"
+                className="w-full h-20 object-contain rounded border"
               />
               <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 flex gap-1">
@@ -298,12 +345,12 @@ export default function CreateUpdatePostDialog({
                 <p className="text-sm text-gray-600 mb-2">Ảnh gốc hiện tại:</p>
                 <div className="grid grid-cols-3 gap-2">
                   {updateData.originalAttachmentFiles.map(
-                    (imageUrl: any, index) => (
+                    (imageUrl, index) => (
                       <img
                         key={index}
-                        src={imageUrl || "/placeholder.svg"}
+                        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl) || "/placeholder.svg"}
                         alt={`Current original ${index + 1}`}
-                        className="w-full h-20 object-cover rounded border"
+                        className="w-full h-20 object-contain rounded border"
                       />
                     )
                   )}
@@ -319,12 +366,12 @@ export default function CreateUpdatePostDialog({
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {updateData.requestedAttachmentFiles.map(
-                    (imageUrl: any, index) => (
+                    (imageUrl, index) => (
                       <img
                         key={index}
-                        src={imageUrl || "/placeholder.svg"}
+                        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl) || "/placeholder.svg"}
                         alt={`Current requested ${index + 1}`}
-                        className="w-full h-20 object-cover rounded border"
+                        className="w-full h-20 object-contain rounded border"
                       />
                     )
                   )}
@@ -340,6 +387,8 @@ export default function CreateUpdatePostDialog({
     setIsOpen(!isOpen);
     setOriginalFiles([]);
     setRequestedFiles([]);
+    setIsImageSelectorModalOpen(false);
+    setPreviewImage(null);
     if (!isUpdateMode) {
       form.reset();
     }
@@ -627,6 +676,13 @@ export default function CreateUpdatePostDialog({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Image Selector Modal (CanvasInOfferModal) */}
+      <CanvasInOfferModal
+        isOpen={isImageSelectorModalOpen}
+        onClose={() => setIsImageSelectorModalOpen(false)}
+        onSelectImage={handleImageSelect}
+      />
     </>
   );
 }
