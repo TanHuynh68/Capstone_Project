@@ -40,6 +40,7 @@ import {
   ChevronDown,
   MenuIcon,
   Shapes,
+  Box,
 } from "lucide-react";
 import { toast } from "sonner";
 // import CanvasList from "./get-canvas";
@@ -68,6 +69,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import CanvasVersionHistory from "@/pages/customer/plushdoll-design/canvas-history/CanvasVersionHistory";
+import PlushDollDesign3D from "./canvas-3d";
+
 
 // import ImageGenerator from "../image-gen";
 // import CopilotImageGenerator from "../image-gen/CopilotImageGenerator";
@@ -215,6 +218,7 @@ const PlushDollDesign: React.FC = () => {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [showUnsplash, setShowUnsplash] = useState(false);
   const [showCanvasList, setShowCanvasList] = useState(false);
+
   const [showShapes, setShowShapes] = useState(false);
   const [drawingPanelOpen, setDrawingPanelOpen] = useState(false);
 
@@ -263,6 +267,10 @@ const PlushDollDesign: React.FC = () => {
     null
   );
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // State để quản lý chuyển đổi giữa 2D và 3D
+  const [is3DMode, setIs3DMode] = useState(false);
+  const [canvas3DData, setCanvas3DData] = useState<string>("");
 
   // Add cropping state
   const [isCropping, setIsCropping] = useState(false);
@@ -1646,7 +1654,8 @@ const PlushDollDesign: React.FC = () => {
   const loadCanvasFromDescription = (
     canvasDescription: string,
     canvasTitle: string,
-    canvasId: string
+    canvasId: string,
+    canvas3D?: string
   ) => {
     console.log("loadCanvasFromDescription called with:", {
       canvasId,
@@ -1727,6 +1736,11 @@ const PlushDollDesign: React.FC = () => {
         setCurrentCanvasId(canvasId);
         setEditingTitle(canvasTitle);
         setIsEditingTitle(false);
+
+        // Lưu dữ liệu 3D nếu có
+        if (canvas3D) {
+          setCanvas3DData(canvas3D);
+        }
 
         console.log("Thiết kế đã được tải thành công:", {
           canvasId,
@@ -2108,6 +2122,7 @@ const PlushDollDesign: React.FC = () => {
           canvasTitle: currentCanvasTitle,
           canvasDescription,
           canvasFolderId: canvasFolderId ?? undefined,
+          ...(canvas3DData && { canvas3D: canvas3DData }),
         };
         const response = await postCanvas(postBody);
         if (!response?.isSuccess) {
@@ -2678,7 +2693,8 @@ const PlushDollDesign: React.FC = () => {
       loadCanvasFromDescription(
         location.state.canvasDescription,
         location.state.canvasTitle || "Thiết kế",
-        location.state.canvasId
+        location.state.canvasId,
+        location.state.canvas3D
       );
     } else {
       // Nếu cần, fallback fetch từ API ở đây (ví dụ khi reload trang)
@@ -2961,9 +2977,11 @@ const PlushDollDesign: React.FC = () => {
           setShowCanvasList(true);
           setDrawingPanelOpen(false);
           setShowShapes(false);
+
         }
       },
     },
+
 
     // {
     //   key: "remove",
@@ -3045,6 +3063,7 @@ const PlushDollDesign: React.FC = () => {
     libraryOpen,
     showUnsplash,
     showCanvasList,
+
     drawingPanelOpen,
     backgroundPanelOpen,
   ]);
@@ -3154,6 +3173,80 @@ const PlushDollDesign: React.FC = () => {
 
  
 
+  // Hàm xử lý lưu dữ liệu 3D
+  const handleSave3D = async (canvas3DDataString: string) => {
+    setCanvas3DData(canvas3DDataString);
+
+    try {
+      let canvasIdToUse = currentCanvasId;
+      const canvasFolderId = location.state?.folderId || location.state?.canvasFolderId;
+
+      if (!canvasIdToUse) {
+        // Tạo mới canvas với dữ liệu 3D
+        const postBody = {
+          canvasTitle: currentCanvasTitle,
+          canvasDescription: "", // Canvas 2D trống
+          canvasFolderId: canvasFolderId ?? undefined,
+          canvas3D: canvas3DDataString,
+        };
+        const response = await postCanvas(postBody);
+        if (!response?.isSuccess) {
+          throw new Error(response?.message || "Tạo mới thất bại");
+        }
+        if (response?.responseRequestModel?.canvasInfoId) {
+          canvasIdToUse = response.responseRequestModel.canvasInfoId;
+          setCurrentCanvasId(canvasIdToUse);
+        } else {
+          throw new Error("Không nhận được canvasInfoId sau khi tạo mới");
+        }
+      } else {
+        // Cập nhật canvas hiện tại với dữ liệu 3D
+        const canvasJson = canvasRef.current?.toJSON();
+        let canvasDescription = "";
+        if (canvasRef.current && canvasJson) {
+          // @ts-expect-error: allow dynamic property for serialization
+          canvasJson.width = canvasRef.current.getWidth();
+          // @ts-expect-error: allow dynamic property for serialization
+          canvasJson.height = canvasRef.current.getHeight();
+          canvasDescription = JSON.stringify(canvasJson);
+        }
+
+        const putBody = {
+          canvasInfoId: canvasIdToUse,
+          canvasTitle: currentCanvasTitle,
+          canvasDescription,
+          isLatest: true,
+          canvasFolderId: canvasFolderId ?? undefined,
+          canvas3D: canvas3DDataString,
+        };
+        const putResponse = await putCanvas(putBody);
+        if (!putResponse?.isSuccess) {
+          throw new Error(putResponse?.message || "Cập nhật thất bại");
+        }
+      }
+
+      // Dispatch event khi lưu thành công
+      window.dispatchEvent(new CustomEvent("canvasSaved"));
+      toast.success("Đã lưu thiết kế 3D thành công!");
+
+    } catch (err: unknown) {
+      console.error("Lỗi khi lưu thiết kế 3D:", err);
+      const errorMessage = err instanceof Error ? err.message : "Có lỗi xảy ra khi lưu thiết kế 3D";
+      toast.error(errorMessage);
+    }
+  };
+
+  // Nếu đang ở chế độ 3D, render component 3D
+  if (is3DMode) {
+    return (
+      <PlushDollDesign3D
+        onBackTo2D={() => setIs3DMode(false)}
+        onSave={handleSave3D}
+        canvas3DData={canvas3DData}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -3210,7 +3303,8 @@ const PlushDollDesign: React.FC = () => {
                         loadCanvasFromDescription(
                           ver.canvasDescription,
                           ver.canvasTitle,
-                          ver.canvasInfoId
+                          ver.canvasInfoId,
+                          ver.canvas3D
                         );
                       }}
                     />
@@ -3293,6 +3387,18 @@ const PlushDollDesign: React.FC = () => {
         </div>
 
         <div className="flex gap-2">
+          {/* Nút chuyển đổi 2D/3D */}
+          <Button
+            variant={is3DMode ? "default" : "outline"}
+            onClick={() => setIs3DMode(!is3DMode)}
+            className="flex items-center gap-2"
+          >
+            <Box className="w-4 h-4" />
+            <span className="text-xs font-medium">
+              {is3DMode ? "3D" : "2D"}
+            </span>
+          </Button>
+
           <Button variant="outline" onClick={undo}>
             <Undo2 className="w-4 h-4 mr-1" />
             {/* Hoàn tác */}
@@ -3336,7 +3442,7 @@ const PlushDollDesign: React.FC = () => {
             <DropdownMenuTrigger>
               <Button variant="outline" className="flex items-center gap-2">
                 <Save className="w-4 h-4" />
-                <span className="text-xs font-medium">Lưu thiết kế</span>
+                <span className="text-xs font-medium">Lưu</span>
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -3521,8 +3627,8 @@ const PlushDollDesign: React.FC = () => {
         {/* Canvas List Sidebar */}
         <CanvasListSidebar
           ref={canvasListSidebarRef}
-          onSelect={(desc: string, title: string, id: string) => {
-            loadCanvasFromDescription(desc, title, id);
+          onSelect={(desc: string, title: string, id: string, canvas3D?: string) => {
+            loadCanvasFromDescription(desc, title, id, canvas3D);
             setCurrentCanvasId(id);
           }}
           isOpen={showCanvasList}
@@ -3538,6 +3644,8 @@ const PlushDollDesign: React.FC = () => {
           }
           selectedCanvasId={currentCanvasId}
         />
+
+
 
         {/* Panel công cụ vẽ */}
         <DrawingToolPanel

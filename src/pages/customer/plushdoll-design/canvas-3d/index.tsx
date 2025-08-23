@@ -5,7 +5,7 @@ import * as THREE from "three"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Environment, useGLTF, Html } from "@react-three/drei"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { Suspense, useState, useRef } from "react"
+import { Suspense, useState, useRef, useEffect, forwardRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // Local rotation slider styling for this page only
@@ -28,28 +28,71 @@ import {
 } from "lucide-react"
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+
+import CLOUDINARY_CONFIG from '@/config/cloudinary';
+import Canvas3DList from './Canvas3DList';
+
+
+// Component để render texture với tỷ lệ khung hình đúng (contain)
+const TexturePlane = forwardRef<THREE.Mesh, {
+    position: [number, number, number];
+    scale: number;
+    rotation: [number, number, number];
+    textureUrl: string;
+}>(({ position, scale, rotation, textureUrl }, ref) => {
+    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+        const loader = new THREE.TextureLoader();
+        loader.load(textureUrl, (loadedTexture) => {
+            loadedTexture.anisotropy = 8;
+            loadedTexture.minFilter = THREE.LinearFilter;
+            loadedTexture.magFilter = THREE.LinearFilter;
+            setTexture(loadedTexture);
+        });
+    }, [textureUrl]);
+
+    if (!texture) return null;
+
+    // Tạo hình vuông cố định - ảnh sẽ được contain trong ô vuông
+    const squareSize = scale;
+
+    return (
+        <mesh
+            ref={ref}
+            position={position}
+            scale={[squareSize, squareSize, 1]}
+            rotation={rotation}
+        >
+            <planeGeometry args={[1, 1]} />
+            <meshBasicMaterial map={texture} transparent />
+        </mesh>
+    );
+});
+
+TexturePlane.displayName = 'TexturePlane';
 
 const DEFAULT_ANCHOR_POINTS = {
-    head: { x: 0, y: -0.05, z: 0.55, label: "🗣️ Đầu" },
-    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
-    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
-    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
-    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
-    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
-    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
+    head: { x: 0, y: -0.025, z: 0.275, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.195, z: -0.465, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.25, z: -0.4, label: "🔙 Lưng" },
+    left_hand: { x: -0.38, y: -0.04, z: -0.485, label: "🤚 Tay trái" },
+    right_hand: { x: 0.38, y: -0.04, z: -0.485, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.15, y: -0.02, z: -1.0, label: "🦶 Chân trái" },
+    right_foot: { x: 0.15, y: -0.02, z: -1.0, label: "🦵 Chân phải" },
 }
 
-// Thêm điểm neo cho model thứ hai (model nhỏ hơn, dạng keychain)
+// Thêm điểm neo cho model thứ hai (Labubu Classic - model lớn hơn)
+// Điểm neo được tối ưu cho kích thước và tỷ lệ của Labubu Classic
 const SMALL_MODEL_ANCHOR_POINTS = {
-    head: { x: 0, y: -0.2, z: 0.8, label: "🗣️ Đầu" },
-    chest: { x: 0, y: -0.38, z: -0.75, label: "💗 Ngực" },
-    belly: { x: 0, y: -0.40, z: -1.12, label: "🤰 Bụng" },
-    back: { x: 0, y: 0.5, z: -0.8, label: "🔙 Lưng" },
-    left_hand: { x: -0.76, y: -0.08, z: -0.97, label: "🤚 Tay trái" },
-    right_hand: { x: 0.76, y: -0.08, z: -0.97, label: "🖐️ Tay phải" },
-    left_foot: { x: -0.30, y: -0.04, z: -2.00, label: "🦶 Chân trái" },
-    right_foot: { x: 0.3, y: -0.04, z: -2.00, label: "🦵 Chân phải" },
+    head: { x: 0, y: 0, z: 0.8, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.43, z: -0.55, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.3, z: -0.46, label: "🔙 Lưng" },
+    left_hand: { x: -0.52, y: -0.13, z: -0.70, label: "🤚 Tay trái" },
+    right_hand: { x: 0.52, y: -0.13, z: -0.70, label: "🖐️ Tay phải" },
+    left_foot: { x: 0.26, y: -0.12, z: -1.20, label: "🦶 Chân trái" },
+    right_foot: { x: -0.26, y: -0.12, z: -1.20, label: "🦵 Chân phải" },
 }
 
 interface GLBModel {
@@ -69,6 +112,52 @@ interface AccessoryModel {
     anchorPoint?: string
 }
 
+// Interface cho JSON data khi restore scene
+interface Canvas3DJSONData {
+    currentModelId?: string
+    modelName?: string
+    isDefaultModel?: boolean
+    modelUrl?: string
+    customTexture?: string
+    texturePosition?: { x: number; y: number; z: number }
+    textureScale?: number
+    chestBellyDecalScale?: number
+    showTextureOnBack?: boolean
+    selectedTextureAnchor?: string
+    customText?: string
+    textColor?: string
+    textBackgroundColor?: string
+    textSize?: number
+    textPosition?: { x: number; y: number; z: number }
+    selectedTextAnchor?: string
+    appliedTexts?: Array<{
+        id: string
+        text: string
+        position: { x: number; y: number; z: number }
+        color: string
+        backgroundColor: string
+        size: number
+    }>
+    appliedTextures?: Array<{
+        id: string
+        texture: string
+        position: { x: number; y: number; z: number }
+        scale: number
+    }>
+    accessories?: AccessoryModel[]
+    modelPosition?: { x: number; y: number; z: number }
+    anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
+    savedAt?: string
+    version?: string
+    sceneInfo?: {
+        texturesCount: number
+        accessoriesCount: number
+        textsCount: number
+        hasCurrentTexture: boolean
+        hasCurrentText: boolean
+    }
+}
+
 interface LabubuModelProps {
     modelPath: string
     modelId?: string
@@ -80,6 +169,8 @@ interface LabubuModelProps {
     textPosition?: { x: number; y: number; z: number }
     texturePosition?: { x: number; y: number; z: number }
     textureScale?: number
+    chestBellyDecalScale?: number
+    showTextureOnBack?: boolean
     isRotating?: boolean
     isAttached?: boolean
     anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
@@ -105,6 +196,8 @@ interface LabubuModelProps {
     accessories?: AccessoryModel[]
     showAxes?: boolean
     modelPosition?: { x: number; y: number; z: number }
+    onDimensionsChange?: (dims: { width: number; height: number; depth: number }) => void
+    loadedScene?: THREE.Group
 }
 
 function AnchorPoint({ position, label, isSelected = false }: { position: { x: number; y: number; z: number }; label: string; isSelected?: boolean }) {
@@ -205,6 +298,8 @@ function LabubuModel({
     textPosition = { x: 0, y: 1, z: 0.5 },
     texturePosition = { x: 0, y: 0, z: 0.3 },
     textureScale = 1,
+    chestBellyDecalScale = 8.0,
+    showTextureOnBack = false,
     isRotating = false,
     anchorPoints = DEFAULT_ANCHOR_POINTS,
     showAnchorPoints = false,
@@ -217,18 +312,27 @@ function LabubuModel({
     accessories = [],
     showAxes = true,
     modelPosition = { x: 0, y: 0, z: 0 },
+    onDimensionsChange,
+    loadedScene,
 }: LabubuModelProps) {
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
+    const modelRef = useRef<THREE.Group>(null)
+
+
+    // Decal for chest_belly logo
+    const [chestBellyDecalGeometry, setChestBellyDecalGeometry] = useState<THREE.BufferGeometry | null>(null)
+    const [chestBellyDecalMaterial, setChestBellyDecalMaterial] = useState<THREE.Material | null>(null)
 
     // Xác định scale dựa trên model ID
     const getModelScale = () => {
         switch (modelId) {
             case "small-labubu":
-                return 1.5 // Model nhỏ hơn
+                return 1
             case "default-labubu":
+                return 1
             default:
-                return 2 // Model chuẩn
+                return 1
         }
     }
 
@@ -238,6 +342,119 @@ function LabubuModel({
         }
     })
 
+    // Generate decal geometry for chest_belly when using respective anchor
+    useEffect(() => {
+        // Cleanup previous
+        return () => {
+            if (chestBellyDecalGeometry) chestBellyDecalGeometry.dispose()
+            if (chestBellyDecalMaterial) chestBellyDecalMaterial.dispose()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Tính kích thước (W, H, D) của model chính theo bounding box sau khi áp dụng scale/rotation
+    useEffect(() => {
+        if (!modelRef.current) return
+        try {
+            modelRef.current.updateMatrixWorld(true)
+            const bbox = new THREE.Box3().setFromObject(modelRef.current)
+            const size = bbox.getSize(new THREE.Vector3())
+            const dims = { width: size.x, height: size.y, depth: size.z }
+            if (onDimensionsChange) onDimensionsChange(dims)
+        } catch {
+            // ignore
+        }
+    }, [scene, modelId, textureScale, textSize, onDimensionsChange])
+
+    useEffect(() => {
+        if (!groupRef.current) return
+        if (!customTexture) {
+            setChestBellyDecalGeometry(null)
+            setChestBellyDecalMaterial(null)
+            return
+        }
+
+        const createDecal = (mesh: THREE.Mesh, position: THREE.Vector3, scaleMultiplier: number) => {
+            // Tạo orientation đơn giản - hướng thẳng ra phía trước
+            const orientation = new THREE.Euler(0, 0, 0)
+
+            // Kích thước decal dựa trên scale và model
+            const baseSize = 0.3 * textureScale * getModelScale() * scaleMultiplier
+            const size = new THREE.Vector3(baseSize, baseSize, baseSize * 0.1)
+
+            // Load texture
+            const textureLoader = new THREE.TextureLoader()
+            const map = textureLoader.load(customTexture)
+            map.anisotropy = 8
+            map.minFilter = THREE.LinearFilter
+            map.magFilter = THREE.LinearFilter
+
+            // Tạo material với culling để kiểm soát hiển thị
+            const decalMaterial = new THREE.MeshPhongMaterial({
+                map,
+                transparent: true,
+                depthTest: true,
+                depthWrite: false,
+                polygonOffset: true,
+                polygonOffsetFactor: -4,
+                side: showTextureOnBack ? THREE.DoubleSide : THREE.FrontSide, // Chọn hiển thị một mặt hay cả hai mặt
+                alphaTest: 0.1, // Loại bỏ pixel trong suốt
+            })
+
+            try {
+                const decalGeometry = new DecalGeometry(mesh, position, orientation, size) as unknown as THREE.BufferGeometry
+                return { geometry: decalGeometry, material: decalMaterial }
+            } catch (e) {
+                console.error("Failed to create decal:", e)
+                return { geometry: null, material: null }
+            }
+        }
+
+        const createChestBellyDecal = (
+            anchor: { x: number; y: number; z: number },
+            scaleMultiplier: number
+        ) => {
+            // Position - đặt hơi ra phía trước một chút để tránh z-fighting
+            const localPos = new THREE.Vector3(anchor.x, anchor.y, anchor.z + 0.1)
+            const worldPos = localPos.clone()
+            groupRef.current!.localToWorld(worldPos)
+
+            // Tìm mesh gần nhất để tạo decal
+            scene.updateMatrixWorld(true)
+            let closestMesh: THREE.Mesh | null = null
+            let minDistance = Infinity
+            scene.traverse((obj) => {
+                if (obj instanceof THREE.Mesh && obj.geometry) {
+                    const bbox = new THREE.Box3().setFromObject(obj)
+                    const center = bbox.getCenter(new THREE.Vector3())
+                    const dist = center.distanceTo(worldPos)
+                    if (dist < minDistance) {
+                        minDistance = dist
+                        closestMesh = obj
+                    }
+                }
+            })
+            if (!closestMesh) return { geometry: null as THREE.BufferGeometry | null, material: null as THREE.Material | null }
+
+            // Sử dụng function createDecal đơn giản
+            return createDecal(closestMesh, worldPos, scaleMultiplier)
+        }
+
+        // Combined chest_belly large decal (single large decal covering both chest and belly areas)
+        if (selectedTextureAnchor === "chest_belly") {
+            // Use the chest_belly anchor point for a single large decal covering both areas
+            // Sử dụng chestBellyDecalScale để người dùng có thể điều chỉnh kích thước
+            const { geometry, material } = createChestBellyDecal(anchorPoints.chest_belly, chestBellyDecalScale)
+            setChestBellyDecalGeometry(geometry)
+            setChestBellyDecalMaterial(material)
+        } else {
+            setChestBellyDecalGeometry(null)
+            setChestBellyDecalMaterial(null)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scene, customTexture, selectedTextureAnchor, textureScale, modelId, anchorPoints, chestBellyDecalScale, showTextureOnBack])
+
+    // Render the component
     return (
         <group ref={groupRef} position={[modelPosition.x, modelPosition.y, modelPosition.z]}>
             {showAxes && (
@@ -280,132 +497,162 @@ function LabubuModel({
                             </div>
                         </Html>
                     </group>
-
-
                 </group>
             )}
-            <primitive
-                object={scene}
-                scale={getModelScale()}
-                rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
-            />
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[10, 10, 5]} intensity={1} />
-            <pointLight position={[-10, -10, -5]} intensity={0.5} />
 
-            {customTexture && (
-                <mesh
-                    ref={textureMeshRef}
-                    position={[texturePosition.x, texturePosition.y, texturePosition.z]}
-                    scale={[textureScale, textureScale, 1]}
-                    rotation={[Math.PI / 2, 0, 0]}
-                >
-                    <planeGeometry args={[1, 1]} />
-                    <meshBasicMaterial>
-                        <primitive object={new THREE.TextureLoader().load(customTexture)} attach="map" />
-                    </meshBasicMaterial>
-                </mesh>
-            )}
-
-            {appliedTextures.map((texture) => (
-                <mesh
-                    key={texture.id}
-                    position={[texture.position.x, texture.position.y, texture.position.z]}
-                    scale={[texture.scale, texture.scale, 1]}
-                    rotation={[Math.PI / 2, 0, 0]}
-                >
-                    <planeGeometry args={[1, 1]} />
-                    <meshBasicMaterial>
-                        <primitive object={new THREE.TextureLoader().load(texture.texture)} attach="map" />
-                    </meshBasicMaterial>
-                </mesh>
-            ))}
-            {customText && customText.trim() !== "" && (
-                <Html
-                    ref={textMeshRef}
-                    position={[textPosition.x, textPosition.y, textPosition.z]}
-                    transform
-                    occlude
-                    distanceFactor={textSize * 2}
-                >
-                    <div
-                        style={{
-                            color: textColor,
-                            fontSize: `${textSize * 16}px`,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            background: textBackgroundColor,
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            border: `2px solid ${textColor}20`,
-                            backdropFilter: "blur(8px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            maxWidth: "200px",
-                            wordWrap: "break-word",
-                            zIndex: 1000,
-                        }}
-                    >
-                        {customText}
-                    </div>
-                </Html>
-            )}
-            {appliedTexts.map((text) => (
-                <Html
-                    key={text.id}
-                    position={[text.position.x, text.position.y, text.position.z]}
-                    transform
-                    occlude
-                    distanceFactor={text.size * 2}
-                >
-                    <div
-                        style={{
-                            color: text.color,
-                            fontSize: `${text.size * 16}px`,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            background: text.backgroundColor,
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            border: `2px solid ${text.color}20`,
-                            backdropFilter: "blur(8px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            maxWidth: "200px",
-                            wordWrap: "break-word",
-                            zIndex: 1000,
-                        }}
-                    >
-                        {text.text}
-                    </div>
-                </Html>
-            ))}
-            {showAnchorPoints && (
+            {/* Render loadedScene if provided, otherwise render the normal scene */}
+            {loadedScene ? (
+                <primitive object={loadedScene} />
+            ) : (
                 <>
-                    {Object.entries(anchorPoints).map(([key, anchor]) => (
-                        <AnchorPoint
-                            key={key}
-                            position={anchor}
-                            label={anchor.label}
-                            isSelected={selectedTextAnchor === key || selectedTextureAnchor === key}
+                    <primitive
+                        object={scene}
+                        scale={getModelScale()}
+                        rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+                        ref={modelRef}
+                    />
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[10, 10, 5]} intensity={1} />
+                    <pointLight position={[-10, -10, -5]} intensity={0.5} />
+
+                    {/* Overlay moved to Canvas root */}
+
+                    {customTexture && !(selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry) && (
+                        <TexturePlane
+                            ref={textureMeshRef}
+                            position={[texturePosition.x, texturePosition.y, texturePosition.z]}
+                            scale={textureScale}
+                            rotation={[Math.PI / 2, 0, 0]}
+                            textureUrl={customTexture}
+                        />
+                    )}
+
+                    {selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry && chestBellyDecalMaterial && (
+                        <mesh geometry={chestBellyDecalGeometry} material={chestBellyDecalMaterial as THREE.Material} />
+                    )}
+
+                    {appliedTextures.map((texture) => (
+                        <TexturePlane
+                            key={texture.id}
+                            position={[texture.position.x, texture.position.y, texture.position.z]}
+                            scale={texture.scale}
+                            rotation={[Math.PI / 2, 0, 0]}
+                            textureUrl={texture.texture}
+                        />
+                    ))}
+
+                    {customText && customText.trim() !== "" && (
+                        <Html
+                            ref={textMeshRef}
+                            position={[textPosition.x, textPosition.y, textPosition.z]}
+                            transform
+                            occlude
+                            distanceFactor={textSize * 2}
+                        >
+                            <div
+                                style={{
+                                    color: textColor,
+                                    fontSize: `${textSize * 16}px`,
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    background: textBackgroundColor,
+                                    padding: "8px 12px",
+                                    borderRadius: "8px",
+                                    border: `2px solid ${textColor}20`,
+                                    backdropFilter: "blur(8px)",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    maxWidth: "200px",
+                                    wordWrap: "break-word",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                {customText}
+                            </div>
+                        </Html>
+                    )}
+
+                    {appliedTexts.map((text) => (
+                        <Html
+                            key={text.id}
+                            position={[text.position.x, text.position.y, text.position.z]}
+                            transform
+                            occlude
+                            distanceFactor={text.size * 2}
+                        >
+                            <div
+                                style={{
+                                    color: text.color,
+                                    fontSize: `${text.size * 16}px`,
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    background: text.backgroundColor,
+                                    padding: "8px 12px",
+                                    borderRadius: "8px",
+                                    border: `2px solid ${text.color}20`,
+                                    backdropFilter: "blur(8px)",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    maxWidth: "200px",
+                                    wordWrap: "break-word",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                {text.text}
+                            </div>
+                        </Html>
+                    ))}
+
+                    {showAnchorPoints && (
+                        <>
+                            {Object.entries(anchorPoints).map(([key, anchor]) => (
+                                <AnchorPoint
+                                    key={key}
+                                    position={anchor}
+                                    label={anchor.label}
+                                    isSelected={selectedTextAnchor === key || selectedTextureAnchor === key}
+                                />
+                            ))}
+                        </>
+                    )}
+
+                    {/* Render accessories */}
+                    {accessories.map((accessory) => (
+                        <AccessoryModel
+                            key={accessory.id}
+                            modelPath={accessory.url}
+                            position={accessory.position}
+                            scale={accessory.scale}
+                            rotation={accessory.rotation}
                         />
                     ))}
                 </>
             )}
-
-            {/* Render accessories */}
-            {accessories.map((accessory) => (
-                <AccessoryModel
-                    key={accessory.id}
-                    modelPath={accessory.url}
-                    position={accessory.position}
-                    scale={accessory.scale}
-                    rotation={accessory.rotation}
-                />
-            ))}
         </group>
     )
 }
 
-export default function PlushDollDesign3D() {
+/**
+ * Props cho component PlushDollDesign3D
+ * 
+ * @param onBackTo2D - Callback để quay lại canvas 2D
+ * @param onSave - Callback để lưu thiết kế 3D thành JSON string vào database
+ * @param canvas3DData - JSON string chứa thiết kế 3D đã lưu trước đó (để restore)
+ */
+interface PlushDollDesign3DProps {
+    onBackTo2D: () => void;
+    onSave?: (canvas3DData: string) => void; // Nhận JSON string để lưu vào canvas3D field
+    canvas3DData?: string;
+}
+
+export default function PlushDollDesign3D({
+    onBackTo2D,
+    onSave,
+    canvas3DData
+}: PlushDollDesign3DProps) {
+// ✅ Component hỗ trợ lưu tất cả thiết kế 3D:
+// - Model mặc định (Labubu Classic, Small Labubu)
+// - Model tùy chỉnh (upload GLB)
+// - Có texture, accessory, text
+// - Không có giới hạn về loại model
     const [glbModels, setGlbModels] = useState<GLBModel[]>([
         {
             id: "default-labubu",
@@ -415,8 +662,8 @@ export default function PlushDollDesign3D() {
         },
         {
             id: "small-labubu",
-            name: "Labubu Mini (Nhỏ)",
-            url: "/model/plush_labubu_keychain_character.glb", // Sử dụng cùng model nhưng scale khác
+            name: "Labubu Classic",
+            url: "/model/labubu_classic.glb",
             isDefault: false,
         },
     ])
@@ -455,12 +702,19 @@ export default function PlushDollDesign3D() {
     const [textPosition, setTextPosition] = useState({ x: 0, y: 1, z: 0.5 })
     const [texturePosition, setTexturePosition] = useState({ x: 0, y: 0, z: 0.3 })
     const [textureScale, setTextureScale] = useState(1)
+    const [chestBellyDecalScale, setChestBellyDecalScale] = useState(8.0)
+    const [showTextureOnBack, setShowTextureOnBack] = useState(false)
 
     const [isRotating, setIsRotating] = useState(false)
     const [isAttached, setIsAttached] = useState(false)
 
     const [selectedTextAnchor, setSelectedTextAnchor] = useState<string>("")
     const [selectedTextureAnchor, setSelectedTextureAnchor] = useState<string>("")
+    const [showCanvas3DList, setShowCanvas3DList] = useState(false)
+
+    // State để lưu scene đã load từ Cloudinary
+    const [loadedScene, setLoadedScene] = useState<THREE.Group | null>(null)
+    const [isLoadingScene, setIsLoadingScene] = useState(false)
 
     // Cập nhật anchorPoints dựa trên model được chọn
     const getCurrentAnchorPoints = () => {
@@ -506,7 +760,169 @@ export default function PlushDollDesign3D() {
     const [modelPosition, setModelPosition] = useState({ x: 0, y: 0, z: 0 })
     const [modelPositionInput, setModelPositionInput] = useState({ x: "0.00", y: "0.00", z: "0.00" })
 
+    // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
+    const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
+
+    // Load dữ liệu 3D khi component mount - Parse JSON và restore toàn bộ thiết kế
+    useEffect(() => {
+        if (canvas3DData) {
+            try {
+                console.log("🔄 Đang load thiết kế 3D từ JSON...");
+                console.log("📄 Input canvas3DData length:", canvas3DData.length, "characters");
+                console.log("📄 Input canvas3DData preview:", canvas3DData.substring(0, 200) + "...");
+
+                const data = JSON.parse(canvas3DData);
+                console.log("✅ JSON parse thành công!");
+                console.log("📦 Parsed data structure:", {
+                    hasCurrentModelId: !!data.currentModelId,
+                    hasCustomTexture: !!data.customTexture,
+                    hasCustomText: !!data.customText,
+                    appliedTextsCount: data.appliedTexts?.length || 0,
+                    appliedTexturesCount: data.appliedTextures?.length || 0,
+                    accessoriesCount: data.accessories?.length || 0,
+                    hasModelInfo: !!data.modelInfo,
+                    hasMetadata: !!data.metadata
+                });
+
+                // Restore các state từ dữ liệu đã lưu
+                if (data.currentModelId) {
+                    setCurrentModelId(data.currentModelId);
+                    console.log("✅ Model ID restored:", data.currentModelId);
+                }
+
+                if (data.customTexture) {
+                    setCustomTexture(data.customTexture);
+                    console.log("✅ Custom texture restored");
+                }
+
+                if (data.customText) {
+                    setCustomText(data.customText);
+                    console.log("✅ Custom text restored:", data.customText);
+                }
+
+                if (data.textColor) setTextColor(data.textColor);
+                if (data.textBackgroundColor) setTextBackgroundColor(data.textBackgroundColor);
+                if (data.textSize) setTextSize(data.textSize);
+
+                if (data.appliedTexts && Array.isArray(data.appliedTexts)) {
+                    setAppliedTexts(data.appliedTexts);
+                    console.log("✅ Applied texts restored:", data.appliedTexts.length, "items");
+                }
+
+                if (data.appliedTextures && Array.isArray(data.appliedTextures)) {
+                    setAppliedTextures(data.appliedTextures);
+                    console.log("✅ Applied textures restored:", data.appliedTextures.length, "items");
+                }
+
+                if (data.accessories && Array.isArray(data.accessories)) {
+                    setAccessories(data.accessories);
+                    console.log("✅ Accessories restored:", data.accessories.length, "items");
+                }
+
+                if (data.textPosition) {
+                    setTextPosition(data.textPosition);
+                    setTextPositionInput({
+                        x: data.textPosition.x.toFixed(2),
+                        y: data.textPosition.y.toFixed(2),
+                        z: data.textPosition.z.toFixed(2)
+                    });
+                }
+
+                if (data.texturePosition) {
+                    setTexturePosition(data.texturePosition);
+                    setTexturePositionInput({
+                        x: data.texturePosition.x.toFixed(2),
+                        y: data.texturePosition.y.toFixed(2),
+                        z: data.texturePosition.z.toFixed(2)
+                    });
+                }
+
+                if (data.textureScale) setTextureScale(data.textureScale);
+                if (data.chestBellyDecalScale) setChestBellyDecalScale(data.chestBellyDecalScale);
+                if (data.showTextureOnBack !== undefined) setShowTextureOnBack(data.showTextureOnBack);
+
+                if (data.anchorPoints) {
+                    setAnchorPoints(data.anchorPoints);
+                    console.log("✅ Anchor points restored");
+                }
+
+                if (data.modelPosition) {
+                    setModelPosition(data.modelPosition);
+                    setModelPositionInput({
+                        x: data.modelPosition.x.toFixed(2),
+                        y: data.modelPosition.y.toFixed(2),
+                        z: data.modelPosition.z.toFixed(2)
+                    });
+                    console.log("✅ Model position restored");
+                }
+
+                // Restore metadata nếu có
+                if (data.metadata) {
+                    console.log("📊 Metadata:", data.metadata);
+                }
+
+                console.log("🎉 Hoàn thành restore thiết kế 3D từ JSON!");
+
+            } catch (error) {
+                console.error("❌ Lỗi khi parse JSON và restore thiết kế 3D:", error);
+                alert("Có lỗi xảy ra khi load thiết kế 3D!");
+            }
+        }
+    }, [canvas3DData]);
+
     const snapToZero = (value: number, threshold = 0.05) => (Math.abs(value) < threshold ? 0 : value)
+
+    // Hàm upload model lên Cloudinary khi nhấn "Lưu 3D"
+    const uploadModelToCloudinary = async (file: File): Promise<string> => {
+        try {
+            console.log("☁️ Bắt đầu upload model lên Cloudinary:", file.name);
+            console.log("📋 Sử dụng config:", {
+                cloudName: CLOUDINARY_CONFIG.CLOUD_NAME,
+                uploadPreset: CLOUDINARY_CONFIG.UPLOAD_PRESET,
+                folder: CLOUDINARY_CONFIG.FOLDERS.ASSETS
+            });
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_CONFIG.UPLOAD_PRESET);
+            formData.append('folder', CLOUDINARY_CONFIG.FOLDERS.ASSETS);
+            formData.append('resource_type', 'raw');
+
+            const uploadUrl = CLOUDINARY_CONFIG.getUploadUrl('raw');
+            console.log("🌐 Upload URL:", uploadUrl);
+
+            const response = await fetch(uploadUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            // Kiểm tra lỗi trong response
+            if (result.error) {
+                console.error("❌ Cloudinary error:", result.error);
+
+                // Xử lý lỗi file size specifically
+                if (result.error.message && result.error.message.includes('File size too large')) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    throw new Error(`File quá lớn (${fileSizeMB}MB). Cloudinary free plan chỉ cho phép tối đa 10MB. Vui lòng nâng cấp plan hoặc tối ưu hóa thiết kế.`);
+                }
+
+                throw new Error(result.error.message || 'Upload failed');
+            }
+
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.statusText}`);
+            }
+
+            console.log("✅ Model upload thành công:", result.secure_url);
+            return result.secure_url;
+
+        } catch (error) {
+            console.error("❌ Lỗi upload model lên Cloudinary:", error);
+            throw error;
+        }
+    };
 
     const handleGLBUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -530,8 +946,8 @@ export default function PlushDollDesign3D() {
 
     const handleRemoveModel = (modelId: string) => {
         const model = glbModels.find((m) => m.id === modelId)
-        if (model?.isDefault) {
-            alert("Không thể xóa model mặc định!")
+        if (model?.isDefault || modelId === "small-labubu") {
+            alert("Không thể xóa model mẫu!")
             return
         }
 
@@ -679,8 +1095,298 @@ export default function PlushDollDesign3D() {
         setAppliedTextures([]) // Cũng reset textures đã áp dụng
         setAccessories([]) // Reset accessories
         setSelectedAccessory("")
+        setChestBellyDecalScale(8.0) // Reset về giá trị mặc định
+        setShowTextureOnBack(false) // Reset về không hiển thị ở phía sau
         console.log("Reset completed - rotation stopped")
     }
+
+    // Hàm load và parse scene GLB từ Cloudinary
+    const loadSceneFromGLB = async (sceneUrl: string) => {
+        try {
+            console.log("🔄 Đang load scene GLB từ:", sceneUrl);
+
+            // Load GLB file từ Cloudinary
+            const loader = new GLTFLoader();
+            const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
+                loader.load(sceneUrl, resolve, undefined, reject);
+            });
+
+            console.log("✅ GLB scene đã load thành công");
+
+            // Parse scene để lấy thông tin
+            const scene = gltf.scene;
+
+            // Đếm số lượng elements trong scene
+            let texturesCount = 0;
+            let accessoriesCount = 0;
+            let textsCount = 0;
+
+            scene.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    // Kiểm tra loại mesh
+                    if (child.material && (child.material as THREE.MeshBasicMaterial).map) {
+                        // Có texture
+                        texturesCount++;
+                    } else if (child.geometry instanceof THREE.PlaneGeometry) {
+                        // Có thể là text plane
+                        textsCount++;
+                    } else {
+                        // Có thể là accessory
+                        accessoriesCount++;
+                    }
+                }
+            });
+
+            // Trả về cả scene object và thông tin
+            return {
+                scene: scene.clone(), // Clone scene để sử dụng
+                modelName: getCurrentModel().name,
+                sceneInfo: {
+                    texturesCount,
+                    accessoriesCount,
+                    textsCount,
+                    hasCurrentTexture: texturesCount > 0,
+                    hasCurrentText: textsCount > 0
+                }
+            };
+
+        } catch (error) {
+            console.error("❌ Lỗi khi load scene GLB:", error);
+            return null;
+        }
+    };
+
+    // Hàm restore scene từ JSON data (format mới)
+    const restoreSceneFromJSON = async (jsonData: Canvas3DJSONData) => {
+        try {
+            // Clear current scene state
+            setAppliedTexts([]);
+            setAppliedTextures([]);
+            setAccessories([]);
+            setCustomTexture('');
+            setCustomText('');
+            setTextColor('#000000');
+            setTextBackgroundColor('#ffffff');
+            setTextSize(1);
+
+            // Restore main model
+            setCurrentModelId(jsonData.currentModelId || 'default-labubu');
+            if (jsonData.anchorPoints) {
+                setAnchorPoints(jsonData.anchorPoints);
+            }
+
+            // Restore custom texture and text
+            if (jsonData.customTexture) {
+                setCustomTexture(jsonData.customTexture);
+            }
+            if (jsonData.customText) {
+                setCustomText(jsonData.customText);
+            }
+            if (jsonData.textColor) {
+                setTextColor(jsonData.textColor);
+            }
+            if (jsonData.textBackgroundColor) {
+                setTextBackgroundColor(jsonData.textBackgroundColor);
+            }
+            if (jsonData.textSize) {
+                setTextSize(jsonData.textSize);
+            }
+
+            // Restore applied elements
+            if (jsonData.appliedTexts) {
+                setAppliedTexts(jsonData.appliedTexts);
+            }
+            if (jsonData.appliedTextures) {
+                setAppliedTextures(jsonData.appliedTextures);
+            }
+            if (jsonData.accessories) {
+                setAccessories(jsonData.accessories);
+            }
+
+            // Restore positions and scales
+            if (jsonData.textPosition) {
+                setTextPosition(jsonData.textPosition);
+            }
+            if (jsonData.texturePosition) {
+                setTexturePosition(jsonData.texturePosition);
+            }
+            if (jsonData.textureScale) {
+                setTextureScale(jsonData.textureScale);
+            }
+            if (jsonData.chestBellyDecalScale) {
+                setChestBellyDecalScale(jsonData.chestBellyDecalScale);
+            }
+            if (jsonData.showTextureOnBack !== undefined) {
+                setShowTextureOnBack(jsonData.showTextureOnBack);
+            }
+
+            // Restore anchor points and model position
+            if (jsonData.anchorPoints) {
+                setAnchorPoints(jsonData.anchorPoints);
+            }
+            if (jsonData.modelPosition) {
+                setModelPosition(jsonData.modelPosition);
+            }
+
+            // Restore selections
+            if (jsonData.selectedTextAnchor) {
+                setSelectedTextAnchor(jsonData.selectedTextAnchor);
+            }
+            if (jsonData.selectedTextureAnchor) {
+                setSelectedTextureAnchor(jsonData.selectedTextureAnchor);
+            }
+
+            // Instead of creating an empty THREE.Group, we'll set loadedScene to null
+            // and let the LabubuModel component handle rendering based on the restored state
+            // This approach is better because:
+            // 1. The component already has all the state variables restored
+            // 2. It can render the scene dynamically based on current state
+            // 3. No need to manually construct complex 3D objects
+            setLoadedScene(null);
+
+            console.log('✅ Scene state restored successfully. Component will render based on restored state.');
+
+            console.log('Scene restored from JSON successfully');
+        } catch (error) {
+            console.error('Error restoring scene from JSON:', error);
+        }
+    };
+
+    // Hàm lưu 3D - Convert scene thành JSON và upload lên Cloudinary
+    // ✅ Hỗ trợ lưu tất cả thiết kế: model mặc định, model tùy chỉnh, có texture/accessory/text
+    // 💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB của Cloudinary)
+    const handleSave3D = async () => {
+        try {
+            console.log("🚀 Bắt đầu lưu thiết kế 3D (convert to JSON)...");
+            console.log("📋 Thông tin thiết kế hiện tại:");
+            console.log("  • Model ID:", currentModelId);
+            console.log("  • Model Name:", getCurrentModel().name);
+            console.log("  • Is Default Model:", getCurrentModel().isDefault);
+            console.log("  • Textures đã apply:", appliedTextures.length);
+            console.log("  • Accessories:", accessories.length);
+            console.log("  • Texts đã apply:", appliedTexts.length);
+            console.log("  • Texture hiện tại:", !!(customTexture || uploadedImage));
+            console.log("  • Text hiện tại:", customText || "Không có");
+
+            // ✅ Tạo JSON data thay vì export GLB
+            const canvas3DData = {
+                // Thông tin model
+                currentModelId,
+                modelName: getCurrentModel().name,
+                isDefaultModel: getCurrentModel().isDefault,
+                modelUrl: getCurrentModel().url,
+
+                // Thông tin texture
+                customTexture: customTexture || uploadedImage,
+                texturePosition,
+                textureScale,
+                chestBellyDecalScale,
+                showTextureOnBack,
+                selectedTextureAnchor,
+
+                // Thông tin text
+                customText: customText || "",
+                textColor,
+                textBackgroundColor,
+                textSize,
+                textPosition,
+                selectedTextAnchor,
+
+                // Các elements đã apply
+                appliedTexts,
+                appliedTextures,
+                accessories,
+
+                // Vị trí và cấu hình
+                modelPosition,
+                anchorPoints,
+
+                // Metadata
+                savedAt: new Date().toISOString(),
+                version: "1.0",
+                sceneInfo: {
+                    texturesCount: appliedTextures.length + (customTexture || uploadedImage ? 1 : 0),
+                    accessoriesCount: accessories.length,
+                    textsCount: appliedTexts.length + (customText ? 1 : 0),
+                    hasCurrentTexture: !!(customTexture || uploadedImage),
+                    hasCurrentText: !!(customText && customText.trim() !== "")
+                }
+            };
+
+            console.log("📦 JSON data đã tạo:", {
+                size: JSON.stringify(canvas3DData).length,
+                elements: canvas3DData.sceneInfo
+            });
+
+            // Convert JSON thành file để upload lên Cloudinary
+            const jsonBlob = new Blob([JSON.stringify(canvas3DData, null, 2)], {
+                type: 'application/json'
+            });
+
+            const jsonFile = new File([jsonBlob], `canvas3d_${getCurrentModel().name}_${Date.now()}.json`, {
+                type: 'application/json'
+            });
+
+            console.log("📁 File JSON đã tạo:", jsonFile.name, "kích thước:", jsonFile.size, "bytes");
+
+            // Upload JSON file lên Cloudinary
+            console.log("☁️ Đang upload JSON lên Cloudinary...");
+            const cloudinaryUrl = await uploadModelToCloudinary(jsonFile);
+            console.log("✅ JSON đã upload lên Cloudinary:", cloudinaryUrl);
+
+            // Lưu Cloudinary URL vào database thông qua canvas3D field
+            if (onSave) {
+                // ✅ Lưu JSON data thay vì GLB URL
+                const canvas3DString = JSON.stringify({
+                    jsonUrl: cloudinaryUrl, // URL của JSON file
+                    modelName: getCurrentModel().name,
+                    isDefaultModel: getCurrentModel().isDefault,
+                    savedAt: new Date().toISOString(),
+                    sceneInfo: canvas3DData.sceneInfo,
+                    // Thêm preview data để hiển thị trong list
+                    preview: {
+                        modelId: currentModelId,
+                        hasTexture: !!(customTexture || uploadedImage),
+                        hasText: !!(customText && customText.trim() !== ""),
+                        elementsCount: appliedTexts.length + appliedTextures.length + accessories.length
+                    }
+                });
+
+                onSave(canvas3DString); // Truyền JSON string để lưu vào canvas3D field
+                console.log("🚀 Đã gọi callback onSave với canvas3D data:", canvas3DString);
+            }
+
+            console.log("🎉 Lưu thiết kế 3D thành công!");
+            console.log("✅ Đã lưu thiết kế với model:", getCurrentModel().isDefault ? "MẶC ĐỊNH" : "TÙY CHỈNH");
+            console.log("✅ Scene bao gồm:", {
+                model: getCurrentModel().name,
+                textures: appliedTextures.length,
+                accessories: accessories.length,
+                texts: appliedTexts.length
+            });
+
+            alert("✅ Thiết kế 3D đã được lưu thành công!\n\n" +
+                "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n" +
+                "☁️ File đã được upload lên Cloudinary\n" +
+                "💾 Dữ liệu đã được lưu vào database");
+
+        } catch (error) {
+            console.error("❌ Lỗi khi lưu thiết kế 3D:", error);
+            console.error("❌ Error details:", {
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : "No stack trace",
+                currentState: {
+                    currentModelId,
+                    customTexture: !!customTexture,
+                    customText: !!customText,
+                    appliedTextsCount: appliedTexts.length,
+                    appliedTexturesCount: appliedTextures.length,
+                    accessoriesCount: accessories.length
+                }
+            });
+            alert("Có lỗi xảy ra khi lưu thiết kế 3D!");
+        }
+    };
 
     const handleExport = async () => {
         const scene = new THREE.Scene()
@@ -701,10 +1407,10 @@ export default function PlushDollDesign3D() {
             const getExportModelScale = () => {
                 switch (currentModelId) {
                     case "small-labubu":
-                        return 1.5 // Model nhỏ hơn
+                        return 1
                     case "default-labubu":
                     default:
-                        return 2 // Model chuẩn
+                        return 1
                 }
             }
             const modelScale = getExportModelScale()
@@ -1024,14 +1730,99 @@ export default function PlushDollDesign3D() {
         }
     }
 
+    // Hàm helper để preview JSON trước khi lưu
+    const previewSaveData = () => {
+        console.log("👁️ Bắt đầu preview dữ liệu sẽ lưu...");
+        console.log("📊 Kiểm tra state hiện tại:");
+        console.log("  • Model ID:", currentModelId);
+        console.log("  • Model Name:", getCurrentModel().name);
+        console.log("  • Custom Texture:", customTexture ? "✅ Có" : "❌ Không có");
+        console.log("  • Custom Text:", customText || "❌ Không có");
+        console.log("  • Applied Texts:", appliedTexts.length, "items");
+        console.log("  • Applied Textures:", appliedTextures.length, "items");
+        console.log("  • Accessories:", accessories.length, "items");
+        console.log("  • Model Position:", modelPosition);
+        console.log("  • Anchor Points:", Object.keys(anchorPoints).length, "points");
+
+        const canvas3DData = {
+            currentModelId,
+            customTexture: customTexture ? "✅ Có texture" : "❌ Không có texture",
+            customText: customText || "❌ Không có text",
+            textColor,
+            textBackgroundColor,
+            textSize,
+            appliedTexts: appliedTexts.length,
+            appliedTextures: appliedTextures.length,
+            accessories: accessories.length,
+            textPosition,
+            texturePosition,
+            textureScale,
+            chestBellyDecalScale,
+            showTextureOnBack,
+            anchorPoints: Object.keys(anchorPoints).length,
+            modelPosition,
+            modelInfo: {
+                name: getCurrentModel().name,
+                url: getCurrentModel().url,
+                isDefault: getCurrentModel().isDefault
+            },
+            metadata: {
+                savedAt: new Date().toISOString(),
+                version: "1.0",
+                totalElements: appliedTexts.length + appliedTextures.length + accessories.length
+            }
+        };
+
+        console.log("📋 Preview object đã tạo:", canvas3DData);
+        console.log("📊 Tổng kết preview:");
+        console.log("  • Model:", canvas3DData.modelInfo.name);
+        console.log("  • Elements:", canvas3DData.metadata.totalElements);
+        console.log("  • Timestamp:", canvas3DData.metadata.savedAt);
+
+        alert(`📋 Preview dữ liệu sẽ lưu:\n\n` +
+            `• Model: ${canvas3DData.modelInfo.name}\n` +
+            `• Text: ${canvas3DData.customText}\n` +
+            `• Textures: ${canvas3DData.appliedTextures} items\n` +
+            `• Accessories: ${canvas3DData.accessories} items\n` +
+            `• Total elements: ${canvas3DData.metadata.totalElements}\n\n` +
+            `💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB)\n` +
+            `☁️ File sẽ được upload lên Cloudinary\n\n` +
+            `Nhấn "Lưu 3D" để lưu vào database!`);
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="container mx-auto p-4">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-3xl font-bold text-white">🎨 3D Preview - {getCurrentModel().name}</h1>
+                        <div>
+                            <h1 className="text-3xl font-bold text-white">🎨 3D Preview - {getCurrentModel().name}</h1>
+                            {loadedScene && (
+                                <p className="text-green-300 text-sm mt-1">
+                                    ✅ Scene đã được load từ Cloudinary
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* Nút quay lại 2D */}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onBackTo2D}
+                            className="text-white border-white/20 hover:bg-white/10"
+                        >
+                            ← Quay lại 2D
+                        </Button>
+                        <Button
+                            variant={showCanvas3DList ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setShowCanvas3DList(!showCanvas3DList)}
+                            className="text-white border-white/20"
+                        >
+                            <Box className="w-4 h-4 mr-2" />
+                            Dự án 3D
+                        </Button>
                         <Button
                             variant={showAnchorPoints ? "default" : "outline"}
                             size="sm"
@@ -1071,26 +1862,80 @@ export default function PlushDollDesign3D() {
                             <RotateCcw className="w-4 h-4 mr-1" />
                             Reset
                         </Button>
+                        <Button
+                            onClick={previewSaveData}
+                            variant="outline"
+                            size="sm"
+                            className="text-white border-white/20 hover:bg-white/10"
+                        >
+                            👁️ Preview
+                        </Button>
+                        <Button
+                            onClick={handleSave3D}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Lưu 3D
+                        </Button>
                         <Button onClick={handleExport} className="bg-purple-600 hover:bg-purple-700 text-white">
                             <Download className="w-4 h-4 mr-2" />
                             Xuất GLB
                         </Button>
+
+                        {/* Nút xóa scene đã load */}
+                        {loadedScene && (
+                            <Button
+                                onClick={() => {
+                                    setLoadedScene(null);
+                                    console.log("🗑️ Đã xóa scene đã load");
+                                }}
+                                variant="outline"
+                                className="border-red-300 text-red-600 hover:bg-red-50"
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Xóa Scene
+                            </Button>
+                        )}
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
-                        <Card className="h-[500px] p-0">
+                        <Card className="h-[70vh] p-0">
                             <CardContent className="h-full p-0">
-                                <div className="bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
-                                    <Canvas className="w-full h-full" camera={{
-                                        position: [5, 0, 0], // Camera ở trên cao, nhìn xuống
+                                <div className="relative bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
+                                    {canvasModelDims && (
+                                        <div className="absolute top-2 left-2 z-10 min-w-[220px] pointer-events-none bg-black/60 text-white text-xs px-3 py-2 rounded shadow border border-white/20 space-y-1">
+                                            <div className="font-semibold text-[11px] opacity-90">Vị trí:</div>
+                                            <div className="grid grid-cols-7 gap-x-2">
+                                                <div className="col-span-2 opacity-75">X</div>
+                                                <div className="col-span-5">{modelPosition.x.toFixed(2)} m ({(modelPosition.x * 100).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Y</div>
+                                                <div className="col-span-5">{modelPosition.y.toFixed(2)} m ({(modelPosition.y * 100).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Z</div>
+                                                <div className="col-span-5">{modelPosition.z.toFixed(2)} m ({(modelPosition.z * 100).toFixed(1)} cm)</div>
+                                            </div>
+                                            <div className="font-semibold text-[11px] opacity-90 mt-1">Kích thước:</div>
+                                            <div className="grid grid-cols-7 gap-x-2">
+                                                <div className="col-span-2 opacity-75">X</div>
+                                                <div className="col-span-5">{(canvasModelDims?.width ?? 0).toFixed(3)} m ({(((canvasModelDims?.width ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Y</div>
+                                                <div className="col-span-5">{(canvasModelDims?.depth ?? 0).toFixed(3)} m ({(((canvasModelDims?.depth ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                <div className="col-span-2 opacity-75">Z</div>
+                                                <div className="col-span-5">{(canvasModelDims?.height ?? 0).toFixed(3)} m ({(((canvasModelDims?.height ?? 0) * 100)).toFixed(1)} cm)</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <Canvas className="w-full h-full relative" camera={{
+                                        position: [0, -5, 0], // Camera ở trên cao, nhìn xuống
                                         fov: 50,
                                         up: [0, 0, 1] // Định hướng "up" của camera
                                     }}>
                                         <ambientLight intensity={0.5} />
                                         <directionalLight position={[10, 10, 5]} intensity={1} />
                                         {/* Removed duplicate axesHelper - using custom axes instead */}
+
+
                                         <Suspense fallback={<LoadingSpinner />}>
                                             <LabubuModel
                                                 modelPath={getCurrentModel().url}
@@ -1103,6 +1948,8 @@ export default function PlushDollDesign3D() {
                                                 textPosition={textPosition}
                                                 texturePosition={texturePosition}
                                                 textureScale={textureScale}
+                                                chestBellyDecalScale={chestBellyDecalScale}
+                                                showTextureOnBack={showTextureOnBack}
                                                 isRotating={isRotating}
                                                 isAttached={isAttached}
                                                 anchorPoints={anchorPoints}
@@ -1116,6 +1963,8 @@ export default function PlushDollDesign3D() {
                                                 accessories={accessories}
                                                 showAxes={showAxes}
                                                 modelPosition={modelPosition}
+                                                onDimensionsChange={setCanvasModelDims}
+                                                loadedScene={loadedScene || undefined}
                                             />
                                             <Environment preset="studio" />
                                         </Suspense>
@@ -1208,13 +2057,15 @@ export default function PlushDollDesign3D() {
                                                                 {currentModelId === model.id ? "✅" : "📦"}
                                                             </Button>
                                                             <div>
-                                                                <div className="font-medium text-sm">{model.name}</div>
+                                                                <div className="font-medium text-sm flex items-center gap-2">
+                                                                    {model.name}
+                                                                </div>
                                                                 {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
-                                                                {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ 8 điểm neo</div>}
-                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 8 điểm neo</div>}
+                                                                {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ Labubu Classic - tỷ lệ thực</div>}
+                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 7 điểm neo</div>}
                                                             </div>
                                                         </div>
-                                                        {!model.isDefault && (
+                                                        {!model.isDefault && model.id !== "small-labubu" && (
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
@@ -1235,10 +2086,11 @@ export default function PlushDollDesign3D() {
                                                 <div className="text-sm">
                                                     <div className="font-medium text-blue-800">Thông tin về các model:</div>
                                                     <ul className="text-blue-700 text-xs mt-1 space-y-1">
-                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 8 điểm neo cơ bản</li>
-                                                        <li>• <strong>Labubu Mini:</strong> Model nhỏ với 8 điểm neo (tối ưu cho kích thước nhỏ)</li>
+                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 7 điểm neo cơ bản (không thể xóa)</li>
+                                                        <li>• <strong>Labubu Classic:</strong> Model với tỷ lệ thực tế và 7 điểm neo được tối ưu cho kích thước lớn (không thể xóa)</li>
                                                         <li>• Mỗi model có các điểm neo được tối ưu cho kích thước tương ứng</li>
-                                                        <li>• Có thể upload thêm model tùy chỉnh</li>
+                                                        <li>• Ngực và bụng được gộp thành 1 điểm neo duy nhất</li>
+                                                        <li>• Có thể upload thêm model tùy chỉnh (có thể xóa)</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -1679,6 +2531,51 @@ export default function PlushDollDesign3D() {
                                             </SliderPrimitive.Root>
                                             <div className="text-sm text-gray-500 mt-1">Kích thước: {textureScale}x</div>
                                         </div>
+
+                                        {selectedTextureAnchor === "chest_belly" && (
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <Label htmlFor="chest-belly-decal-scale" className="flex items-center gap-2">
+                                                        <Target className="w-4 h-4" />
+                                                        Kích thước decal ngực + bụng
+                                                    </Label>
+                                                    <SliderPrimitive.Root
+                                                        id="chest-belly-decal-scale"
+                                                        min={2}
+                                                        max={15}
+                                                        step={0.5}
+                                                        value={[chestBellyDecalScale]}
+                                                        onValueChange={(v) => setChestBellyDecalScale(v[0])}
+                                                        className="relative flex w-full touch-none select-none items-center mt-2"
+                                                    >
+                                                        <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-slate-300">
+                                                            <SliderPrimitive.Range className="absolute h-full bg-green-600" />
+                                                        </SliderPrimitive.Track>
+                                                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-green-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                                                    </SliderPrimitive.Root>
+                                                    <div className="text-sm text-gray-500 mt-1">
+                                                        Kích thước: {chestBellyDecalScale}x - Texture sẽ phủ toàn bộ ngực và bụng
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center space-x-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="show-texture-back"
+                                                        checked={showTextureOnBack}
+                                                        onChange={(e) => setShowTextureOnBack(e.target.checked)}
+                                                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                                    />
+                                                    <Label htmlFor="show-texture-back" className="text-sm">
+                                                        Hiển thị texture ở phía sau lưng
+                                                    </Label>
+                                                </div>
+                                                <div className="text-xs text-gray-500 bg-yellow-50 p-2 rounded border border-yellow-200">
+                                                    💡 <strong>Mặc định:</strong> Texture chỉ hiển thị ở mặt trước (ngực + bụng).
+                                                    Bật tùy chọn này nếu muốn texture xuất hiện ở cả phía sau lưng.
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <Button onClick={handleApplyTexture} className="w-full" disabled={!customTexture && !uploadedImage}>
                                             <Plus className="w-4 h-4 mr-2" />
@@ -2483,6 +3380,164 @@ export default function PlushDollDesign3D() {
 
 
                     </div>
+                </div>
+            </div>
+
+            {/* Loading Indicator cho Scene Restoration */}
+            {isLoadingScene && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-lg font-semibold">Đang tải scene...</p>
+                        <p className="text-gray-600 text-sm">Vui lòng chờ trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Canvas 3D List Sidebar */}
+            <div
+                className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-transform duration-300 ease-in-out z-50 ${showCanvas3DList ? "translate-x-0" : "translate-x-full"
+                    }`}
+                style={{ width: "350px" }}
+            >
+                <div className="p-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">Danh sách Canvas 3D</h2>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowCanvas3DList(false)}
+                        >
+                            ✕
+                        </Button>
+                    </div>
+                </div>
+                <div className="h-full overflow-y-auto">
+                    <Canvas3DList
+                        onSelect={async (canvas3D: string, title: string, id: string) => {
+                            // Load canvas 3D đã chọn vào component hiện tại
+                            console.log("Loading 3D canvas:", { canvas3D, title, id });
+                            try {
+                                const canvas3DData = JSON.parse(canvas3D);
+                                console.log("Parsed 3D data:", canvas3DData);
+
+                                // ✅ Kiểm tra format mới (jsonUrl) hoặc format cũ (sceneUrl/modelUrl)
+                                if (canvas3DData.jsonUrl) {
+                                    // Format mới: JSON file trên Cloudinary
+                                    console.log("🔄 Đang tải JSON từ Cloudinary:", canvas3DData.jsonUrl);
+
+                                    // Hiển thị loading state
+                                    setIsLoadingScene(true);
+
+                                    try {
+                                        // 1. Fetch JSON data từ Cloudinary
+                                        const response = await fetch(canvas3DData.jsonUrl);
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                        }
+
+                                        const jsonData = await response.json();
+                                        console.log("✅ JSON data đã tải từ Cloudinary:", jsonData);
+
+                                        // 2. Restore toàn bộ scene từ JSON data
+                                        await restoreSceneFromJSON(jsonData);
+
+                                        console.log("✅ Scene đã được restore từ JSON thành công!");
+                                        alert(`✅ Scene "${jsonData.modelName}" đã được restore thành công!\n\nScene bao gồm:\n• Model: ${jsonData.modelName}\n• Textures: ${jsonData.sceneInfo?.texturesCount || 0}\n• Accessories: ${jsonData.sceneInfo?.accessoriesCount || 0}\n• Texts: ${jsonData.sceneInfo?.textsCount || 0}\n• Format: JSON (nhẹ hơn GLB)\n\nScene đã được tái tạo và hiển thị trong canvas!`);
+
+                                    } catch (jsonError) {
+                                        console.error("❌ Lỗi khi tải JSON từ Cloudinary:", jsonError);
+                                        alert("⚠️ Không thể tải dữ liệu JSON từ Cloudinary. Vui lòng thử lại.");
+                                    } finally {
+                                        setIsLoadingScene(false);
+                                    }
+
+                                } else if (canvas3DData.sceneUrl || canvas3DData.modelUrl) {
+                                // Format cũ: GLB file trên Cloudinary (để backward compatibility)
+                                    const targetUrl = canvas3DData.sceneUrl || canvas3DData.modelUrl;
+                                    const isNewFormat = !!canvas3DData.sceneUrl;
+
+                                    console.log("🔄 Đang tải scene GLB từ Cloudinary (format cũ):", targetUrl);
+                                    console.log("📋 Format:", isNewFormat ? "Mới (sceneUrl)" : "Cũ (modelUrl)");
+
+                                    // Hiển thị loading state
+                                    setIsLoadingScene(true);
+
+                                    try {
+                                        // Load scene GLB từ Cloudinary
+                                        const loader = new GLTFLoader();
+                                        await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
+                                            loader.load(targetUrl, resolve, undefined, reject);
+                                        });
+
+                                        console.log("✅ Scene GLB đã tải thành công từ Cloudinary");
+
+                                        // ✅ Restore scene từ GLB (format cũ)
+                                        console.log("🔄 Bắt đầu restore scene từ GLB...");
+
+                                        // 1. Clear current scene state
+                                        setAppliedTextures([]);
+                                        setAppliedTextures([]);
+                                        setAccessories([]);
+                                        setCustomTexture("");
+                                        setUploadedImage("");
+                                        setCustomText("");
+
+                                        // 2. Load và parse scene GLB để lấy thông tin
+                                        const sceneData = await loadSceneFromGLB(targetUrl);
+
+                                        if (sceneData) {
+                                            // 3. Restore model (nếu cần thay đổi)
+                                            if (sceneData.modelName !== getCurrentModel().name) {
+                                                // Tìm model tương ứng hoặc sử dụng default
+                                                const targetModel = glbModels.find(m => m.name === sceneData.modelName);
+                                                if (targetModel) {
+                                                    setCurrentModelId(targetModel.id);
+                                                    console.log("✅ Đã chuyển sang model:", targetModel.name);
+                                                }
+                                            }
+
+                                            // 4. Lưu scene đã load để hiển thị trong canvas
+                                            setLoadedScene(sceneData.scene);
+                                            console.log("✅ Scene đã được load và sẵn sàng hiển thị trong canvas");
+
+                                            // 5. Restore scene info
+                                            const sceneInfo = isNewFormat ? canvas3DData.sceneInfo : sceneData.sceneInfo;
+                                            console.log("✅ Scene đã được restore:", {
+                                                model: sceneData.modelName,
+                                                textures: sceneInfo?.texturesCount || 0,
+                                                accessories: sceneInfo?.accessoriesCount || 0,
+                                                texts: sceneInfo?.textsCount || 0,
+                                                format: isNewFormat ? "Mới (sceneUrl)" : "Cũ (modelUrl)"
+                                            });
+
+                                            alert(`✅ Scene "${canvas3DData.modelName}" đã được restore thành công!\n\nScene bao gồm:\n• Model: ${sceneData.modelName}\n• Textures: ${sceneInfo?.texturesCount || 0}\n• Accessories: ${sceneInfo?.accessoriesCount || 0}\n• Texts: ${sceneInfo?.textsCount || 0}\n• Format: ${isNewFormat ? "Mới" : "Cũ"}\n\nScene đã được hiển thị trong canvas!`);
+                                        }
+
+                                    } catch (restoreError) {
+                                        console.error("❌ Lỗi khi restore scene từ GLB:", restoreError);
+                                        alert("⚠️ Scene đã được tải nhưng có lỗi khi restore. Vui lòng thử lại.");
+                                    } finally {
+                                        // Tắt loading state
+                                        setIsLoadingScene(false);
+                                    }
+
+                                } else {
+                                    console.warn("Không tìm thấy jsonUrl, sceneUrl hoặc modelUrl trong canvas3D data");
+                                    alert("Dữ liệu canvas3D không hợp lệ hoặc không có URL");
+                                }
+
+                            } catch (error) {
+                                console.error("Error parsing canvas3D:", error);
+                                alert("Lỗi khi tải dữ liệu canvas3D");
+                            }
+                            setShowCanvas3DList(false);
+                        }}
+                        onRefresh={() => {
+                            // Làm mới danh sách
+                            console.log("Refreshing 3D canvas list");
+                        }}
+                    />
                 </div>
             </div>
         </div>
