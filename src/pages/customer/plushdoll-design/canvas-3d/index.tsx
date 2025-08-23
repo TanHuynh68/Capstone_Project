@@ -29,6 +29,7 @@ import {
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+
 import CLOUDINARY_CONFIG from '@/config/cloudinary';
 import Canvas3DList from './Canvas3DList';
 
@@ -111,6 +112,52 @@ interface AccessoryModel {
     anchorPoint?: string
 }
 
+// Interface cho JSON data khi restore scene
+interface Canvas3DJSONData {
+    currentModelId?: string
+    modelName?: string
+    isDefaultModel?: boolean
+    modelUrl?: string
+    customTexture?: string
+    texturePosition?: { x: number; y: number; z: number }
+    textureScale?: number
+    chestBellyDecalScale?: number
+    showTextureOnBack?: boolean
+    selectedTextureAnchor?: string
+    customText?: string
+    textColor?: string
+    textBackgroundColor?: string
+    textSize?: number
+    textPosition?: { x: number; y: number; z: number }
+    selectedTextAnchor?: string
+    appliedTexts?: Array<{
+        id: string
+        text: string
+        position: { x: number; y: number; z: number }
+        color: string
+        backgroundColor: string
+        size: number
+    }>
+    appliedTextures?: Array<{
+        id: string
+        texture: string
+        position: { x: number; y: number; z: number }
+        scale: number
+    }>
+    accessories?: AccessoryModel[]
+    modelPosition?: { x: number; y: number; z: number }
+    anchorPoints?: typeof DEFAULT_ANCHOR_POINTS
+    savedAt?: string
+    version?: string
+    sceneInfo?: {
+        texturesCount: number
+        accessoriesCount: number
+        textsCount: number
+        hasCurrentTexture: boolean
+        hasCurrentText: boolean
+    }
+}
+
 interface LabubuModelProps {
     modelPath: string
     modelId?: string
@@ -150,6 +197,7 @@ interface LabubuModelProps {
     showAxes?: boolean
     modelPosition?: { x: number; y: number; z: number }
     onDimensionsChange?: (dims: { width: number; height: number; depth: number }) => void
+    loadedScene?: THREE.Group
 }
 
 function AnchorPoint({ position, label, isSelected = false }: { position: { x: number; y: number; z: number }; label: string; isSelected?: boolean }) {
@@ -265,6 +313,7 @@ function LabubuModel({
     showAxes = true,
     modelPosition = { x: 0, y: 0, z: 0 },
     onDimensionsChange,
+    loadedScene,
 }: LabubuModelProps) {
     const { scene } = useGLTF(modelPath)
     const groupRef = useRef<THREE.Group>(null)
@@ -405,6 +454,7 @@ function LabubuModel({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scene, customTexture, selectedTextureAnchor, textureScale, modelId, anchorPoints, chestBellyDecalScale, showTextureOnBack])
 
+    // Render the component
     return (
         <group ref={groupRef} position={[modelPosition.x, modelPosition.y, modelPosition.z]}>
             {showAxes && (
@@ -447,126 +497,135 @@ function LabubuModel({
                             </div>
                         </Html>
                     </group>
-
-
                 </group>
             )}
-            <primitive
-                object={scene}
-                scale={getModelScale()}
-                rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
-                ref={modelRef}
-            />
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[10, 10, 5]} intensity={1} />
-            <pointLight position={[-10, -10, -5]} intensity={0.5} />
 
-            {/* Overlay moved to Canvas root */}
-
-            {customTexture && !(selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry) && (
-                <TexturePlane
-                    ref={textureMeshRef}
-                    position={[texturePosition.x, texturePosition.y, texturePosition.z]}
-                    scale={textureScale}
-                    rotation={[Math.PI / 2, 0, 0]}
-                    textureUrl={customTexture}
-                />
-            )}
-
-            {selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry && chestBellyDecalMaterial && (
-                <mesh geometry={chestBellyDecalGeometry} material={chestBellyDecalMaterial as THREE.Material} />
-            )}
-
-            {appliedTextures.map((texture) => (
-                <TexturePlane
-                    key={texture.id}
-                    position={[texture.position.x, texture.position.y, texture.position.z]}
-                    scale={texture.scale}
-                    rotation={[Math.PI / 2, 0, 0]}
-                    textureUrl={texture.texture}
-                />
-            ))}
-            {customText && customText.trim() !== "" && (
-                <Html
-                    ref={textMeshRef}
-                    position={[textPosition.x, textPosition.y, textPosition.z]}
-                    transform
-                    occlude
-                    distanceFactor={textSize * 2}
-                >
-                    <div
-                        style={{
-                            color: textColor,
-                            fontSize: `${textSize * 16}px`,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            background: textBackgroundColor,
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            border: `2px solid ${textColor}20`,
-                            backdropFilter: "blur(8px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            maxWidth: "200px",
-                            wordWrap: "break-word",
-                            zIndex: 1000,
-                        }}
-                    >
-                        {customText}
-                    </div>
-                </Html>
-            )}
-            {appliedTexts.map((text) => (
-                <Html
-                    key={text.id}
-                    position={[text.position.x, text.position.y, text.position.z]}
-                    transform
-                    occlude
-                    distanceFactor={text.size * 2}
-                >
-                    <div
-                        style={{
-                            color: text.color,
-                            fontSize: `${text.size * 16}px`,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            background: text.backgroundColor,
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            border: `2px solid ${text.color}20`,
-                            backdropFilter: "blur(8px)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            maxWidth: "200px",
-                            wordWrap: "break-word",
-                            zIndex: 1000,
-                        }}
-                    >
-                        {text.text}
-                    </div>
-                </Html>
-            ))}
-            {showAnchorPoints && (
+            {/* Render loadedScene if provided, otherwise render the normal scene */}
+            {loadedScene ? (
+                <primitive object={loadedScene} />
+            ) : (
                 <>
-                    {Object.entries(anchorPoints).map(([key, anchor]) => (
-                        <AnchorPoint
-                            key={key}
-                            position={anchor}
-                            label={anchor.label}
-                            isSelected={selectedTextAnchor === key || selectedTextureAnchor === key}
+                    <primitive
+                        object={scene}
+                        scale={getModelScale()}
+                        rotation={[-Math.PI / 2 + Math.PI, 0, 0]} // Chuyển từ Blender Z-up sang Three.js Y-up + lộn ngược 180°
+                        ref={modelRef}
+                    />
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[10, 10, 5]} intensity={1} />
+                    <pointLight position={[-10, -10, -5]} intensity={0.5} />
+
+                    {/* Overlay moved to Canvas root */}
+
+                    {customTexture && !(selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry) && (
+                        <TexturePlane
+                            ref={textureMeshRef}
+                            position={[texturePosition.x, texturePosition.y, texturePosition.z]}
+                            scale={textureScale}
+                            rotation={[Math.PI / 2, 0, 0]}
+                            textureUrl={customTexture}
+                        />
+                    )}
+
+                    {selectedTextureAnchor === "chest_belly" && chestBellyDecalGeometry && chestBellyDecalMaterial && (
+                        <mesh geometry={chestBellyDecalGeometry} material={chestBellyDecalMaterial as THREE.Material} />
+                    )}
+
+                    {appliedTextures.map((texture) => (
+                        <TexturePlane
+                            key={texture.id}
+                            position={[texture.position.x, texture.position.y, texture.position.z]}
+                            scale={texture.scale}
+                            rotation={[Math.PI / 2, 0, 0]}
+                            textureUrl={texture.texture}
+                        />
+                    ))}
+
+                    {customText && customText.trim() !== "" && (
+                        <Html
+                            ref={textMeshRef}
+                            position={[textPosition.x, textPosition.y, textPosition.z]}
+                            transform
+                            occlude
+                            distanceFactor={textSize * 2}
+                        >
+                            <div
+                                style={{
+                                    color: textColor,
+                                    fontSize: `${textSize * 16}px`,
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    background: textBackgroundColor,
+                                    padding: "8px 12px",
+                                    borderRadius: "8px",
+                                    border: `2px solid ${textColor}20`,
+                                    backdropFilter: "blur(8px)",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    maxWidth: "200px",
+                                    wordWrap: "break-word",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                {customText}
+                            </div>
+                        </Html>
+                    )}
+
+                    {appliedTexts.map((text) => (
+                        <Html
+                            key={text.id}
+                            position={[text.position.x, text.position.y, text.position.z]}
+                            transform
+                            occlude
+                            distanceFactor={text.size * 2}
+                        >
+                            <div
+                                style={{
+                                    color: text.color,
+                                    fontSize: `${text.size * 16}px`,
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    background: text.backgroundColor,
+                                    padding: "8px 12px",
+                                    borderRadius: "8px",
+                                    border: `2px solid ${text.color}20`,
+                                    backdropFilter: "blur(8px)",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    maxWidth: "200px",
+                                    wordWrap: "break-word",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                {text.text}
+                            </div>
+                        </Html>
+                    ))}
+
+                    {showAnchorPoints && (
+                        <>
+                            {Object.entries(anchorPoints).map(([key, anchor]) => (
+                                <AnchorPoint
+                                    key={key}
+                                    position={anchor}
+                                    label={anchor.label}
+                                    isSelected={selectedTextAnchor === key || selectedTextureAnchor === key}
+                                />
+                            ))}
+                        </>
+                    )}
+
+                    {/* Render accessories */}
+                    {accessories.map((accessory) => (
+                        <AccessoryModel
+                            key={accessory.id}
+                            modelPath={accessory.url}
+                            position={accessory.position}
+                            scale={accessory.scale}
+                            rotation={accessory.rotation}
                         />
                     ))}
                 </>
             )}
-
-            {/* Render accessories */}
-            {accessories.map((accessory) => (
-                <AccessoryModel
-                    key={accessory.id}
-                    modelPath={accessory.url}
-                    position={accessory.position}
-                    scale={accessory.scale}
-                    rotation={accessory.rotation}
-                />
-            ))}
         </group>
     )
 }
@@ -1097,11 +1156,108 @@ export default function PlushDollDesign3D({
         }
     };
 
-    // Hàm lưu 3D - Export toàn bộ scene thành GLB và upload lên Cloudinary
+    // Hàm restore scene từ JSON data (format mới)
+    const restoreSceneFromJSON = async (jsonData: Canvas3DJSONData) => {
+        try {
+            // Clear current scene state
+            setAppliedTexts([]);
+            setAppliedTextures([]);
+            setAccessories([]);
+            setCustomTexture('');
+            setCustomText('');
+            setTextColor('#000000');
+            setTextBackgroundColor('#ffffff');
+            setTextSize(1);
+
+            // Restore main model
+            setCurrentModelId(jsonData.currentModelId || 'default-labubu');
+            if (jsonData.anchorPoints) {
+                setAnchorPoints(jsonData.anchorPoints);
+            }
+
+            // Restore custom texture and text
+            if (jsonData.customTexture) {
+                setCustomTexture(jsonData.customTexture);
+            }
+            if (jsonData.customText) {
+                setCustomText(jsonData.customText);
+            }
+            if (jsonData.textColor) {
+                setTextColor(jsonData.textColor);
+            }
+            if (jsonData.textBackgroundColor) {
+                setTextBackgroundColor(jsonData.textBackgroundColor);
+            }
+            if (jsonData.textSize) {
+                setTextSize(jsonData.textSize);
+            }
+
+            // Restore applied elements
+            if (jsonData.appliedTexts) {
+                setAppliedTexts(jsonData.appliedTexts);
+            }
+            if (jsonData.appliedTextures) {
+                setAppliedTextures(jsonData.appliedTextures);
+            }
+            if (jsonData.accessories) {
+                setAccessories(jsonData.accessories);
+            }
+
+            // Restore positions and scales
+            if (jsonData.textPosition) {
+                setTextPosition(jsonData.textPosition);
+            }
+            if (jsonData.texturePosition) {
+                setTexturePosition(jsonData.texturePosition);
+            }
+            if (jsonData.textureScale) {
+                setTextureScale(jsonData.textureScale);
+            }
+            if (jsonData.chestBellyDecalScale) {
+                setChestBellyDecalScale(jsonData.chestBellyDecalScale);
+            }
+            if (jsonData.showTextureOnBack !== undefined) {
+                setShowTextureOnBack(jsonData.showTextureOnBack);
+            }
+
+            // Restore anchor points and model position
+            if (jsonData.anchorPoints) {
+                setAnchorPoints(jsonData.anchorPoints);
+            }
+            if (jsonData.modelPosition) {
+                setModelPosition(jsonData.modelPosition);
+            }
+
+            // Restore selections
+            if (jsonData.selectedTextAnchor) {
+                setSelectedTextAnchor(jsonData.selectedTextAnchor);
+            }
+            if (jsonData.selectedTextureAnchor) {
+                setSelectedTextureAnchor(jsonData.selectedTextureAnchor);
+            }
+
+            // Instead of creating an empty THREE.Group, we'll set loadedScene to null
+            // and let the LabubuModel component handle rendering based on the restored state
+            // This approach is better because:
+            // 1. The component already has all the state variables restored
+            // 2. It can render the scene dynamically based on current state
+            // 3. No need to manually construct complex 3D objects
+            setLoadedScene(null);
+
+            console.log('✅ Scene state restored successfully. Component will render based on restored state.');
+
+            console.log('Scene restored from JSON successfully');
+        } catch (error) {
+            console.error('Error restoring scene from JSON:', error);
+        }
+    };
+
+    // Hàm lưu 3D - Convert scene thành JSON và upload lên Cloudinary
     // ✅ Hỗ trợ lưu tất cả thiết kế: model mặc định, model tùy chỉnh, có texture/accessory/text
+    // 💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB của Cloudinary)
     const handleSave3D = async () => {
         try {
-            console.log("🚀 Bắt đầu lưu thiết kế 3D (export toàn bộ scene)...");
+            console.log("🚀 Bắt đầu lưu thiết kế 3D (convert to JSON)...");
             console.log("📋 Thông tin thiết kế hiện tại:");
             console.log("  • Model ID:", currentModelId);
             console.log("  • Model Name:", getCurrentModel().name);
@@ -1112,262 +1268,95 @@ export default function PlushDollDesign3D({
             console.log("  • Texture hiện tại:", !!(customTexture || uploadedImage));
             console.log("  • Text hiện tại:", customText || "Không có");
 
-            // Tạo scene và export root giống như handleExport
-            const scene = new THREE.Scene();
-            const exportRoot = new THREE.Group();
-            const loader = new GLTFLoader();
+            // ✅ Tạo JSON data thay vì export GLB
+            const canvas3DData = {
+                // Thông tin model
+                currentModelId,
+                modelName: getCurrentModel().name,
+                isDefaultModel: getCurrentModel().isDefault,
+                modelUrl: getCurrentModel().url,
 
-            // Load model chính (hỗ trợ cả model mặc định và model tùy chỉnh)
-            const currentModel = getCurrentModel();
-            console.log("🎯 Đang lưu thiết kế với model:", {
-                id: currentModelId,
-                name: currentModel.name,
-                isDefault: currentModel.isDefault,
-                url: currentModel.url.substring(0, 50) + "..."
-            });
+                // Thông tin texture
+                customTexture: customTexture || uploadedImage,
+                texturePosition,
+                textureScale,
+                chestBellyDecalScale,
+                showTextureOnBack,
+                selectedTextureAnchor,
 
-            const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-                loader.load(currentModel.url, resolve, undefined, reject);
-            });
+                // Thông tin text
+                customText: customText || "",
+                textColor,
+                textBackgroundColor,
+                textSize,
+                textPosition,
+                selectedTextAnchor,
 
-            const model = gltf.scene.clone();
-            // Xác định scale dựa trên model ID
-            const getExportModelScale = () => {
-                switch (currentModelId) {
-                    case "small-labubu":
-                        return 1;
-                    case "default-labubu":
-                    default:
-                        return 1;
+                // Các elements đã apply
+                appliedTexts,
+                appliedTextures,
+                accessories,
+
+                // Vị trí và cấu hình
+                modelPosition,
+                anchorPoints,
+
+                // Metadata
+                savedAt: new Date().toISOString(),
+                version: "1.0",
+                sceneInfo: {
+                    texturesCount: appliedTextures.length + (customTexture || uploadedImage ? 1 : 0),
+                    accessoriesCount: accessories.length,
+                    textsCount: appliedTexts.length + (customText ? 1 : 0),
+                    hasCurrentTexture: !!(customTexture || uploadedImage),
+                    hasCurrentText: !!(customText && customText.trim() !== "")
                 }
             };
-            const modelScale = getExportModelScale();
-            model.scale.set(modelScale, modelScale, modelScale);
-            // Áp dụng cùng xoay như viewport (chuyển từ Blender Z-up sang Three.js Y-up + lộn 180°)
-            model.rotation.set(-Math.PI / 2 + Math.PI, 0, 0);
-            // Áp dụng vị trí model hiện tại
-            model.position.set(modelPosition.x, modelPosition.y, modelPosition.z);
-            exportRoot.add(model);
 
-            // Helper function to load texture properly
-            const loadTexture = (url: string): Promise<THREE.Texture> => {
-                return new Promise((resolve, reject) => {
-                    const textureLoader = new THREE.TextureLoader();
-                    textureLoader.load(
-                        url,
-                        (texture) => {
-                            texture.flipY = false; // Fix texture orientation
-                            resolve(texture);
-                        },
-                        undefined,
-                        reject,
-                    );
-                });
-            };
-
-            // Load and add applied textures
-            const texturePromises = appliedTextures.map(async (textureData) => {
-                try {
-                    const texture = await loadTexture(textureData.texture);
-                    const geometry = new THREE.PlaneGeometry(1, 1);
-                    const material = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide,
-                    });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(textureData.position.x, textureData.position.y, textureData.position.z);
-                    mesh.scale.set(textureData.scale, textureData.scale, 1);
-                    // Xoay giống viewport
-                    mesh.rotation.set(Math.PI / 2, 0, 0);
-                    exportRoot.add(mesh);
-                } catch (error) {
-                    console.warn("[Save3D] Failed to load texture:", textureData.texture, error);
-                }
+            console.log("📦 JSON data đã tạo:", {
+                size: JSON.stringify(canvas3DData).length,
+                elements: canvas3DData.sceneInfo
             });
 
-            // Add current texture if exists
-            if (customTexture || uploadedImage) {
-                try {
-                    const texture = await loadTexture(customTexture || uploadedImage);
-                    const geometry = new THREE.PlaneGeometry(1, 1);
-                    const material = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide,
-                    });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(texturePosition.x, texturePosition.y, texturePosition.z);
-                    mesh.scale.set(textureScale, textureScale, 1);
-                    // Xoay giống viewport
-                    mesh.rotation.set(Math.PI / 2, 0, 0);
-                    exportRoot.add(mesh);
-                } catch (error) {
-                    console.warn("[Save3D] Failed to load current texture:", error);
-                }
-            }
-
-            // Wait for all textures to load
-            await Promise.allSettled(texturePromises);
-
-            // Load and add accessories
-            const accessoryPromises = accessories.map(async (accessory) => {
-                try {
-                    const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-                        loader.load(accessory.url, resolve, undefined, reject);
-                    });
-                    const accessoryModel = gltf.scene.clone();
-                    accessoryModel.position.set(accessory.position.x, accessory.position.y, accessory.position.z);
-                    accessoryModel.scale.set(accessory.scale, accessory.scale, accessory.scale);
-                    // Áp dụng xoay người dùng và quy đổi sang viewport
-                    accessoryModel.rotation.set(
-                        accessory.rotation.x + (-Math.PI / 2 + Math.PI),
-                        accessory.rotation.y,
-                        accessory.rotation.z
-                    );
-                    exportRoot.add(accessoryModel);
-                } catch (error) {
-                    console.warn("[Save3D] Failed to load accessory:", accessory.name, error);
-                }
+            // Convert JSON thành file để upload lên Cloudinary
+            const jsonBlob = new Blob([JSON.stringify(canvas3DData, null, 2)], {
+                type: 'application/json'
             });
 
-            // Wait for all accessories to load
-            await Promise.allSettled(accessoryPromises);
-
-            // Render text (áp dụng text đã thêm và text hiện tại) bằng canvas texture
-            const createTextPlane = (text: string, color: string, size: number) => {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-                const fontPx = Math.max(16, Math.round(size * 64));
-                ctx.font = `${fontPx}px Arial`;
-                const metrics = ctx.measureText(text);
-                const padding = Math.round(fontPx * 0.5);
-                canvas.width = Math.ceil(metrics.width) + padding * 2;
-                canvas.height = fontPx + padding * 2;
-                const ctx2 = canvas.getContext("2d") as CanvasRenderingContext2D;
-                ctx2.clearRect(0, 0, canvas.width, canvas.height);
-                ctx2.font = `${fontPx}px Arial`;
-                ctx2.fillStyle = color;
-                ctx2.textBaseline = "middle";
-                ctx2.textAlign = "left";
-                ctx2.fillText(text, padding, canvas.height / 2);
-                const texture = new THREE.CanvasTexture(canvas);
-                texture.flipY = false;
-                texture.needsUpdate = true;
-                const aspect = canvas.width / canvas.height;
-                const geometry = new THREE.PlaneGeometry(1 * aspect, 1);
-                const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
-                const mesh = new THREE.Mesh(geometry, material);
-                // Xoay giống viewport
-                mesh.rotation.set(Math.PI / 2, 0, 0);
-                return mesh;
-            };
-
-            // Áp dụng danh sách text đã apply
-            appliedTexts.forEach((t) => {
-                const textMesh = createTextPlane(t.text, t.color, t.size);
-                textMesh.position.set(t.position.x, t.position.y, t.position.z);
-                exportRoot.add(textMesh);
+            const jsonFile = new File([jsonBlob], `canvas3d_${getCurrentModel().name}_${Date.now()}.json`, {
+                type: 'application/json'
             });
 
-            // Áp dụng text hiện tại (nếu có)
-            if (customText && customText.trim() !== "") {
-                const currentTextMesh = createTextPlane(customText, textColor, textSize);
-                currentTextMesh.position.set(textPosition.x, textPosition.y, textPosition.z);
-                exportRoot.add(currentTextMesh);
-            }
+            console.log("📁 File JSON đã tạo:", jsonFile.name, "kích thước:", jsonFile.size, "bytes");
 
-            // Apply final X flip of -90° for exported GLB
-            exportRoot.rotation.x -= Math.PI / 2;
-            scene.add(exportRoot);
-
-            console.log("🎨 Scene đã được xây dựng với:");
-            console.log("  • Model chính:", getCurrentModel().name);
-            console.log("  • Textures đã apply:", appliedTextures.length);
-            console.log("  • Accessories:", accessories.length);
-            console.log("  • Texts đã apply:", appliedTexts.length);
-            console.log("  • Text hiện tại:", customText || "Không có");
-
-            // Export to GLB ArrayBuffer
-            const exporter = new GLTFExporter();
-            const glbArrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-                exporter.parse(
-                    scene,
-                    (result) => {
-                        resolve(result as ArrayBuffer);
-                    },
-                    (error) => {
-                        reject(error);
-                    },
-                    { binary: true },
-                );
-            });
-
-            console.log("📦 GLB export thành công, kích thước:", glbArrayBuffer.byteLength, "bytes");
-
-            // Convert ArrayBuffer to File
-            const glbFile = new File([glbArrayBuffer], `${getCurrentModel().name}_scene_${Date.now()}.glb`, {
-                type: 'model/gltf-binary'
-            });
-
-            console.log("📁 File GLB đã tạo:", glbFile.name, "kích thước:", glbFile.size, "bytes");
-
-            // Kiểm tra kích thước file trước khi upload
-            const maxSize = CLOUDINARY_CONFIG.FILE_SIZE_LIMITS.GLB; // Lấy limit từ config
-            const fileSizeMB = (glbFile.size / (1024 * 1024)).toFixed(2);
-            const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
-
-            if (glbFile.size > maxSize) {
-                console.warn(`⚠️ File quá lớn: ${fileSizeMB}MB (giới hạn: ${maxSizeMB}MB)`);
-
-                // Hiển thị cảnh báo cho người dùng với gợi ý tối ưu hóa
-                const shouldContinue = confirm(
-                    `Cảnh báo: File GLB có kích thước ${fileSizeMB}MB, vượt quá giới hạn ${maxSizeMB}MB của Cloudinary.\n\n` +
-                    `💡 Gợi ý tối ưu hóa:\n` +
-                    `• Giảm số lượng texture (hiện tại: ${appliedTextures.length})\n` +
-                    `• Giảm số lượng accessory (hiện tại: ${accessories.length})\n` +
-                    `• Sử dụng texture có kích thước nhỏ hơn\n` +
-                    `• Nâng cấp Cloudinary plan để tăng giới hạn\n\n` +
-                    `Bạn có muốn tiếp tục upload (có thể thất bại)?`
-                );
-
-                if (!shouldContinue) {
-                    alert("Đã hủy lưu. Hãy thử tối ưu hóa thiết kế theo gợi ý ở trên.");
-                    return;
-                }
-            } else {
-                console.log(`✅ Kích thước file OK: ${fileSizeMB}MB (dưới giới hạn ${maxSizeMB}MB)`);
-            }
-
-            // Upload GLB file lên Cloudinary
-            console.log("☁️ Đang upload GLB scene lên Cloudinary...");
-            const cloudinaryUrl = await uploadModelToCloudinary(glbFile);
-            console.log("✅ Scene GLB đã upload lên Cloudinary:", cloudinaryUrl);
+            // Upload JSON file lên Cloudinary
+            console.log("☁️ Đang upload JSON lên Cloudinary...");
+            const cloudinaryUrl = await uploadModelToCloudinary(jsonFile);
+            console.log("✅ JSON đã upload lên Cloudinary:", cloudinaryUrl);
 
             // Lưu Cloudinary URL vào database thông qua canvas3D field
             if (onSave) {
-                // ✅ Lưu tất cả thiết kế: model mặc định, model tùy chỉnh, có texture/accessory/text
-                // sceneUrl: URL của GLB file chứa toàn bộ scene (model + textures + accessories + texts)
-                const canvas3DData = {
-                    sceneUrl: cloudinaryUrl,
+                // ✅ Lưu JSON data thay vì GLB URL
+                const canvas3DString = JSON.stringify({
+                    jsonUrl: cloudinaryUrl, // URL của JSON file
                     modelName: getCurrentModel().name,
-                    isDefaultModel: getCurrentModel().isDefault, // Thêm thông tin về model mặc định
+                    isDefaultModel: getCurrentModel().isDefault,
                     savedAt: new Date().toISOString(),
-                    sceneInfo: {
-                        texturesCount: appliedTextures.length,
-                        accessoriesCount: accessories.length,
-                        textsCount: appliedTexts.length,
-                        hasCurrentTexture: !!(customTexture || uploadedImage),
-                        hasCurrentText: !!(customText && customText.trim() !== "")
+                    sceneInfo: canvas3DData.sceneInfo,
+                    // Thêm preview data để hiển thị trong list
+                    preview: {
+                        modelId: currentModelId,
+                        hasTexture: !!(customTexture || uploadedImage),
+                        hasText: !!(customText && customText.trim() !== ""),
+                        elementsCount: appliedTexts.length + appliedTextures.length + accessories.length
                     }
-                };
+                });
 
-                const canvas3DString = JSON.stringify(canvas3DData);
                 onSave(canvas3DString); // Truyền JSON string để lưu vào canvas3D field
                 console.log("🚀 Đã gọi callback onSave với canvas3D data:", canvas3DString);
             }
 
-            console.log("🎉 Lưu scene 3D thành công!");
+            console.log("🎉 Lưu thiết kế 3D thành công!");
             console.log("✅ Đã lưu thiết kế với model:", getCurrentModel().isDefault ? "MẶC ĐỊNH" : "TÙY CHỈNH");
             console.log("✅ Scene bao gồm:", {
                 model: getCurrentModel().name,
@@ -1375,6 +1364,11 @@ export default function PlushDollDesign3D({
                 accessories: accessories.length,
                 texts: appliedTexts.length
             });
+
+            alert("✅ Thiết kế 3D đã được lưu thành công!\n\n" +
+                "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n" +
+                "☁️ File đã được upload lên Cloudinary\n" +
+                "💾 Dữ liệu đã được lưu vào database");
 
         } catch (error) {
             console.error("❌ Lỗi khi lưu thiết kế 3D:", error);
@@ -1791,6 +1785,8 @@ export default function PlushDollDesign3D({
             `• Textures: ${canvas3DData.appliedTextures} items\n` +
             `• Accessories: ${canvas3DData.accessories} items\n` +
             `• Total elements: ${canvas3DData.metadata.totalElements}\n\n` +
+            `💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB)\n` +
+            `☁️ File sẽ được upload lên Cloudinary\n\n` +
             `Nhấn "Lưu 3D" để lưu vào database!`);
     }
 
@@ -1968,6 +1964,7 @@ export default function PlushDollDesign3D({
                                                 showAxes={showAxes}
                                                 modelPosition={modelPosition}
                                                 onDimensionsChange={setCanvasModelDims}
+                                                loadedScene={loadedScene || undefined}
                                             />
                                             <Environment preset="studio" />
                                         </Suspense>
@@ -3424,29 +3421,60 @@ export default function PlushDollDesign3D({
                                 const canvas3DData = JSON.parse(canvas3D);
                                 console.log("Parsed 3D data:", canvas3DData);
 
-                                // Kiểm tra xem có sceneUrl (mới) hoặc modelUrl (cũ) không
-                                if (canvas3DData.sceneUrl || canvas3DData.modelUrl) {
+                                // ✅ Kiểm tra format mới (jsonUrl) hoặc format cũ (sceneUrl/modelUrl)
+                                if (canvas3DData.jsonUrl) {
+                                    // Format mới: JSON file trên Cloudinary
+                                    console.log("🔄 Đang tải JSON từ Cloudinary:", canvas3DData.jsonUrl);
+
+                                    // Hiển thị loading state
+                                    setIsLoadingScene(true);
+
+                                    try {
+                                        // 1. Fetch JSON data từ Cloudinary
+                                        const response = await fetch(canvas3DData.jsonUrl);
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                        }
+
+                                        const jsonData = await response.json();
+                                        console.log("✅ JSON data đã tải từ Cloudinary:", jsonData);
+
+                                        // 2. Restore toàn bộ scene từ JSON data
+                                        await restoreSceneFromJSON(jsonData);
+
+                                        console.log("✅ Scene đã được restore từ JSON thành công!");
+                                        alert(`✅ Scene "${jsonData.modelName}" đã được restore thành công!\n\nScene bao gồm:\n• Model: ${jsonData.modelName}\n• Textures: ${jsonData.sceneInfo?.texturesCount || 0}\n• Accessories: ${jsonData.sceneInfo?.accessoriesCount || 0}\n• Texts: ${jsonData.sceneInfo?.textsCount || 0}\n• Format: JSON (nhẹ hơn GLB)\n\nScene đã được tái tạo và hiển thị trong canvas!`);
+
+                                    } catch (jsonError) {
+                                        console.error("❌ Lỗi khi tải JSON từ Cloudinary:", jsonError);
+                                        alert("⚠️ Không thể tải dữ liệu JSON từ Cloudinary. Vui lòng thử lại.");
+                                    } finally {
+                                        setIsLoadingScene(false);
+                                    }
+
+                                } else if (canvas3DData.sceneUrl || canvas3DData.modelUrl) {
+                                // Format cũ: GLB file trên Cloudinary (để backward compatibility)
                                     const targetUrl = canvas3DData.sceneUrl || canvas3DData.modelUrl;
                                     const isNewFormat = !!canvas3DData.sceneUrl;
 
-                                    console.log("🔄 Đang tải scene từ Cloudinary:", targetUrl);
+                                    console.log("🔄 Đang tải scene GLB từ Cloudinary (format cũ):", targetUrl);
                                     console.log("📋 Format:", isNewFormat ? "Mới (sceneUrl)" : "Cũ (modelUrl)");
 
                                     // Hiển thị loading state
                                     setIsLoadingScene(true);
 
-                                    // Load scene GLB từ Cloudinary
-                                    const loader = new GLTFLoader();
-                                    await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-                                        loader.load(targetUrl, resolve, undefined, reject);
-                                    });
-
-                                    console.log("✅ Scene đã tải thành công từ Cloudinary");
-
-                                    // ✅ Restore scene từ Cloudinary GLB
-                                    console.log("🔄 Bắt đầu restore scene vào canvas...");
-
                                     try {
+                                        // Load scene GLB từ Cloudinary
+                                        const loader = new GLTFLoader();
+                                        await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
+                                            loader.load(targetUrl, resolve, undefined, reject);
+                                        });
+
+                                        console.log("✅ Scene GLB đã tải thành công từ Cloudinary");
+
+                                        // ✅ Restore scene từ GLB (format cũ)
+                                        console.log("🔄 Bắt đầu restore scene từ GLB...");
+
                                         // 1. Clear current scene state
                                         setAppliedTextures([]);
                                         setAppliedTextures([]);
@@ -3487,7 +3515,7 @@ export default function PlushDollDesign3D({
                                         }
 
                                     } catch (restoreError) {
-                                        console.error("❌ Lỗi khi restore scene:", restoreError);
+                                        console.error("❌ Lỗi khi restore scene từ GLB:", restoreError);
                                         alert("⚠️ Scene đã được tải nhưng có lỗi khi restore. Vui lòng thử lại.");
                                     } finally {
                                         // Tắt loading state
@@ -3495,7 +3523,7 @@ export default function PlushDollDesign3D({
                                     }
 
                                 } else {
-                                    console.warn("Không tìm thấy sceneUrl hoặc modelUrl trong canvas3D data");
+                                    console.warn("Không tìm thấy jsonUrl, sceneUrl hoặc modelUrl trong canvas3D data");
                                     alert("Dữ liệu canvas3D không hợp lệ hoặc không có URL");
                                 }
 

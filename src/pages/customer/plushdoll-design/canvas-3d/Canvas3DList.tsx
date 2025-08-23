@@ -210,6 +210,24 @@ export default function Canvas3DList({ onSelect, onRefresh }: Canvas3DListProps)
                                             )}
                                         </div>
                                         
+                                        {/* Format Information */}
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <span className="font-medium">Format:</span>
+                                            {canvas3DData.jsonUrl ? (
+                                                <Badge variant="default" className="text-xs bg-green-600">
+                                                    JSON (Nhẹ)
+                                                </Badge>
+                                            ) : canvas3DData.sceneUrl || canvas3DData.modelUrl ? (
+                                                <Badge variant="outline" className="text-xs">
+                                                    GLB (Nặng)
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary" className="text-xs">
+                                                    Không xác định
+                                                </Badge>
+                                            )}
+                                        </div>
+
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                             <Calendar className="h-4 w-4" />
                                             <span className="font-medium">Lưu lúc:</span>
@@ -247,6 +265,31 @@ export default function Canvas3DList({ onSelect, onRefresh }: Canvas3DListProps)
                                             </div>
                                         )}
 
+                                        {/* Preview Information for JSON format */}
+                                        {canvas3DData.preview && (
+                                            <div className="space-y-1 pt-2 border-t border-gray-100">
+                                                <div className="text-xs text-gray-500 font-medium">Preview (JSON):</div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <span>📦</span>
+                                                        <span>Model: {canvas3DData.preview.modelId}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🎨</span>
+                                                        <span>Texture: {canvas3DData.preview.hasTexture ? 'Có' : 'Không'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>📝</span>
+                                                        <span>Text: {canvas3DData.preview.hasText ? 'Có' : 'Không'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🔢</span>
+                                                        <span>Elements: {canvas3DData.preview.elementsCount}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex gap-2 pt-2">
                                             <Button 
                                                 onClick={() => handleSelectCanvas(canvas)}
@@ -261,10 +304,16 @@ export default function Canvas3DList({ onSelect, onRefresh }: Canvas3DListProps)
                                                 variant="outline" 
                                                 size="sm"
                                                 onClick={() => {
-                                                    if (canvas3DData?.sceneUrl) {
+                                                    // Mở URL tương ứng với format
+                                                    if (canvas3DData?.jsonUrl) {
+                                                        window.open(canvas3DData.jsonUrl, '_blank');
+                                                    } else if (canvas3DData?.sceneUrl) {
                                                         window.open(canvas3DData.sceneUrl, '_blank');
+                                                    } else if (canvas3DData?.modelUrl) {
+                                                        window.open(canvas3DData.modelUrl, '_blank');
                                                     }
                                                 }}
+                                                title={canvas3DData?.jsonUrl ? "Xem file JSON" : "Tải file GLB"}
                                             >
                                                 <Download className="h-4 w-4" />
                                             </Button>
