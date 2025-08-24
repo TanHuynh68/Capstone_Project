@@ -82,6 +82,8 @@ import ImageFilterPanel, {
   ActiveFilters,
 } from "./ImageFilterPanel";
 import CanvasService from "@/services/CanvasService";
+import Message from "@/components/atoms/layout/navbar/Message";
+import { isLoggedIn } from "@/utils";
 
 // Add proper type for drag events
 type DragEventHandler = (e: DragEvent<HTMLCanvasElement>) => void;
@@ -3412,6 +3414,11 @@ const PlushDollDesign: React.FC = () => {
         </div>
 
         <div className="flex gap-2">
+
+          <Button className="flex items-center gap-2 p-0" variant="outline">
+            {isLoggedIn() && <Message />}
+          </Button>
+
           {/* Nút chuyển đổi 2D/3D */}
           <Button
             variant={is3DMode ? "default" : "outline"}
@@ -3420,7 +3427,7 @@ const PlushDollDesign: React.FC = () => {
           >
             <Box className="w-4 h-4" />
             <span className="text-xs font-medium">
-              {is3DMode ? "3D" : "2D"}
+              {is3DMode ? "2D" : "3D"}
             </span>
           </Button>
 

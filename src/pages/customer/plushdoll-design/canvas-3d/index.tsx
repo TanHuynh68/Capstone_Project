@@ -35,6 +35,7 @@ import CLOUDINARY_CONFIG from '@/config/cloudinary';
 import Canvas3DList from './Canvas3DList';
 import { useLocation } from "react-router-dom"
 import { toast } from "sonner"
+import { Navbar } from "@/components/layouts/customer-layout/Navbar"
 
 
 // Component để render texture với tỷ lệ khung hình đúng (contain)
@@ -732,6 +733,9 @@ export default function PlushDollDesign3D({
     const [loadedScene, setLoadedScene] = useState<THREE.Group | null>(null)
     const [isLoadingScene, setIsLoadingScene] = useState(false)
 
+    // State cho loading khi lưu 3D
+    const [isSaving3D, setIsSaving3D] = useState(false)
+
     // Cập nhật anchorPoints dựa trên model được chọn
     const getCurrentAnchorPoints = () => {
         if (currentModelId === "small-labubu") {
@@ -982,13 +986,24 @@ export default function PlushDollDesign3D({
             if (result.error) {
                 console.error("❌ Cloudinary error:", result.error);
 
-                // Xử lý lỗi file size specifically
-                if (result.error.message && result.error.message.includes('File size too large')) {
-                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                    throw new Error(`File quá lớn (${fileSizeMB}MB). Cloudinary free plan chỉ cho phép tối đa 10MB. Vui lòng nâng cấp plan hoặc tối ưu hóa thiết kế.`);
+                // Xử lý các loại lỗi cụ thể từ Cloudinary
+                let errorMessage = result.error.message || 'Upload failed';
+
+                if (result.error.message) {
+                    if (result.error.message.includes('File size too large')) {
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const maxSizeMB = 10;
+                        errorMessage = `File quá lớn (${fileSizeMB}MB). Cloudinary chỉ cho phép tối đa ${maxSizeMB}MB. Vui lòng nâng cấp plan hoặc tối ưu hóa thiết kế.`;
+                    } else if (result.error.message.includes('Invalid file type')) {
+                        errorMessage = 'Loại file không được hỗ trợ. Vui lòng chọn file JSON hợp lệ.';
+                    } else if (result.error.message.includes('Upload preset not found')) {
+                        errorMessage = 'Cấu hình upload không hợp lệ. Vui lòng liên hệ admin.';
+                    } else if (result.error.message.includes('Quota exceeded')) {
+                        errorMessage = 'Đã vượt quá giới hạn upload. Vui lòng nâng cấp plan Cloudinary.';
+                    }
                 }
 
-                throw new Error(result.error.message || 'Upload failed');
+                throw new Error(errorMessage);
             }
 
             if (!response.ok) {
@@ -1337,6 +1352,9 @@ export default function PlushDollDesign3D({
     // 💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB của Cloudinary)
     const handleSave3D = async () => {
         try {
+            // Bật loading state
+            setIsSaving3D(true);
+
             console.log("🚀 Bắt đầu lưu thiết kế 3D (convert to JSON)...");
             console.log("📋 Thông tin thiết kế hiện tại:");
             console.log("  • Model ID:", currentModelId);
@@ -1445,10 +1463,9 @@ export default function PlushDollDesign3D({
                 texts: appliedTexts.length
             });
 
-            alert("✅ Thiết kế 3D đã được lưu thành công!\n\n" +
-                "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n" +
-                "☁️ File đã được upload lên Cloudinary\n" +
-                "💾 Dữ liệu đã được lưu vào database");
+            // toast.success("✅ Thiết kế 3D đã được lưu thành công!", {
+            //     description: "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n☁️ File đã được upload lên Cloudinary\n💾 Dữ liệu đã được lưu vào database"
+            // });
 
         } catch (error) {
             console.error("❌ Lỗi khi lưu thiết kế 3D:", error);
@@ -1464,7 +1481,15 @@ export default function PlushDollDesign3D({
                     accessoriesCount: accessories.length
                 }
             });
-            alert("Có lỗi xảy ra khi lưu thiết kế 3D!");
+
+            // Hiển thị lỗi chi tiết từ Cloudinary
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            toast.error("❌ Lỗi khi lưu thiết kế 3D!", {
+                description: errorMessage
+            });
+        } finally {
+            // Tắt loading state
+            setIsSaving3D(false);
         }
     };
 
@@ -1867,7 +1892,9 @@ export default function PlushDollDesign3D({
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
 
+            <Navbar />
             <div className="container mx-auto p-4">
+
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                         <div>
@@ -1936,10 +1963,20 @@ export default function PlushDollDesign3D({
 
                         <Button
                             onClick={handleSave3D}
+                            disabled={isSaving3D}
                             className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                            <Download className="w-4 h-4 mr-2" />
-                            Lưu 3D
+                            {isSaving3D ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Đang lưu...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Lưu 3D
+                                </>
+                            )}
                         </Button>
                         <Button onClick={handleExport} className="bg-purple-600 hover:bg-purple-700 text-white">
                             <Download className="w-4 h-4 mr-2" />
@@ -3423,6 +3460,17 @@ export default function PlushDollDesign3D({
                     <div className="bg-white p-6 rounded-lg shadow-lg text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-lg font-semibold">Đang tải scene...</p>
+                        <p className="text-gray-600 text-sm">Vui lòng chờ trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading Indicator cho Save 3D */}
+            {isSaving3D && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                        <p className="text-lg font-semibold">Đang lưu thiết kế 3D...</p>
                         <p className="text-gray-600 text-sm">Vui lòng chờ trong giây lát</p>
                     </div>
                 </div>
