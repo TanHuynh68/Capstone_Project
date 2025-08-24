@@ -63,7 +63,11 @@ interface GrowthRates {
 
   oldReport: number
   newReport: number
-  reportGrowthRate: number
+  reportGrowthRate: number;
+
+  oldRevenue: number;
+  newRevenue: number;
+  revenueGrowthRate: number
 }
 
 interface DateRange {
