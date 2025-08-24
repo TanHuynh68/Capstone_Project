@@ -5,7 +5,7 @@ import * as THREE from "three"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Environment, useGLTF, Html } from "@react-three/drei"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { Suspense, useState, useRef, useEffect, forwardRef, useCallback } from "react"
+import { Suspense, useState, useRef, useEffect, forwardRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // Local rotation slider styling for this page only
@@ -15,17 +15,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import {
     Type,
+    ImageIcon,
     Download,
     RotateCcw,
     Link,
     Target,
+    Settings,
+    Upload,
     Trash2,
     Box,
     Plus,
-    Play,
-    Pause,
-    Check,
-    Package,
 } from "lucide-react"
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -33,9 +32,6 @@ import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 
 import CLOUDINARY_CONFIG from '@/config/cloudinary';
 import Canvas3DList from './Canvas3DList';
-import { useLocation } from "react-router-dom"
-import { toast } from "sonner"
-import { Navbar } from "@/components/layouts/customer-layout/Navbar"
 
 
 // Component để render texture với tỷ lệ khung hình đúng (contain)
@@ -78,25 +74,25 @@ const TexturePlane = forwardRef<THREE.Mesh, {
 TexturePlane.displayName = 'TexturePlane';
 
 const DEFAULT_ANCHOR_POINTS = {
-    head: { x: 0, y: -0.025, z: 0.275, label: "Đầu" },
-    chest_belly: { x: 0, y: -0.195, z: -0.465, label: "Ngực + Bụng" },
-    back: { x: 0, y: 0.25, z: -0.4, label: "Lưng" },
-    left_hand: { x: -0.38, y: -0.04, z: -0.485, label: "Tay trái" },
-    right_hand: { x: 0.38, y: -0.04, z: -0.485, label: "Tay phải" },
-    left_foot: { x: -0.15, y: -0.02, z: -1.0, label: "Chân trái" },
-    right_foot: { x: 0.15, y: -0.02, z: -1.0, label: "Chân phải" },
+    head: { x: 0, y: -0.025, z: 0.275, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.195, z: -0.465, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.25, z: -0.4, label: "🔙 Lưng" },
+    left_hand: { x: -0.38, y: -0.04, z: -0.485, label: "🤚 Tay trái" },
+    right_hand: { x: 0.38, y: -0.04, z: -0.485, label: "🖐️ Tay phải" },
+    left_foot: { x: -0.15, y: -0.02, z: -1.0, label: "🦶 Chân trái" },
+    right_foot: { x: 0.15, y: -0.02, z: -1.0, label: "🦵 Chân phải" },
 }
 
 // Thêm điểm neo cho model thứ hai (Labubu Classic - model lớn hơn)
 // Điểm neo được tối ưu cho kích thước và tỷ lệ của Labubu Classic
 const SMALL_MODEL_ANCHOR_POINTS = {
-    head: { x: 0, y: 0, z: 0.8, label: "Đầu" },
-    chest_belly: { x: 0, y: -0.43, z: -0.55, label: "Ngực + Bụng" },
-    back: { x: 0, y: 0.3, z: -0.46, label: "Lưng" },
-    left_hand: { x: -0.52, y: -0.13, z: -0.70, label: "Tay trái" },
-    right_hand: { x: 0.52, y: -0.13, z: -0.70, label: "Tay phải" },
-    left_foot: { x: 0.26, y: -0.12, z: -1.20, label: "Chân trái" },
-    right_foot: { x: -0.26, y: -0.12, z: -1.20, label: "Chân phải" },
+    head: { x: 0, y: 0, z: 0.8, label: "🗣️ Đầu" },
+    chest_belly: { x: 0, y: -0.43, z: -0.55, label: "💗🤰 Ngực + Bụng" },
+    back: { x: 0, y: 0.3, z: -0.46, label: "🔙 Lưng" },
+    left_hand: { x: -0.52, y: -0.13, z: -0.70, label: "🤚 Tay trái" },
+    right_hand: { x: 0.52, y: -0.13, z: -0.70, label: "🖐️ Tay phải" },
+    left_foot: { x: 0.26, y: -0.12, z: -1.20, label: "🦶 Chân trái" },
+    right_foot: { x: -0.26, y: -0.12, z: -1.20, label: "🦵 Chân phải" },
 }
 
 interface GLBModel {
@@ -645,30 +641,22 @@ interface PlushDollDesign3DProps {
     onBackTo2D: () => void;
     onSave?: (canvas3DData: string) => void; // Nhận JSON string để lưu vào canvas3D field
     canvas3DData?: string;
-    fromChat?: boolean;
-    openCanvas3DList?: boolean;
-    selectedCanvas3D?: {
-        canvas3D: string;
-        title: string;
-        id: string;
-    };
 }
 
 export default function PlushDollDesign3D({
     onBackTo2D,
     onSave,
-    canvas3DData,
-    fromChat,
-    openCanvas3DList,
-    selectedCanvas3D
+    canvas3DData
 }: PlushDollDesign3DProps) {
-    const location = useLocation()
-
-    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
+// ✅ Component hỗ trợ lưu tất cả thiết kế 3D:
+// - Model mặc định (Labubu Classic, Small Labubu)
+// - Model tùy chỉnh (upload GLB)
+// - Có texture, accessory, text
+// - Không có giới hạn về loại model
     const [glbModels, setGlbModels] = useState<GLBModel[]>([
         {
             id: "default-labubu",
-            name: "Labubu Keychain",
+            name: "Labubu Keychain (Mặc định)",
             url: "/model/plush_labubu_keychain_character.glb",
             isDefault: true,
         },
@@ -728,8 +716,34 @@ export default function PlushDollDesign3D({
     const [loadedScene, setLoadedScene] = useState<THREE.Group | null>(null)
     const [isLoadingScene, setIsLoadingScene] = useState(false)
 
-    // State cho loading khi lưu 3D
-    const [isSaving3D, setIsSaving3D] = useState(false)
+    // Cập nhật anchorPoints dựa trên model được chọn
+    const getCurrentAnchorPoints = () => {
+        if (currentModelId === "small-labubu") {
+            return SMALL_MODEL_ANCHOR_POINTS
+        }
+        return DEFAULT_ANCHOR_POINTS
+    }
+
+    const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
+
+    // Cập nhật anchorPoints khi thay đổi model
+    const handleModelChange = (modelId: string) => {
+        setCurrentModelId(modelId)
+        if (modelId === "small-labubu") {
+            setAnchorPoints(SMALL_MODEL_ANCHOR_POINTS)
+        } else {
+            setAnchorPoints(DEFAULT_ANCHOR_POINTS)
+        }
+        // Reset các vị trí về mặc định khi đổi model
+        setTextPosition({ x: 0, y: 1, z: 0.5 })
+        setTexturePosition({ x: 0, y: 0, z: 0.3 })
+        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
+        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
+        setModelPosition({ x: 0, y: 0, z: 0 })
+        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
+        setSelectedTextAnchor("")
+        setSelectedTextureAnchor("")
+    }
 
     const [editingAnchor, setEditingAnchor] = useState<string>("")
     const [showAnchorPoints, setShowAnchorPoints] = useState(false)
@@ -749,105 +763,7 @@ export default function PlushDollDesign3D({
     // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
     const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
 
-    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
-    const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
-
-    // ✅ Cập nhật anchorPoints dựa trên model được chọn - sử dụng useCallback để tránh re-render không cần thiết
-    const getCurrentAnchorPoints = useCallback(() => {
-        if (currentModelId === "small-labubu") {
-            return SMALL_MODEL_ANCHOR_POINTS
-        }
-        return DEFAULT_ANCHOR_POINTS
-    }, [currentModelId])
-
-    // ✅ Cập nhật anchorPoints khi thay đổi model
-    const handleModelChange = useCallback((modelId: string) => {
-        setCurrentModelId(modelId)
-        if (modelId === "small-labubu") {
-            setAnchorPoints(SMALL_MODEL_ANCHOR_POINTS)
-        } else {
-            setAnchorPoints(DEFAULT_ANCHOR_POINTS)
-        }
-        // Reset các vị trí về mặc định khi đổi model
-        setTextPosition({ x: 0, y: 1, z: 0.5 })
-        setTexturePosition({ x: 0, y: 0, z: 0.3 })
-        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
-        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
-        setModelPosition({ x: 0, y: 0, z: 0 })
-        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
-        setSelectedTextAnchor("")
-        setSelectedTextureAnchor("")
-    }, [])
-
-    // ✅ Tự động mở sidebar Canvas3DList và chọn canvas khi có props từ chat
-    useEffect(() => {
-        if (fromChat && openCanvas3DList && selectedCanvas3D) {
-            console.log('Auto-opening Canvas3DList from chat with selected canvas:', selectedCanvas3D);
-
-            // Tự động mở sidebar
-            setShowCanvas3DList(true);
-
-            // Tự động chọn canvas đã được chọn từ chat
-            setTimeout(() => {
-                if (selectedCanvas3D.canvas3D) {
-                    // Gọi onSelect callback để load canvas
-                    const handleSelect = async (canvas3D: string, title: string, id: string) => {
-                        console.log("Auto-loading 3D canvas from chat:", { canvas3D, title, id });
-                        try {
-                            const canvas3DData = JSON.parse(canvas3D);
-                            console.log("Parsed 3D data from chat:", canvas3DData);
-
-                            // Kiểm tra format mới (jsonUrl) hoặc format cũ (sceneUrl/modelUrl)
-                            if (canvas3DData.jsonUrl) {
-                                // Format mới: JSON file trên Cloudinary
-
-                                // Hiển thị loading state
-                                setIsLoadingScene(true);
-
-                                try {
-                                    // 1. Fetch JSON data từ Cloudinary
-                                    const response = await fetch(canvas3DData.jsonUrl);
-                                    if (!response.ok) {
-                                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                                    }
-
-                                    const jsonData = await response.json();
-
-                                    // 2. Restore toàn bộ scene từ JSON data
-                                    await restoreSceneFromJSON(jsonData);
-
-                                } catch (jsonError) {
-                                    console.error("❌ Lỗi khi tải JSON từ Cloudinary (từ chat):", jsonError);
-                                    toast.error("⚠️ Không thể tải dữ liệu JSON từ Cloudinary. Vui lòng thử lại.");
-                                } finally {
-                                    setIsLoadingScene(false);
-                                }
-
-                            } else if (canvas3DData.sceneUrl || canvas3DData.modelUrl) {
-                                // Format cũ: GLB file trên Cloudinary
-                                toast.info("🔄 Đang tải scene GLB từ Cloudinary (format cũ)...");
-                                // Xử lý format cũ nếu cần
-                            }
-                        } catch (error) {
-                            console.error("❌ Lỗi khi auto-load canvas từ chat:", error);
-                            toast.error("⚠️ Có lỗi xảy ra khi tải canvas từ chat.");
-                        }
-                    };
-
-                    // Gọi handleSelect với canvas đã chọn từ chat
-                    handleSelect(selectedCanvas3D.canvas3D, selectedCanvas3D.title, selectedCanvas3D.id);
-                }
-            }, 100); // Delay nhỏ để đảm bảo sidebar đã mở
-        }
-    }, [fromChat, openCanvas3DList, selectedCanvas3D]);
-
-    // ✅ Cập nhật anchorPoints khi thay đổi model
-    useEffect(() => {
-        const newAnchorPoints = getCurrentAnchorPoints();
-        setAnchorPoints(newAnchorPoints);
-    }, [getCurrentAnchorPoints]);
-
-    // ✅ Load dữ liệu 3D khi component mount - Parse JSON và restore toàn bộ thiết kế
+    // Load dữ liệu 3D khi component mount - Parse JSON và restore toàn bộ thiết kế
     useEffect(() => {
         if (canvas3DData) {
             try {
@@ -986,24 +902,13 @@ export default function PlushDollDesign3D({
             if (result.error) {
                 console.error("❌ Cloudinary error:", result.error);
 
-                // Xử lý các loại lỗi cụ thể từ Cloudinary
-                let errorMessage = result.error.message || 'Upload failed';
-
-                if (result.error.message) {
-                    if (result.error.message.includes('File size too large')) {
-                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        const maxSizeMB = 10;
-                        errorMessage = `File quá lớn (${fileSizeMB}MB). Cloudinary chỉ cho phép tối đa ${maxSizeMB}MB. Vui lòng nâng cấp plan hoặc tối ưu hóa thiết kế.`;
-                    } else if (result.error.message.includes('Invalid file type')) {
-                        errorMessage = 'Loại file không được hỗ trợ. Vui lòng chọn file JSON hợp lệ.';
-                    } else if (result.error.message.includes('Upload preset not found')) {
-                        errorMessage = 'Cấu hình upload không hợp lệ. Vui lòng liên hệ admin.';
-                    } else if (result.error.message.includes('Quota exceeded')) {
-                        errorMessage = 'Đã vượt quá giới hạn upload. Vui lòng nâng cấp plan Cloudinary.';
-                    }
+                // Xử lý lỗi file size specifically
+                if (result.error.message && result.error.message.includes('File size too large')) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    throw new Error(`File quá lớn (${fileSizeMB}MB). Cloudinary free plan chỉ cho phép tối đa 10MB. Vui lòng nâng cấp plan hoặc tối ưu hóa thiết kế.`);
                 }
 
-                throw new Error(errorMessage);
+                throw new Error(result.error.message || 'Upload failed');
             }
 
             if (!response.ok) {
@@ -1352,9 +1257,6 @@ export default function PlushDollDesign3D({
     // 💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB của Cloudinary)
     const handleSave3D = async () => {
         try {
-            // Bật loading state
-            setIsSaving3D(true);
-
             console.log("🚀 Bắt đầu lưu thiết kế 3D (convert to JSON)...");
             console.log("📋 Thông tin thiết kế hiện tại:");
             console.log("  • Model ID:", currentModelId);
@@ -1463,9 +1365,10 @@ export default function PlushDollDesign3D({
                 texts: appliedTexts.length
             });
 
-            // toast.success("✅ Thiết kế 3D đã được lưu thành công!", {
-            //     description: "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n☁️ File đã được upload lên Cloudinary\n💾 Dữ liệu đã được lưu vào database"
-            // });
+            alert("✅ Thiết kế 3D đã được lưu thành công!\n\n" +
+                "📁 Đã lưu dưới dạng JSON (nhẹ hơn GLB)\n" +
+                "☁️ File đã được upload lên Cloudinary\n" +
+                "💾 Dữ liệu đã được lưu vào database");
 
         } catch (error) {
             console.error("❌ Lỗi khi lưu thiết kế 3D:", error);
@@ -1481,15 +1384,7 @@ export default function PlushDollDesign3D({
                     accessoriesCount: accessories.length
                 }
             });
-
-            // Hiển thị lỗi chi tiết từ Cloudinary
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            toast.error("❌ Lỗi khi lưu thiết kế 3D!", {
-                description: errorMessage
-            });
-        } finally {
-            // Tắt loading state
-            setIsSaving3D(false);
+            alert("Có lỗi xảy ra khi lưu thiết kế 3D!");
         }
     };
 
@@ -1835,70 +1730,78 @@ export default function PlushDollDesign3D({
         }
     }
 
+    // Hàm helper để preview JSON trước khi lưu
+    const previewSaveData = () => {
+        console.log("👁️ Bắt đầu preview dữ liệu sẽ lưu...");
+        console.log("📊 Kiểm tra state hiện tại:");
+        console.log("  • Model ID:", currentModelId);
+        console.log("  • Model Name:", getCurrentModel().name);
+        console.log("  • Custom Texture:", customTexture ? "✅ Có" : "❌ Không có");
+        console.log("  • Custom Text:", customText || "❌ Không có");
+        console.log("  • Applied Texts:", appliedTexts.length, "items");
+        console.log("  • Applied Textures:", appliedTextures.length, "items");
+        console.log("  • Accessories:", accessories.length, "items");
+        console.log("  • Model Position:", modelPosition);
+        console.log("  • Anchor Points:", Object.keys(anchorPoints).length, "points");
 
-
-    // Check if we're coming from chat with 3D design data
-    useEffect(() => {
-        if (location.state?.fromChat && location.state?.canvas3DData) {
-            const { canvas3DData: chatCanvas3D } = location.state
-
-
-
-            // Auto-load the design
-            if (chatCanvas3D && !canvas3DData) {
-                // Parse and restore the design
-                try {
-                    const data = JSON.parse(chatCanvas3D)
-
-
-                    // Restore the design (similar to existing useEffect)
-                    if (data.currentModelId) {
-                        setCurrentModelId(data.currentModelId)
-                    }
-                    if (data.customTexture) {
-                        setCustomTexture(data.customTexture)
-                    }
-                    if (data.customText) {
-                        setCustomText(data.customText)
-                    }
-                    if (data.appliedTexts) {
-                        setAppliedTexts(data.appliedTexts)
-                    }
-                    if (data.appliedTextures) {
-                        setAppliedTextures(data.appliedTextures)
-                    }
-                    if (data.accessories) {
-                        setAccessories(data.accessories)
-                    }
-                    if (data.anchorPoints) {
-                        setAnchorPoints(data.anchorPoints)
-                    }
-                    if (data.modelPosition) {
-                        setModelPosition(data.modelPosition)
-                    }
-
-
-
-                } catch (error) {
-                    console.error("❌ Lỗi khi load thiết kế 3D từ chat:", error)
-                }
+        const canvas3DData = {
+            currentModelId,
+            customTexture: customTexture ? "✅ Có texture" : "❌ Không có texture",
+            customText: customText || "❌ Không có text",
+            textColor,
+            textBackgroundColor,
+            textSize,
+            appliedTexts: appliedTexts.length,
+            appliedTextures: appliedTextures.length,
+            accessories: accessories.length,
+            textPosition,
+            texturePosition,
+            textureScale,
+            chestBellyDecalScale,
+            showTextureOnBack,
+            anchorPoints: Object.keys(anchorPoints).length,
+            modelPosition,
+            modelInfo: {
+                name: getCurrentModel().name,
+                url: getCurrentModel().url,
+                isDefault: getCurrentModel().isDefault
+            },
+            metadata: {
+                savedAt: new Date().toISOString(),
+                version: "1.0",
+                totalElements: appliedTexts.length + appliedTextures.length + accessories.length
             }
+        };
 
-            // Clear the state to avoid re-loading
-            window.history.replaceState({}, document.title)
-        }
-    }, [location.state, canvas3DData])
+        console.log("📋 Preview object đã tạo:", canvas3DData);
+        console.log("📊 Tổng kết preview:");
+        console.log("  • Model:", canvas3DData.modelInfo.name);
+        console.log("  • Elements:", canvas3DData.metadata.totalElements);
+        console.log("  • Timestamp:", canvas3DData.metadata.savedAt);
+
+        alert(`📋 Preview dữ liệu sẽ lưu:\n\n` +
+            `• Model: ${canvas3DData.modelInfo.name}\n` +
+            `• Text: ${canvas3DData.customText}\n` +
+            `• Textures: ${canvas3DData.appliedTextures} items\n` +
+            `• Accessories: ${canvas3DData.accessories} items\n` +
+            `• Total elements: ${canvas3DData.metadata.totalElements}\n\n` +
+            `💡 Format mới: JSON (nhẹ hơn GLB, không bị giới hạn 10MB)\n` +
+            `☁️ File sẽ được upload lên Cloudinary\n\n` +
+            `Nhấn "Lưu 3D" để lưu vào database!`);
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-
-            <Navbar />
             <div className="container mx-auto p-4">
-
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-white">3D - {getCurrentModel().name}</h1>
+                            <h1 className="text-3xl font-bold text-white">🎨 3D Preview - {getCurrentModel().name}</h1>
+                            {loadedScene && (
+                                <p className="text-green-300 text-sm mt-1">
+                                    ✅ Scene đã được load từ Cloudinary
+                                </p>
+                            )}
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1943,8 +1846,7 @@ export default function PlushDollDesign3D({
                                 onClick={handleToggleRotation}
                                 className={`text-white border-white/20 ${isRotating ? "bg-green-600 hover:bg-green-700" : ""}`}
                             >
-                                {isRotating ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
-                                {isRotating ? "Dừng quay" : "Bắt đầu quay"}
+                                {isRotating ? "🔄 Dừng quay" : "▶️ Bắt đầu quay"}
                             </Button>
                         </div>
                         <Button
@@ -1960,23 +1862,20 @@ export default function PlushDollDesign3D({
                             <RotateCcw className="w-4 h-4 mr-1" />
                             Reset
                         </Button>
-
+                        <Button
+                            onClick={previewSaveData}
+                            variant="outline"
+                            size="sm"
+                            className="text-white border-white/20 hover:bg-white/10"
+                        >
+                            👁️ Preview
+                        </Button>
                         <Button
                             onClick={handleSave3D}
-                            disabled={isSaving3D}
                             className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                            {isSaving3D ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Đang lưu...
-                                </>
-                            ) : (
-                                <>
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Lưu 3D
-                                </>
-                            )}
+                            <Download className="w-4 h-4 mr-2" />
+                            Lưu 3D
                         </Button>
                         <Button onClick={handleExport} className="bg-purple-600 hover:bg-purple-700 text-white">
                             <Download className="w-4 h-4 mr-2" />
@@ -2091,33 +1990,33 @@ export default function PlushDollDesign3D({
                     <div className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Công cụ chỉnh sửa</CardTitle>
+                                <CardTitle>🛠️ Công cụ chỉnh sửa</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="models" className="w-full">
                                     <TabsList className="grid w-full grid-cols-6">
                                         <TabsTrigger value="models" className="flex items-center gap-1">
-                                            {/* <Box className="w-4 h-4" /> */}
+                                            <Box className="w-4 h-4" />
                                             Models
                                         </TabsTrigger>
                                         <TabsTrigger value="position" className="flex items-center gap-1">
-                                            {/* <Target className="w-4 h-4" /> */}
+                                            <Target className="w-4 h-4" />
                                             Vị trí
                                         </TabsTrigger>
                                         <TabsTrigger value="texture" className="flex items-center gap-1">
-                                            {/* <ImageIcon className="w-4 h-4" /> */}
-                                            Ảnh
+                                            <ImageIcon className="w-4 h-4" />
+                                            Texture
                                         </TabsTrigger>
                                         <TabsTrigger value="text" className="flex items-center gap-1">
-                                            {/* <Type className="w-4 h-4" /> */}
-                                            Văn bản
+                                            <Type className="w-4 h-4" />
+                                            Text
                                         </TabsTrigger>
                                         <TabsTrigger value="accessories" className="flex items-center gap-1">
-                                            {/* <Plus className="w-4 h-4" /> */}
+                                            <Plus className="w-4 h-4" />
                                             Phụ kiện
                                         </TabsTrigger>
                                         <TabsTrigger value="anchors" className="flex items-center gap-1">
-                                            {/* <Settings className="w-4 h-4" /> */}
+                                            <Settings className="w-4 h-4" />
                                             Điểm neo
                                         </TabsTrigger>
                                     </TabsList>
@@ -2135,7 +2034,7 @@ export default function PlushDollDesign3D({
                                                 />
                                             </div>
                                             <p className="text-xs text-gray-500 mt-1">
-                                                Chỉ hỗ trợ file .glb.
+                                                Chỉ hỗ trợ file .glb. File sẽ được tải lên và lưu trong trình duyệt.
                                             </p>
                                         </div>
 
@@ -2155,15 +2054,15 @@ export default function PlushDollDesign3D({
                                                                 onClick={() => handleModelChange(model.id)}
                                                                 className="text-xs"
                                                             >
-                                                                {currentModelId === model.id ? <Check className="w-4 h-4" /> : <Package className="w-4 h-4" />}
+                                                                {currentModelId === model.id ? "✅" : "📦"}
                                                             </Button>
                                                             <div>
                                                                 <div className="font-medium text-sm flex items-center gap-2">
                                                                     {model.name}
                                                                 </div>
-                                                                {/* {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
+                                                                {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
                                                                 {model.id === "small-labubu" && <div className="text-xs text-blue-500">✨ Labubu Classic - tỷ lệ thực</div>}
-                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 7 điểm neo</div>} */}
+                                                                {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 7 điểm neo</div>}
                                                             </div>
                                                         </div>
                                                         {!model.isDefault && model.id !== "small-labubu" && (
@@ -2180,6 +2079,36 @@ export default function PlushDollDesign3D({
                                                 ))}
                                             </div>
                                         </div>
+
+                                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <div className="flex items-start gap-2">
+                                                <Box className="w-4 h-4 text-blue-600 mt-0.5" />
+                                                <div className="text-sm">
+                                                    <div className="font-medium text-blue-800">Thông tin về các model:</div>
+                                                    <ul className="text-blue-700 text-xs mt-1 space-y-1">
+                                                        <li>• <strong>Labubu Keychain:</strong> Model chuẩn với 7 điểm neo cơ bản (không thể xóa)</li>
+                                                        <li>• <strong>Labubu Classic:</strong> Model với tỷ lệ thực tế và 7 điểm neo được tối ưu cho kích thước lớn (không thể xóa)</li>
+                                                        <li>• Mỗi model có các điểm neo được tối ưu cho kích thước tương ứng</li>
+                                                        <li>• Ngực và bụng được gộp thành 1 điểm neo duy nhất</li>
+                                                        <li>• Có thể upload thêm model tùy chỉnh (có thể xóa)</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                            <div className="flex items-start gap-2">
+                                                <Upload className="w-4 h-4 text-yellow-600 mt-0.5" />
+                                                <div className="text-sm">
+                                                    <div className="font-medium text-yellow-800">Lưu ý về file GLB:</div>
+                                                    <ul className="text-yellow-700 text-xs mt-1 space-y-1">
+                                                        <li>• File được lưu trong trình duyệt, sẽ mất khi xóa cache</li>
+                                                        <li>• Kích thước file nên dưới 10MB để tải nhanh</li>
+                                                        <li>• Model sẽ được scale tự động để phù hợp</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </TabsContent>
 
                                     <TabsContent value="position" className="space-y-4">
@@ -2190,8 +2119,8 @@ export default function PlushDollDesign3D({
                                                     <div className="font-medium text-blue-800">Điều chỉnh vị trí model chính:</div>
                                                     <ul className="text-blue-700 text-xs mt-1 space-y-1">
                                                         <li>• <strong>X (đỏ):</strong> Trục ngang - trái (-) / phải (+)</li>
-                                                        <li>• <strong>Y (xanh lá):</strong>Trục sâu - gần (-) / xa (+)</li>
-                                                        <li>• <strong>Z (xanh dương):</strong>Trục dọc - xuống (-) / lên (+)</li>
+                                                        <li>• <strong>Y (xanh lá):</strong> Trục dọc - xuống (-) / lên (+)</li>
+                                                        <li>• <strong>Z (xanh dương):</strong> Trục sâu - gần (-) / xa (+)</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -2246,7 +2175,7 @@ export default function PlushDollDesign3D({
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="model-y" className="text-xs text-green-600 font-medium">
-                                                        Y (Gần/Xa)
+                                                        Y (Xuống/Lên)
                                                     </Label>
                                                     <SliderPrimitive.Root
                                                         id="model-y"
@@ -2290,7 +2219,7 @@ export default function PlushDollDesign3D({
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="model-z" className="text-xs text-blue-600 font-medium">
-                                                        Z (Xuống/Lên)
+                                                        Z (Gần/Xa)
                                                     </Label>
                                                     <SliderPrimitive.Root
                                                         id="model-z"
@@ -2943,7 +2872,7 @@ export default function PlushDollDesign3D({
 
                                         {accessories.length === 0 && (
                                             <div className="text-center p-4 text-gray-500 text-sm">
-                                                Upload file GLB để thêm phụ kiện vào model!
+                                                📦 Chưa có phụ kiện nào. Upload file GLB để thêm phụ kiện vào model!
                                             </div>
                                         )}
                                     </TabsContent>
@@ -3465,17 +3394,6 @@ export default function PlushDollDesign3D({
                 </div>
             )}
 
-            {/* Loading Indicator cho Save 3D */}
-            {isSaving3D && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-                        <p className="text-lg font-semibold">Đang lưu thiết kế 3D...</p>
-                        <p className="text-gray-600 text-sm">Vui lòng chờ trong giây lát</p>
-                    </div>
-                </div>
-            )}
-
             {/* Canvas 3D List Sidebar */}
             <div
                 className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-transform duration-300 ease-in-out z-50 ${showCanvas3DList ? "translate-x-0" : "translate-x-full"
@@ -3524,7 +3442,8 @@ export default function PlushDollDesign3D({
                                         // 2. Restore toàn bộ scene từ JSON data
                                         await restoreSceneFromJSON(jsonData);
 
-
+                                        console.log("✅ Scene đã được restore từ JSON thành công!");
+                                        alert(`✅ Scene "${jsonData.modelName}" đã được restore thành công!\n\nScene bao gồm:\n• Model: ${jsonData.modelName}\n• Textures: ${jsonData.sceneInfo?.texturesCount || 0}\n• Accessories: ${jsonData.sceneInfo?.accessoriesCount || 0}\n• Texts: ${jsonData.sceneInfo?.textsCount || 0}\n• Format: JSON (nhẹ hơn GLB)\n\nScene đã được tái tạo và hiển thị trong canvas!`);
 
                                     } catch (jsonError) {
                                         console.error("❌ Lỗi khi tải JSON từ Cloudinary:", jsonError);
@@ -3534,7 +3453,7 @@ export default function PlushDollDesign3D({
                                     }
 
                                 } else if (canvas3DData.sceneUrl || canvas3DData.modelUrl) {
-                                    // Format cũ: GLB file trên Cloudinary (để backward compatibility)
+                                // Format cũ: GLB file trên Cloudinary (để backward compatibility)
                                     const targetUrl = canvas3DData.sceneUrl || canvas3DData.modelUrl;
                                     const isNewFormat = !!canvas3DData.sceneUrl;
 
@@ -3580,9 +3499,19 @@ export default function PlushDollDesign3D({
 
                                             // 4. Lưu scene đã load để hiển thị trong canvas
                                             setLoadedScene(sceneData.scene);
+                                            console.log("✅ Scene đã được load và sẵn sàng hiển thị trong canvas");
 
+                                            // 5. Restore scene info
+                                            const sceneInfo = isNewFormat ? canvas3DData.sceneInfo : sceneData.sceneInfo;
+                                            console.log("✅ Scene đã được restore:", {
+                                                model: sceneData.modelName,
+                                                textures: sceneInfo?.texturesCount || 0,
+                                                accessories: sceneInfo?.accessoriesCount || 0,
+                                                texts: sceneInfo?.textsCount || 0,
+                                                format: isNewFormat ? "Mới (sceneUrl)" : "Cũ (modelUrl)"
+                                            });
 
-
+                                            alert(`✅ Scene "${canvas3DData.modelName}" đã được restore thành công!\n\nScene bao gồm:\n• Model: ${sceneData.modelName}\n• Textures: ${sceneInfo?.texturesCount || 0}\n• Accessories: ${sceneInfo?.accessoriesCount || 0}\n• Texts: ${sceneInfo?.textsCount || 0}\n• Format: ${isNewFormat ? "Mới" : "Cũ"}\n\nScene đã được hiển thị trong canvas!`);
                                         }
 
                                     } catch (restoreError) {
@@ -3603,6 +3532,10 @@ export default function PlushDollDesign3D({
                                 alert("Lỗi khi tải dữ liệu canvas3D");
                             }
                             setShowCanvas3DList(false);
+                        }}
+                        onRefresh={() => {
+                            // Làm mới danh sách
+                            console.log("Refreshing 3D canvas list");
                         }}
                     />
                 </div>

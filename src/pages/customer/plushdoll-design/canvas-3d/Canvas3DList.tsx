@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FolderOpen, Box, Eye, ChevronRight, ChevronLeft, Loader2, FolderX, RotateCcw } from 'lucide-react';
+import { Calendar, FolderOpen, Box, Eye, Download, ChevronRight, ChevronLeft, Loader2, FolderX } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import CanvasService from '@/services/CanvasService';
@@ -26,17 +26,16 @@ interface Canvas3DFolder {
 
 interface Canvas3DListProps {
     onSelect: (canvas3D: string, title: string, id: string) => void;
+    onRefresh?: () => void;
 }
 
-export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
-    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional return nào
+export default function Canvas3DList({ onSelect, onRefresh }: Canvas3DListProps) {
     const [canvas3DList, setCanvas3DList] = useState<Canvas3DFolder[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [folderName, setFolderName] = useState("");
     const [page, setPage] = useState(1);
     const [searchTitle, setSearchTitle] = useState("");
-    const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
     const size = 10;
 
     const { getFolderCanvas } = CanvasService();
@@ -44,22 +43,21 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
     const loadList = useCallback(async () => {
         try {
             setLoading(true);
-            setError(null);
-
             const data = await getFolderCanvas({
                 FolderName: searchTitle,
                 page,
                 size,
             });
-
+            
             const items = data?.responseRequestModel?.responseList?.items || [];
-
+            
             // Lọc chỉ những canvas có canvas3D
-            const canvas3DItems = items.filter((item: Canvas3DFolder) =>
+            const canvas3DItems = items.filter((item: Canvas3DFolder) => 
                 item.latestCanvasInfo?.canvas3D
             );
-
+            
             setCanvas3DList(canvas3DItems);
+            setError(null);
         } catch (error) {
             setError('Không thể tải danh sách canvas 3D');
             console.error('Lỗi tải thiết kế 3D:', error);
@@ -68,23 +66,16 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
         }
     }, [page, getFolderCanvas, searchTitle]);
 
-    // Add a refresh function that can be called externally
-    const refreshList = useCallback(() => {
-        console.log('🔄 Refreshing Canvas3D list...');
-        setPage(1); // Reset to first page
-        setError(null);
-        setLastRefreshed(new Date());
-        loadList().then(() => {
-            console.log('✅ Canvas3D list refreshed successfully at', new Date().toLocaleTimeString());
-        });
-    }, [loadList]);
-
-    const handleSearch = useCallback(() => {
+    const handleSearch = () => {
         setSearchTitle(folderName);
         setPage(1);
-    }, [folderName]);
+    };
 
-    const handleSelectCanvas = useCallback((canvas: Canvas3DInfo) => {
+    useEffect(() => {
+        loadList();
+    }, [searchTitle, page, loadList]);
+
+    const handleSelectCanvas = (canvas: Canvas3DInfo) => {
         try {
             if (!canvas.canvas3D || !canvas.canvasTitle || !canvas.canvasInfoId) {
                 setError('Thông tin canvas không đầy đủ');
@@ -97,90 +88,95 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
             console.error('Error parsing canvas3D:', error);
             setError('Dữ liệu canvas3D không hợp lệ');
         }
-    }, [onSelect]);
+    };
 
-    const parseCanvas3D = useCallback((canvas3DString: string) => {
+    const parseCanvas3D = (canvas3DString: string) => {
         try {
             return JSON.parse(canvas3DString);
         } catch {
             return null;
         }
-    }, []);
+    };
 
-    const formatDate = useCallback((dateString: string) => {
+    const formatDate = (dateString: string) => {
         try {
             return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
         } catch {
             return 'N/A';
         }
-    }, []);
+    };
 
-    // ✅ Đảm bảo useEffect được gọi sau tất cả hooks
-    useEffect(() => {
-        loadList();
-        // Set initial refresh time
-        if (!lastRefreshed) {
-            setLastRefreshed(new Date());
-        }
-    }, [searchTitle, page, loadList, lastRefreshed]);
-
-    // ✅ Render UI sau khi tất cả hooks đã được gọi
-    const renderContent = () => {
-        if (loading) {
-            return (
-                <div className="flex items-center justify-center p-8">
-                    <div className="text-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-                        <p className="text-gray-600">Đang tải danh sách canvas 3D...</p>
-                    </div>
-                </div>
-            );
-        }
-
-        if (error) {
-            return (
-                <div className="text-center p-8">
-                    <p className="text-red-600 mb-4">{error}</p>
-                    <Button onClick={() => window.location.reload()} variant="outline">
-                        Thử lại
-                    </Button>
-                </div>
-            );
-        }
-
-        if (canvas3DList.length === 0) {
-            return (
-                <div className="text-center p-8">
-                    <FolderX className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có canvas 3D nào</h3>
-                    <p className="text-gray-600 mb-4">
-                        Tạo thiết kế 3D đầu tiên để bắt đầu sử dụng
-                    </p>
-                    <Button onClick={refreshList} variant="outline" disabled={loading}>
-                        {loading ? (
-                            <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Đang tải...
-                            </>
-                        ) : (
-                            <>
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Làm mới
-                            </>
-                        )}
-                    </Button>
-                </div>
-            );
-        }
-
+    if (loading) {
         return (
+            <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+                    <p className="text-gray-600">Đang tải danh sách canvas 3D...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center p-8">
+                <p className="text-red-600 mb-4">{error}</p>
+                <Button onClick={() => window.location.reload()} variant="outline">
+                    Thử lại
+                </Button>
+            </div>
+        );
+    }
+
+    if (canvas3DList.length === 0) {
+        return (
+            <div className="text-center p-8">
+                <FolderX className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có canvas 3D nào</h3>
+                <p className="text-gray-600 mb-4">
+                    Tạo thiết kế 3D đầu tiên để bắt đầu sử dụng
+                </p>
+                <Button onClick={onRefresh} variant="outline">
+                    Làm mới
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4 p-2">
+            <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                    <SidebarSearchBar
+                        value={folderName}
+                        onChange={(e) => setFolderName(e.target.value)}
+                        onSearch={handleSearch}
+                        placeholder="Tìm thiết kế 3D..."
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSearch();
+                        }}
+                        loading={loading}
+                    />
+                </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <Box className="h-5 w-5" />
+                    Danh sách Canvas 3D ({canvas3DList.length})
+                </h2>
+                <Button onClick={onRefresh} variant="outline" size="sm">
+                    Làm mới
+                </Button>
+            </div>
+
             <div className="grid gap-4">
                 {canvas3DList.map((folder) => {
                     const canvas = folder.latestCanvasInfo;
                     if (!canvas?.canvas3D) return null;
 
                     const canvas3DData = parseCanvas3D(canvas.canvas3D);
-
+                    
                     return (
                         <Card key={folder.canvasFolderId} className="hover:shadow-md transition-shadow">
                             <CardHeader className="pb-3">
@@ -199,7 +195,7 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                     </Badge>
                                 </div>
                             </CardHeader>
-
+                            
                             <CardContent className="pt-0">
                                 {canvas3DData && (
                                     <div className="space-y-3">
@@ -207,6 +203,29 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                             <Box className="h-4 w-4" />
                                             <span className="font-medium">Model:</span>
                                             <span>{canvas3DData.modelName}</span>
+                                            {canvas3DData.isDefaultModel && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    Mặc định
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Format Information */}
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <span className="font-medium">Format:</span>
+                                            {canvas3DData.jsonUrl ? (
+                                                <Badge variant="default" className="text-xs bg-green-600">
+                                                    JSON (Nhẹ)
+                                                </Badge>
+                                            ) : canvas3DData.sceneUrl || canvas3DData.modelUrl ? (
+                                                <Badge variant="outline" className="text-xs">
+                                                    GLB (Nặng)
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary" className="text-xs">
+                                                    Không xác định
+                                                </Badge>
+                                            )}
                                         </div>
 
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -221,14 +240,82 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                             <span>{formatDate(canvas.createdAt || '')}</span>
                                         </div>
 
+                                        {/* Scene Information */}
+                                        {canvas3DData.sceneInfo && (
+                                            <div className="space-y-1 pt-2 border-t border-gray-100">
+                                                <div className="text-xs text-gray-500 font-medium">Thông tin scene:</div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🎨</span>
+                                                        <span>Textures: {canvas3DData.sceneInfo.texturesCount}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🔧</span>
+                                                        <span>Accessories: {canvas3DData.sceneInfo.accessoriesCount}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>📝</span>
+                                                        <span>Texts: {canvas3DData.sceneInfo.textsCount}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🖼️</span>
+                                                        <span>Texture hiện tại: {canvas3DData.sceneInfo.hasCurrentTexture ? 'Có' : 'Không'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Preview Information for JSON format */}
+                                        {canvas3DData.preview && (
+                                            <div className="space-y-1 pt-2 border-t border-gray-100">
+                                                <div className="text-xs text-gray-500 font-medium">Preview (JSON):</div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <span>📦</span>
+                                                        <span>Model: {canvas3DData.preview.modelId}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🎨</span>
+                                                        <span>Texture: {canvas3DData.preview.hasTexture ? 'Có' : 'Không'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>📝</span>
+                                                        <span>Text: {canvas3DData.preview.hasText ? 'Có' : 'Không'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span>🔢</span>
+                                                        <span>Elements: {canvas3DData.preview.elementsCount}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex gap-2 pt-2">
-                                            <Button
+                                            <Button 
                                                 onClick={() => handleSelectCanvas(canvas)}
                                                 size="sm"
                                                 className="flex-1"
                                             >
                                                 <Eye className="h-4 w-4 mr-2" />
                                                 Mở thiết kế
+                                            </Button>
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={() => {
+                                                    // Mở URL tương ứng với format
+                                                    if (canvas3DData?.jsonUrl) {
+                                                        window.open(canvas3DData.jsonUrl, '_blank');
+                                                    } else if (canvas3DData?.sceneUrl) {
+                                                        window.open(canvas3DData.sceneUrl, '_blank');
+                                                    } else if (canvas3DData?.modelUrl) {
+                                                        window.open(canvas3DData.modelUrl, '_blank');
+                                                    }
+                                                }}
+                                                title={canvas3DData?.jsonUrl ? "Xem file JSON" : "Tải file GLB"}
+                                            >
+                                                <Download className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -238,41 +325,7 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                     );
                 })}
             </div>
-        );
-    };
-
-    // ✅ Main return statement - luôn được gọi sau tất cả hooks
-    return (
-        <div className="space-y-4 p-2">
-            <div className="relative flex-1">
-                <SidebarSearchBar
-                    value={folderName}
-                    onChange={(e) => setFolderName(e.target.value)}
-                    onSearch={handleSearch}
-                    placeholder="Tìm thiết kế 3D..."
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSearch();
-                    }}
-                    loading={loading}
-                />
-            </div>
-
-            <Button onClick={refreshList} className='w-full' variant="outline" size="sm" disabled={loading}>
-                {loading ? (
-                    <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Đang tải...
-                    </>
-                ) : (
-                    <>
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Làm mới
-                    </>
-                )}
-            </Button>
-
-            {renderContent()}
-
+            
             <div className="flex justify-between items-center pt-4">
                 <Button
                     size="sm"

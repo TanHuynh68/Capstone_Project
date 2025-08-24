@@ -26,8 +26,6 @@ export default function MessageComposer({ onSendMessage }: MessageComposerProps)
     setMessage("")
   }
 
-
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     handleSend()
@@ -62,8 +60,6 @@ export default function MessageComposer({ onSendMessage }: MessageComposerProps)
 
   return (
     <>
-
-
       <form onSubmit={handleSubmit} className="p-4">
         <ChatInput
           placeholder="Nhập tin nhắn..."
@@ -73,16 +69,6 @@ export default function MessageComposer({ onSendMessage }: MessageComposerProps)
           onSendClick={handleSend}
           onFileUploadClick={() => setIsFileModalOpen(true)}
           onCanvasClick={() => setIsCanvasModalOpen(true)}
-          onSend3DDesign={(canvas3DData, title, id) => {
-            const messageData = {
-              canvas3DData,
-              title,
-              id,
-              timestamp: new Date().toISOString()
-            }
-            onSendMessage(JSON.stringify(messageData), "json")
-            toast.success(`Đã gửi thiết kế 3D: ${title}`)
-          }}
           canSend={message.trim().length > 0}
         />
       </form>
