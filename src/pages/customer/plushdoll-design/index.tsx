@@ -2689,6 +2689,28 @@ const PlushDollDesign: React.FC = () => {
   useEffect(() => {
     if (!isCanvasInitialized || !canvasRef.current) return;
 
+    // Kiểm tra nếu có yêu cầu mở trực tiếp trong 3D mode từ chat
+    if (location.state?.openIn3DMode && location.state?.canvas3DData) {
+      console.log('Opening 3D design directly in 3D mode from chat:', {
+        title: location.state.title,
+        id: location.state.id
+      });
+
+      // Set 3D mode và load data
+      setCanvas3DData(location.state.canvas3DData);
+      setCurrentCanvasTitle(location.state.title || "Thiết kế 3D");
+      setCurrentCanvasId(location.state.id || "");
+      setIs3DMode(true);
+
+      // Clear location state để tránh load lại
+      if (window.history.replaceState) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      toast.success(`Đã mở thiết kế 3D: ${location.state.title}`);
+      return;
+    }
+
     if (location.state?.canvasDescription && location.state?.canvasId) {
       loadCanvasFromDescription(
         location.state.canvasDescription,
@@ -2701,7 +2723,7 @@ const PlushDollDesign: React.FC = () => {
       // Hoặc hiển thị thông báo "Không tìm thấy thiết kế"
       // toast.error("Không tìm thấy thông tin thiết kế");
     }
-  }, [isCanvasInitialized, location.state?.canvasId]);
+  }, [isCanvasInitialized, location.state]);
 
   // Add group/ungroup functions
   const groupObjects = () => {
@@ -3171,7 +3193,7 @@ const PlushDollDesign: React.FC = () => {
     // This dependency array is correct. It triggers a save when the filter UI state changes.
   }, [filterValues, activeFilters, isFilterEnabled, currentSelectedImageId]);
 
- 
+
 
   // Hàm xử lý lưu dữ liệu 3D
   const handleSave3D = async (canvas3DDataString: string) => {
@@ -3243,6 +3265,9 @@ const PlushDollDesign: React.FC = () => {
         onBackTo2D={() => setIs3DMode(false)}
         onSave={handleSave3D}
         canvas3DData={canvas3DData}
+        fromChat={location.state?.fromChat}
+        openCanvas3DList={location.state?.openCanvas3DList}
+        selectedCanvas3D={location.state?.selectedCanvas3D}
       />
     );
   }
@@ -3387,6 +3412,7 @@ const PlushDollDesign: React.FC = () => {
         </div>
 
         <div className="flex gap-2">
+
           {/* Nút chuyển đổi 2D/3D */}
           <Button
             variant={is3DMode ? "default" : "outline"}
@@ -3395,7 +3421,7 @@ const PlushDollDesign: React.FC = () => {
           >
             <Box className="w-4 h-4" />
             <span className="text-xs font-medium">
-              {is3DMode ? "3D" : "2D"}
+              {is3DMode ? "2D" : "3D"}
             </span>
           </Button>
 
