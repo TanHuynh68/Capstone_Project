@@ -4,6 +4,7 @@ import ChatImage from "@/components/atoms/customer/chat/chat-show-data/ChatImage
 import ChatJson from "@/components/atoms/customer/chat/chat-show-data/ChatJson";
 import ChatLink from "@/components/atoms/customer/chat/chat-show-data/ChatLink";
 import ChatText from "@/components/atoms/customer/chat/chat-show-data/ChatText";
+import CopyCanvas3D from "@/components/atoms/customer/chat/chat-show-data/CopyCanvas3D";
 
 import { useState, useEffect } from "react";
 import CopyCanvas from "@/pages/customer/plushdoll-design/copy-canvas/CopyCanvas";
@@ -32,6 +33,8 @@ export default function MessageContent({
   }, [copied]);
 
   const renderContent = () => {
+
+
     switch (messageType?.toLowerCase()) {
       case "image":
         return (
@@ -50,9 +53,24 @@ export default function MessageContent({
             className={className}
           />
         );
+
       case "json":
         try {
           const data = JSON.parse(content);
+
+          // Xử lý 3D Design (có canvas3DData)
+          if (data.canvas3DData && data.title && data.id) {
+            return (
+              <CopyCanvas3D
+                canvasId={data.id}
+                canvasTitle={data.title}
+                canvas3DData={data.canvas3DData}
+                isCurrentUser={isCurrentUser}
+              />
+            );
+          }
+
+          // Xử lý 2D Design (có imageUrl, title, id, description)
           if (data.imageUrl && data.title && data.id && data.description) {
             console.log(data, "asdasdasdsa");
             return (
@@ -60,7 +78,7 @@ export default function MessageContent({
                 canvasId={data.id}
                 canvasTitle={data.title}
                 imageUrl={data.imageUrl}
-                canvasDescription={data.description} // truyền thêm dòng này
+                canvasDescription={data.description}
                 isCurrentUser={isCurrentUser}
               />
             );

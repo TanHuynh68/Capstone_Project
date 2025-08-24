@@ -165,7 +165,7 @@ export default function CopyCanvas({
               canvasDescription: canvasDataForLink.canvasDescription,
               isCopied: canvasDataForLink.isCopied,
             }}
-            className="break-words text-blue-600 hover:text-blue-800 transition-colors font-semibold"
+            className="break-words text-white-600 hover:text-blue-800 transition-colors font-semibold"
           >
             {canvasDataForLink.canvasTitle}
           </Link>
