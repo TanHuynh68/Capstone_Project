@@ -267,18 +267,18 @@ export default function CreateUpdatePostDialog({
             setImageSelectorType(type);
             setIsImageSelectorModalOpen(true);
           }}
-          className="relative w-full h-20 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform cursor-pointer"
+          className="relative w-full h-16 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform cursor-pointer"
         >
           <div className="flex items-center justify-center w-full h-full">
             <div className="flex items-center space-x-4">
               {/* Icon với background đẹp */}
-              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
                 <Palette className="h-6 w-6 text-white" />
               </div>
 
               {/* Text content */}
               <div className="text-left">
-                <div className="text-lg font-semibold text-gray-800">
+                <div className="text-sm font-semibold text-gray-800">
                   {isUpdateMode
                     ? "Thay đổi ảnh"
                     : "Chọn ảnh"}
