@@ -153,10 +153,10 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     {
       title: "Tổng doanh thu",
       description: "Tổng doanh thu",
-      value: dashboardStats?.order.totalRevenue || 0,
+      value: growthRates?.newRevenue|| 0,
       type: "currency" as const,
       icon: <DollarSign className="size-4" />,
-      growthRate: null, // Revenue doesn't have growth rate in the API
+      growthRate: growthRates?.revenueGrowthRate || 0, // Revenue doesn't have growth rate in the API
       color: "text-green-600",
     },
     {
@@ -180,8 +180,8 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     {
       title: "Tỷ lệ báo cáo",
       description: "Tỷ lệ báo cáo",
-      value: growthRates?.newReport || 0,
-      type: "percentage" as const,
+      value: growthRates?.newReport|| 0,
+      type: "number" as const,
       icon: <Flag className="size-4" />,
       growthRate: growthRates?.reportGrowthRate || 0,
       color: "text-purple-600",

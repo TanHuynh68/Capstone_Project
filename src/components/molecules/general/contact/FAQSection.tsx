@@ -11,55 +11,70 @@ const FAQSection = memo(function FAQSection() {
     () => [
       {
         question: "Quy trình đặt đơn như thế nào?",
-        answer:
-          "Quy trình đặt đơn gồm 4 bước:\n\n1) Thiết kế búp bê trên nền tảng của chúng tôi\n2) Xác nhận thiết kế và thanh toán\n3) Chúng tôi bắt đầu sản xuất và cập nhật tiến độ\n4) Giao hàng và xác nhận nhận hàng",
+        answer: `Quy trình đặt đơn trên nền tảng diễn ra theo các bước sau:
+
+1) Đăng bài yêu cầu  
+Khách hàng đăng bài kèm ảnh sản phẩm cần thiết kế cùng mô tả chi tiết mong muốn.
+
+2) Nhận đề xuất từ nhà thiết kế  
+Các nhà thiết kế quan tâm sẽ gửi các đề xuất phù hợp với yêu cầu.
+
+3) Chọn nhà thiết kế & thương lượng  
+Khách hàng chọn nhà thiết kế phù hợp để bắt đầu thương lượng chi tiết trong phần nhắn tin.
+
+4) Lên kế hoạch thực hiện  
+Hai bên cùng thống nhất các giai đoạn thực hiện dự án, nội dung và chi phí từng giai đoạn.
+
+5) Tạo đơn chính thức  
+Khi đã đạt thỏa thuận, nhà thiết kế tiến hành đặt cọc để tạo đơn hàng chính thức.
+
+6) Giao sản phẩm đầu vào  
+Khách hàng giao sản phẩm cho nhà thiết kế thông qua mục giao hàng trong hệ thống.
+
+7) Kiểm tra và bắt đầu thực hiện  
+Nhà thiết kế kiểm tra sản phẩm nhận và bắt đầu thực hiện giai đoạn.
+
+8) Đặt cọc theo từng phase  
+Trước mỗi giai đoạn, khách hàng sẽ đặt cọc tương ứng để nhà thiết kế rút tiền để thực hiện và cập nhật chi tiết cho từng giai đoạn.
+
+9) Hoàn thành và đánh giá từng phase  
+Sau khi mỗi giai đoạn hoàn tất, khách hàng tiến hành đánh giá chất lượng để tiếp tục giai đoạn tiếp theo.
+
+10) Hoàn tất đơn và nhận lại sản phẩm  
+Khi tất cả các giai đoạn đều được hoàn thành và đánh giá đạt yêu cầu, nhà thiết kế tiến hành giao lại sản phẩm hoàn thiện cho khách hàng.
+
+11) Đánh giá cuối cùng & thanh toán  
+Khách hàng đánh giá tổng thể. Nhà thiết kế nhận lại phần tiền cọc còn lại (sau khi trừ phí nền tảng).`,
       },
       {
         question: "Làm thế nào để khiếu nại về sản phẩm?",
-        answer:
-          "Để khiếu nại, vui lòng:\n\n1) Chụp ảnh sản phẩm có vấn đề\n2) Liên hệ qua email hoặc hotline trong vòng 14 ngày\n3) Mô tả chi tiết vấn đề\n4) Chúng tôi sẽ phản hồi trong 24-48 giờ và hỗ trợ giải quyết",
+        answer: `Quy trình khiếu nại trên nền tảng diễn ra theo các bước sau:
+
+1) Người dùng chọn phần cần khiếu nại  
+Người dùng có thể khiếu nại về bài đăng, đơn hàng, giao hàng, …
+
+2) Chờ nhân viên xem xét  
+Sau khi gửi đơn khiếu nại thành công, người dùng cần chờ đợi để nhân viên đưa ra hướng giải quyết hợp lệ.
+
+3) Nhân viên tiến hành giải quyết  
+Nhân viên sẽ xem xét đơn khiếu nại và kiểm tra các bằng chứng để đưa ra hướng xử lý.
+
+4) Nhận kết quả  
+Sau khi giải quyết xong, hệ thống sẽ gửi thông báo về tình trạng đơn khiếu nại.`,
       },
       {
         question: "Quy trình rút tiền/hoàn tiền như thế nào?",
-        answer:
-          "Quy trình hoàn tiền:\n\n1) Gửi yêu cầu hoàn tiền qua email hoặc hotline\n2) Cung cấp thông tin đơn hàng và lý do\n3) Chúng tôi xem xét trong 3-5 ngày làm việc\n4) Nếu được chấp thuận, tiền sẽ được hoàn trong 7-14 ngày tùy phương thức thanh toán",
+        answer: `Rút tiền:  
+Người dùng có thể rút tiền bằng cách vào phần ví và chọn số tiền hợp lệ cần rút. Sau khi tạo đơn, sẽ chờ nhân viên kiểm tra và thực hiện rút tiền về cho tài khoản người dùng.
+
+Hoàn tiền:  
+Đối với những đơn hàng bị hủy, có thể hoàn tiền sau khi đơn tố cáo/khiếu nại được giải quyết. Tiền sẽ được hoàn tự động về ví của người dùng.`,
       },
       {
         question: "Tôi có thể hủy đơn hàng sau khi đã thanh toán không?",
-        answer:
-          "Có thể hủy đơn hàng trong vòng 24 giờ sau khi đặt hàng. Sau thời gian này, nếu chưa bắt đầu sản xuất, bạn có thể yêu cầu hoàn tiền với phí xử lý 10%. Nếu đã bắt đầu sản xuất, không thể hủy đơn hàng.",
+        answer: `Có thể hủy đơn hàng cả trước khi thực hiện và trong khi thực hiện.  
+Khi đơn hàng bị hủy cần kèm lý do tố cáo/khiếu nại và sẽ được nhân viên xem xét để đưa ra hướng giải quyết cho cả hai bên.`,
       },
-      {
-        question: "Làm thế nào để theo dõi đơn hàng của tôi?",
-        answer:
-          "Bạn có thể theo dõi đơn hàng qua:\n\n1) Email cập nhật tự động\n2) Đăng nhập vào tài khoản trên website\n3) Liên hệ hotline với mã đơn hàng\n\nChúng tôi cập nhật trạng thái mỗi 2-3 ngày.",
-      },
-      {
-        question: "Có thể thay đổi thiết kế sau khi đã đặt hàng không?",
-        answer:
-          "Có thể thay đổi thiết kế trong vòng 48 giờ sau khi đặt hàng với phí thay đổi 5% giá trị đơn hàng. Sau thời gian này, việc thay đổi sẽ phụ thuộc vào tiến độ sản xuất và có thể phát sinh thêm chi phí.",
-      },
-      // {
-      //   question: "Mất bao lâu để tạo một búp bê theo yêu cầu?",
-      //   answer:
-      //     "Quá trình tạo thường mất từ 2–4 tuần kể từ khi phê duyệt thiết kế đến khi giao hàng, tùy thuộc vào độ phức tạp của búp bê và số lượng đơn hàng hiện tại.",
-      // },
-      // {
-      //   question:
-      //     "Tôi có thể yêu cầu những chi tiết cụ thể cho búp bê của mình không?",
-      //   answer:
-      //     "Bạn có thể tùy chỉnh mọi thứ từ màu tóc, kiểu tóc, khuôn mặt cho đến trang phục và phụ kiện. Công cụ thiết kế của chúng tôi hỗ trợ tùy chỉnh chi tiết.",
-      // },
-      // {
-      //   question: "Nếu tôi không hài lòng với búp bê thì sao?",
-      //   answer:
-      //     "Chúng tôi cam kết sự hài lòng của bạn. Nếu búp bê không đáp ứng mong đợi, vui lòng liên hệ với chúng tôi trong vòng 14 ngày kể từ khi nhận hàng để được hỗ trợ.",
-      // },
-      // {
-      //   question: "Tôi có thể đặt nhiều búp bê với cùng một thiết kế không?",
-      //   answer:
-      //     "Có, bạn có thể đặt nhiều búp bê có cùng thiết kế. Chúng tôi cung cấp ưu đãi giảm giá cho đơn hàng từ 3 búp bê trở lên với thông số giống nhau.",
-      // },
     ],
     []
   );
