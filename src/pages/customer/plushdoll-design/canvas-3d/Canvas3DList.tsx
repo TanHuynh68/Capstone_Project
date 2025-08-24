@@ -29,6 +29,7 @@ interface Canvas3DListProps {
 }
 
 export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
+    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional return nào
     const [canvas3DList, setCanvas3DList] = useState<Canvas3DFolder[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -78,20 +79,12 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
         });
     }, [loadList]);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         setSearchTitle(folderName);
         setPage(1);
-    };
+    }, [folderName]);
 
-    useEffect(() => {
-        loadList();
-        // Set initial refresh time
-        if (!lastRefreshed) {
-            setLastRefreshed(new Date());
-        }
-    }, [searchTitle, page, loadList, lastRefreshed]);
-
-    const handleSelectCanvas = (canvas: Canvas3DInfo) => {
+    const handleSelectCanvas = useCallback((canvas: Canvas3DInfo) => {
         try {
             if (!canvas.canvas3D || !canvas.canvasTitle || !canvas.canvasInfoId) {
                 setError('Thông tin canvas không đầy đủ');
@@ -104,101 +97,83 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
             console.error('Error parsing canvas3D:', error);
             setError('Dữ liệu canvas3D không hợp lệ');
         }
-    };
+    }, [onSelect]);
 
-    const parseCanvas3D = (canvas3DString: string) => {
+    const parseCanvas3D = useCallback((canvas3DString: string) => {
         try {
             return JSON.parse(canvas3DString);
         } catch {
             return null;
         }
-    };
+    }, []);
 
-    const formatDate = (dateString: string) => {
+    const formatDate = useCallback((dateString: string) => {
         try {
             return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
         } catch {
             return 'N/A';
         }
-    };
+    }, []);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center p-8">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-                    <p className="text-gray-600">Đang tải danh sách canvas 3D...</p>
+    // ✅ Đảm bảo useEffect được gọi sau tất cả hooks
+    useEffect(() => {
+        loadList();
+        // Set initial refresh time
+        if (!lastRefreshed) {
+            setLastRefreshed(new Date());
+        }
+    }, [searchTitle, page, loadList, lastRefreshed]);
+
+    // ✅ Render UI sau khi tất cả hooks đã được gọi
+    const renderContent = () => {
+        if (loading) {
+            return (
+                <div className="flex items-center justify-center p-8">
+                    <div className="text-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+                        <p className="text-gray-600">Đang tải danh sách canvas 3D...</p>
+                    </div>
                 </div>
-            </div>
-        );
-    }
+            );
+        }
 
-    if (error) {
+        if (error) {
+            return (
+                <div className="text-center p-8">
+                    <p className="text-red-600 mb-4">{error}</p>
+                    <Button onClick={() => window.location.reload()} variant="outline">
+                        Thử lại
+                    </Button>
+                </div>
+            );
+        }
+
+        if (canvas3DList.length === 0) {
+            return (
+                <div className="text-center p-8">
+                    <FolderX className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có canvas 3D nào</h3>
+                    <p className="text-gray-600 mb-4">
+                        Tạo thiết kế 3D đầu tiên để bắt đầu sử dụng
+                    </p>
+                    <Button onClick={refreshList} variant="outline" disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Đang tải...
+                            </>
+                        ) : (
+                            <>
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Làm mới
+                            </>
+                        )}
+                    </Button>
+                </div>
+            );
+        }
+
         return (
-            <div className="text-center p-8">
-                <p className="text-red-600 mb-4">{error}</p>
-                <Button onClick={() => window.location.reload()} variant="outline">
-                    Thử lại
-                </Button>
-            </div>
-        );
-    }
-
-    if (canvas3DList.length === 0) {
-        return (
-            <div className="text-center p-8">
-                <FolderX className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có canvas 3D nào</h3>
-                <p className="text-gray-600 mb-4">
-                    Tạo thiết kế 3D đầu tiên để bắt đầu sử dụng
-                </p>
-                <Button onClick={refreshList} variant="outline" disabled={loading}>
-                    {loading ? (
-                        <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Đang tải...
-                        </>
-                    ) : (
-                        <>
-                            <RotateCcw className="h-4 w-4 mr-2" />
-                            Làm mới
-                        </>
-                    )}
-                </Button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="space-y-4 p-2">
-            <div className="relative flex-1">
-                <SidebarSearchBar
-                    value={folderName}
-                    onChange={(e) => setFolderName(e.target.value)}
-                    onSearch={handleSearch}
-                    placeholder="Tìm thiết kế 3D..."
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSearch();
-                    }}
-                    loading={loading}
-                />
-            </div>
-
-
-            <Button onClick={refreshList} className='w-full' variant="outline" size="sm" disabled={loading}>
-                {loading ? (
-                    <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Đang tải...
-                    </>
-                ) : (
-                    <>
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Làm mới
-                    </>
-                )}
-            </Button>
-
             <div className="grid gap-4">
                 {canvas3DList.map((folder) => {
                     const canvas = folder.latestCanvasInfo;
@@ -234,7 +209,6 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                             <span>{canvas3DData.modelName}</span>
                                         </div>
 
-
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                             <Calendar className="h-4 w-4" />
                                             <span className="font-medium">Lưu lúc:</span>
@@ -246,7 +220,6 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                             <span className="font-medium">Tạo lúc:</span>
                                             <span>{formatDate(canvas.createdAt || '')}</span>
                                         </div>
-
 
                                         <div className="flex gap-2 pt-2">
                                             <Button
@@ -265,6 +238,40 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                     );
                 })}
             </div>
+        );
+    };
+
+    // ✅ Main return statement - luôn được gọi sau tất cả hooks
+    return (
+        <div className="space-y-4 p-2">
+            <div className="relative flex-1">
+                <SidebarSearchBar
+                    value={folderName}
+                    onChange={(e) => setFolderName(e.target.value)}
+                    onSearch={handleSearch}
+                    placeholder="Tìm thiết kế 3D..."
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                    }}
+                    loading={loading}
+                />
+            </div>
+
+            <Button onClick={refreshList} className='w-full' variant="outline" size="sm" disabled={loading}>
+                {loading ? (
+                    <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Đang tải...
+                    </>
+                ) : (
+                    <>
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Làm mới
+                    </>
+                )}
+            </Button>
+
+            {renderContent()}
 
             <div className="flex justify-between items-center pt-4">
                 <Button

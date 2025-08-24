@@ -5,7 +5,7 @@ import * as THREE from "three"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Environment, useGLTF, Html } from "@react-three/drei"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { Suspense, useState, useRef, useEffect, forwardRef } from "react"
+import { Suspense, useState, useRef, useEffect, forwardRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 // Local rotation slider styling for this page only
@@ -664,12 +664,7 @@ export default function PlushDollDesign3D({
 }: PlushDollDesign3DProps) {
     const location = useLocation()
 
-
-    // ✅ Component hỗ trợ lưu tất cả thiết kế 3D:
-    // - Model mặc định (Labubu Classic, Small Labubu)
-    // - Model tùy chỉnh (upload GLB)
-    // - Có texture, accessory, text
-    // - Không có giới hạn về loại model
+    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
     const [glbModels, setGlbModels] = useState<GLBModel[]>([
         {
             id: "default-labubu",
@@ -736,15 +731,53 @@ export default function PlushDollDesign3D({
     // State cho loading khi lưu 3D
     const [isSaving3D, setIsSaving3D] = useState(false)
 
-    // Cập nhật anchorPoints dựa trên model được chọn
-    const getCurrentAnchorPoints = () => {
+    const [editingAnchor, setEditingAnchor] = useState<string>("")
+    const [showAnchorPoints, setShowAnchorPoints] = useState(false)
+    const [showAxes, setShowAxes] = useState(false)
+
+    const textMeshRef = useRef<HTMLDivElement | null>(null)
+    const textureMeshRef = useRef<THREE.Mesh | null>(null)
+
+    // Clearable inputs and slider snap-to-zero detent
+    const [textPositionInput, setTextPositionInput] = useState({ x: "0.00", y: "1.00", z: "0.50" })
+    const [texturePositionInput, setTexturePositionInput] = useState({ x: "0.00", y: "0.00", z: "0.30" })
+
+    // State cho vị trí model chính
+    const [modelPosition, setModelPosition] = useState({ x: 0, y: 0, z: 0 })
+    const [modelPositionInput, setModelPositionInput] = useState({ x: "0.00", y: "0.00", z: "0.00" })
+
+    // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
+    const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
+
+    // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
+    const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
+
+    // ✅ Cập nhật anchorPoints dựa trên model được chọn - sử dụng useCallback để tránh re-render không cần thiết
+    const getCurrentAnchorPoints = useCallback(() => {
         if (currentModelId === "small-labubu") {
             return SMALL_MODEL_ANCHOR_POINTS
         }
         return DEFAULT_ANCHOR_POINTS
-    }
+    }, [currentModelId])
 
-    const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
+    // ✅ Cập nhật anchorPoints khi thay đổi model
+    const handleModelChange = useCallback((modelId: string) => {
+        setCurrentModelId(modelId)
+        if (modelId === "small-labubu") {
+            setAnchorPoints(SMALL_MODEL_ANCHOR_POINTS)
+        } else {
+            setAnchorPoints(DEFAULT_ANCHOR_POINTS)
+        }
+        // Reset các vị trí về mặc định khi đổi model
+        setTextPosition({ x: 0, y: 1, z: 0.5 })
+        setTexturePosition({ x: 0, y: 0, z: 0.3 })
+        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
+        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
+        setModelPosition({ x: 0, y: 0, z: 0 })
+        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
+        setSelectedTextAnchor("")
+        setSelectedTextureAnchor("")
+    }, [])
 
     // ✅ Tự động mở sidebar Canvas3DList và chọn canvas khi có props từ chat
     useEffect(() => {
@@ -768,7 +801,6 @@ export default function PlushDollDesign3D({
                             if (canvas3DData.jsonUrl) {
                                 // Format mới: JSON file trên Cloudinary
 
-
                                 // Hiển thị loading state
                                 setIsLoadingScene(true);
 
@@ -780,7 +812,6 @@ export default function PlushDollDesign3D({
                                     }
 
                                     const jsonData = await response.json();
-
 
                                     // 2. Restore toàn bộ scene từ JSON data
                                     await restoreSceneFromJSON(jsonData);
@@ -810,44 +841,13 @@ export default function PlushDollDesign3D({
         }
     }, [fromChat, openCanvas3DList, selectedCanvas3D]);
 
-    // Cập nhật anchorPoints khi thay đổi model
-    const handleModelChange = (modelId: string) => {
-        setCurrentModelId(modelId)
-        if (modelId === "small-labubu") {
-            setAnchorPoints(SMALL_MODEL_ANCHOR_POINTS)
-        } else {
-            setAnchorPoints(DEFAULT_ANCHOR_POINTS)
-        }
-        // Reset các vị trí về mặc định khi đổi model
-        setTextPosition({ x: 0, y: 1, z: 0.5 })
-        setTexturePosition({ x: 0, y: 0, z: 0.3 })
-        setTextPositionInput({ x: "0.00", y: "1.00", z: "0.50" })
-        setTexturePositionInput({ x: "0.00", y: "0.00", z: "0.30" })
-        setModelPosition({ x: 0, y: 0, z: 0 })
-        setModelPositionInput({ x: "0.00", y: "0.00", z: "0.00" })
-        setSelectedTextAnchor("")
-        setSelectedTextureAnchor("")
-    }
+    // ✅ Cập nhật anchorPoints khi thay đổi model
+    useEffect(() => {
+        const newAnchorPoints = getCurrentAnchorPoints();
+        setAnchorPoints(newAnchorPoints);
+    }, [getCurrentAnchorPoints]);
 
-    const [editingAnchor, setEditingAnchor] = useState<string>("")
-    const [showAnchorPoints, setShowAnchorPoints] = useState(false)
-    const [showAxes, setShowAxes] = useState(false)
-
-    const textMeshRef = useRef<HTMLDivElement | null>(null)
-    const textureMeshRef = useRef<THREE.Mesh | null>(null)
-
-    // Clearable inputs and slider snap-to-zero detent
-    const [textPositionInput, setTextPositionInput] = useState({ x: "0.00", y: "1.00", z: "0.50" })
-    const [texturePositionInput, setTexturePositionInput] = useState({ x: "0.00", y: "0.00", z: "0.30" })
-
-    // State cho vị trí model chính
-    const [modelPosition, setModelPosition] = useState({ x: 0, y: 0, z: 0 })
-    const [modelPositionInput, setModelPositionInput] = useState({ x: "0.00", y: "0.00", z: "0.00" })
-
-    // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
-    const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
-
-    // Load dữ liệu 3D khi component mount - Parse JSON và restore toàn bộ thiết kế
+    // ✅ Load dữ liệu 3D khi component mount - Parse JSON và restore toàn bộ thiết kế
     useEffect(() => {
         if (canvas3DData) {
             try {
