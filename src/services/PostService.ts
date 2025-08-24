@@ -101,12 +101,37 @@ const PostService = () => {
 
   const updatePost = useCallback(
     async (data: any) => {
+      console.log('data2: ', data)
+      const formData = new FormData();
+      formData.append("ProjectPostId ", data.projectPostId);
+      formData.append("Length", data.length);
+      formData.append("Width", data.width);
+      formData.append("Weight", data.weight);
+      formData.append("Height", data.height);
+      formData.append("Title", data.title);
+      formData.append("Description", data.description);
+      formData.append("ItemValue", String(data.itemValue));
+      formData.append("SuggestedPrice", String(data.suggestedPrice));
+
+      if (data.originalAttachmentFiles?.length) {
+        data.originalAttachmentFiles.forEach((file: File) => {
+          formData.append("OriginalAttachmentFiles", file);
+        });
+      }
+
+      if (data.requestedAttachmentFiles?.length) {
+        data.requestedAttachmentFiles.forEach((file: File) => {
+          formData.append("RequestedAttachmentFiles", file);
+        });
+      }
+      formData.append("FinishDate", new Date(data.finishDate).toISOString());
       try {
         const res = await callApi(
           HTTP_METHOD.PUT,
           `${API_ROUTES.UPDATE_POST}`,
-          data
+          formData
         );
+        console.log('res: ', res)
         return res;
       } catch (err: any) {
         console.error(err?.response?.data);
@@ -146,7 +171,7 @@ const PostService = () => {
     },
     [callApi]
   );
-const staffGetAllPosts = useCallback(async () => {
+  const staffGetAllPosts = useCallback(async () => {
     try {
       const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_POSTS_ALL}`);
       return res;

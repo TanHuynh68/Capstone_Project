@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, RefreshCw, DollarSign } from "lucide-react";
+import { Calendar, RefreshCw } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -37,7 +37,7 @@ import DashboardService from "@/services/DashboardService";
 import { chartConfigs } from "./chart-config";
 
 // Types
-type ChartType = "account" | "order" | "report";
+type ChartType = "account" | "post" | "order" | "report";
 
 interface ChartDataPoint {
   date: string;
@@ -46,11 +46,10 @@ interface ChartDataPoint {
 
 interface DashboardStats {
   account: Record<string, number>;
+  post: Record<string, number>;
   order: Record<string, number>;
   report: Record<string, number>;
 }
-
-// Chart configurations for different types
 
 // Custom Tooltip Component
 const CustomTooltipContent = ({ active, payload, label, chartConfig }: any) => {
@@ -74,18 +73,6 @@ const CustomTooltipContent = ({ active, payload, label, chartConfig }: any) => {
           const fieldConfig = chartConfig[entry.dataKey];
           if (!fieldConfig) return null;
 
-          const formatValue = (value: number, field: string) => {
-            if (field.includes("Revenue") || field.includes("revenue")) {
-              return new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }).format(value);
-            }
-            return value.toLocaleString("vi-VN");
-          };
-
           return (
             <div key={entry.dataKey} className="flex items-center gap-2">
               <div
@@ -99,7 +86,7 @@ const CustomTooltipContent = ({ active, payload, label, chartConfig }: any) => {
               />
               <div className="flex flex-1 justify-between leading-none">
                 <span className="text-muted-foreground text-xs">
-                  {formatValue(entry.value, entry.dataKey)}
+                  {entry.value.toLocaleString("vi-VN")}
                 </span>
                 <span className="font-mono text-xs font-medium tabular-nums text-foreground">
                   {fieldConfig.label}
@@ -324,7 +311,7 @@ export function ChartAreaInteractive() {
   const currentConfig = chartConfigs[chartType];
 
   // Calculate Y-axis domain and find max value
-  const { yAxisDomain, maxValue, maxField } = React.useMemo(() => {
+  const { yAxisDomain, maxValue } = React.useMemo(() => {
     if (chartData.length === 0)
       return { yAxisDomain: [0, 100], maxValue: 0, maxField: "" };
 
@@ -345,43 +332,8 @@ export function ChartAreaInteractive() {
     return { yAxisDomain: [0, upperBound], maxValue, maxField };
   }, [chartData, selectedFields]);
 
-  // Format value for display (especially for revenue)
-  const formatValue = (value: number, field: string) => {
-    if (field.includes("Revenue") || field.includes("revenue")) {
-      return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(value);
-    }
-    return value.toLocaleString("vi-VN");
-  };
-
   // Custom Y-axis tick formatter
   const yAxisTickFormatter = (value: number) => {
-    // Show the max value explicitly
-    if (value === maxValue && maxValue > 0) {
-      if (maxField.includes("Revenue") || maxField.includes("revenue")) {
-        return new Intl.NumberFormat("vi-VN", {
-          notation: "compact",
-          compactDisplay: "short",
-        }).format(value);
-      }
-      return value.toLocaleString("vi-VN");
-    }
-
-    // Format other values
-    if (
-      selectedFields.some(
-        (field) => field.includes("Revenue") || field.includes("revenue")
-      )
-    ) {
-      return new Intl.NumberFormat("vi-VN", {
-        notation: "compact",
-        compactDisplay: "short",
-      }).format(value);
-    }
     return value.toLocaleString("vi-VN");
   };
 
@@ -575,7 +527,7 @@ export function ChartAreaInteractive() {
       {/* Date Range Display */}
       {(isCustomRange || timeRange) && (
         <div className="px-6 pb-2">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             Khoảng thời gian:{" "}
             <span className="font-medium">
               {isCustomRange
@@ -621,7 +573,7 @@ export function ChartAreaInteractive() {
         {loading ? (
           <div className="flex items-center justify-center h-[250px]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <span className="ml-2 text-sm text-gray-600">
+            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
               Đang tải dữ liệu...
             </span>
           </div>
@@ -731,15 +683,11 @@ export function ChartAreaInteractive() {
                   className="text-center p-3 rounded-lg border-2 border-solid hover:shadow-md transition-shadow"
                 >
                   <div className="text-2xl font-bold">
-                    {formatValue(value as number, key)}
+                    {(value as number).toLocaleString("vi-VN")}
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">
                     {fieldConfig.label}
                   </div>
-                  {/* Add icon for revenue fields */}
-                  {(key.includes("Revenue") || key.includes("revenue")) && (
-                    <DollarSign className="w-4 h-4 mx-auto mt-1 text-green-600" />
-                  )}
                 </div>
               );
             })}

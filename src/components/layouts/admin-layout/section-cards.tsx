@@ -35,7 +35,7 @@ interface SectionCardsProps {
   };
 }
 
-export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
+export function SectionCards({ dateRange }: SectionCardsProps) {
   const { getGrowthRates } = DashboardService();
 
   // State for growth rates and comparison period
@@ -82,7 +82,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     setLoading(true);
     try {
       const response = await getGrowthRates(comparisonRange);
-      console.log('fetchGrowthRates: ', response)
+      console.log("fetchGrowthRates: ", response);
       if (response && response.responseRequestModel) {
         setGrowthRates(response.responseRequestModel);
       }
@@ -153,7 +153,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     {
       title: "Tổng doanh thu",
       description: "Tổng doanh thu",
-      value: growthRates?.newRevenue|| 0,
+      value: growthRates?.newRevenue || 0,
       type: "currency" as const,
       icon: <DollarSign className="size-4" />,
       growthRate: growthRates?.revenueGrowthRate || 0, // Revenue doesn't have growth rate in the API
@@ -171,7 +171,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     {
       title: "Đơn hàng hoạt động",
       description: "Đơn hàng hoạt động",
-      value:  growthRates?.newOrder || 0,
+      value: growthRates?.newOrder || 0,
       type: "number" as const,
       icon: <ShoppingCart className="size-4" />,
       growthRate: growthRates?.orderGrowthRate || 0,
@@ -180,7 +180,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
     {
       title: "Tỷ lệ báo cáo",
       description: "Tỷ lệ báo cáo",
-      value: growthRates?.newReport|| 0,
+      value: growthRates?.newReport || 0,
       type: "number" as const,
       icon: <Flag className="size-4" />,
       growthRate: growthRates?.reportGrowthRate || 0,
@@ -264,9 +264,7 @@ export function SectionCards({ dashboardStats, dateRange }: SectionCardsProps) {
                   <div className="absolute right-4 top-4">
                     <Badge
                       variant={
-                        growth.variant === "default"
-                          ? "default"
-                          : "destructive"
+                        growth.variant === "default" ? "default" : "destructive"
                       }
                       className="flex gap-1 rounded-lg text-xs"
                     >
