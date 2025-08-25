@@ -71,6 +71,7 @@ export enum STAFF_ROUTES {
 }
 
 export enum PATH {
+  PORTFOLIO = "/portfolio",
   TERM = "/auth/term",
   PRIVACY_POLICY = '/auth/privacy-policy',
   MY_WALLET = "my-wallet",
