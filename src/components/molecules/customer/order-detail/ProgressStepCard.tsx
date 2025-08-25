@@ -79,7 +79,7 @@ export default function ProgressStepCard({
 
   return (
     <>
-      <Card className="h-full">
+      <Card className={!isTop && !hasEvaluation && currentUser.role === ROLE.CUSTOMER ? `h-[500px]` : 'h-[450px]'}>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -201,7 +201,7 @@ export default function ProgressStepCard({
           )}
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t space-y-2 mb-4">
+          <div className="pt-4 space-y-2 mb-4">
             {/* View Evaluation Detail Button */}
             {hasEvaluation && onViewEvaluationDetail && (
               <Button
