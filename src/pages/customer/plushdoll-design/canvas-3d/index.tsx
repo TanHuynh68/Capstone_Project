@@ -748,6 +748,7 @@ export default function PlushDollDesign3D({
 
     // Dimensions computed inside LabubuModel and hoisted for Canvas overlay
     const [canvasModelDims, setCanvasModelDims] = useState<{ width: number; height: number; depth: number } | null>(null)
+    const [showDimsDropdown, setShowDimsDropdown] = useState(false)
 
     // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
     const [anchorPoints, setAnchorPoints] = useState(DEFAULT_ANCHOR_POINTS)
@@ -2005,8 +2006,11 @@ export default function PlushDollDesign3D({
                         <Card className="h-[70vh] p-0">
                             <CardContent className="h-full p-0">
                                 <div className="relative bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
-                                    {canvasModelDims && (
-                                        <div className="absolute top-2 left-2 z-10 min-w-[220px] pointer-events-none bg-black/60 text-white text-xs px-3 py-2 rounded shadow border border-white/20 space-y-1">
+                                    <div className="absolute top-2 left-2 z-10 space-y-2">
+                                        <div
+                                            onClick={() => setShowDimsDropdown((v) => !v)}
+                                            className="min-w-[220px] pointer-events-auto bg-black/60 text-white text-xs px-3 py-2 rounded shadow border border-white/20 space-y-1 cursor-pointer select-none hover:bg-black/70"
+                                        >
                                             <div className="font-semibold text-[11px] opacity-90">Vị trí:</div>
                                             <div className="grid grid-cols-7 gap-x-2">
                                                 <div className="col-span-2 opacity-75">X</div>
@@ -2016,17 +2020,22 @@ export default function PlushDollDesign3D({
                                                 <div className="col-span-2 opacity-75">Z</div>
                                                 <div className="col-span-5">{modelPosition.z.toFixed(2)} m ({(modelPosition.z * 100).toFixed(1)} cm)</div>
                                             </div>
-                                            <div className="font-semibold text-[11px] opacity-90 mt-1">Kích thước:</div>
-                                            <div className="grid grid-cols-7 gap-x-2">
-                                                <div className="col-span-2 opacity-75">X</div>
-                                                <div className="col-span-5">{(canvasModelDims?.width ?? 0).toFixed(3)} m ({(((canvasModelDims?.width ?? 0) * 100)).toFixed(1)} cm)</div>
-                                                <div className="col-span-2 opacity-75">Y</div>
-                                                <div className="col-span-5">{(canvasModelDims?.depth ?? 0).toFixed(3)} m ({(((canvasModelDims?.depth ?? 0) * 100)).toFixed(1)} cm)</div>
-                                                <div className="col-span-2 opacity-75">Z</div>
-                                                <div className="col-span-5">{(canvasModelDims?.height ?? 0).toFixed(3)} m ({(((canvasModelDims?.height ?? 0) * 100)).toFixed(1)} cm)</div>
-                                            </div>
+                                            {/* <div className="text-[10px] opacity-70 mt-1">Nhấn để {showDimsDropdown ? "ẩn" : "hiện"} kích thước</div> */}
                                         </div>
-                                    )}
+                                        {showDimsDropdown && canvasModelDims && (
+                                            <div className="min-w-[220px] pointer-events-none bg-black/60 text-white text-xs px-3 py-2 rounded shadow border border-white/20 space-y-1">
+                                                <div className="font-semibold text-[11px] opacity-90">Kích thước:</div>
+                                                <div className="grid grid-cols-7 gap-x-2">
+                                                    <div className="col-span-2 opacity-75">X</div>
+                                                    <div className="col-span-5">{(canvasModelDims?.width ?? 0).toFixed(3)} m ({(((canvasModelDims?.width ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                    <div className="col-span-2 opacity-75">Y</div>
+                                                    <div className="col-span-5">{(canvasModelDims?.depth ?? 0).toFixed(3)} m ({(((canvasModelDims?.depth ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                    <div className="col-span-2 opacity-75">Z</div>
+                                                    <div className="col-span-5">{(canvasModelDims?.height ?? 0).toFixed(3)} m ({(((canvasModelDims?.height ?? 0) * 100)).toFixed(1)} cm)</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <Canvas className="w-full h-full relative" camera={{
                                         position: [0, -5, 0], // Camera ở trên cao, nhìn xuống
                                         fov: 50,

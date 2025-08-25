@@ -222,7 +222,7 @@ export default function CustomerFeedbackForm({
                 Nhấp để tải lên hình ảnh
               </span>
               <span className="text-xs text-gray-500">
-                PNG, JPG, GIF tối đa 5MB
+                PNG, JPG, JPEG tối đa 5MB
               </span>
             </label>
           </div>

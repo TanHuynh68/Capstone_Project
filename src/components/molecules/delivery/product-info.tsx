@@ -300,7 +300,7 @@ export function ProductInfo({
                   </div>
                   {!isLoading && (
                     <div className="text-xs text-gray-500">
-                      PNG, JPG, GIF tối đa 1MB, tối đa 3 ảnh
+                      PNG, JPG, JPEG tối đa 1MB, tối đa 3 ảnh
                     </div>
                   )}
                 </div>
