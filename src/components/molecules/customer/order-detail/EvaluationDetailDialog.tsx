@@ -1,11 +1,4 @@
-"use client";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProgressStepApproval } from "@/types/orderManagement";
@@ -22,7 +15,6 @@ export default function EvaluationDetailDialog({
   isOpen,
   onClose,
   evaluation,
-  stepTitle,
 }: EvaluationDetailDialogProps) {
   if (!evaluation) return null;
 
@@ -87,13 +79,7 @@ export default function EvaluationDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            Chi tiết đánh giá {stepTitle && `- ${stepTitle}`}
-          </DialogTitle>
-        </DialogHeader>
-
+      <DialogContent className="max-w-2xl max-h-[900px] overflow-y-auto">
         <div className="space-y-6">
           {/* Overall Score */}
           <Card>
@@ -106,9 +92,11 @@ export default function EvaluationDetailDialog({
             <CardContent>
               <div className="grid grid-cols-1 gap-4">
                 <div className="text-center">
-                  <div className={`inline-flex items-center justify-center rounded-full border-4 ${getBorderColor(
-                        evaluation.totalScore
-                      )} w-20 h-20 mx-auto`}>
+                  <div
+                    className={`inline-flex items-center justify-center rounded-full border-4 ${getBorderColor(
+                      evaluation.totalScore
+                    )} w-20 h-20 mx-auto`}
+                  >
                     <span
                       className={`text-3xl font-bold ${getScoreColor(
                         evaluation.totalScore
@@ -122,20 +110,19 @@ export default function EvaluationDetailDialog({
               </div>
             </CardContent>
           </Card>
-          {/* Evaluation Date */}
-          <Card>
-            <CardContent className="">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Calendar className="h-4 w-4" />
-                <span className="font-medium">Ngày đánh giá:</span>
-                <span>{formatDate(evaluation.createdAt)}</span>
-              </div>
-            </CardContent>
-          </Card>
+
           {/* Evaluation Criteria with Quality Score */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Tiêu chí đánh giá</CardTitle>
+              <CardTitle className="text-lg">
+                <div className="flex justify-between gap-2">
+                  <div>Tiêu chí đánh giá</div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(evaluation.createdAt)}</span>
+                  </div>
+                </div>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">

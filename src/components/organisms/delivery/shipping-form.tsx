@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { SenderInfo } from "../../molecules/delivery/sender-info";
 // import { ReceiverInfo } from "../../molecules/delivery/receiver-info";
 import { ProductInfo } from "../../molecules/delivery/product-info";
@@ -6,9 +8,17 @@ import { PricingSidebar } from "../../molecules/delivery/pricing-sidebar";
 import DeliveryService from "@/services/DeliveryService";
 import { validateShippingForm, validateField } from "@/schemas/shippingSchema";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import type { RootState } from "@/redux/store";
 import { ReceiverInfoAutofill } from "@/components/molecules/delivery/receiver-info-autofill";
 import { toast } from "sonner";
+import {
+  AlertTriangle,
+  Info,
+  Users,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import BenefitService from "@/services/BenefitService";
 
 interface ShippingFormProps {
   onSuccess?: () => void;
@@ -17,13 +27,26 @@ interface ShippingFormProps {
   onOrderCreated?: () => void;
 }
 
+interface BenefitWrongDelivery {
+  benefitID: string;
+  benefitType: string;
+  title: string;
+  description: string;
+  version: number;
+  customerScoreChange: number;
+  designerScoreChange: number;
+  customerCompensationRate: number;
+  designerCompensationRate: number;
+  isActive: boolean;
+  createdAt: string; // hoặc Date nếu bạn muốn parse sang Date
+  listVersion: Benefit[]; // Nếu danh sách này chứa các version Benefi
+}
 export function ShippingForm({
   onSuccess,
   orderID,
   order,
   onOrderCreated,
 }: ShippingFormProps) {
- 
   const [sender, setSender] = useState<Record<string, unknown>>({});
   const [receiver, setReceiver] = useState<Record<string, unknown>>({});
   const [product, setProduct] = useState<Record<string, unknown>>({});
@@ -35,9 +58,24 @@ export function ShippingForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { createDelivery } = DeliveryService();
+  const { getBenefitWrongDelivery } = BenefitService();
   const currentUserId = useSelector((state: RootState) => state.user.id);
   let receiverAccountId = undefined;
   let receiverID = undefined;
+  const [deliveryBenefit, setDeliveryBenefit] =
+    useState<BenefitWrongDelivery | null>(null);
+
+  useEffect(() => {
+    fetchBenefitWrongDelivery();
+  }, []);
+
+  // Benefit data - this could come from props or API in the future
+  const fetchBenefitWrongDelivery = async () => {
+    const response = await getBenefitWrongDelivery();
+    if (response && response.responseRequestModel) {
+      setDeliveryBenefit(response.responseRequestModel);
+    }
+  };
 
   if (order) {
     // If current user is the customer, then the receiver is the designer
@@ -279,7 +317,7 @@ export function ShippingForm({
     try {
       const response = await createDelivery(formData);
       if (response) {
-        toast.success('Tạo đơn giao hàng thành công!')
+        toast.success("Tạo đơn giao hàng thành công!");
         onSuccess?.();
         onOrderCreated?.();
       }
@@ -351,6 +389,98 @@ export function ShippingForm({
                 )}
               </button>
             </div>
+
+            {/* Benefit Information Section */}
+            {deliveryBenefit && deliveryBenefit.isActive && (
+              <div className="mt-4 p-4 bg-amber-300  border border-amber-200  rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <AlertTriangle className="h-5 w-5 " />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <h4 className="text-sm font-semibold  mb-1">
+                        {deliveryBenefit.title}
+                      </h4>
+                      <p className="text-xs  leading-relaxed">
+                        {deliveryBenefit.description}
+                      </p>
+                    </div>
+
+                    {/* Score and Compensation Info */}
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-amber-200 dark:border-amber-800">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-3 w-3 " />
+                          <span className="text-xs font-medium  ">Điểm số</span>
+                        </div>
+                        <div className="space-y-1">
+                          {deliveryBenefit.customerScoreChange !== 0 && (
+                            <div className="flex items-center gap-1">
+                              {deliveryBenefit.customerScoreChange > 0 ? (
+                                <TrendingUp className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <TrendingDown className="h-3 w-3 text-red-600" />
+                              )}
+                              <span className="text-xs 0 ">
+                                KH:{" "}
+                                {deliveryBenefit.customerScoreChange > 0
+                                  ? "+"
+                                  : ""}
+                                {deliveryBenefit.customerScoreChange}
+                              </span>
+                            </div>
+                          )}
+                          {deliveryBenefit.designerScoreChange !== 0 && (
+                            <div className="flex items-center gap-1">
+                              {deliveryBenefit.designerScoreChange > 0 ? (
+                                <TrendingUp className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <TrendingDown className="h-3 w-3 text-red-600" />
+                              )}
+                              <span className="text-xs 0 ">
+                                TK:{" "}
+                                {deliveryBenefit.designerScoreChange > 0
+                                  ? "+"
+                                  : ""}
+                                {deliveryBenefit.designerScoreChange}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Info className="h-3 w-3  " />
+                          <span className="text-xs font-medium  ">
+                            Bồi thường
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-xs  ">
+                            KH: {deliveryBenefit.customerCompensationRate}%
+                          </div>
+                          <div className="text-xs t ">
+                            TK: {deliveryBenefit.designerCompensationRate}%
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Version and Type Info */}
+                    <div className="flex items-center justify-between pt-2 border-t border-amber-200 dark:border-amber-800">
+                      <span className="text-xs  ">
+                        Loại: {deliveryBenefit.benefitType}
+                      </span>
+                      <span className="text-xs ">
+                        v{deliveryBenefit.version}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

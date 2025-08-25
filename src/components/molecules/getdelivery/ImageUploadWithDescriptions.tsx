@@ -29,8 +29,8 @@ interface ImageUploadWithDescriptionsProps {
 const ImageUploadWithDescriptions: React.FC<
   ImageUploadWithDescriptionsProps
 > = ({
-  title = "Tải ảnh/video minh chứng",
-  subtitle = "Tải lên ảnh hoặc video minh chứng (tối thiểu 1 file)",
+  title = "Tải ảnh minh chứng",
+  subtitle = "Tải lên ảnh minh chứng (tối thiểu 1 file)",
   maxFiles = 3,
   minFiles = 1,
   required = true,
@@ -240,36 +240,33 @@ const ImageUploadWithDescriptions: React.FC<
 
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*,video/mp4";
+    input.accept = ".png,.jpg,.jpeg";
     input.multiple = false;
     input.capture = "environment"; // Cho phép chụp ảnh trực tiếp từ camera
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        // Kiểm tra kích thước file (giới hạn 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          toast.error("File quá lớn", {
-            description: "Kích thước file không được vượt quá 10MB",
+        // Chặn video hoàn toàn
+        if (file.type.startsWith("video/")) {
+          toast.error("Không chấp nhận video", {
+            description: "Chỉ cho phép tải ảnh định dạng PNG hoặc JPEG",
           });
           return;
         }
 
-        // Kiểm tra định dạng file
-        const validImageTypes = [
-          "image/jpeg",
-          "image/jpg",
-          "image/png",
-          "image/webp",
-        ];
-        const validVideoTypes = ["video/mp4", "video/quicktime"];
+        // Kiểm tra kích thước file (giới hạn 1MB)
+        if (file.size > 1 * 1024 * 1024) {
+          toast.error("File quá lớn", {
+            description: "Mỗi ảnh không được vượt quá 1MB",
+          });
+          return;
+        }
 
-        if (
-          !validImageTypes.includes(file.type) &&
-          !validVideoTypes.includes(file.type)
-        ) {
+        // Kiểm tra định dạng file (chỉ PNG/JPEG)
+        const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+        if (!validImageTypes.includes(file.type)) {
           toast.error("Định dạng file không hợp lệ", {
-            description:
-              "Chỉ chấp nhận ảnh (JPG, PNG, WebP) và video (MP4, MOV)",
+            description: "Chỉ chấp nhận PNG, JPEG hoặc JPG",
           });
           return;
         }
@@ -525,13 +522,13 @@ const ImageUploadWithDescriptions: React.FC<
                     >
                       <Upload className="h-8 w-8 text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
                       <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors font-medium">
-                        Chọn ảnh/video {idx + 1}{" "}
+                          Chọn ảnh {idx + 1}{" "}
                         {required && idx < minFiles && (
                           <span className="text-destructive">*</span>
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground/70 mt-1">
-                        PNG, JPG, JPEG, MP4
+                          PNG, JPG, JPEG (≤ 1MB)
                       </p>
                     </div>
                   )}
@@ -544,7 +541,7 @@ const ImageUploadWithDescriptions: React.FC<
                   htmlFor={`description-${idx}`}
                   className="text-xs font-medium text-muted-foreground"
                 >
-                  Mô tả {fileTypes[idx] === "video" ? "video" : "ảnh"} {idx + 1}{" "}
+                  Mô tả ảnh {idx + 1}{" "}
                   {required && previews[idx] && (
                     <span className="text-destructive">*</span>
                   )}
@@ -553,9 +550,7 @@ const ImageUploadWithDescriptions: React.FC<
                   id={`description-${idx}`}
                   value={descriptions[idx]}
                   onChange={(e) => handleDescriptionChange(idx, e.target.value)}
-                  placeholder={`Mô tả cho ${
-                    fileTypes[idx] === "video" ? "video" : "ảnh"
-                  } ${idx + 1}...`}
+                  placeholder={`Mô tả cho ảnh ${idx + 1}...`}
                   className={`mt-1 text-sm resize-none ${
                     errors[idx] || (showValidation && validationErrors[idx])
                       ? "border-destructive focus:border-destructive bg-destructive/10"
@@ -591,10 +586,10 @@ const ImageUploadWithDescriptions: React.FC<
                     <span className="text-2xl font-bold">+</span>
                   </div>
                   <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors font-medium">
-                    Thêm ảnh/video
+                    Thêm ảnh
                   </p>
                   <p className="text-xs text-muted-foreground/70 mt-1">
-                    Tối đa {maxFiles} file
+                    Tối đa {maxFiles} ảnh
                   </p>
                 </div>
               </div>

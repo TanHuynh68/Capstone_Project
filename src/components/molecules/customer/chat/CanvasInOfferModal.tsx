@@ -9,19 +9,22 @@ import {
 import CanvasList from "@/pages/customer/plushdoll-design/get-canvas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, Loader2, Image, Palette } from "lucide-react";
+import { Upload, Loader2, Image, Palette, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CanvasInOfferModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectImage: (data: {
-    imageUrl: string;
-    title: string;
-    id?: string;
-    description?: string;
-    isCanvas?: boolean;
-  }) => void;
+  // onSelectImage: (data: {
+  //   images: {
+  //     imageUrl: string;
+  //     title: string;
+  //     id?: string;
+  //     description?: string;
+  //     isCanvas?: boolean;
+  //   }[];
+  // }) => void;
+  onSelectImage: any;
 }
 
 const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
@@ -29,51 +32,57 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
   onClose,
   onSelectImage,
 }) => {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [selected, setSelected] = useState<{
-    desc: string;
-    title: string;
-    id: string;
-  } | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [selectedCanvases, setSelectedCanvases] = useState<
+    { desc: string; title: string; id: string; preview: string }[]
+  >([]);
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upload" | "canvas">("upload");
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Xử lý upload file từ máy
+  // Xử lý upload file từ máy (tối đa 3 file)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = e.target.files ? Array.from(e.target.files) : [];
     setUploadError(null);
 
-    if (file) {
-      // Kiểm tra loại file
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (files.length + uploadedFiles.length > 3) {
+      setUploadError("Chỉ được upload tối đa 3 file");
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of files) {
       if (!allowedTypes.includes(file.type)) {
-        setUploadError("Chỉ chấp nhận file ảnh có định dạng JPG, JPEG hoặc PNG");
-        setUploadedFile(null);
-        setPreview(null);
-        return;
+        setUploadError("Chỉ chấp nhận file ảnh JPG, JPEG hoặc PNG");
+        continue;
       }
 
-      // Kiểm tra kích thước file (1MB = 1024 * 1024 bytes)
       if (file.size > 1024 * 1024) {
         setUploadError("Kích thước file không được vượt quá 1MB");
-        setUploadedFile(null);
-        setPreview(null);
-        return;
+        continue;
       }
 
-      setUploadedFile(file);
-      // Tạo preview URL
+      validFiles.push(file);
       const previewUrl = URL.createObjectURL(file);
-      setPreview(previewUrl);
-      setSelected(null); // Reset canvas selection
+      newPreviews.push(previewUrl);
     }
+
+    setUploadedFiles((prev) => [...prev, ...validFiles]);
+    setPreviews((prev) => [...prev, ...newPreviews]);
+    setSelectedCanvases([]); // Reset canvas nếu chọn upload
   };
 
-  // Khi chọn canvas, render preview PNG
+  // Khi chọn canvas (vẫn chỉ cho 1 canvas/lần chọn, nhưng có thể chọn nhiều lần tối đa 3)
   const handleSelectCanvas = async (desc: string, title: string, id: string) => {
-    console.log(desc, "desc");
+    if (selectedCanvases.length + uploadedFiles.length >= 3) {
+      alert("Chỉ được chọn tối đa 3 hình ảnh");
+      return;
+    }
+
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = 960;
     tempCanvas.height = 540;
@@ -81,7 +90,6 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
       backgroundColor: "#fff",
     });
 
-    // Sửa crossOrigin trong JSON
     const parsedDesc = JSON.parse(desc);
     parsedDesc.objects.forEach((obj: any) => {
       if (obj.type === "image") {
@@ -109,65 +117,74 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
 
     try {
       const dataURL = fabricCanvas.toDataURL({ format: "png" });
-      setPreview(dataURL);
-      setSelected({ desc, title, id });
-      setUploadedFile(null); // Reset file upload
+      setPreviews((prev) => [...prev, dataURL]);
+      setSelectedCanvases((prev) => [...prev, { desc, title, id, preview: dataURL }]);
     } catch (error) {
       console.error("Tainted canvas, không thể xuất PNG", error);
       alert("Canvas chứa ảnh không hỗ trợ CORS, không thể preview.");
     }
   };
 
+  // Xóa 1 ảnh trong preview
+  const handleRemovePreview = (index: number) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    if (index < uploadedFiles.length) {
+      setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setSelectedCanvases((prev) => prev.filter((_, i) => i !== index - uploadedFiles.length));
+    }
+  };
+
   // Khi xác nhận gửi
   const handleSend = async () => {
-    if (!preview) return;
-    
+    if (previews.length === 0) return;
+
     setIsUploading(true);
     try {
-      let imageUrl: string;
-      let title: string;
-      let id: string | undefined;
-      let description: string | undefined;
-      let isCanvas: boolean = false;
+      const images: {
+        imageUrl: string;
+        title: string;
+        id?: string;
+        description?: string;
+        isCanvas?: boolean;
+      }[] = [];
 
-      if (selected) {
-        // Nếu chọn từ canvas
-        const blob = await (await fetch(preview)).blob();
-        const file = new File([blob], "canvas.png", { type: "image/png" });
-        
-        // Convert to base64 for now (you can modify this to upload to cloudinary if needed)
+      // Xử lý file upload
+      for (const file of uploadedFiles) {
         const reader = new FileReader();
-        imageUrl = await new Promise((resolve) => {
+        const imageUrl = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(file);
         });
-        
-        title = selected.title;
-        id = selected.id;
-        description = selected.desc;
-        isCanvas = true;
-      } else if (uploadedFile) {
-        // Nếu upload từ máy
-        const reader = new FileReader();
-        imageUrl = await new Promise((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(uploadedFile);
+
+        images.push({
+          imageUrl,
+          title: file.name,
+          isCanvas: false,
         });
-        
-        title = uploadedFile.name;
-        isCanvas = false;
-      } else {
-        throw new Error("Không có hình ảnh nào được chọn");
       }
 
-      onSelectImage({
-        imageUrl,
-        title,
-        id,
-        description,
-        isCanvas,
-      });
-      
+      // Xử lý canvas
+      for (const canvas of selectedCanvases) {
+        const blob = await (await fetch(canvas.preview)).blob();
+        const file = new File([blob], "canvas.png", { type: "image/png" });
+
+        const reader = new FileReader();
+        const imageUrl = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+
+        images.push({
+          imageUrl,
+          title: canvas.title,
+          id: canvas.id,
+          description: canvas.desc,
+          isCanvas: true,
+        });
+      }
+
+      onSelectImage({ images });
       resetForm();
       onClose();
     } catch (err) {
@@ -180,38 +197,28 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
 
   // Reset form
   const resetForm = () => {
-    setPreview(null);
-    setSelected(null);
-    setUploadedFile(null);
+    setPreviews([]);
+    setSelectedCanvases([]);
+    setUploadedFiles([]);
     setUploadError(null);
     setIsUploading(false);
   };
 
-  // Khi đóng modal
   const handleClose = () => {
     resetForm();
     onClose();
   };
 
-  // Cleanup preview URL when component unmounts
-  React.useEffect(() => {
-    return () => {
-      if (preview && !selected) {
-        URL.revokeObjectURL(preview);
-      }
-    };
-  }, [preview, selected]);
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] bg-background text-foreground border-border">
+      <DialogContent className="sm:max-w-[650px] bg-background text-foreground border-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <Image className="h-5 w-5 text-blue-500" />
-            Chọn hình mẫu minh họa
+            Chọn hình mẫu minh họa (tối đa 3)
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Upload hình từ máy hoặc chọn từ canvas có sẵn.
+            Upload từ máy hoặc chọn từ canvas có sẵn.
           </DialogDescription>
         </DialogHeader>
 
@@ -223,8 +230,8 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
             onClick={() => setActiveTab("upload")}
             className={cn(
               "flex-1",
-              activeTab === "upload" 
-                ? "bg-background text-foreground shadow-sm" 
+              activeTab === "upload"
+                ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -237,8 +244,8 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
             onClick={() => setActiveTab("canvas")}
             className={cn(
               "flex-1",
-              activeTab === "canvas" 
-                ? "bg-background text-foreground shadow-sm" 
+              activeTab === "canvas"
+                ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -248,22 +255,21 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
         </div>
 
         <div className="mt-4">
-          {!preview ? (
-            // Tab content khi chưa có preview
+          {previews.length === 0 ? (
             <div className="min-h-[200px]">
               {activeTab === "upload" ? (
-                // Tab upload từ máy
                 <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
                   <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">
                     Upload hình ảnh từ máy
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Chọn file JPG, JPEG hoặc PNG (tối đa 1MB)
+                    Chọn tối đa 3 file JPG, JPEG hoặc PNG (≤1MB)
                   </p>
                   <Input
                     type="file"
                     accept=".jpg,.jpeg,.png"
+                    multiple
                     onChange={handleFileUpload}
                     className="max-w-xs mx-auto"
                   />
@@ -272,40 +278,37 @@ const CanvasInOfferModal: React.FC<CanvasInOfferModalProps> = ({
                   )}
                 </div>
               ) : (
-                // Tab chọn từ canvas
                 <div className="min-h-[200px]">
                   <CanvasList onSelect={handleSelectCanvas} />
                 </div>
               )}
             </div>
           ) : (
-            // Preview và nút xác nhận
             <div className="border border-border rounded-lg p-4 bg-card flex flex-col items-center">
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-full max-w-[200px] h-auto object-contain rounded-lg mb-4"
-              />
-              
-              <div className="text-center mb-4">
-                <p className="text-sm text-muted-foreground mb-1">
-                  {selected ? "Canvas đã chọn:" : "Hình ảnh đã upload:"}
-                </p>
-                <p className="text-sm font-medium text-foreground break-words">
-                  {selected ? selected.title : uploadedFile?.name}
-                </p>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {previews.map((src, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={src}
+                      alt={`Preview ${index + 1}`}
+                      className="w-32 h-32 object-contain rounded-lg border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePreview(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
 
               <div className="flex gap-2 w-full justify-end">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setPreview(null);
-                    setSelected(null);
-                    setUploadedFile(null);
-                    setUploadError(null);
-                  }}
+                  onClick={resetForm}
                   className="border-border text-foreground hover:bg-muted hover:text-foreground"
                   disabled={isUploading}
                 >

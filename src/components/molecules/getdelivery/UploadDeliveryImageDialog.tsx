@@ -131,7 +131,7 @@ const UploadDeliveryImageDialog: React.FC<UploadDeliveryImageDialogProps> = ({
             {/* Images Upload */}
             <ImageUploadWithDescriptions
               title=""
-              subtitle="Tải lên minh chứng giao hàng (tối thiểu 1 ảnh/video, tối đa 3 ảnh/video)"
+              subtitle="Tải lên minh chứng giao hàng (tối thiểu 1 ảnh, tối đa 3 ảnh; chỉ PNG/JPEG/JPG, ≤ 1MB mỗi ảnh)"
               maxFiles={3}
               minFiles={1}
               required={true}
