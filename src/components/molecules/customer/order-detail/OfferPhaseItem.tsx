@@ -54,7 +54,7 @@ export default function OfferPhaseItem({
   return (
     <div className="p-1">
       <Card
-        className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+        className={`cursor-pointer transition-all duration-200 hover:shadow-md bg-blue-50 border border-blue-200 ${
           isSelected ? "ring-2 ring-blue-500 " : ""
         }`}
         onClick={onClick}

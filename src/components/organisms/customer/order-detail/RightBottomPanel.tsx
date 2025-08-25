@@ -47,7 +47,7 @@ export default function RightBottomPanel({
     evaluation: null,
     stepTitle: "",
   });
-  
+
   useEffect(() => {
     setCurrentStepIndex(0);
   }, [selectedPhaseId]);
@@ -141,16 +141,13 @@ export default function RightBottomPanel({
                           title={`Bước ${index + 1}`}
                         />
                       ))}
-                      <span className="ml-2 text-sm text-gray-500">
-                        Bước {currentStepIndex + 1}/{progressSteps.length}
-                      </span>
                     </div>
 
                     {/* Current Step Content */}
                     <div className="flex-1 overflow-hidden">
                       <div className="h-full overflow-y-auto">
                         <ProgressStepCard
-                        isTop={true}
+                          isTop={true}
                           step={progressSteps[currentStepIndex]}
                           onEvaluate={() =>
                             handleEvaluate(
@@ -179,7 +176,7 @@ export default function RightBottomPanel({
             </div>
 
             {/* Đánh giá tiến độ - phần dưới */}
-            <div className="flex-1 pt-4">
+            <div className="flex-1">
               <div className="h-full overflow-y-auto pr-2 mt-5">
                 <EvaluationForm
                   onSubmit={handleEvaluationSubmit}

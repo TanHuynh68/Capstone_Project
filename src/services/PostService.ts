@@ -101,9 +101,9 @@ const PostService = () => {
 
   const updatePost = useCallback(
     async (data: any) => {
-      console.log('data2: ', data)
+      console.log('data ', data)
       const formData = new FormData();
-      formData.append("ProjectPostId ", data.projectPostId);
+      formData.append("ProjectPostId", data.projectPostId);
       formData.append("Length", data.length);
       formData.append("Width", data.width);
       formData.append("Weight", data.weight);
@@ -124,7 +124,7 @@ const PostService = () => {
           formData.append("RequestedAttachmentFiles", file);
         });
       }
-      formData.append("FinishDate", new Date(data.finishDate).toISOString());
+      formData.append("FinishDate", data.finishDate);
       try {
         const res = await callApi(
           HTTP_METHOD.PUT,

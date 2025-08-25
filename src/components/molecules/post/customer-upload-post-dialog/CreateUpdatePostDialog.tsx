@@ -40,8 +40,9 @@ import {
   type CreatePostFormValues,
   createPostSchema,
 } from "@/schemas/postSchema";
-import { UpdatePostFormValues } from "@/schemas/updatePostSchema";
+import type { UpdatePostFormValues } from "@/schemas/updatePostSchema";
 import CanvasInOfferModal from "@/components/molecules/customer/chat/CanvasInOfferModal";
+import { formatDateToSubmit } from "@/utils";
 
 interface CreatePostDialogProps {
   onPostCreated?: () => void;
@@ -69,40 +70,55 @@ export default function CreateUpdatePostDialog({
   const [originalFiles, setOriginalFiles] = useState<File[]>([]);
   const [requestedFiles, setRequestedFiles] = useState<File[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [isImageSelectorModalOpen, setIsImageSelectorModalOpen] = useState(false);
-  const [imageSelectorType, setImageSelectorType] = useState<"original" | "requested">("original");
-  console.log('updateData; ', updateData)
+  const [isImageSelectorModalOpen, setIsImageSelectorModalOpen] =
+    useState(false);
+  const [imageSelectorType, setImageSelectorType] = useState<
+    "original" | "requested"
+  >("original");
+
   const { createPost, updatePost } = PostService();
 
-  // Xử lý khi chọn hình ảnh từ Image Selector Modal (CanvasInOfferModal)
+  // Xử lý khi chọn nhiều hình ảnh từ CanvasInOfferModal (đã được cập nhật để hỗ trợ multiple images)
   const handleImageSelect = (data: {
-    imageUrl: string;
-    title: string;
-    id?: string;
-    description?: string;
-    isCanvas?: boolean;
+    images: {
+      imageUrl: string;
+      title: string;
+      id?: string;
+      description?: string;
+      isCanvas?: boolean;
+    }[];
   }) => {
-    // Convert base64 thành File (cả canvas và upload từ máy đều trả về base64)
-    const byteString = atob(data.imageUrl.split(',')[1]);
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
+    const newFiles: File[] = [];
 
-    // Tạo file với tên phù hợp
-    const fileName = data.isCanvas ? `${data.title}.png` : data.title;
-    const file = new File([ab], fileName, { type: "image/png" });
+    // Convert tất cả images thành Files
+    data.images.forEach((imageData) => {
+      // Convert base64 thành File
+      const byteString = atob(imageData.imageUrl.split(",")[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
 
-    // Thêm vào danh sách tương ứng
+      // Tạo file với tên phù hợp
+      const fileName = imageData.isCanvas
+        ? `${imageData.title}.png`
+        : imageData.title;
+      const file = new File([ab], fileName, { type: "image/png" });
+      newFiles.push(file);
+    });
+
+    // Thêm vào danh sách tương ứng (thay thế hoàn toàn, không merge)
     if (imageSelectorType === "original") {
-      const newFiles = [...originalFiles, file].slice(0, 3);
-      setOriginalFiles(newFiles);
-      form.setValue("OriginalAttachmentFiles", newFiles);
+      const finalFiles = newFiles.slice(0, 3); // Đảm bảo tối đa 3 ảnh
+      setOriginalFiles(finalFiles);
+      form.setValue("OriginalAttachmentFiles", finalFiles);
+      toast.success(`Đã chọn ${finalFiles.length} ảnh gốc`);
     } else {
-      const newFiles = [...requestedFiles, file].slice(0, 3);
-      setRequestedFiles(newFiles);
-      form.setValue("RequestedAttachmentFiles", newFiles);
+      const finalFiles = newFiles.slice(0, 3); // Đảm bảo tối đa 3 ảnh
+      setRequestedFiles(finalFiles);
+      form.setValue("RequestedAttachmentFiles", finalFiles);
+      toast.success(`Đã chọn ${finalFiles.length} ảnh yêu cầu`);
     }
 
     setIsImageSelectorModalOpen(false);
@@ -127,7 +143,6 @@ export default function CreateUpdatePostDialog({
 
   // Populate form with update data
   useEffect(() => {
-    console.log('updateData: ', updateData)
     if (isUpdateMode && updateData) {
       form.setValue("Title", updateData.title || "");
       form.setValue("Description", updateData.description || "");
@@ -143,31 +158,17 @@ export default function CreateUpdatePostDialog({
         const finishDate = new Date(updateData.finishDate);
         form.setValue("FinishDate", finishDate);
       }
-
-      // 🟢 Map hình ảnh từ API sang form field
-      // if (updateData.originalImages) {
-      //   const originalUrls = updateData.originalImages.map((img: any) => img.imageUrl);
-      //   form.setValue("OriginalAttachmentFiles", originalUrls);
-      // }
-
-      // if (updateData.requestedImages) {
-      //   const requestedUrls = updateData.requestedImages.map((img: any) => img.imageUrl);
-      //   form.setValue("RequestedAttachmentFiles", requestedUrls);
-      // }
     }
   }, [isUpdateMode, updateData, form]);
 
   // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
-      if (previewImage) {
+      if (previewImage && previewImage.startsWith("blob:")) {
         URL.revokeObjectURL(previewImage);
       }
     };
   }, [previewImage]);
-
-
-
 
   const removeFile = (index: number, type: "original" | "requested") => {
     if (type === "original") {
@@ -187,28 +188,50 @@ export default function CreateUpdatePostDialog({
   };
 
   const onSubmit = async (data: CreatePostFormValues) => {
+    // Validation for create mode
+    if (!isUpdateMode) {
+      if (originalFiles.length === 0) {
+        toast.error("Vui lòng chọn ít nhất 1 ảnh gốc");
+        return;
+      }
+      if (requestedFiles.length === 0) {
+        toast.error("Vui lòng chọn ít nhất 1 ảnh yêu cầu");
+        return;
+      }
+    }
+
+    // Validation for update mode
+    if (isUpdateMode) {
+      if (originalFiles.length === 0 && requestedFiles.length === 0) {
+        toast.error("Vui lòng chọn ảnh mới để cập nhật bài đăng");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       let response;
-
       if (isUpdateMode && projectPostId) {
-        // Update mode
+        // Update mode - always use new files
         const updatePayload = {
           projectPostId,
           title: data.Title,
           description: data.Description,
           itemValue: data.ItemValue,
-          finishDate: data.FinishDate.toISOString(),
+          finishDate: formatDateToSubmit(data.FinishDate+''),
           suggestedPrice: data.SuggestedPrice,
-          originalAttachmentFiles: updateData?.originalAttachmentFiles || [],
-          requestedAttachmentFiles: updateData?.requestedAttachmentFiles || [],
+          originalAttachmentFiles: originalFiles,
+          requestedAttachmentFiles: requestedFiles,
           length: data.Length,
           width: data.Width,
           height: data.Height,
           weight: data.Weight,
         };
+        console.log("updatePayload: ", updatePayload);
         response = await updatePost(updatePayload);
-        toast.success("Cập nhật bài đăng thành công!");
+        if (response?.statusCode === 200) {
+          toast.success("Cập nhật bài đăng thành công!");
+        }
       } else {
         // Create mode
         response = await createPost(data);
@@ -229,11 +252,6 @@ export default function CreateUpdatePostDialog({
         }
       }
     } catch (error) {
-      toast.error(
-        isUpdateMode
-          ? "Có lỗi xảy ra khi cập nhật bài đăng"
-          : "Có lỗi xảy ra khi tạo bài đăng"
-      );
       console.error("Error submitting post:", error);
     } finally {
       setIsSubmitting(false);
@@ -251,15 +269,15 @@ export default function CreateUpdatePostDialog({
     type: "original" | "requested";
     required?: boolean;
   }) => (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Label className="text-sm font-medium">
         {title}{" "}
         {required && !isUpdateMode && <span className="text-red-500">*</span>}
       </Label>
 
-      {/* Nút chọn ảnh đẹp với gradient và shadow */}
+      {/* Nút chọn ảnh với design đẹp */}
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r  rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
         <Button
           type="button"
           variant="outline"
@@ -267,31 +285,42 @@ export default function CreateUpdatePostDialog({
             setImageSelectorType(type);
             setIsImageSelectorModalOpen(true);
           }}
-          className="relative w-full h-16 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform cursor-pointer"
+          className="relative w-full h-20 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
         >
           <div className="flex items-center justify-center w-full h-full">
             <div className="flex items-center space-x-4">
               {/* Icon với background đẹp */}
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
-                <Palette className="h-6 w-6 text-white" />
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+                <Palette className="h-7 w-7 text-white" />
               </div>
 
               {/* Text content */}
               <div className="text-left">
-                <div className="text-sm font-semibold text-gray-800">
-                  {isUpdateMode
-                    ? "Thay đổi ảnh"
-                    : "Chọn ảnh"}
+                <div className="text-base font-semibold text-gray-800 dark:text-gray-200">
+                  {isUpdateMode ? "Thay đổi ảnh" : "Chọn ảnh"}
                 </div>
-                <div className="text-sm text-gray-500 mt-1">
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Từ máy hoặc Canvas • Tối đa 3 ảnh
+                </div>
+                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  Hiện có: {files.length}/3 ảnh
                 </div>
               </div>
 
               {/* Arrow icon */}
               <div className="ml-4 text-gray-400 group-hover:text-blue-500 transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </div>
             </div>
@@ -299,85 +328,56 @@ export default function CreateUpdatePostDialog({
         </Button>
       </div>
 
+      {/* Preview selected files */}
       {files.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
-          {files.map((file, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={URL.createObjectURL(file) || "/placeholder.svg"}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-20 object-contain rounded border"
-              />
-              <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 flex gap-1">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => previewFile(file)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => removeFile(index, type)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+        <div className="space-y-3">
+          <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+            Đã chọn {files.length} ảnh:
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {files.map((file, index) => (
+              <div key={index} className="relative group">
+                <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                  <img
+                    src={URL.createObjectURL(file) || "/placeholder.svg"}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Show existing images for update mode */}
-      {isUpdateMode && (
-        <div className="space-y-2">
-          {type === "original" &&
-            updateData?.originalAttachmentFiles &&
-            updateData.originalAttachmentFiles.length > 0 && (
-              <div>
-                <p className="text-sm text-gray-600 mb-2">Ảnh gốc hiện tại:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {updateData.originalAttachmentFiles.map(
-                    (imageUrl, index) => (
-                      <img
-                        key={index}
-                        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl) || "/placeholder.svg"}
-                        alt={`Current original ${index + 1}`}
-                        className="w-full h-20 object-contain rounded border"
-                      />
-                    )
-                  )}
+                {/* Overlay with actions */}
+                <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-60 transition-all rounded-lg flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => previewFile(file)}
+                      className="h-8 w-8 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => removeFile(index, type)}
+                      className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600 text-white"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* File name */}
+                <div className="absolute bottom-1 left-1 right-1">
+                  <div className=" bg-opacity-80 text-white text-xs px-2 py-1 rounded truncate">
+                    {file.name}
+                  </div>
                 </div>
               </div>
-            )}
-          {type === "requested" &&
-            updateData?.requestedAttachmentFiles &&
-            updateData.requestedAttachmentFiles.length > 0 && (
-              <div>
-                <p className="text-sm text-gray-600 mb-2">
-                  Ảnh yêu cầu hiện tại:
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {updateData.requestedAttachmentFiles.map(
-                    (imageUrl, index) => (
-                      <img
-                        key={index}
-                        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl) || "/placeholder.svg"}
-                        alt={`Current requested ${index + 1}`}
-                        className="w-full h-20 object-contain rounded border"
-                      />
-                    )
-                  )}
-                </div>
-              </div>
-            )}
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -388,6 +388,9 @@ export default function CreateUpdatePostDialog({
     setOriginalFiles([]);
     setRequestedFiles([]);
     setIsImageSelectorModalOpen(false);
+    if (previewImage && previewImage.startsWith("blob:")) {
+      URL.revokeObjectURL(previewImage);
+    }
     setPreviewImage(null);
     if (!isUpdateMode) {
       form.reset();
@@ -414,17 +417,22 @@ export default function CreateUpdatePostDialog({
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="min-w-[850px] overflow-y-auto">
+        <DialogContent className="min-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-xl font-semibold">
               {isUpdateMode ? "Cập nhật bài đăng" : "Tạo bài đăng mới"}
             </DialogTitle>
+            {isUpdateMode && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Chọn ảnh mới để thay thế ảnh hiện tại
+              </p>
+            )}
           </DialogHeader>
 
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-2 gap-6"
             >
               <div className="space-y-6">
                 {/* Title */}
@@ -473,7 +481,7 @@ export default function CreateUpdatePostDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Giá trị sản phẩm
+                          Giá trị sản phẩm{" "}
                           <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
@@ -631,23 +639,28 @@ export default function CreateUpdatePostDialog({
                 />
 
                 {/* Submit Button */}
-                <div className="flex justify-end items-end gap-3 pt-4">
+                <div className="flex justify-end items-end gap-3 pt-6">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsOpen(false)}
                     disabled={isSubmitting}
+                    className="min-w-[100px]"
                   >
                     Hủy
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="min-w-[140px]"
+                  >
                     {isSubmitting
                       ? isUpdateMode
                         ? "Đang cập nhật..."
                         : "Đang tạo..."
                       : isUpdateMode
-                        ? "Cập nhật bài đăng"
-                        : "Tạo bài đăng"}
+                      ? "Cập nhật bài đăng"
+                      : "Tạo bài đăng"}
                   </Button>
                 </div>
               </div>
@@ -660,17 +673,22 @@ export default function CreateUpdatePostDialog({
       {previewImage && (
         <Dialog
           open={!!previewImage}
-          onOpenChange={() => setPreviewImage(null)}
+          onOpenChange={() => {
+            if (previewImage && previewImage.startsWith("blob:")) {
+              URL.revokeObjectURL(previewImage);
+            }
+            setPreviewImage(null);
+          }}
         >
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Xem trước ảnh</DialogTitle>
             </DialogHeader>
-            <div className="flex justify-center">
+            <div className="flex justify-center p-4">
               <img
                 src={previewImage || "/placeholder.svg"}
                 alt="Preview"
-                className="max-w-full max-h-[70vh] object-contain"
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
               />
             </div>
           </DialogContent>
