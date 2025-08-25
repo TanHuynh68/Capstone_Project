@@ -1,10 +1,6 @@
-"use client";
-
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +18,6 @@ export default function EvaluationDetailDialog({
   isOpen,
   onClose,
   evaluation,
-  stepTitle,
 }: EvaluationDetailDialogProps) {
   if (!evaluation) return null;
 
@@ -87,13 +82,7 @@ export default function EvaluationDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            Chi tiết đánh giá {stepTitle && `- ${stepTitle}`}
-          </DialogTitle>
-        </DialogHeader>
-
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <div className="space-y-6">
           {/* Overall Score */}
           <Card>

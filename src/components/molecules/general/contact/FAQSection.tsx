@@ -34,10 +34,10 @@ Khách hàng giao sản phẩm cho nhà thiết kế thông qua mục giao hàng
 7) Kiểm tra và bắt đầu thực hiện  
 Nhà thiết kế kiểm tra sản phẩm nhận và bắt đầu thực hiện giai đoạn.
 
-8) Đặt cọc theo từng phase  
+8) Đặt cọc theo từng giai đoạn  
 Trước mỗi giai đoạn, khách hàng sẽ đặt cọc tương ứng để nhà thiết kế rút tiền để thực hiện và cập nhật chi tiết cho từng giai đoạn.
 
-9) Hoàn thành và đánh giá từng phase  
+9) Hoàn thành và đánh giá từng giai đoạn  
 Sau khi mỗi giai đoạn hoàn tất, khách hàng tiến hành đánh giá chất lượng để tiếp tục giai đoạn tiếp theo.
 
 10) Hoàn tất đơn và nhận lại sản phẩm  
