@@ -26,13 +26,13 @@ import { vi } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import ImageGallery from "@/components/molecules/post/post-detail/ImageGallery";
-import CanvasInOfferModal from "@/components/molecules/customer/chat/CanvasInOfferModal";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import SingleImageGallerySmall from "@/components/molecules/post/post-detail/SingleImageGallerySmall";
+import CreateOfferImageModal from "@/components/molecules/offer/CreateOfferImageModal";
 
 interface CreateOfferModalProps {
   open: boolean;
@@ -165,7 +165,7 @@ export default function CreateOfferModal({
     // Nếu là canvas, convert base64 thành File
     if (data.isCanvas) {
       // Convert base64 to File
-      const byteString = atob(data.imageUrl.split(',')[1]);
+      const byteString = atob(data.imageUrl.split(",")[1]);
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
@@ -178,7 +178,7 @@ export default function CreateOfferModal({
       // Nếu là file upload, sử dụng trực tiếp
       setImagePreview(data.imageUrl);
       // Tạo File object từ base64 nếu cần
-      const byteString = atob(data.imageUrl.split(',')[1]);
+      const byteString = atob(data.imageUrl.split(",")[1]);
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
@@ -296,13 +296,13 @@ export default function CreateOfferModal({
                         <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           {post.finishDate
                             ? new Date(post.finishDate).toLocaleDateString(
-                              "vi-VN",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              }
-                            )
+                                "vi-VN",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                }
+                              )
                             : "Chưa có"}
                         </span>
                       </div>
@@ -313,18 +313,19 @@ export default function CreateOfferModal({
                           Trạng thái
                         </span>
                         <span
-                          className={`text-sm font-semibold ${post.postStatus === 1
+                          className={`text-sm font-semibold ${
+                            post.postStatus === 1
                               ? "text-green-600 dark:text-green-400"
                               : post.postStatus === 2
-                                ? "text-blue-600 dark:text-blue-400"
-                                : "text-muted-foreground"
-                            }`}
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-muted-foreground"
+                          }`}
                         >
                           {post.postStatus === 1
                             ? "Đang hoạt động"
                             : post.postStatus === 2
-                              ? "Đang thực hiện"
-                              : "Đã đóng"}
+                            ? "Đang thực hiện"
+                            : "Đã đóng"}
                         </span>
                       </div>
                     </div>
@@ -335,23 +336,23 @@ export default function CreateOfferModal({
               {/* Image Gallery */}
               {(post.originalImages?.length > 0 ||
                 post.requestedImages?.length > 0) && (
-                  <div className="relative w-full">
-                    {post.originalImages?.length > 0 && (
-                      <ImageGallery
-                        images={post.originalImages}
-                        title="Hình ảnh gốc"
-                        className="mt-2"
-                      />
-                    )}
-                    {post.requestedImages?.length > 0 && (
-                      <ImageGallery
-                        images={post.requestedImages}
-                        title="Hình ảnh yêu cầu"
-                        className="mt-2"
-                      />
-                    )}
-                  </div>
-                )}
+                <div className="relative w-full">
+                  {post.originalImages?.length > 0 && (
+                    <ImageGallery
+                      images={post.originalImages}
+                      title="Hình ảnh gốc"
+                      className="mt-2"
+                    />
+                  )}
+                  {post.requestedImages?.length > 0 && (
+                    <ImageGallery
+                      images={post.requestedImages}
+                      title="Hình ảnh yêu cầu"
+                      className="mt-2"
+                    />
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Thông tin giá và thời hạn */}
@@ -537,7 +538,7 @@ export default function CreateOfferModal({
       </DialogContent>
 
       {/* CanvasInOfferModal */}
-      <CanvasInOfferModal
+      <CreateOfferImageModal
         isOpen={isCanvasModalOpen}
         onClose={() => setIsCanvasModalOpen(false)}
         onSelectImage={handleImageSelect}
