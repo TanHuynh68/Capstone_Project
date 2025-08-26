@@ -113,7 +113,7 @@ export default function PostCard({
             </div> */}
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
-                Giá đề xuất:
+                Ngân sách:
               </span>
               <p className="font-semibold text-purple-600 dark:text-purple-400 text-sm">
                 {post.suggestedPrice.toLocaleString()}đ
