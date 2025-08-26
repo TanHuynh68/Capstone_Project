@@ -145,7 +145,8 @@ export function ChatPostCard({
                         📊 Xem giai đoạn
                       </DropdownMenuItem>
                       {currentUser?.role === ROLE.DESIGNER &&
-                        post?.offer?.offerStatus !== "Accepted" && (
+                        post?.offer?.offerStatus !== "Accepted" &&
+                        post?.offer?.offerStatus !== "Rejected" && (
                           <DropdownMenuItem onClick={handleCreatePhaseClick}>
                             ➕ Tạo giai đoạn
                           </DropdownMenuItem>
