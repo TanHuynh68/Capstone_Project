@@ -480,7 +480,7 @@ export default function CanvasPage() {
           <div className="max-w-2xl mx-auto">
             {/* Labubu Size Presets */}
             <div className="mb-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Charm nhỏ */}
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-orange-50 border-2 hover:border-orange-300"
@@ -566,34 +566,7 @@ export default function CanvasPage() {
                   </CardContent>
                 </Card>
 
-                {/* Labubu 1000% */}
-                <Card
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white hover:bg-pink-50 border-2 hover:border-pink-300"
-                  onClick={() => {
-                    handlePresetSelect({
-                      width: 2268,
-                      height: 2268,
-                      imageUrl: "/images/labubu-1000%.png",
-                    });
-                  }}
-                >
-                  <CardContent className="p-3 text-center">
-                    <div className="w-28 h-28 mx-auto mb-2">
-                      <img
-                        src="/images/labubu-1000%.png"
-                        alt="Labubu 1000%"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <h4 className="font-medium text-gray-800 mb-1 text-sm">
-                      Labubu 1000%
-                    </h4>
-                    <p className="text-xs text-gray-600">2268×2268px</p>
-                    <p className="text-xs text-gray-500">
-                      ~80×80cm (31.2×31.2")
-                    </p>
-                  </CardContent>
-                </Card>
+
               </div>
             </div>
 
@@ -660,9 +633,7 @@ export default function CanvasPage() {
                           : imageDimensions && imageDimensions.width === 1400
                           ? "/images/labubu-vua.png"
                           : imageDimensions && imageDimensions.width === 1008
-                          ? "/images/chopper-400.png"
-                          : imageDimensions && imageDimensions.width === 2268
-                          ? "/images/labubu-1000%.png"
+                                  ? "/images/chopper-400.png"
                           : "/placeholder.svg"
                       }
                       alt="Uploaded Labubu"
