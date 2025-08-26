@@ -153,7 +153,7 @@ export default function ProgressStepCard({
                       <img
                         src={image.imageUrl || "/placeholder.svg"}
                         alt={image.imageName}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform group-hover:scale-105"
                       />
                       <div className=" inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
                       {image.description && image.description !== "string" && (
