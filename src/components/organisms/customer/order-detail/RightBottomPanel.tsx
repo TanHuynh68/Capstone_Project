@@ -116,25 +116,25 @@ export default function RightBottomPanel({
 
   return (
     <>
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col">
         {isEvaluating ? (
-          // Layout khi đánh giá: 2 sections với fixed heights
+          // Layout khi đánh giá: Tăng tỷ lệ cho phần trên để hiện đủ ảnh
           <div className="h-full flex flex-col">
-            {/* Tiến độ thực hiện - phần trên - fixed height */}
-            <div className="h-1/2 flex flex-col border-b border-border">
-              <h3 className="text-lg font-semibold mb-4 flex-shrink-0">
+            {/* Tiến độ thực hiện - phần trên - 65% height để hiện đủ ảnh */}
+            <div className="h-[65%] flex flex-col border-b border-border pb-2">
+              <h3 className="text-lg font-semibold mb-3 flex-shrink-0">
                 Quá trình thực hiện
               </h3>
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 flex flex-col min-h-0">
                 {progressSteps.length > 0 ? (
-                  <div className="h-full flex flex-col">
-                    {/* Dots Navigation - fixed height */}
-                    <div className="flex items-center justify-center gap-2 mb-4 p-2 flex-shrink-0">
+                  <>
+                    {/* Dots Navigation - compact */}
+                    <div className="flex items-center justify-center gap-2 mb-3 flex-shrink-0">
                       {progressSteps.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentStepIndex(index)}
-                          className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                          className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
                             currentStepIndex === index
                               ? "bg-blue-500 scale-125"
                               : "bg-gray-300 hover:bg-gray-400"
@@ -144,7 +144,7 @@ export default function RightBottomPanel({
                       ))}
                     </div>
 
-                    {/* Current Step Content - scrollable */}
+                    {/* Current Step Content - scrollable với nhiều space hơn */}
                     <div className="flex-1 overflow-y-auto">
                       <ProgressStepCard
                         isTop={true}
@@ -158,9 +158,9 @@ export default function RightBottomPanel({
                         onViewEvaluationDetail={handleViewEvaluationDetail}
                       />
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="h-full flex items-center justify-center">
+                  <div className="flex-1 flex items-center justify-center">
                     <div className="text-center text-gray-500">
                       <p className="text-lg font-medium mb-2">
                         Chưa có tiến độ
@@ -174,8 +174,8 @@ export default function RightBottomPanel({
               </div>
             </div>
 
-            {/* Đánh giá tiến độ - phần dưới - fixed height */}
-            <div className="h-1/2 flex flex-col pt-4">
+            {/* Đánh giá tiến độ - phần dưới - 35% height */}
+            <div className="h-[45%] flex flex-col pt-2">
               <div className="flex-1 overflow-y-auto">
                 <EvaluationForm
                   onSubmit={handleEvaluationSubmit}
@@ -185,8 +185,8 @@ export default function RightBottomPanel({
             </div>
           </div>
         ) : (
-          // Layout bình thường
-          <div className="h-full flex flex-col overflow-hidden">
+          // Layout bình thường - không thay đổi
+          <div className="h-full flex flex-col">
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h3 className="text-lg font-semibold">Quá trình thực hiện</h3>
               {progressSteps.length > 0 && (
@@ -196,10 +196,10 @@ export default function RightBottomPanel({
               )}
             </div>
 
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0">
               {!selectedPhaseId ? (
                 // Chưa chọn giai đoạn
-                <div className="h-full flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center">
                   <div className="text-center text-gray-500">
                     <p className="text-lg font-medium mb-2">Chọn giai đoạn</p>
                     <p className="text-sm">
@@ -209,9 +209,9 @@ export default function RightBottomPanel({
                 </div>
               ) : progressSteps.length > 0 ? (
                 // Có progress steps
-                <div className="h-full flex flex-col">
-                  {/* Dots Navigation - fixed height */}
-                  <div className="flex items-center justify-center gap-2 mb-4 p-2 flex-shrink-0">
+                <>
+                  {/* Dots Navigation - compact */}
+                  <div className="flex items-center justify-center gap-2 mb-4 flex-shrink-0">
                     {progressSteps.map((_, index) => (
                       <button
                         key={index}
@@ -226,8 +226,8 @@ export default function RightBottomPanel({
                     ))}
                   </div>
 
-                  {/* Current Step Content - scrollable */}
-                  <div className="flex-1 overflow-y-auto">
+                  {/* Current Step Content - flexible height */}
+                  <div className="flex-1 min-h-0">
                     <ProgressStepCard
                       step={progressSteps[currentStepIndex]}
                       onEvaluate={() =>
@@ -239,10 +239,10 @@ export default function RightBottomPanel({
                       onViewEvaluationDetail={handleViewEvaluationDetail}
                     />
                   </div>
-                </div>
+                </>
               ) : (
                 // Không có progress steps
-                <div className="h-full flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center">
                   <div className="text-center text-gray-500">
                     <p className="text-lg font-medium mb-2">Chưa có tiến độ</p>
                     <p className="text-sm">

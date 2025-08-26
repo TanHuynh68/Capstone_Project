@@ -11,7 +11,6 @@ import RightTopPanel from "@/components/organisms/customer/order-detail/RightTop
 import RightBottomPanel from "@/components/organisms/customer/order-detail/RightBottomPanel";
 import ActivityLogDialog from "@/components/molecules/customer/order-detail/ActivityLogDialog";
 import FeedbackSection from "@/components/organisms/feedback/FeedbackSection";
-
 import type { TimelineItemData } from "@/components/molecules/timeline/TimelineItem";
 import OrderService from "@/services/OrderService";
 import { ACTIVITY_TYPE_VI } from "@/constants/order";
@@ -23,7 +22,7 @@ import OrderStatusTimeline from "@/components/molecules/customer/order-detail/Or
 import { useCurrentUser } from "@/utils";
 
 interface OrderManagementTemplateProps {
-  onRefundDeposit?: (phaseIds: string[]) => Promise<void>
+  onRefundDeposit?: (phaseIds: string[]) => Promise<void>;
   orderDetail: OrderDetail;
   onFetchProgressSteps: any;
   progressStep: ProgressStepResponse[];
@@ -59,7 +58,7 @@ export default function OrderManagementTemplate({
   ordersDeposited,
   fetchOrdersDeposited,
   fetchDepositTransaction,
-  fetchOrderDetail
+  fetchOrderDetail,
 }: OrderManagementTemplateProps) {
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
@@ -72,6 +71,7 @@ export default function OrderManagementTemplate({
 
   const orderService = OrderService();
   const currentUser = useCurrentUser();
+
   const fetchProgressReviewDetail = async (progressStepID: string) => {
     const response = await getProgressReviewDetail(progressStepID);
     if (response && response.responseRequestModel) {
@@ -191,7 +191,7 @@ export default function OrderManagementTemplate({
   };
 
   return (
-    <div className=" p-4 overflow-y-auto">
+    <div className="p-4 overflow-y-auto">
       <ActivityLogDialog
         open={activityLogOpen}
         onOpenChange={setActivityLogOpen}
@@ -203,7 +203,7 @@ export default function OrderManagementTemplate({
       {/* Main content */}
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Order Status Timeline */}
-        <div className=" rounded-lg shadow-sm border p-6">
+        <div className="rounded-lg shadow-sm border p-6">
           <OrderStatusTimeline
             order={orderDetail.order}
             userRole={currentUser.role}
@@ -215,7 +215,7 @@ export default function OrderManagementTemplate({
         {/* Existing grid layout */}
         <div className="grid grid-cols-2 gap-6">
           {/* Left Panel - 50% width */}
-          <div className=" rounded-lg shadow-sm border p-6">
+          <div className="rounded-lg shadow-sm border p-6">
             <LeftPanel
               fetchDepositTransaction={fetchDepositTransaction}
               orderDetail={orderDetail}
@@ -226,6 +226,7 @@ export default function OrderManagementTemplate({
               depositHistoryLoading={depositHistoryLoading}
             />
           </div>
+
           {/* Right Panel - 50% width, conditional layout */}
           <div
             className={`${
@@ -234,7 +235,7 @@ export default function OrderManagementTemplate({
           >
             {/* Top Right Panel - Giai đoạn thực hiện (ẩn khi đánh giá) */}
             <div
-              className={` rounded-lg shadow-sm border  transition-all duration-500 ease-in-out transform max-h-[320px] ${
+              className={`rounded-lg shadow-sm border transition-all duration-500 ease-in-out transform max-h-[320px] ${
                 isEvaluating
                   ? "opacity-0 scale-95 -translate-y-4 h-0 overflow-hidden p-0 border-0"
                   : "opacity-100 scale-100 translate-y-0 flex-1 p-6"
@@ -259,7 +260,7 @@ export default function OrderManagementTemplate({
 
             {/* Bottom Right Panel - Tiến độ thực hiện (mở rộng khi đánh giá) */}
             <div
-              className={` rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform   ${
+              className={`rounded-lg shadow-sm border p-6 transition-all duration-500 ease-in-out transform ${
                 isEvaluating
                   ? "flex-1 opacity-100 scale-100 translate-y-0"
                   : "flex-1 opacity-100 scale-100 translate-y-0"
