@@ -8,7 +8,7 @@ export default function ContactCTA() {
   const handleStartDesign = () => {
     navigate("/canvas");
   };
-
+//
   return (
     <section className="py-16 bg-secondary">
       <div className="container mx-auto px-4 text-center">

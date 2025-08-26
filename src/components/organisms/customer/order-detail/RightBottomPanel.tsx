@@ -48,9 +48,12 @@ export default function RightBottomPanel({
     stepTitle: "",
   });
 
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
   useEffect(() => {
     setCurrentStepIndex(0);
   }, [selectedPhaseId]);
+
   console.log("progressSteps: ", progressSteps);
 
   const handleEvaluate = (stepId: string) => {
@@ -97,9 +100,6 @@ export default function RightBottomPanel({
     });
   };
 
-  // Thêm state để track bước hiện tại:
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-
   // Render loading state
   if (loadingSteps) {
     return (
@@ -111,24 +111,25 @@ export default function RightBottomPanel({
       </div>
     );
   }
+
   console.log("currentStepIndex:", currentStepIndex);
+
   return (
     <>
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col overflow-hidden">
         {isEvaluating ? (
-          // Layout khi đánh giá: 2 sections
-          <div className="h-full flex flex-col gap-4">
-            {/* Tiến độ thực hiện - phần trên */}
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-4">
+          // Layout khi đánh giá: 2 sections với fixed heights
+          <div className="h-full flex flex-col">
+            {/* Tiến độ thực hiện - phần trên - fixed height */}
+            <div className="h-1/2 flex flex-col border-b border-border">
+              <h3 className="text-lg font-semibold mb-4 flex-shrink-0">
                 Quá trình thực hiện
               </h3>
-              <div className="h-full overflow-y-auto pr-2">
+              <div className="flex-1 overflow-hidden">
                 {progressSteps.length > 0 ? (
-                  // Thay thế Tabs bằng layout 2 cột
                   <div className="h-full flex flex-col">
-                    {/* Dots Navigation */}
-                    <div className="flex items-center justify-center gap-2 mb-4 p-2">
+                    {/* Dots Navigation - fixed height */}
+                    <div className="flex items-center justify-center gap-2 mb-4 p-2 flex-shrink-0">
                       {progressSteps.map((_, index) => (
                         <button
                           key={index}
@@ -143,21 +144,19 @@ export default function RightBottomPanel({
                       ))}
                     </div>
 
-                    {/* Current Step Content */}
-                    <div className="flex-1 overflow-hidden">
-                      <div className="h-full overflow-y-auto">
-                        <ProgressStepCard
-                          isTop={true}
-                          step={progressSteps[currentStepIndex]}
-                          onEvaluate={() =>
-                            handleEvaluate(
-                              progressSteps[currentStepIndex]?.progressStep
-                                ?.progressStepID
-                            )
-                          }
-                          onViewEvaluationDetail={handleViewEvaluationDetail}
-                        />
-                      </div>
+                    {/* Current Step Content - scrollable */}
+                    <div className="flex-1 overflow-y-auto">
+                      <ProgressStepCard
+                        isTop={true}
+                        step={progressSteps[currentStepIndex]}
+                        onEvaluate={() =>
+                          handleEvaluate(
+                            progressSteps[currentStepIndex]?.progressStep
+                              ?.progressStepID
+                          )
+                        }
+                        onViewEvaluationDetail={handleViewEvaluationDetail}
+                      />
                     </div>
                   </div>
                 ) : (
@@ -175,9 +174,9 @@ export default function RightBottomPanel({
               </div>
             </div>
 
-            {/* Đánh giá tiến độ - phần dưới */}
-            <div className="flex-1">
-              <div className="h-full overflow-y-auto pr-2 mt-5">
+            {/* Đánh giá tiến độ - phần dưới - fixed height */}
+            <div className="h-1/2 flex flex-col pt-4">
+              <div className="flex-1 overflow-y-auto">
                 <EvaluationForm
                   onSubmit={handleEvaluationSubmit}
                   onCancel={handleBackToNormal}
@@ -187,8 +186,8 @@ export default function RightBottomPanel({
           </div>
         ) : (
           // Layout bình thường
-          <div className="h-">
-            <div className="flex items-center justify-between mb-4">
+          <div className="h-full flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h3 className="text-lg font-semibold">Quá trình thực hiện</h3>
               {progressSteps.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
@@ -197,7 +196,7 @@ export default function RightBottomPanel({
               )}
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               {!selectedPhaseId ? (
                 // Chưa chọn giai đoạn
                 <div className="h-full flex items-center justify-center">
@@ -209,10 +208,10 @@ export default function RightBottomPanel({
                   </div>
                 </div>
               ) : progressSteps.length > 0 ? (
-                // Có progress steps - thay thế tabs bằng layout 2 cột
+                // Có progress steps
                 <div className="h-full flex flex-col">
-                  {/* Dots Navigation */}
-                  <div className="flex items-center justify-center gap-2 mb-4 p-2">
+                  {/* Dots Navigation - fixed height */}
+                  <div className="flex items-center justify-center gap-2 mb-4 p-2 flex-shrink-0">
                     {progressSteps.map((_, index) => (
                       <button
                         key={index}
@@ -227,20 +226,18 @@ export default function RightBottomPanel({
                     ))}
                   </div>
 
-                  {/* Current Step Content */}
-                  <div className="flex-1 overflow-hidden">
-                    <div className="h-full overflow-y-auto">
-                      <ProgressStepCard
-                        step={progressSteps[currentStepIndex]}
-                        onEvaluate={() =>
-                          handleEvaluate(
-                            progressSteps[currentStepIndex].progressStep
-                              .progressStepID
-                          )
-                        }
-                        onViewEvaluationDetail={handleViewEvaluationDetail}
-                      />
-                    </div>
+                  {/* Current Step Content - scrollable */}
+                  <div className="flex-1 overflow-y-auto">
+                    <ProgressStepCard
+                      step={progressSteps[currentStepIndex]}
+                      onEvaluate={() =>
+                        handleEvaluate(
+                          progressSteps[currentStepIndex].progressStep
+                            .progressStepID
+                        )
+                      }
+                      onViewEvaluationDetail={handleViewEvaluationDetail}
+                    />
                   </div>
                 </div>
               ) : (
