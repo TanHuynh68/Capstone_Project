@@ -35,7 +35,7 @@ import CLOUDINARY_CONFIG from '@/config/cloudinary';
 import Canvas3DList from './Canvas3DList';
 import { useLocation } from "react-router-dom"
 import { toast } from "sonner"
-import { Navbar } from "@/components/layouts/customer-layout/Navbar"
+// import { Navbar } from "@/components/layouts/customer-layout/Navbar"
 
 
 // Component để render texture với tỷ lệ khung hình đúng (contain)
@@ -1891,9 +1891,9 @@ export default function PlushDollDesign3D({
     }, [location.state, canvas3DData])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-foreground">
 
-            <Navbar />
+            {/* <Navbar /> */}
             <div className="container mx-auto p-4">
 
                 <div className="flex items-center justify-between mb-6">
@@ -1908,7 +1908,7 @@ export default function PlushDollDesign3D({
                             variant="outline"
                             size="sm"
                             onClick={onBackTo2D}
-                            className="text-white border-white/20 hover:bg-white/10"
+                            className="text-foreground border-white/20 hover:bg-white/10"
                         >
                             ← Quay lại 2D
                         </Button>
@@ -1916,7 +1916,7 @@ export default function PlushDollDesign3D({
                             variant={showCanvas3DList ? "default" : "outline"}
                             size="sm"
                             onClick={() => setShowCanvas3DList(!showCanvas3DList)}
-                            className="text-white border-white/20"
+                            className="text-foreground border-white/20"
                         >
                             <Box className="w-4 h-4 mr-2" />
                             Dự án 3D
@@ -1925,7 +1925,7 @@ export default function PlushDollDesign3D({
                             variant={showAnchorPoints ? "default" : "outline"}
                             size="sm"
                             onClick={() => setShowAnchorPoints(!showAnchorPoints)}
-                            className="text-white border-white/20"
+                            className="text-foreground border-white/20"
                         >
                             {showAnchorPoints ? "Ẩn điểm neo" : "Hiện điểm neo"}
                         </Button>
@@ -1933,7 +1933,7 @@ export default function PlushDollDesign3D({
                             variant={showAxes ? "default" : "outline"}
                             size="sm"
                             onClick={() => setShowAxes(!showAxes)}
-                            className="text-white border-white/20"
+                            className="text-foreground border-white/20"
                         >
                             {showAxes ? "Ẩn trục XYZ" : "Hiện trục XYZ"}
                         </Button>
@@ -1942,7 +1942,7 @@ export default function PlushDollDesign3D({
                                 variant={isRotating ? "default" : "outline"}
                                 size="sm"
                                 onClick={handleToggleRotation}
-                                className={`text-white border-white/20 ${isRotating ? "bg-green-600 hover:bg-green-700" : ""}`}
+                                className={`text-foreground border-white/20 ${isRotating ? "bg-green-600 hover:bg-green-700" : ""}`}
                             >
                                 {isRotating ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
                                 {isRotating ? "Dừng quay" : "Bắt đầu quay"}
@@ -1953,11 +1953,12 @@ export default function PlushDollDesign3D({
                             size="sm"
                             onClick={handleAttach}
                             disabled={isAttached}
+                            className="text-foreground"
                         >
                             <Link className="w-4 h-4 mr-1" />
                             {isAttached ? "Đã ghép" : "Ghép"}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleReset}>
+                        <Button variant="outline" size="sm" onClick={handleReset} className="text-foreground">
                             <RotateCcw className="w-4 h-4 mr-1" />
                             Reset
                         </Button>
@@ -2143,7 +2144,7 @@ export default function PlushDollDesign3D({
                                                     className="cursor-pointer"
                                                 />
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">
+                                            <p className="text-xs text-muted-foreground mt-1">
                                                 Chỉ hỗ trợ file .glb.
                                             </p>
                                         </div>
@@ -2609,7 +2610,7 @@ export default function PlushDollDesign3D({
                                                 </SliderPrimitive.Track>
                                                 <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                             </SliderPrimitive.Root>
-                                            <div className="text-sm text-gray-500 mt-1">Kích thước: {textureScale}x</div>
+                                            <div className="text-sm text-muted-foreground mt-1">Kích thước: {textureScale}x</div>
                                         </div>
 
                                         {selectedTextureAnchor === "chest_belly" && (
@@ -2633,7 +2634,7 @@ export default function PlushDollDesign3D({
                                                         </SliderPrimitive.Track>
                                                         <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-green-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                                     </SliderPrimitive.Root>
-                                                    <div className="text-sm text-gray-500 mt-1">
+                                                    <div className="text-sm text-muted-foreground mt-1">
                                                         Kích thước: {chestBellyDecalScale}x - Texture sẽ phủ toàn bộ ngực và bụng
                                                     </div>
                                                 </div>
@@ -2650,7 +2651,7 @@ export default function PlushDollDesign3D({
                                                         Hiển thị texture ở phía sau lưng
                                                     </Label>
                                                 </div>
-                                                <div className="text-xs text-gray-500 bg-yellow-50 p-2 rounded border border-yellow-200">
+                                                <div className="text-xs text-muted-foreground bg-yellow-50 p-2 rounded border border-yellow-200">
                                                     💡 <strong>Mặc định:</strong> Texture chỉ hiển thị ở mặt trước (ngực + bụng).
                                                     Bật tùy chọn này nếu muốn texture xuất hiện ở cả phía sau lưng.
                                                 </div>
@@ -2675,7 +2676,7 @@ export default function PlushDollDesign3D({
                                                             />
                                                             <div className="flex-1">
                                                                 <div className="font-medium">Texture #{texture.id.slice(-4)}</div>
-                                                                <div className="text-gray-500">
+                                                                <div className="text-muted-foreground">
                                                                     Pos: ({texture.position.x.toFixed(1)}, {texture.position.y.toFixed(1)},{" "}
                                                                     {texture.position.z.toFixed(1)})
                                                                 </div>
@@ -2707,7 +2708,7 @@ export default function PlushDollDesign3D({
                                                     className="cursor-pointer"
                                                 />
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">
+                                            <p className="text-xs text-muted-foreground mt-1">
                                                 Chỉ hỗ trợ file .glb. Phụ kiện sẽ được thêm vào model chính.
                                             </p>
                                         </div>
@@ -2951,7 +2952,7 @@ export default function PlushDollDesign3D({
                                         )}
 
                                         {accessories.length === 0 && (
-                                            <div className="text-center p-4 text-gray-500 text-sm">
+                                            <div className="text-center p-4 text-muted-foreground text-sm">
                                                 Upload file GLB để thêm phụ kiện vào model!
                                             </div>
                                         )}
@@ -3026,7 +3027,7 @@ export default function PlushDollDesign3D({
                                                 </SliderPrimitive.Track>
                                                 <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                             </SliderPrimitive.Root>
-                                            <div className="text-sm text-gray-500 mt-1">Kích thước: {textSize}x</div>
+                                            <div className="text-sm text-muted-foreground mt-1">Kích thước: {textSize}x</div>
                                         </div>
 
                                         <div>
@@ -3271,7 +3272,7 @@ export default function PlushDollDesign3D({
                                                                 <div className="font-medium" style={{ color: text.color }}>
                                                                     "{text.text}"
                                                                 </div>
-                                                                <div className="text-gray-500">
+                                                                <div className="text-muted-foreground">
                                                                     ({text.position.x.toFixed(1)}, {text.position.y.toFixed(1)},{" "}
                                                                     {text.position.z.toFixed(1)})
                                                                 </div>
@@ -3449,7 +3450,7 @@ export default function PlushDollDesign3D({
                                         )}
 
                                         {!editingAnchor && (
-                                            <div className="text-center p-4 text-gray-500 text-sm">
+                                            <div className="text-center p-4 text-muted-foreground text-sm">
                                                 👆 Chọn một điểm neo ở trên để bắt đầu chỉnh sửa vị trí
                                             </div>
                                         )}
