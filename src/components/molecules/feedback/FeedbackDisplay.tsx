@@ -1,24 +1,13 @@
-"use client";
 
 import { Star, Calendar, User } from "lucide-react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import type { FeedbackData } from "@/schemas/feedbackSchema";
+import { formatDayAndTime } from "@/utils";
 
 interface FeedbackDisplayProps {
   feedback: FeedbackData;
 }
 
 export default function FeedbackDisplay({ feedback }: FeedbackDisplayProps) {
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "dd/MM/yyyy 'lúc' HH:mm", {
-        locale: vi,
-      });
-    } catch {
-      return dateString;
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -63,7 +52,7 @@ export default function FeedbackDisplay({ feedback }: FeedbackDisplayProps) {
 
         <div className="flex items-center gap-1 text-sm text-blue-600">
           <Calendar className="w-4 h-4" />
-          <span>{formatDate(feedback.createdAt)}</span>
+          <span>{formatDayAndTime(feedback.createdAt)}</span>
         </div>
       </div>
 
@@ -82,7 +71,7 @@ export default function FeedbackDisplay({ feedback }: FeedbackDisplayProps) {
 
           <div className="flex items-center gap-1 text-sm text-green-600">
             <Calendar className="w-4 h-4" />
-            <span>{formatDate(feedback.responseAt)}</span>
+            <span>{formatDayAndTime(feedback.responseAt)}</span>
           </div>
         </div>
       )}

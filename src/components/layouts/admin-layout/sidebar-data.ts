@@ -27,7 +27,12 @@ export const appSidebarData = {
         },
         {
             title: "Quản lý chính sách",
-            url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
+            url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
+            icon: GavelIcon,
+        },
+        {
+            title: "Cài đặt hệ thống",
+            url: `${ADMIN_ROUTES.ADMIN}/${ADMIN_ROUTES.ADMIN_SETTING_SYSTEM}`,
             icon: GavelIcon,
         },
     ],

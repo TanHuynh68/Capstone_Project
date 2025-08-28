@@ -30,7 +30,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, X, Eye, CalendarIcon, Edit, Palette } from "lucide-react";
+import {
+  Plus,
+  X,
+  Eye,
+  CalendarIcon,
+  Edit,
+  Palette,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -188,22 +196,32 @@ export default function CreateUpdatePostDialog({
   };
 
   const onSubmit = async (data: CreatePostFormValues) => {
-    // Validation for create mode
+    // Enhanced validation for create mode
     if (!isUpdateMode) {
       if (originalFiles.length === 0) {
-        toast.error("Vui lòng chọn ít nhất 1 ảnh gốc");
+        toast.error("⚠️ Vui lòng chọn ít nhất 1 ảnh gốc sản phẩm", {
+          description: "Ảnh gốc là bắt buộc để tạo bài đăng mới",
+          duration: 4000,
+        });
         return;
       }
       if (requestedFiles.length === 0) {
-        toast.error("Vui lòng chọn ít nhất 1 ảnh yêu cầu");
+        toast.error("⚠️ Vui lòng chọn ít nhất 1 ảnh yêu cầu", {
+          description: "Ảnh yêu cầu giúp designer hiểu rõ mong muốn của bạn",
+          duration: 4000,
+        });
         return;
       }
     }
 
-    // Validation for update mode
+    // Enhanced validation for update mode
     if (isUpdateMode) {
       if (originalFiles.length === 0 && requestedFiles.length === 0) {
-        toast.error("Vui lòng chọn ảnh mới để cập nhật bài đăng");
+        toast.error("⚠️ Vui lòng chọn ảnh mới để cập nhật", {
+          description:
+            "Cần có ít nhất 1 ảnh gốc hoặc ảnh yêu cầu để cập nhật bài đăng",
+          duration: 4000,
+        });
         return;
       }
     }
@@ -218,7 +236,7 @@ export default function CreateUpdatePostDialog({
           title: data.Title,
           description: data.Description,
           itemValue: data.ItemValue,
-          finishDate: formatDateToSubmit(data.FinishDate+''),
+          finishDate: formatDateToSubmit(data.FinishDate + ""),
           suggestedPrice: data.SuggestedPrice,
           originalAttachmentFiles: originalFiles,
           requestedAttachmentFiles: requestedFiles,
@@ -227,16 +245,19 @@ export default function CreateUpdatePostDialog({
           height: data.Height,
           weight: data.Weight,
         };
-        console.log("updatePayload: ", updatePayload);
         response = await updatePost(updatePayload);
         if (response?.statusCode === 200) {
-          toast.success("Cập nhật bài đăng thành công!");
+          toast.success("✅ Cập nhật bài đăng thành công!", {
+            description: "Bài đăng đã được cập nhật với thông tin mới",
+          });
         }
       } else {
         // Create mode
         response = await createPost(data);
         if (response?.statusCode === 200) {
-          toast.success("Tạo bài đăng thành công!");
+          toast.success("✅ Tạo bài đăng thành công!", {
+            description: "Bài đăng mới đã được tạo và sẵn sàng để designer xem",
+          });
         }
       }
 
@@ -252,6 +273,14 @@ export default function CreateUpdatePostDialog({
         }
       }
     } catch (error) {
+      toast.error(
+        isUpdateMode
+          ? "❌ Có lỗi xảy ra khi cập nhật bài đăng"
+          : "❌ Có lỗi xảy ra khi tạo bài đăng",
+        {
+          description: "Vui lòng thử lại sau hoặc liên hệ hỗ trợ",
+        }
+      );
       console.error("Error submitting post:", error);
     } finally {
       setIsSubmitting(false);
@@ -268,120 +297,162 @@ export default function CreateUpdatePostDialog({
     files: File[];
     type: "original" | "requested";
     required?: boolean;
-  }) => (
-    <div className="space-y-4">
-      <Label className="text-sm font-medium">
-        {title}{" "}
-        {required && !isUpdateMode && <span className="text-red-500">*</span>}
-      </Label>
+  }) => {
+    const isRequired = required && !isUpdateMode;
+    const hasError = isRequired && files.length === 0;
 
-      {/* Nút chọn ảnh với design đẹp */}
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            setImageSelectorType(type);
-            setIsImageSelectorModalOpen(true);
-          }}
-          className="relative w-full h-20 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+    return (
+      <div className="space-y-4">
+        <Label className="text-sm font-medium">
+          {title} {isRequired && <span className="text-red-500">*</span>}
+        </Label>
+
+        {/* Nút chọn ảnh với design đẹp */}
+        <div
+          className={`relative group ${
+            hasError ? "ring-2 ring-red-200 rounded-xl" : ""
+          }`}
         >
-          <div className="flex items-center justify-center w-full h-full">
-            <div className="flex items-center space-x-4">
-              {/* Icon với background đẹp */}
-              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
-                <Palette className="h-7 w-7 text-white" />
-              </div>
-
-              {/* Text content */}
-              <div className="text-left">
-                <div className="text-base font-semibold text-gray-800 dark:text-gray-200">
-                  {isUpdateMode ? "Thay đổi ảnh" : "Chọn ảnh"}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Từ máy hoặc Canvas • Tối đa 3 ảnh
-                </div>
-                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  Hiện có: {files.length}/3 ảnh
-                </div>
-              </div>
-
-              {/* Arrow icon */}
-              <div className="ml-4 text-gray-400 group-hover:text-blue-500 transition-colors">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setImageSelectorType(type);
+              setIsImageSelectorModalOpen(true);
+            }}
+            className={`relative w-full h-20 bg-white hover:bg-gray-50 border-2 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer ${
+              hasError
+                ? "border-red-300 hover:border-red-400"
+                : "border-gray-200 hover:border-blue-300"
+            }`}
+          >
+            <div className="flex items-center justify-center w-full h-full">
+              <div className="flex items-center space-x-4">
+                {/* Icon với background đẹp */}
+                <div
+                  className={`flex items-center justify-center w-12 h-12 rounded-lg shadow-md ${
+                    hasError
+                      ? "bg-gradient-to-br from-red-500 to-red-600"
+                      : "bg-gradient-to-br from-blue-500 to-purple-600"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                  {hasError ? (
+                    <AlertCircle className="h-7 w-7 text-white" />
+                  ) : (
+                    <Palette className="h-7 w-7 text-white" />
+                  )}
+                </div>
+
+                {/* Text content */}
+                <div className="text-left">
+                  <div
+                    className={`text-base font-semibold ${
+                      hasError ? "text-red-700" : "text-gray-800"
+                    }`}
+                  >
+                    {hasError
+                      ? "Thiếu ảnh bắt buộc"
+                      : isUpdateMode
+                      ? "Thay đổi ảnh"
+                      : "Chọn ảnh"}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    Từ máy hoặc Canvas • Tối đa 3 ảnh
+                  </div>
+                  <div
+                    className={`text-xs mt-1 ${
+                      hasError ? "text-red-600" : "text-blue-600"
+                    }`}
+                  >
+                    Hiện có: {files.length}/3 ảnh
+                  </div>
+                </div>
+
+                {/* Arrow icon */}
+                <div
+                  className={`ml-4 transition-colors ${
+                    hasError
+                      ? "text-red-400 group-hover:text-red-500"
+                      : "text-gray-400 group-hover:text-blue-500"
+                  }`}
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
-        </Button>
-      </div>
-
-      {/* Preview selected files */}
-      {files.length > 0 && (
-        <div className="space-y-3">
-          <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-            Đã chọn {files.length} ảnh:
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {files.map((file, index) => (
-              <div key={index} className="relative group">
-                <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                  <img
-                    src={URL.createObjectURL(file) || "/placeholder.svg"}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Overlay with actions */}
-                <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-60 transition-all rounded-lg flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 flex gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => previewFile(file)}
-                      className="h-8 w-8 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => removeFile(index, type)}
-                      className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600 text-white"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* File name */}
-                <div className="absolute bottom-1 left-1 right-1">
-                  <div className=" bg-opacity-80 text-white text-xs px-2 py-1 rounded truncate">
-                    {file.name}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          </Button>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Preview selected files */}
+        {files.length > 0 && (
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600 font-medium">
+              Đã chọn {files.length} ảnh:
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {files.map((file, index) => (
+                <div key={index} className="relative group">
+                  <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
+                    <img
+                      src={URL.createObjectURL(file) || "/placeholder.svg"}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Overlay with actions */}
+                  <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-60 transition-all rounded-lg flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => previewFile(file)}
+                        className="h-8 w-8 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => removeFile(index, type)}
+                        className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600 text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* File name */}
+                  <div className="absolute bottom-1 left-1 right-1">
+                    <div className="bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded truncate">
+                      {file.name}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+       
+      </div>
+    );
+  };
 
   const onClose = () => {
     setIsOpen(!isOpen);
@@ -423,7 +494,7 @@ export default function CreateUpdatePostDialog({
               {isUpdateMode ? "Cập nhật bài đăng" : "Tạo bài đăng mới"}
             </DialogTitle>
             {isUpdateMode && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 Chọn ảnh mới để thay thế ảnh hiện tại
               </p>
             )}
