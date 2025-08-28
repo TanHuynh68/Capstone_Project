@@ -1,6 +1,6 @@
 import { AdminLayout } from "../components/layouts";
 import { ADMIN_ROUTES } from "./path";
-import { AdminDashboard, AdminManageBenefits } from "@/pages";
+import { AdminDashboard, AdminManageBenefits, AdminSettingSystemPage } from "@/pages";
 import { ProtectedRouteByRole } from "./protect";
 import { ROLE } from "@/constants";
 
@@ -18,8 +18,12 @@ export const adminRoutes = [
         element: <AdminDashboard />,
       },
       {
-        path: `${ADMIN_ROUTES.ADMIN_DASHBOARD}/${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
+        path: `${ADMIN_ROUTES.ADMIN_MANAGER_BENEFIT}`,
         element: <AdminManageBenefits />,
+      },
+      {
+        path: `${ADMIN_ROUTES.ADMIN_SETTING_SYSTEM}`,
+        element: <AdminSettingSystemPage />,
       },
     ],
   },

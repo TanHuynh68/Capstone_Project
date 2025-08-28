@@ -11,11 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckSquare, DollarSign } from "lucide-react";
 import type { OfferPhase } from "@/types/orderManagement";
 import { formatCurrencyVND } from "@/utils";
-import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
 import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
 
 interface SelectPhasesDialogProps {
@@ -33,21 +31,6 @@ export default function SelectPhasesDialog({
 }: SelectPhasesDialogProps) {
   const [selectedPhases, setSelectedPhases] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const getPhaseStatusConfig = (status: string) => {
-    switch (status) {
-      case "NotStarted":
-        return { label: "Chưa bắt đầu", color: "bg-gray-100 text-gray-800" };
-      case "InProgress":
-        return { label: "Đang thực hiện", color: "bg-blue-100 text-blue-800" };
-      case "Completed":
-        return { label: "Hoàn thành", color: "bg-green-100 text-green-800" };
-      case "Cancelled":
-        return { label: "Đã hủy", color: "bg-red-100 text-red-800" };
-      default:
-        return { label: status, color: "bg-gray-100 text-gray-800" };
-    }
-  };
 
   // Calculate total price of selected phases
   const calculateTotalPrice = () => {

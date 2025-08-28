@@ -216,7 +216,7 @@ export default function PaymentFailed() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
             <p className="text-sm text-blue-800 text-center">
               Cần hỗ trợ? Liên hệ: <strong>0936882011</strong> hoặc{" "}
-              <strong>plushdollcustom@company.com</strong>
+              <strong>plushdollcustom@gmail.com</strong>
             </p>
           </div>
         </CardContent>
