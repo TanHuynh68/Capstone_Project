@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckSquare, DollarSign } from "lucide-react";
 import type { OfferPhase } from "@/types/orderManagement";
 import { formatCurrencyVND } from "@/utils";
+import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStatusBadge";
 
 interface SelectPhasesDialogProps {
   isOpen: boolean;
@@ -143,7 +145,7 @@ export default function SelectPhasesDialog({
           {/* Phases List */}
           <div className="flex-1 overflow-y-auto space-y-3 p-2">
             {phases.map((phase) => {
-              const statusConfig = getPhaseStatusConfig(phase.offerPhaseStatus);
+
               const isSelected = selectedPhases.includes(phase.offerPhaseID);
 
               return (
@@ -174,9 +176,7 @@ export default function SelectPhasesDialog({
                               {phase.phaseName}
                             </span>
                           </div>
-                          <Badge className={statusConfig.color}>
-                            {statusConfig.label}
-                          </Badge>
+                          <PhaseStatusBadge status={phase.offerPhaseStatus}/>
                         </div>
 
                         {phase.phaseDescription && (
