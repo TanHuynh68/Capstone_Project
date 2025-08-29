@@ -9,6 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import DepositDialogContainer from "./DepositDialogContainer";
 import BenefitDisplay from "./BenefitDisplay";
 import {
@@ -19,12 +25,14 @@ import {
   LockKeyhole,
   Flag,
   ShoppingBag,
+  Info,
 } from "lucide-react";
 import { formatCurrencyVND } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
 import CustomerReportService from "@/services/CustomerReportService";
 import BenefitService from "@/services/BenefitService";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+
 interface BenefitData {
   depositAmount: number;
   depositAmountMessage: string;
@@ -108,7 +116,7 @@ export default function OrderInfoCard({
   };
 
   return (
-    <>
+    <TooltipProvider>
       <Card>
         {/* Benefit Display Section */}
         {benefitData && (
@@ -172,24 +180,80 @@ export default function OrderInfoCard({
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
-              <span className="font-semibold text-gray-500">
-                {formatCurrencyVND(order.totalPrice) +
-                  ` (${phase?.length || 0} giai đoạn)`}
-              </span>
+              {benefitData ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <span className="font-semibold text-gray-500">
+                        {formatCurrencyVND(order.totalPrice) +
+                          ` (${phase?.length || 0} giai đoạn)`}
+                      </span>
+                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">
+                      Tổng giá trị đơn hàng bao gồm tất cả các giai đoạn thực
+                      hiện
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className="font-semibold text-gray-500">
+                  {formatCurrencyVND(order.totalPrice) +
+                    ` (${phase?.length || 0} giai đoạn)`}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Giá trị sản phẩm:</span>
-              <span className="font-semibold text-gray-500">
-                {formatCurrencyVND(offer.itemValue)}
-              </span>
+              {benefitData ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <span className="font-semibold text-gray-500">
+                        {formatCurrencyVND(offer.itemValue)}
+                      </span>
+                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">
+                      Giá trị ước tính của sản phẩm sau khi hoàn thành
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className="font-semibold text-gray-500">
+                  {formatCurrencyVND(offer.itemValue)}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <LockKeyhole className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">NTK đã cọc:</span>
-              <span className="font-semibold text-gray-500">
-                {formatCurrencyVND(order.designerDepositAmount)}
-              </span>
+              {benefitData ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <span className="font-semibold text-gray-500">
+                        {formatCurrencyVND(order.designerDepositAmount)}
+                      </span>
+                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">
+                      {benefitData.depositAmountMessage}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className="font-semibold text-gray-500">
+                  {formatCurrencyVND(order.designerDepositAmount)}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gray-500" />
@@ -223,6 +287,6 @@ export default function OrderInfoCard({
         loading={depositHistoryLoading}
         onClose={() => setIsDepositHistoryOpen(false)}
       />
-    </>
+    </TooltipProvider>
   );
 }

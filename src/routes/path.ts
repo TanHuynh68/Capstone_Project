@@ -57,6 +57,7 @@ export enum ADMIN_ROUTES {
   ADMIN_DASHBOARD = "dashboard",
   ADMIN_MANAGER_BENEFIT = "manager-benefits",
   ADMIN_CREATE_STAFF = "create-staff",
+  ADMIN_SETTING_SYSTEM = "setting-system",
 }
 
 export enum STAFF_ROUTES {

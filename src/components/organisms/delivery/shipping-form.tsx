@@ -467,16 +467,6 @@ export function ShippingForm({
                         </div>
                       </div>
                     </div>
-
-                    {/* Version and Type Info */}
-                    <div className="flex items-center justify-between pt-2 border-t border-amber-200 dark:border-amber-800">
-                      <span className="text-xs  ">
-                        Loại: {deliveryBenefit.benefitType}
-                      </span>
-                      <span className="text-xs ">
-                        v{deliveryBenefit.version}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>

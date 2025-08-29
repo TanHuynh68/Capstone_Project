@@ -1,3 +1,5 @@
+"use client";
+
 import type { ProgressStepResponse } from "@/types/orderManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,11 +81,11 @@ export default function ProgressStepCard({
 
   return (
     <>
-      <Card className={!isTop && !hasEvaluation && currentUser.role === ROLE.CUSTOMER ? `h-[500px]` : 'h-[450px]'}>
-        <CardHeader className="pb-3">
+      <Card className={isTop ? "h-full flex flex-col" : "flex flex-col h-full"}>
+        <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg mb-2">
+              <CardTitle className={isTop ? "text-base mb-2" : "text-lg mb-2"}>
                 {step?.progressStep.stepTitle}
               </CardTitle>
               <div className="flex items-center gap-2 mb-2">
@@ -102,106 +104,144 @@ export default function ProgressStepCard({
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          {/* Description */}
-          <div>
-            <h4 className="font-medium mb-2">Mô tả:</h4>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {step?.progressStep.description}
-            </p>
-          </div>
-
-          {/* Progress Images - Enhanced Gallery */}
-          {step?.progressImages && step?.progressImages.length > 0 && (
+        <CardContent className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto space-y-3">
+            {/* Description - compact cho isTop */}
             <div>
-              <h4 className="font-medium mb-2">
-                Hình ảnh tiến độ ({step?.progressImages.length}):
+              <h4 className={`font-medium mb-2 ${isTop ? "text-sm" : ""}`}>
+                Mô tả:
               </h4>
+              <p
+                className={`text-gray-600 leading-relaxed ${
+                  isTop ? "text-xs" : "text-sm"
+                }`}
+              >
+                {step?.progressStep.description}
+              </p>
+            </div>
 
-              {/* First row - 3 images */}
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                {step?.progressImages.slice(0, 3).map((image, index) => (
+            {/* Progress Images - Optimized for isTop */}
+            {step?.progressImages && step?.progressImages.length > 0 && (
+              <div>
+                <h4 className={`font-medium mb-2 ${isTop ? "text-sm" : ""}`}>
+                  Hình ảnh tiến độ ({step?.progressImages.length}):
+                </h4>
+
+                <div className="space-y-1">
+                  {/* First row - 3 images */}
                   <div
-                    key={image.progressImageID}
-                    className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group cursor-pointer"
-                    onClick={() => handleImageClick(index)}
+                    className={`grid grid-cols-3 ${isTop ? "gap-1" : "gap-2"}`}
                   >
-                    <img
-                      src={image.imageUrl || "/placeholder.svg"}
-                      alt={image.imageName}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                    <div className=" inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                    {image.description && image.description !== "string" && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                        {image.description}
+                    {step?.progressImages.slice(0, 3).map((image, index) => (
+                      <div
+                        key={image.progressImageID}
+                        className={`aspect-square rounded-md overflow-hidden bg-gray-100 relative group cursor-pointer ${
+                          isTop ? "rounded-sm" : ""
+                        }`}
+                        onClick={() => handleImageClick(index)}
+                      >
+                        <img
+                          src={image.imageUrl || "/placeholder.svg"}
+                          alt={image.imageName}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                        {image.description &&
+                          image.description !== "string" && (
+                            <div
+                              className={`absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate ${
+                                isTop ? "text-xs" : "text-xs"
+                              }`}
+                            >
+                              {image.description}
+                            </div>
+                          )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              {/* Second row - 3 images (4-6) */}
-              {step?.progressImages.length > 3 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {step?.progressImages.slice(3, 6).map((image, index) => (
+                  {/* Second row - 3 images (4-6) */}
+                  {step?.progressImages.length > 3 && (
                     <div
-                      key={image.progressImageID}
-                      className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group cursor-pointer"
-                      onClick={() => handleImageClick(index + 3)}
+                      className={`grid grid-cols-3 ${
+                        isTop ? "gap-1" : "gap-2"
+                      }`}
                     >
-                      <img
-                        src={image.imageUrl || "/placeholder.svg"}
-                        alt={image.imageName}
-                        className="w-full h-full object-contain transition-transform group-hover:scale-105"
-                      />
-                      <div className=" inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
-                      {image.description && image.description !== "string" && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                          {image.description}
+                      {step?.progressImages.slice(3, 6).map((image, index) => (
+                        <div
+                          key={image.progressImageID}
+                          className={`aspect-square rounded-md overflow-hidden bg-gray-100 relative group cursor-pointer ${
+                            isTop ? "rounded-sm" : ""
+                          }`}
+                          onClick={() => handleImageClick(index + 3)}
+                        >
+                          <img
+                            src={image.imageUrl || "/placeholder.svg"}
+                            alt={image.imageName}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200" />
+                          {image.description &&
+                            image.description !== "string" && (
+                              <div
+                                className={`absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity truncate ${
+                                  isTop ? "text-xs" : "text-xs"
+                                }`}
+                              >
+                                {image.description}
+                              </div>
+                            )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  {/* Show remaining images count */}
+                  {step?.progressImages.length > 6 && (
+                    <p
+                      className={`text-gray-500 ${
+                        isTop ? "text-xs" : "text-xs"
+                      }`}
+                    >
+                      +{step?.progressImages.length - 6} ảnh khác
+                    </p>
+                  )}
                 </div>
-              )}
-
-              {/* Show remaining images count */}
-              {step?.progressImages.length > 6 && (
-                <p className="text-xs text-gray-500 mt-2">
-                  +{step?.progressImages.length - 6} ảnh khác
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="h-4 w-4" />
-              <div>
-                <div className="font-medium">Tạo lúc:</div>
-                <div>{formatDate(step?.progressStep.createdAt)}</div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Clock className="h-4 w-4" />
-              <div>
-                <div className="font-medium">Cập nhật:</div>
-                <div>{formatDate(step?.progressStep.updateAt)}</div>
+            )}
+
+            {/* Dates - Compact layout for isTop */}
+            <div
+              className={`grid grid-cols-1 gap-1 ${
+                isTop ? "text-xs" : "text-sm"
+              }`}
+            >
+              <div className="flex items-center gap-2 text-gray-600">
+                <Calendar className={isTop ? "h-3 w-3" : "h-3 w-3"} />
+                <div className="flex-1">
+                  <span className="font-medium">Tạo:</span>{" "}
+                  {formatDate(step?.progressStep.createdAt)}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <Clock className={isTop ? "h-3 w-3" : "h-3 w-3"} />
+                <div className="flex-1">
+                  <span className="font-medium">Cập nhật:</span>{" "}
+                  {formatDate(step?.progressStep.updateAt)}
+                </div>
               </div>
             </div>
           </div>
 
-          {!isTop && !hasEvaluation && currentUser.role === ROLE.CUSTOMER && (
-            <Button onClick={onEvaluate} className="w-full" size="sm">
-              <Star className="h-4 w-4 mr-2" />
-              Đánh giá bước này
-            </Button>
-          )}
+          {/* Action Buttons - Fixed at bottom */}
+          <div className="flex-shrink-0 pt-3 space-y-2">
+            {!isTop && !hasEvaluation && currentUser.role === ROLE.CUSTOMER && (
+              <Button onClick={onEvaluate} className="w-full" size="sm">
+                <Star className="h-4 w-4 mr-2" />
+                Đánh giá bước này
+              </Button>
+            )}
 
-          {/* Action Buttons */}
-          <div className="pt-4 space-y-2 mb-4">
             {/* View Evaluation Detail Button */}
             {hasEvaluation && onViewEvaluationDetail && (
               <Button
@@ -214,7 +254,7 @@ export default function ProgressStepCard({
                 }}
                 className="w-full"
                 variant="ghost"
-                size="sm"
+                size={isTop ? "sm" : "sm"}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Xem chi tiết đánh giá
