@@ -60,7 +60,7 @@ export default function EvaluationForm({
   ];
 
   return (
-    <Card className="h-full pb-0">
+    <Card className="h-[500px] pb-0 mt-5">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">
