@@ -7,6 +7,7 @@ import ChatService from "@/services/ChatService";
 import { useCurrentUser } from "@/utils";
 import { MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 const Message = () => {
   const { getRoomList } = ChatService();
@@ -57,9 +58,12 @@ const Message = () => {
         <MessageSquare className="h-5 w-5" />
         <span className="sr-only">Chat</span>
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]">
+          <Badge
+            variant="destructive"
+            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+          >
             {unreadCount > 99 ? "99+" : unreadCount}
-          </div>
+          </Badge>
         )}
       </Link>
     </Button>
