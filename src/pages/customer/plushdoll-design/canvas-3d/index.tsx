@@ -667,19 +667,19 @@ export default function PlushDollDesign3D({
     // ✅ Đảm bảo tất cả hooks được gọi trước khi có bất kỳ conditional logic nào
     const [glbModels, setGlbModels] = useState<GLBModel[]>([
         {
-            id: "default-labubu",
-            name: "Labubu Keychain",
-            url: "/model/plush_labubu_keychain_character.glb",
-            isDefault: true,
-        },
-        {
             id: "small-labubu",
             name: "Labubu Classic",
             url: "/model/labubu_classic.glb",
+            isDefault: true,
+        },
+        {
+            id: "default-labubu",
+            name: "Labubu Keychain",
+            url: "/model/plush_labubu_keychain_character.glb",
             isDefault: false,
         },
     ])
-    const [currentModelId, setCurrentModelId] = useState<string>("default-labubu")
+    const [currentModelId, setCurrentModelId] = useState<string>("small-labubu")
 
     const [customTexture, setCustomTexture] = useState<string>("")
     const [customText, setCustomText] = useState<string>("")
@@ -1042,7 +1042,7 @@ export default function PlushDollDesign3D({
 
     const handleRemoveModel = (modelId: string) => {
         const model = glbModels.find((m) => m.id === modelId)
-        if (model?.isDefault || modelId === "small-labubu") {
+        if (modelId === "small-labubu" || modelId === "default-labubu" || model?.isDefault) {
             alert("Không thể xóa model mẫu!")
             return
         }
@@ -1515,6 +1515,7 @@ export default function PlushDollDesign3D({
                     case "small-labubu":
                         return 1
                     case "default-labubu":
+                        return 1
                     default:
                         return 1
                 }
@@ -2176,7 +2177,7 @@ export default function PlushDollDesign3D({
                                                                 {model.id === "default-labubu" && <div className="text-xs text-green-500">🔧 7 điểm neo</div>} */}
                                                             </div>
                                                         </div>
-                                                        {!model.isDefault && model.id !== "small-labubu" && (
+                                                        {!(model.id === "small-labubu" || model.id === "default-labubu" || model.isDefault) && (
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
