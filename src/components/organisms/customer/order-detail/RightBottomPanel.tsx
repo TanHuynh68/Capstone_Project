@@ -116,34 +116,18 @@ export default function RightBottomPanel({
 
   return (
     <>
-      <div className="h-full flex flex-col">
+      <div className="h-auto flex flex-col">
         {isEvaluating ? (
           // Layout khi đánh giá: Tăng tỷ lệ cho phần trên để hiện đủ ảnh
           <div className="h-full flex flex-col">
             {/* Tiến độ thực hiện - phần trên - 65% height để hiện đủ ảnh */}
-            <div className="h-[65%] flex flex-col border-b border-border pb-2">
+            <div className="h-[65%] flex flex-col ">
               <h3 className="text-lg font-semibold mb-3 flex-shrink-0">
                 Quá trình thực hiện
               </h3>
               <div className="flex-1 flex flex-col min-h-0">
                 {progressSteps.length > 0 ? (
                   <>
-                    {/* Dots Navigation - compact */}
-                    <div className="flex items-center justify-center gap-2 mb-3 flex-shrink-0">
-                      {progressSteps.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentStepIndex(index)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-                            currentStepIndex === index
-                              ? "bg-blue-500 scale-125"
-                              : "bg-gray-300 hover:bg-gray-400"
-                          }`}
-                          title={`Bước ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-
                     {/* Current Step Content - scrollable với nhiều space hơn */}
                     <div className="flex-1 overflow-y-auto">
                       <ProgressStepCard
