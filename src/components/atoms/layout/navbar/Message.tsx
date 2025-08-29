@@ -57,17 +57,14 @@ const Message = () => {
       <Link to={USER_ROUTES.CHAT}>
         <MessageSquare className="h-5 w-5" />
         <span className="sr-only">Chat</span>
-        <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-            >
-              {unreadCount > 20 ? "20+" : unreadCount}
-            </Badge>
-        {/* {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]">
+        {unreadCount > 0 && (
+          <Badge
+            variant="destructive"
+            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+          >
             {unreadCount > 99 ? "99+" : unreadCount}
-          </div>
-        )} */}
+          </Badge>
+        )}
       </Link>
     </Button>
   );

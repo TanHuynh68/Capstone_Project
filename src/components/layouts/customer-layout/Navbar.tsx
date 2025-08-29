@@ -1,4 +1,4 @@
-import { useEffect} from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "../../ui/button";
