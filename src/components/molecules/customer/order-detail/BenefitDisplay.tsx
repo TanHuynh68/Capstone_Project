@@ -28,9 +28,9 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
 
   const benefitItems = [
     {
-      label: "Hoàn tiền",
-      amount: benefitData.systemDepositRefund,
-      message: benefitData.systemDepositRefundMessage,
+      label: "Giá trị đơn hàng",
+      amount: benefitData.netAmountFromCustomer,
+      message: benefitData.netAmountFromCustomerMessage,
       color: "bg-blue-50 border border-blue-200",
     },
     {
@@ -40,9 +40,9 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
       color: "bg-blue-50 border border-blue-200",
     },
     {
-      label: "Tiền đơn hàng",
-      amount: benefitData.netAmountFromCustomer,
-      message: benefitData.netAmountFromCustomerMessage,
+      label: "Hoàn tiền",
+      amount: benefitData.systemDepositRefund,
+      message: benefitData.systemDepositRefundMessage,
       color: "bg-blue-50 border border-blue-200",
     },
     {
@@ -61,7 +61,11 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  className={item.label != 'Tổng thu nhập' ? `${item.color} text-blue-600 px-3 py-2 rounded-md text-center cursor-help transition-colors ` : `${item.color} text-green-600  px-3 py-2 rounded-md text-center cursor-help transition-colors `}
+                  className={
+                    item.label != "Tổng thu nhập"
+                      ? `${item.color} text-blue-600 px-3 py-2 rounded-md text-center cursor-help transition-colors `
+                      : `${item.color} text-green-600  px-3 py-2 rounded-md text-center cursor-help transition-colors `
+                  }
                 >
                   <div className="text-xs font-medium">{item.label}</div>
                   <div className="text-sm font-bold ">
@@ -69,7 +73,7 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
                   </div>
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-md">
+              <TooltipContent className="">
                 <p className="text-sm">{item.message}</p>
               </TooltipContent>
             </Tooltip>

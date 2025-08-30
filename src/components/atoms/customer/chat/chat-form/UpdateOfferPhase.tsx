@@ -272,14 +272,6 @@ const UpdateOfferPhase = ({
             </div>
           </div>
 
-          {/* Instructions */}
-          <div className="text-center text-sm text-gray-600 bg-blue-50 p-2 rounded">
-            {!startDate && "📅 Nhấn vào ngày để chọn ngày bắt đầu"}
-            {startDate && !endDate && "📅 Nhấn vào ngày để chọn ngày kết thúc"}
-            {startDate &&
-              endDate &&
-              "📅 Nhấn vào ngày để chọn lại ngày bắt đầu mới"}
-          </div>
 
           {/* Calendar */}
           <div className="flex justify-center">

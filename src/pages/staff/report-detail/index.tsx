@@ -89,14 +89,12 @@ const mapBenefitType = (type: string) => {
   switch (type) {
     case "General":
       return "Chung";
-    case "Deposit":
-      return "Đặt cọc";
+    case "PostAndOffer":
+      return "Bài viết và Đề xuất";
     case "Delivery":
       return "Giao hàng";
-    case "Penalty":
-      return "Phạt";
-    case "Warranty":
-      return "Bảo hành";
+    case "OrderAndProgress":
+      return "Đơn hàng và Tiến độ";
     default:
       return type;
   }

@@ -10,7 +10,7 @@ import PhaseStatusBadge from "@/components/atoms/customer/order-detail/PhaseStat
 import CreateProgressStepDialog from "./CreateProgressStepDialog";
 import type { CreateProgressStepFormData } from "@/schemas/progressStepSchema";
 import { formatCurrencyVND, useCurrentUser } from "@/utils";
-import { Calendar, DollarSign, FileText, Plus } from "lucide-react";
+import { Calendar, FileText, Plus } from "lucide-react";
 import { ROLE } from "@/constants";
 
 interface OfferPhaseItemProps {
@@ -104,7 +104,6 @@ export default function OfferPhaseItem({
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-3 w-3" />
               <span className="text-sm font-medium">
                 {formatCurrencyVND(phase.offerPhasePrice)}
               </span>
