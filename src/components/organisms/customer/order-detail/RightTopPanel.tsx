@@ -97,7 +97,7 @@ export default function RightTopPanel({
 
   return (
     <>
-      <div className="flex flex-col max-h-[242px]">
+      <div className="flex flex-col max-h-[282px]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Giai đoạn thực hiện</h3>
           <div className="flex items-center gap-2">

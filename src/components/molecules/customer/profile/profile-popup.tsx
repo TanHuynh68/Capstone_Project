@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import PortfolioService from "@/services/PortfolioService";
 import { Phone } from "lucide-react";
+import { useStateValue } from "@/context/stateProvider";
 
 interface ProfilePopupProps {
   fullName: string;
@@ -63,14 +64,16 @@ export function ProfilePopup({
   const { getPortfolioDesignerForAll } = PortfolioService();
   const navigate = useNavigate();
   const user = useCurrentUser();
+  const { setIdRoomChat } = useStateValue();
+
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  
   const createChatRoomByCustomer = async () => {
-    console.log("designerID: ", designerID);
     const response = await createChatRoom(designerID);
-    console.log("createChatRoom: ", response);
+    setIdRoomChat(response.responseRequestModel.chatRoomID);
     if (response) {
       navigate(PATH.CHAT_PAGE);
     }
@@ -153,12 +156,15 @@ export function ProfilePopup({
           alt={fullName}
           className="w-16 h-16 rounded-full border-2 border-background -mt-8 shadow-md"
         />
-        <div className="font-semibold text-base mt-2">{user.id != designerID ? fullName : `${fullName} (Bạn)`}</div>
+        <div className="font-semibold text-base mt-2">
+          {user.id != designerID ? fullName : `${fullName} (Bạn)`}
+        </div>
         <div className="text-sm text-muted-foreground">
           {portfolioData?.email || "Chưa có email"}
         </div>
         <span className="mt-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-          <Phone className="w-3 h-3" /> {portfolioData?.phoneNumber || "Chưa có số điện thoại"}
+          <Phone className="w-3 h-3" />{" "}
+          {portfolioData?.phoneNumber || "Chưa có số điện thoại"}
         </span>
       </div>
 
@@ -207,20 +213,23 @@ export function ProfilePopup({
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-2">
-        <button
-          onClick={handleViewProfile}
-          className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors cursor-pointer"
-        >
-          Hồ sơ
-        </button>
+      <div>
+        {/* if current user is customer and this post is of this cust => display  */}
         {user?.id != designerID && (
-          <button
-            onClick={createChatRoomByCustomer}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer"
-          >
-            Nhắn tin
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleViewProfile}
+              className="flex-1 border border-border text-sm rounded-full py-1.5 font-medium text-primary hover:bg-accent/5 dark:hover:bg-accent/10 transition-colors cursor-pointer"
+            >
+              Hồ sơ
+            </button>
+            <button
+              onClick={createChatRoomByCustomer}
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer"
+            >
+              Nhắn tin
+            </button>
+          </div>
         )}
       </div>
 

@@ -204,9 +204,6 @@ export default function CreateProgressStepDialog({
       resetForm();
     } catch (error) {
       console.error("Error creating progress step:", error);
-      toast.error("Có lỗi xảy ra khi tạo bước tiến độ", {
-        description: "Vui lòng thử lại sau",
-      });
     } finally {
       setIsSubmitting(false);
     }

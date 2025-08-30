@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { ROLE } from "@/constants";
 import { ShippingFormDialog } from "@/components/organisms/delivery/shipping-form-dialog";
+import { USER_ROUTES } from "@/routes/path";
+import { useNavigate } from "react-router-dom";
+import { statusDescriptions } from "@/constants/orderDetail.constants";
 
 type OrderStatus =
   | "Created"
@@ -46,7 +49,7 @@ export default function OrderStatusTimeline({
   order,
   fetchOrderDetail,
 }: OrderStatusTimelineProps) {
- console.log('userRole: ', userRole)
+  const navigate = useNavigate();
   const baseStatuses: StatusStep[] = [
     {
       key: "Created",
@@ -88,7 +91,7 @@ export default function OrderStatusTimeline({
       baseStatuses[1].label = "Nhà thiết kế đã từ chối";
     } else if (oldStatus === "CustomerRejected") {
       baseStatuses[4].label = "Khách hàng đã từ chối";
-    }else if (oldStatus === "RequestShipToCus") {
+    } else if (oldStatus === "RequestShipToCus") {
       baseStatuses[4].label = "Yêu cầu giao đến KH";
     }
 
@@ -96,28 +99,6 @@ export default function OrderStatusTimeline({
     baseStatuses[5].label = "Đã hủy";
     baseStatuses[5].icon = <XCircle className="w-4 h-4" />;
   }
-
-  const statusDescriptions: Record<OrderStatus, string> = {
-    Created: "Khách hàng cần gửi sản phẩm cần làm đến nhà thiết kế.",
-    ShippingToDesigner:
-      "Nhà thiết kế cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
-    DesignerRejected:
-      "Nhà thiết kế đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
-    InProgress:
-      "Khách hàng cần thanh toán cho từng giai đoạn. Nhà thiết kế sẽ rút tiền để tiến hành làm. Sau mỗi giai đoạn, khách hàng cần đánh giá.",
-    Completed:
-      "Đơn đã hoàn thành. Nhà thiết kế cần giao sản phẩm đã hoàn thành cho khách hàng.",
-    ShippingToCustomer:
-      "Khách hàng cần xác nhận sản phẩm có đúng với mô tả không. Nếu không đúng, có thể báo cáo.",
-    CustomerRejected:
-      "Khách hàng đã từ chối. Đang chờ nhân viên xem xét đơn tố cáo để đưa ra hướng giải quyết.",
-    Done: "Đơn hàng đã hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
-    PendingConflict:
-      "Đơn hàng đang xảy ra tranh chấp giữa 2 bên. Cần chờ nhân viên xem xét để đưa ra hướng giải quyết.",
-    Rejected:
-      "Đơn hàng đã bị hủy kèm quyền lợi. Xin lỗi vì trải nghiệm không được tốt này.",
-    RequestShipToCus: "Đơn hàng đang chờ gửi đến khách hàng.",
-  };
 
   const getStatusInfo = (status: OrderStatus) => {
     // Handle rejected status with oldStatus
@@ -281,8 +262,8 @@ export default function OrderStatusTimeline({
     if (currentStatus === "Rejected" && order?.oldStatus) {
       return baseStatuses[5].label; // "Đã hủy"
     }
-    if (currentStatus === "RequestShipToCus" ) {
-      return 'Yêu cầu giao hàng đến KH'
+    if (currentStatus === "RequestShipToCus") {
+      return "Yêu cầu giao hàng đến KH";
     }
     const currentStep = baseStatuses.find((s) => s.key === currentStatus);
     return currentStep?.label || currentStatus;
@@ -299,6 +280,12 @@ export default function OrderStatusTimeline({
       return "Hãy giao hàng cho KH";
     }
     return "";
+  };
+
+  const handleNavigateToProfile = (tab?: string) => {
+    navigate(`/${USER_ROUTES.PROFILE}`, {
+      state: { activeTab: tab },
+    });
   };
 
   return (
@@ -360,6 +347,19 @@ export default function OrderStatusTimeline({
           {statusDescriptions[currentStatus]}
         </div>
       </div>
+
+      {currentStatus === "ShippingToDesigner" && handleNavigateToProfile && (
+        <div className="flex justify-center items-center">
+          <div className="mt-4 text-center w-[200px]">
+            <button
+              onClick={() => handleNavigateToProfile("delivery")}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-primary text-white rounded-lg cursor-pointer text-sm font-medium"
+            >
+              Xem tiến độ giao hàng
+            </button>
+          </div>
+        </div>
+      )}
 
       {((currentStatus === "Created" && userRole === ROLE.CUSTOMER) ||
         (currentStatus === "Completed" && userRole === ROLE.DESIGNER) ||
