@@ -235,7 +235,7 @@ export default function OrderManagementTemplate({
           >
             {/* Top Right Panel - Giai đoạn thực hiện (ẩn khi đánh giá) */}
             <div
-              className={`rounded-lg shadow-sm border transition-all duration-500 ease-in-out transform max-h-[320px] ${
+              className={`rounded-lg shadow-sm border transition-all duration-500 ease-in-out transform max-h-[350px] ${
                 isEvaluating
                   ? "opacity-0 scale-95 -translate-y-4 h-0 overflow-hidden p-0 border-0"
                   : "opacity-100 scale-100 translate-y-0 flex-1 p-6"
