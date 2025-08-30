@@ -98,11 +98,11 @@ export default function ChatMessage3D({
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`w-[300px] ${isOwnMessage ? 'order-2' : 'order-1'}`}>
-        <Card className={`${isOwnMessage ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'} hover:shadow-md transition-shadow cursor-pointer`}>
+        <Card className={`${isOwnMessage ? 'bg-card border-border' : 'bg-muted border-border'} hover:shadow-md transition-shadow cursor-pointer`}>
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Box className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-foreground">
+                <Box className="h-4 w-4 text-primary" />
                 {title}
               </CardTitle>
               <Badge variant="secondary" className="text-xs">
@@ -118,14 +118,14 @@ export default function ChatMessage3D({
               <Button
                 onClick={handleOpenIn3DEditor}
                 size="sm"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 bg-primary hover:bg-primary/90 text-white"
               >
                 <Rotate3d className="h-3 w-3 mr-1" />
                 Mở trong thiết kế 3D
               </Button>
             </div>
             <div className="space-y-2 text-xs mt-3">
-              <div className="flex items-center justify-end gap-2 text-gray-600">
+              <div className="flex items-center justify-end gap-2 text-muted-foreground">
                 <Calendar className="h-3 w-3" />
                 <span>Lưu lúc: {formatVietnamDateHours(parsedData.savedAt)}</span>
               </div>

@@ -46,16 +46,16 @@ const OfferPhaseCard = ({
   return (
     <div className="relative">
       <Card
-        className={`p-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg transition-all duration-300 ${
+        className={`p-4 bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg transition-all duration-300 ${
           currentUser?.role === ROLE.DESIGNER
-            ? "cursor-pointer hover:from-gray-800 hover:to-gray-700"
+          ? "cursor-pointer hover:from-primary/90 hover:to-primary/70"
             : ""
         }`}
         onClick={handleOpenDialog}
       >
         <div className="grid grid-cols-12 gap-3">
           <div className="flex gap-3 items-center col-span-9">
-            <div className="text-xs font-semibold bg-gray-700 px-3 py-1 rounded-full">
+            <div className="text-xs font-semibold bg-primary/20 px-3 py-1 rounded-full">
               {offerPhase?.phase}
             </div>
             <div className="text-lg font-semibold truncate">
@@ -72,8 +72,8 @@ const OfferPhaseCard = ({
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-600">
-          <div className="text-sm text-gray-300">
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/20">
+          <div className="text-sm text-white/80">
             {formatDateRangeVN(
               offerPhase?.startDate + "",
               offerPhase?.endDate + ""
@@ -89,11 +89,11 @@ const OfferPhaseCard = ({
         </div>
 
         {offerPhase?.phaseDescription && (
-          <div className="mt-3 pt-3 border-t border-gray-600">
+          <div className="mt-3 pt-3 border-t border-white/20">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <div className="text-sm text-gray-300 line-clamp-2">
+                  <div className="text-sm text-white/80 line-clamp-2">
                     {offerPhase.phaseDescription}
                   </div>
                 </TooltipTrigger>
@@ -107,7 +107,7 @@ const OfferPhaseCard = ({
 
         {currentUser?.role === ROLE.DESIGNER && (
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="text-xs bg-blue-500 px-2 py-1 rounded text-white">
+            <div className="text-xs bg-primary px-2 py-1 rounded text-white">
               Nhấn để chỉnh sửa
             </div>
           </div>

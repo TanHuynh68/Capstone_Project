@@ -6,7 +6,7 @@ import FAQSection from "@/components/molecules/general/contact/FAQSection";
 
 export default function ContactContent() {
   return (
-    <section className="py-12 bg-background">
+    <section className="py-0 bg-background">
       <div className="container mx-auto px-4">
         {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2">
@@ -35,8 +35,7 @@ export default function ContactContent() {
               Vị trí của chúng tôi
             </h2>
             <p className="text-muted-foreground mb-6">
-              Hãy đến xưởng của chúng tôi để xem trực tiếp búp bê và gặp gỡ đội
-              ngũ sáng tạo của chúng tôi.
+              Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM
             </p>
             <MapSection />
           </div>

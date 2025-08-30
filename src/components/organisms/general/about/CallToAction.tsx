@@ -1,6 +1,8 @@
 import Heading from "@/components/atoms/general/about/Heading";
 import Paragraph from "@/components/atoms/general/about/Paragraph";
 import { Button } from "@/components/ui/button";
+import { Paintbrush2, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function CallToAction() {
   return (
@@ -19,18 +21,33 @@ export default function CallToAction() {
         </Paragraph>
         <div className="flex flex-wrap justify-center gap-4">
           <Button
-            variant="secondary"
             size="lg"
-            className="bg-background text-primary hover:bg-secondary"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 transform hover:scale-105 transition-all duration-300"
+            asChild
           >
-            Bắt đầu thiết kế
+            <Link
+              to="/canvas"
+              className="flex items-center gap-2"
+            >
+              <Paintbrush2 className="h-5 w-5" />
+              <span className="inline-block align-middle">
+                Bắt đầu sáng tạo
+              </span>
+            </Link>
           </Button>
           <Button
             variant="outline"
             size="lg"
-            className="border-primary-foreground text-primary-foreground hover:bg-primary/80"
+            className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+            asChild
           >
-            Liên hệ với chúng tôi
+            <Link
+              to="/contact"
+              className="flex items-center gap-2"
+            >
+              <Mail className="h-5 w-5" />
+              <span className="inline-block align-middle">Liên hệ</span>
+            </Link>
           </Button>
         </div>
       </div>

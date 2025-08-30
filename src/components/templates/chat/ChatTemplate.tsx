@@ -133,7 +133,7 @@ export default function ChatTemplate({
       <div className="flex w-full h-full overflow-hidden gap-4">
         {/* Sidebar */}
         <div
-          className={`border border-solid rounded-xl transition-all duration-300 ease-in-out ${
+          className={`border border-border rounded-xl transition-all duration-300 ease-in-out ${
             isOpen
               ? "flex-1.5 opacity-100 translate-x-0 hidden 2xl:block"
               : "flex-1.5 opacity-100 translate-x-0"
@@ -149,7 +149,7 @@ export default function ChatTemplate({
 
         {/* Main Chat Area */}
         <div
-          className={`flex flex-col border border-solid rounded-xl transition-all duration-300 ease-in-out ${
+          className={`flex flex-col border border-border rounded-xl transition-all duration-300 ease-in-out ${
             isOpen ? "flex-5" : "flex-[8.5]"
           }`}
         >
@@ -178,7 +178,7 @@ export default function ChatTemplate({
               <MessageComposer onSendMessage={onSendMessage} />
             </div>
           ) : (
-            <div className="flex justify-center items-center h-screen">
+              <div className="flex justify-center items-center h-screen text-muted-foreground">
               Chưa có ai để trò chuyện
             </div>
           )}
@@ -186,7 +186,7 @@ export default function ChatTemplate({
 
         {/* Info Panel with Animation - Fixed border radius and scrolling */}
         <div
-          className={`flex flex-col border border-solid rounded-xl transition-all duration-300 ease-in-out transform ${
+          className={`flex flex-col border border-border rounded-xl transition-all duration-300 ease-in-out transform ${
             isOpen
               ? "flex-4 max-w-[490px] min-w-[490px] opacity-100 translate-x-0 scale-100"
               : "flex-0 max-w-0 min-w-0 opacity-0 translate-x-full scale-95 overflow-hidden"
@@ -216,7 +216,7 @@ export default function ChatTemplate({
                 isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
             >
-              <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px- pb-4">
+              <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground scrollbar-track-muted px- pb-4">
                 <InfoAboutTheConversationTab
                   fetchOffers={fetchOffers}
                   offersPhase={offersPhase}

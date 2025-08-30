@@ -51,8 +51,8 @@ export default function DepositWithdrawalHistory() {
             <h1 className="text-2xl font-bold mb-6">Lịch sử nạp rút</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-white rounded-lg shadow p-4">
-                    <h2 className="text-sm font-medium text-gray-500">Tổng nạp</h2>
+                <div className="bg-card rounded-lg shadow p-4 border border-border">
+                    <h2 className="text-sm font-medium text-muted-foreground">Tổng nạp</h2>
                     <p className="text-2xl font-bold text-green-600">
                         {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
@@ -65,8 +65,8 @@ export default function DepositWithdrawalHistory() {
                     </p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-4">
-                    <h2 className="text-sm font-medium text-gray-500">Tổng rút</h2>
+                <div className="bg-card rounded-lg shadow p-4 border border-border">
+                    <h2 className="text-sm font-medium text-muted-foreground">Tổng rút</h2>
                     <p className="text-2xl font-bold text-red-600">
                         {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
@@ -79,8 +79,8 @@ export default function DepositWithdrawalHistory() {
                     </p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-4">
-                    <h2 className="text-sm font-medium text-gray-500">Đang xử lý</h2>
+                <div className="bg-card rounded-lg shadow p-4 border border-border">
+                    <h2 className="text-sm font-medium text-muted-foreground">Đang xử lý</h2>
                     <p className="text-2xl font-bold text-amber-600">
                         {new Intl.NumberFormat("vi-VN", {
                             style: "currency",

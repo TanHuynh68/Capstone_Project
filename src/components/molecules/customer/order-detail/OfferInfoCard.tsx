@@ -52,36 +52,55 @@ export default function OfferInfoCard({ offer }: OfferInfoCardProps) {
           <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {/* <div className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
-          <span className="text-sm font-semibold text-green-600">
-            {formatCurrencyVND(offer.finalPrice)}
-          </span>
-        </div> */}
-        <div className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">NTK cần cọc:</span>
-          <span className="text-sm font-medium text-blue-600">
-            {formatCurrencyVND(offer.designerDepositPrice)}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">Ngày tạo:</span>
-          <span className="text-sm">{formatDate(offer.createdAt)}</span>
-        </div>
+      <CardContent className="p-6">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+            <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-2)' }}>
+              <DollarSign className="h-4 w-4" style={{ color: 'white' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                NTK cần cọc
+              </p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                {formatCurrencyVND(offer.designerDepositPrice)}
+              </p>
+            </div>
+          </div>
 
-        {offer.sampleImage && (
-          <SingleImageGallery
-            imageUrl={offer.sampleImage}
-            title={<div className="flex items-center gap-2">
-               <Image className="h-4 w-4 text-gray-500" />
-              <div className="text-sm text-gray-600">Hình ảnh mẫu:</div>
-            </div>}
-          />
-        )}
+          <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+            <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-4)' }}>
+              <Calendar className="h-4 w-4" style={{ color: 'white' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                Ngày tạo
+              </p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                {formatDate(offer.createdAt)}
+              </p>
+            </div>
+          </div>
+
+          {offer.sampleImage && (
+            <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-3)' }}>
+                <Image className="h-4 w-4" style={{ color: 'white' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                  Hình ảnh mẫu
+                </p>
+                <div className="mt-2">
+                  <SingleImageGallery
+                    imageUrl={offer.sampleImage}
+                    title={null}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

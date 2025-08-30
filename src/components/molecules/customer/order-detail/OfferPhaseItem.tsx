@@ -54,8 +54,7 @@ export default function OfferPhaseItem({
   return (
     <div className="p-1">
       <Card
-        className={`cursor-pointer transition-all duration-200 hover:shadow-md bg-blue-50 border border-blue-200 ${
-          isSelected ? "ring-2 ring-blue-500 " : ""
+        className={`cursor-pointer transition-all duration-200 hover:shadow-md bg-card border border-border ${isSelected ? "ring-2 ring-primary " : ""
         }`}
         onClick={onClick}
       >
@@ -65,7 +64,7 @@ export default function OfferPhaseItem({
               <span className="inline-block text-sm font-semibold px-3 py-1 rounded-lg bg-primary text-white">
                 {phase.phase}
               </span>
-              <p className="text-sm">{phase.phaseName}</p>
+              <p className="text-sm text-foreground">{phase.phaseName}</p>
             </div>
             <div className="flex items-center gap-2">
               <PhaseStatusBadge status={phase.offerPhaseStatus} />
@@ -89,22 +88,22 @@ export default function OfferPhaseItem({
           {phase.phaseDescription && (
             <div className="mb-3">
               <div className="flex items-center gap-1 mb-1">
-                <FileText className="h-3 w-3" />
-                <span className="text-xs">Mô tả:</span>
+                <FileText className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Mô tả:</span>
               </div>
-              <p className="text-xs p-2 rounded">{phase.phaseDescription}</p>
+              <p className="text-xs p-2 rounded text-muted-foreground">{phase.phaseDescription}</p>
             </div>
           )}
 
           <div className="flex justify-between">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>
                 {formatDate(phase.startDate)} - {formatDate(phase.endDate)}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-foreground">
                 {formatCurrencyVND(phase.offerPhasePrice)}
               </span>
             </div>

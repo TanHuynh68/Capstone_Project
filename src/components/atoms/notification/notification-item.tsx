@@ -33,7 +33,7 @@ export function NotificationItem({
     <div
       className={cn(
         "flex flex-col p-3 border-b last:border-b-0 transition-colors",
-        "hover:bg-primary/50 dark:hover:bg-primary",
+        "hover:bg-primary/30 dark:hover:bg-primary/50",
         !isRead && "bg-muted dark:bg-muted/15",
         redirectLink &&
           "cursor-pointer bg-primary/10 dark:bg-primary/20 border-l-4 border-l-primary/30",

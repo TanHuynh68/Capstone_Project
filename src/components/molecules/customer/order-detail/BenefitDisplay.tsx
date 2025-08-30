@@ -31,25 +31,25 @@ export default function BenefitDisplay({ benefitData }: BenefitDisplayProps) {
       label: "Giá trị đơn hàng",
       amount: benefitData.netAmountFromCustomer,
       message: benefitData.netAmountFromCustomerMessage,
-      color: "bg-blue-50 border border-blue-200",
+      color: "bg-card border border-border",
     },
     {
       label: "Phí hệ thống",
       amount: benefitData.systemUsageFee,
       message: benefitData.systemUsageFeeMessage,
-      color: "bg-blue-50 border border-blue-200",
+      color: "bg-card border border-border",
     },
     {
       label: "Hoàn tiền",
       amount: benefitData.systemDepositRefund,
       message: benefitData.systemDepositRefundMessage,
-      color: "bg-blue-50 border border-blue-200",
+      color: "bg-card border border-border",
     },
     {
       label: "Tổng thu nhập",
       amount: benefitData.totalNetIncome,
       message: benefitData.totalNetIncomeMessage,
-      color: "bg-green-50 border border-green-200",
+      color: "bg-card border border-border",
     },
   ];
 

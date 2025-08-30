@@ -61,7 +61,7 @@ const InfoAboutTheConversationTab = ({
         return (
           <div key={`viewPost-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Bài đăng ({posts?.length || 0})
               </h3>
               <PostCard
@@ -79,7 +79,7 @@ const InfoAboutTheConversationTab = ({
         return (
           <div key={`images-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Ảnh ({images?.length || 0})
               </h3>
               <ChatMediaGallery mediaItems={images} type="images" />
@@ -91,7 +91,7 @@ const InfoAboutTheConversationTab = ({
         return (
           <div key={`designs-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Thiết kế ({designs?.length || 0})
               </h3>
               <ChatMediaGallery mediaItems={designs} type="designs" />
@@ -103,10 +103,10 @@ const InfoAboutTheConversationTab = ({
         return (
           <div key={`offerPhase-${animationKey}`} className={baseClasses}>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Xem đề xuất
               </h3>
-              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg">
+              <div className="p-6 text-center text-muted-foreground bg-muted rounded-lg">
                 <div className="text-lg font-medium mb-2">
                   Danh sách đề xuất
                 </div>
@@ -118,12 +118,12 @@ const InfoAboutTheConversationTab = ({
                   {Array.from({ length: 10 }, (_, i) => (
                     <div
                       key={i}
-                      className="p-4 bg-white rounded-lg border shadow-sm"
+                      className="p-4 bg-card rounded-lg border border-border shadow-sm"
                     >
-                      <div className="font-medium text-gray-800">
+                      <div className="font-medium text-foreground">
                         Đề xuất #{i + 1}
                       </div>
-                      <div className="text-sm text-gray-600 mt-2">
+                      <div className="text-sm text-muted-foreground mt-2">
                         Đây là nội dung mô tả chi tiết cho đề xuất số {i + 1}.
                         Nội dung này có thể rất dài và cần scroll để xem hết.
                       </div>
@@ -145,7 +145,7 @@ const InfoAboutTheConversationTab = ({
           {/* Background Animation */}
           <div
             className={`absolute inset-0 transition-all duration-300 ease-in-out rounded-lg ${
-              isTransitioning ? "bg-gray-50" : "bg-transparent"
+              isTransitioning ? "bg-muted" : "bg-transparent"
             }`}
           />
 
@@ -154,7 +154,7 @@ const InfoAboutTheConversationTab = ({
 
           {/* Loading Overlay */}
           {isTransitioning && (
-            <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/80 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center z-20 bg-background/80 rounded-lg">
               <div className="flex space-x-1">
                 {[0, 150, 300].map((delay, index) => (
                   <div

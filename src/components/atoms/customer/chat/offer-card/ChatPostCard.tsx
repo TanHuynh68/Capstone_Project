@@ -106,7 +106,7 @@ export function ChatPostCard({
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-bold text-xl text-gray-800 line-clamp-2">
+              <h3 className="font-bold text-xl text-foreground line-clamp-2">
                 {post?.post.title}
               </h3>
               <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export function ChatPostCard({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      className="h-8 w-8 p-0 hover:bg-muted"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className="h-4 w-4" />
@@ -182,8 +182,8 @@ export function ChatPostCard({
                 )}
             </div>
             {/* Price Info */}
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <div className="text-sm text-gray-600 mb-1">Giá trị đơn hàng</div>
+            <div className="bg-muted p-3 rounded-lg">
+              <div className="text-sm text-muted-foreground mb-1">Giá trị đơn hàng</div>
               <div className="font-bold text-lg text-green-600">
                 {post?.offer?.finalPrice === null
                   ? "Chưa có"
@@ -193,7 +193,7 @@ export function ChatPostCard({
             {/* Status Info */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Khách hàng:</span>
+                <span className="text-sm text-muted-foreground">Khách hàng:</span>
                 <Badge
                   variant={isAcceptedVariant(post?.offer?.isAcceptedByCus)}
                 >
@@ -203,7 +203,7 @@ export function ChatPostCard({
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Nhà thiết kế:</span>
+                <span className="text-sm text-muted-foreground">Nhà thiết kế:</span>
                 <Badge
                   variant={isAcceptedVariant(post?.offer?.isAcceptedByDes)}
                 >
@@ -221,12 +221,12 @@ export function ChatPostCard({
       <Dialog open={isMainDialogOpen} onOpenChange={setIsMainDialogOpen}>
         <DialogContent className="min-w-[1200px] h-[750px]">
           <DialogHeader>
-            <h2 className="text-xl font-bold">Chi tiết bài đăng và đề xuất</h2>
+            <h2 className="text-xl font-bold text-foreground">Chi tiết bài đăng và đề xuất</h2>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-6 h-full overflow-hidden">
             {/* Post Details */}
-            <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">
+            <div className="border border-border rounded-lg bg-muted/80 p-4 overflow-y-auto">
+              <h3 className="text-lg font-bold text-foreground mb-4">
                 Thông tin bài đăng
               </h3>
               <div className="space-y-4">
@@ -239,8 +239,8 @@ export function ChatPostCard({
                     />
                   )}
                   <div>
-                    <div className="font-semibold">{post.post.fullName}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-semibold text-foreground">{post.post.fullName}</div>
+                    <div className="text-sm text-muted-foreground">
                       {new Date(post.post.createdAt).toLocaleDateString(
                         "vi-VN"
                       )}
@@ -248,25 +248,25 @@ export function ChatPostCard({
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground">
                       Giá trị sản phẩm
                     </div>
                     <div className="font-semibold text-blue-600">
                       {formatCurrencyVND(post.post.itemValue)}
                     </div>
                   </div>
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Ngân sách</div>
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground">Ngân sách</div>
                     <div className="font-semibold text-blue-600">
                       {formatCurrencyVND(post.post.suggestedPrice)}
                     </div>
                   </div>
                 </div>
                 {post.post.description && (
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 mb-2">Mô tả</div>
-                    <div className="text-sm">{post.post.description}</div>
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground mb-2">Mô tả</div>
+                    <div className="text-sm text-foreground">{post.post.description}</div>
                   </div>
                 )}
                 {/* Images */}
@@ -290,9 +290,9 @@ export function ChatPostCard({
               </div>
             </div>
             {/* Offer Details */}
-            <div className="border rounded-lg bg-gray-50/80 p-4 overflow-y-auto">
+            <div className="border border-border rounded-lg bg-muted/80 p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800">
+                <h3 className="text-lg font-bold text-foreground">
                   Thông tin đề xuất
                 </h3>
                 <Button variant="outline" size="sm" onClick={handleViewPhases}>
@@ -309,10 +309,10 @@ export function ChatPostCard({
                     />
                   )}
                   <div>
-                    <div className="font-semibold">
+                    <div className="font-semibold text-foreground">
                       {post.offer.designerName}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       {new Date(post.offer.createdAt).toLocaleDateString(
                         "vi-VN"
                       )}
@@ -320,19 +320,19 @@ export function ChatPostCard({
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600">Giá NTK đề xuất</div>
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground">Giá NTK đề xuất</div>
                     <div className="font-semibold text-blue-600">
                       {formatCurrencyVND(post.offer.initPrice)}
                     </div>
                   </div>
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 flex items-center gap-1">
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground flex items-center gap-1">
                       Tiền cọc
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
+                            <Info className="h-4 w-4 text-primary hover:text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent>
                             {/* <p>Số tiền cọc mà nhà thiết kế yêu cầu</p> */}
@@ -350,13 +350,13 @@ export function ChatPostCard({
                         : "Chưa có"}
                     </div>
                   </div>
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 flex gap-1 items-center">
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground flex gap-1 items-center">
                       Giá trị đơn hàng
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-primary hover:text-gray-600 cursor-help" />
+                            <Info className="h-4 w-4 text-primary hover:text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>
@@ -374,14 +374,14 @@ export function ChatPostCard({
                   </div>
                 </div>
                 {post.offer.note && (
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 mb-2">Ghi chú</div>
-                    <div className="text-sm">{post.offer.note}</div>
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground mb-2">Ghi chú</div>
+                    <div className="text-sm text-foreground">{post.offer.note}</div>
                   </div>
                 )}
                 {post.offer.sampleImage && (
-                  <div className="bg-white p-3 rounded border">
-                    <div className="text-sm text-gray-600 mb-2">
+                  <div className="bg-card p-3 rounded border border-border">
+                    <div className="text-sm text-muted-foreground mb-2">
                       Hình ảnh mẫu
                     </div>
                     <SingleImageGallery
@@ -407,7 +407,7 @@ export function ChatPostCard({
           onKeyDown={(e) => e.stopPropagation()}
         >
           <DialogHeader>
-            <h2 className="font-bold text-xl text-center">Tạo giai đoạn mới</h2>
+            <h2 className="font-bold text-xl text-center text-foreground">Tạo giai đoạn mới</h2>
           </DialogHeader>
           <ChatCreateOfferPhase
             deadline={post?.offer?.deadlineEndAt}

@@ -61,7 +61,7 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
           className="group/collapsible"
         >
           <SidebarMenuItem>
-            <CollapsibleTrigger className="font-semibold text-lg hover:bg-gray-100 p-3 mt-3 rounded-lg w-full flex items-center justify-between transition-colors">
+            <CollapsibleTrigger className="font-semibold text-lg hover:bg-muted p-3 mt-3 rounded-lg w-full flex items-center justify-between transition-colors text-foreground">
               <span>{title}</span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 ${
@@ -78,7 +78,7 @@ const SidebarCollapse = ({ title, subItem, onClick }: SidebarCollapseProps) => {
                   >
                     <SidebarMenuSub className="flex-1">
                       <button
-                        className="w-full text-left p-2 rounded-md hover:bg-gray-100 transition-colors text-sm"
+                        className="w-full text-left p-2 rounded-md hover:bg-muted transition-colors text-sm text-foreground"
                         onClick={() => handleSubItemClick(item.tabName)}
                       >
                         {item.title}

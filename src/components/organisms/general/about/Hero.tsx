@@ -2,6 +2,8 @@ import Heading from "@/components/atoms/general/about/Heading";
 import Paragraph from "@/components/atoms/general/about/Paragraph";
 import Image from "@/components/atoms/general/about/Image";
 import { Button } from "@/components/ui/button";
+import { Paintbrush2, ImageIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -18,11 +20,34 @@ export default function Hero() {
               chuyện độc đáo của bạn.
             </Paragraph>
             <div className="flex flex-wrap gap-4">
-              <Button type="button" size="lg">
-                Bắt đầu tạo
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 transform hover:scale-105 transition-all duration-300"
+                asChild
+              >
+                <Link
+                  to="/canvas"
+                  className="flex items-center gap-2"
+                >
+                  <Paintbrush2 className="h-5 w-5" />
+                  <span className="inline-block align-middle">
+                    Bắt đầu sáng tạo
+                  </span>
+                </Link>
               </Button>
-              <Button variant="outline" size="lg">
-                Xem thư viện
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-primary text-primary hover:bg-primary/5 bg-transparent"
+                asChild
+              >
+                <Link
+                  to="/contact"
+                  className="flex items-center gap-2"
+                >
+                  <ImageIcon className="h-5 w-5" />
+                  <span className="inline-block align-middle">Liên hệ</span>
+                </Link>
               </Button>
             </div>
           </div>

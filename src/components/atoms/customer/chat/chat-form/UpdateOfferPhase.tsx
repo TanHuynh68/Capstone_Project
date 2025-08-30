@@ -180,7 +180,7 @@ const UpdateOfferPhase = ({
 
   return (
     <Form {...form}>
-      <DialogHeader className="items-center font-bold text-xl mt-5">
+      <DialogHeader className="items-center font-bold text-xl mt-5 text-foreground">
         Cập nhật giai đoạn
       </DialogHeader>
 
@@ -254,19 +254,19 @@ const UpdateOfferPhase = ({
 
         {/* Date Selection */}
         <div className="space-y-4">
-          <FormLabel>Thời gian thực hiện</FormLabel>
+          <FormLabel className="text-foreground">Thời gian thực hiện</FormLabel>
 
           {/* Selected Dates Display */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="border rounded-lg bg-gray-50 p-3">
-              <div className="text-sm text-gray-600 mb-1">Ngày bắt đầu</div>
-              <div className="font-medium">
+            <div className="border border-border rounded-lg bg-muted p-3">
+              <div className="text-sm text-muted-foreground mb-1">Ngày bắt đầu</div>
+              <div className="font-medium text-foreground">
                 {startDate ? formatDayAndTime(startDate) : "Chưa chọn"}
               </div>
             </div>
-            <div className="border rounded-lg bg-gray-50 p-3">
-              <div className="text-sm text-gray-600 mb-1">Ngày kết thúc</div>
-              <div className="font-medium">
+            <div className="border border-border rounded-lg bg-muted p-3">
+              <div className="text-sm text-muted-foreground mb-1">Ngày kết thúc</div>
+              <div className="font-medium text-foreground">
                 {endDate ? formatDayAndTime(endDate) : "Chưa chọn"}
               </div>
             </div>
@@ -286,7 +286,7 @@ const UpdateOfferPhase = ({
               }}
               modifiers={modifiers}
               modifiersStyles={modifiersStyles}
-              className="rounded-md border shadow-sm"
+              className="rounded-md border border-border shadow-sm"
               numberOfMonths={1}
             />
           </div>
