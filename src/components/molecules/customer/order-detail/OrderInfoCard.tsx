@@ -27,11 +27,12 @@ import {
   ShoppingBag,
   Info,
 } from "lucide-react";
-import { formatCurrencyVND } from "@/utils";
+import { formatCurrencyVND, useCurrentUser } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
 import CustomerReportService from "@/services/CustomerReportService";
 import BenefitService from "@/services/BenefitService";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import { ROLE } from "@/constants";
 
 interface BenefitData {
   depositAmount: number;
@@ -71,7 +72,7 @@ export default function OrderInfoCard({
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
   const [benefitData, setBenefitData] = useState<BenefitData | null>(null);
-
+  const currentUser = useCurrentUser();
   const { createReport } = CustomerReportService();
   const { getBenefitDoneOrder } = BenefitService();
 
@@ -119,7 +120,7 @@ export default function OrderInfoCard({
     <TooltipProvider>
       <Card>
         {/* Benefit Display Section */}
-        {benefitData && (
+        {(benefitData && currentUser.role === ROLE.DESIGNER) && (
           <div className="mx-6">
             <BenefitDisplay benefitData={benefitData} />
           </div>
@@ -160,110 +161,110 @@ export default function OrderInfoCard({
             <OrderStatusBadge status={order.orderStatus} />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 font-semibold text-gray-600">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Tên đơn hàng:</span>
-              <span className="text-sm font-medium">{order.note}</span>
+              <ShoppingBag className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Tên đơn hàng:</span>
+              <span className=" font-medium">{order.note}</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Khách hàng:</span>
-              <span className="text-sm font-medium">{order.customerName}</span>
+              <User className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Khách hàng:</span>
+              <span className=" font-medium">{order.customerName}</span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Nhà thiết kế:</span>
-              <span className="text-sm font-medium">{order.designerName}</span>
+              <User className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Nhà thiết kế:</span>
+              <span className=" font-medium">{order.designerName}</span>
             </div>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
+              <DollarSign className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Giá trị đơn hàng:</span>
               {benefitData ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
+                      <span className=" text-gray-600">
                         {formatCurrencyVND(order.totalPrice) +
                           ` (${phase?.length || 0} giai đoạn)`}
                       </span>
                       <Info className="h-3 w-3 text-blue-500 opacity-70" />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
+                  <TooltipContent className="">
+                    <p className="">
                       Tổng giá trị đơn hàng bao gồm tất cả các giai đoạn thực
                       hiện
                     </p>
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <span className="font-semibold text-gray-500">
+                <span className="font-semibold text-gray-600">
                   {formatCurrencyVND(order.totalPrice) +
                     ` (${phase?.length || 0} giai đoạn)`}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Giá trị sản phẩm:</span>
+              <DollarSign className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Giá trị sản phẩm:</span>
               {benefitData ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
+                      <span className="font-semibold text-gray-600">
                         {formatCurrencyVND(offer.itemValue)}
                       </span>
                       <Info className="h-3 w-3 text-blue-500 opacity-70" />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
+                  <TooltipContent className="">
+                    <p className="">
                       Giá trị ước tính của sản phẩm sau khi hoàn thành
                     </p>
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <span className="font-semibold text-gray-500">
+                <span className="font-semibold text-gray-600">
                   {formatCurrencyVND(offer.itemValue)}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <LockKeyhole className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">NTK đã cọc:</span>
+              <LockKeyhole className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">NTK đã cọc:</span>
               {benefitData ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
+                      <span className="font-semibold text-gray-600">
                         {formatCurrencyVND(order.designerDepositAmount)}
                       </span>
                       <Info className="h-3 w-3 text-blue-500 opacity-70" />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
+                  <TooltipContent className="">
+                    <p className="">
                       {benefitData.depositAmountMessage}
                     </p>
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <span className="font-semibold text-gray-500">
+                <span className="font-semibold text-gray-600">
                   {formatCurrencyVND(order.designerDepositAmount)}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ngày bắt đầu:</span>
-              <span className="text-sm">{formatDate(order.startDate)}</span>
+              <Calendar className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Ngày bắt đầu:</span>
+              <span className="text-gray-600">{formatDate(order.startDate)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ngày hết hạn:</span>
-              <span className="text-sm">{formatDate(order.deadlineAt)}</span>
+              <Calendar className="h-4 w-4 text-gray-600" />
+              <span className=" text-gray-600">Ngày hết hạn:</span>
+              <span className="text-gray-600">{formatDate(order.deadlineAt)}</span>
             </div>
           </div>
         </CardContent>
