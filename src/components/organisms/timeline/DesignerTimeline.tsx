@@ -234,7 +234,7 @@ export default function DesignerTimeline({
   ) => {
     try {
       const response = await progressService.createProgressStep(data);
-      if (response?.statusCode === 200) {
+      if (response?.statusCode === 201) {
         toast.success("Tạo tiến độ thành công!", {
           description: "Tiến độ đã được thêm vào giai đoạn này",
         });
@@ -278,19 +278,6 @@ export default function DesignerTimeline({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Panel - Data and Legend */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Header */}
-          {/* <Card className="border-0 shadow-xl bg-gradient-to-br ">
-            <CardContent className="p-3.5">
-              <div className="text-center">
-                <h2 className="text-xl font-bold  mb-2">Lịch trình thiết kế</h2>
-                <p className="text-sm ">
-                  Quản lý tiến độ và lịch trình các dự án của bạn
-                </p>
-              </div>
-            </CardContent>
-          </Card> */}
-
-          {/* Thống kê tổng quan */}
           <Card className="border-0 shadow-l">
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex justify-center items-center gap-2">
@@ -606,7 +593,7 @@ export default function DesignerTimeline({
       )}
 
       {/* Create Progress Step Dialog */}
-      {selectedPhaseForProgress && (
+      {selectedPhaseForProgress  && (
         <CreateProgressStepDialog
           isOpen={showCreateProgressDialog}
           onClose={() => {

@@ -14,6 +14,12 @@ import {
   useCurrentUser,
 } from "@/utils";
 import { ROLE } from "@/constants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface OfferPhaseCardProps {
   offerPhase: OfferPhase;
@@ -84,9 +90,18 @@ const OfferPhaseCard = ({
 
         {offerPhase?.phaseDescription && (
           <div className="mt-3 pt-3 border-t border-gray-600">
-            <div className="text-sm text-gray-300 line-clamp-2">
-              {offerPhase.phaseDescription}
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="text-sm text-gray-300 line-clamp-2">
+                    {offerPhase.phaseDescription}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="w-[450px]">
+                 {offerPhase.phaseDescription}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 

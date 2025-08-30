@@ -120,7 +120,7 @@ export default function OrderInfoCard({
       <Card>
         {/* Benefit Display Section */}
         {benefitData && (
-          <div className="pt-4 border-t mx-6">
+          <div className="mx-6">
             <BenefitDisplay benefitData={benefitData} />
           </div>
         )}

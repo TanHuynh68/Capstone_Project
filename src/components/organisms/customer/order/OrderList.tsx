@@ -209,12 +209,12 @@ export default function OrderList({
                         onClick={() => onView?.(order?.orderID)}
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        Chi tiết 
+                        Chi tiết
                       </Button>
                     </Link>
                     <div className="w-full text-foreground">
                       <ShippingFormDialog
-                      text="Giao hàng"
+                        text="Giao hàng"
                         orderID={order?.orderID}
                         onOrderCreated={onOrderCreated}
                       />

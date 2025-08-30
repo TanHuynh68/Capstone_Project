@@ -25,8 +25,9 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-gray-200 p-2">
+      <div className="flex items-center justify-between border-b border-gray-200 p-2 ">
         <div
+          className="cursor-pointer"
           onClick={() =>
             handleNavigateToPortfolio(
               user[0].account1.role === ROLE.DESIGNER &&
@@ -44,6 +45,11 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
               userMain.id != user[0].account1.accountID
                 ? user[0].account1.accountName
                 : user[0].account2.accountName
+            }
+            role={
+              userMain.id != user[0].account1.accountID
+                ? user[0].account1.role
+                : user[0].account2.role
             }
             avatar={
               userMain.id != user[0].account1.accountID

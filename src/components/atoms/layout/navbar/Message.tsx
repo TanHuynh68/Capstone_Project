@@ -16,9 +16,6 @@ const Message = () => {
 
   useEffect(() => {
     fetchUnreadCount();
-    // Set up interval to refresh unread count every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
   }, [currentUser]);
 
   const fetchUnreadCount = async () => {
@@ -44,7 +41,6 @@ const Message = () => {
             count++;
           }
         });
-
         setUnreadCount(count);
       }
     } catch (error) {
