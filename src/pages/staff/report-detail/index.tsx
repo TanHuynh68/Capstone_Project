@@ -326,19 +326,11 @@ export default function ReportDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="container mx-auto px-4 py-6 max-w-8xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Quay lại
-            </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <FileText className="h-6 w-6 text-blue-600" />
@@ -354,7 +346,7 @@ export default function ReportDetailPage() {
           <div className="col-span-2 space-y-6">
             {/* Basic Information */}
             <Card className="shadow-sm border-gray-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+              <CardHeader className="bg-gradient-to-r rounded-t-lg">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                   Thông tin cơ bản
@@ -366,7 +358,7 @@ export default function ReportDetailPage() {
                     <Label className="text-sm font-semibold text-gray-700">
                       Người báo cáo
                     </Label>
-                    <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                    <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                       <User className="h-4 w-4 text-gray-500" />
                       {reportDetail.reporter}
                     </p>
@@ -375,7 +367,7 @@ export default function ReportDetailPage() {
                     <Label className="text-sm font-semibold text-gray-700">
                       Ngày tạo
                     </Label>
-                    <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                    <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-gray-500" />
                       {formatFullDateWithDistance2(reportDetail.createdAt)}
                     </p>
@@ -395,7 +387,7 @@ export default function ReportDetailPage() {
                   <Label className="text-sm font-semibold text-gray-700">
                     Tiêu đề
                   </Label>
-                  <p className="text-sm bg-gray-100 p-2 rounded mt-1">
+                  <p className="text-sm  p-2 rounded mt-1">
                     {reportDetail.title}
                   </p>
                 </div>
@@ -404,7 +396,7 @@ export default function ReportDetailPage() {
                     Nội dung báo cáo
                   </Label>
                   <Textarea
-                    className="text-sm bg-gray-100 p-2 rounded mt-1 min-h-[100px] resize-none"
+                    className="text-sm  p-2 rounded mt-1 min-h-[100px] resize-none"
                     value={reportDetail.content}
                     readOnly
                   />
@@ -445,7 +437,7 @@ export default function ReportDetailPage() {
                         <Label className="text-sm font-semibold text-gray-700">
                           Người xử lý
                         </Label>
-                        <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                        <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                           <User className="h-4 w-4 text-gray-500" />
                           {reportDetail.resolver}
                         </p>
@@ -456,7 +448,7 @@ export default function ReportDetailPage() {
                         <Label className="text-sm font-semibold text-gray-700">
                           Ngày xử lý
                         </Label>
-                        <p className="text-sm bg-gray-100 p-2 rounded mt-1 flex items-center gap-2">
+                        <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
                           {formatFullDateWithDistance2(reportDetail.resolvedAt)}
                         </p>
@@ -493,9 +485,9 @@ export default function ReportDetailPage() {
                 <>
                   {/* Process Form */}
                   <Card className="shadow-sm border-gray-200">
-                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
+                    <CardHeader className="bg-gradient-to-r rounded-t-lg">
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                        <div className="w-2 h-2  rounded-full"></div>
                         Quyết định xử lý
                       </CardTitle>
                     </CardHeader>

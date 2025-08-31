@@ -93,7 +93,7 @@ export default function ShippingReportDetail({
   return (
     <>
       <Card className="shadow-sm border-gray-200">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
+        <CardHeader className="bg-gradient-to-r  rounded-t-lg">
           <CardTitle className="text-lg flex items-center gap-2">
             <Truck className="h-5 w-5 text-green-600" />
             Chi tiết đơn giao hàng
@@ -106,7 +106,7 @@ export default function ShippingReportDetail({
               <Label className="text-sm font-semibold text-gray-700">
                 Mã đơn hàng
               </Label>
-              <p className="text-sm bg-blue-50 p-2 rounded mt-1 flex items-center gap-2">
+              <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                 <Package className="h-4 w-4 text-blue-500" />
                 <span className="font-mono font-semibold">
                   {targetDetail.orderCode}
@@ -131,7 +131,7 @@ export default function ShippingReportDetail({
               <Label className="text-sm font-semibold text-gray-700">
                 Phí giao hàng
               </Label>
-              <p className="text-sm bg-green-50 p-2 rounded mt-1 flex items-center gap-2">
+              <p className="text-sm  p-2 rounded mt-1 flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-green-500" />
                 <span className="font-semibold text-green-700">
                   {formatCurrency(targetDetail.deliveryPrice)}
@@ -153,7 +153,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Tên người gửi
                   </Label>
-                  <p className="text-sm bg-blue-50 p-2 rounded">
+                  <p className="text-sm  p-2 rounded">
                     {targetDetail.senderName}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Số điện thoại
                   </Label>
-                  <p className="text-sm bg-blue-50 p-2 rounded flex items-center gap-2">
+                  <p className="text-sm  p-2 rounded flex items-center gap-2">
                     <Phone className="h-3 w-3 text-blue-500" />
                     {targetDetail.senderPhoneNumber}
                   </p>
@@ -170,7 +170,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Địa chỉ
                   </Label>
-                  <p className="text-sm bg-blue-50 p-2 rounded flex items-start gap-2">
+                  <p className="text-sm  p-2 rounded flex items-start gap-2">
                     <MapPin className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
                     <span>{targetDetail.senderAddress}</span>
                   </p>
@@ -189,7 +189,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Tên người nhận
                   </Label>
-                  <p className="text-sm bg-purple-50 p-2 rounded">
+                  <p className="text-sm  p-2 rounded">
                     {targetDetail.receiverName}
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Số điện thoại
                   </Label>
-                  <p className="text-sm bg-purple-50 p-2 rounded flex items-center gap-2">
+                  <p className="text-sm  p-2 rounded flex items-center gap-2">
                     <Phone className="h-3 w-3 text-purple-500" />
                     {targetDetail.receiverPhoneNumber}
                   </p>
@@ -206,7 +206,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Địa chỉ
                   </Label>
-                  <p className="text-sm bg-purple-50 p-2 rounded flex items-start gap-2">
+                  <p className="text-sm  p-2 rounded flex items-start gap-2">
                     <MapPin className="h-3 w-3 text-purple-500 mt-0.5 flex-shrink-0" />
                     <span>{targetDetail.receiverAddress}</span>
                   </p>
@@ -226,7 +226,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Chiều dài
                 </Label>
-                <p className="text-sm bg-orange-50 p-2 rounded flex items-center gap-2">
+                <p className="text-sm  p-2 rounded flex items-center gap-2">
                   <Ruler className="h-3 w-3 text-orange-500" />
                   {targetDetail.length} cm
                 </p>
@@ -235,7 +235,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Chiều rộng
                 </Label>
-                <p className="text-sm bg-orange-50 p-2 rounded flex items-center gap-2">
+                <p className="text-sm  p-2 rounded flex items-center gap-2">
                   <Ruler className="h-3 w-3 text-orange-500" />
                   {targetDetail.width} cm
                 </p>
@@ -244,7 +244,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Chiều cao
                 </Label>
-                <p className="text-sm bg-orange-50 p-2 rounded flex items-center gap-2">
+                <p className="text-sm  p-2 rounded flex items-center gap-2">
                   <Ruler className="h-3 w-3 text-orange-500" />
                   {targetDetail.height} cm
                 </p>
@@ -253,7 +253,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Cân nặng
                 </Label>
-                <p className="text-sm bg-orange-50 p-2 rounded flex items-center gap-2">
+                <p className="text-sm  p-2 rounded flex items-center gap-2">
                   <Weight className="h-3 w-3 text-orange-500" />
                   {targetDetail.weight} gram
                 </p>
@@ -264,7 +264,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Ghi chú
                 </Label>
-                <p className="text-sm bg-orange-50 p-2 rounded flex items-start gap-2">
+                <p className="text-sm  p-2 rounded flex items-start gap-2">
                   <StickyNote className="h-3 w-3 text-orange-500 mt-0.5 flex-shrink-0" />
                   <span>{targetDetail.note}</span>
                 </p>
@@ -283,7 +283,7 @@ export default function ShippingReportDetail({
                 <Label className="text-xs font-medium text-gray-600">
                   Ngày tạo
                 </Label>
-                <p className="text-sm bg-gray-50 p-2 rounded">
+                <p className="text-sm  p-2 rounded">
                   {formatFullDateWithDistance2(targetDetail.createdAt)}
                 </p>
               </div>
@@ -292,7 +292,7 @@ export default function ShippingReportDetail({
                   <Label className="text-xs font-medium text-gray-600">
                     Ngày giao
                   </Label>
-                  <p className="text-sm bg-gray-50 p-2 rounded">
+                  <p className="text-sm  p-2 rounded">
                     {formatFullDateWithDistance2(targetDetail.deliveredAt)}
                   </p>
                 </div>

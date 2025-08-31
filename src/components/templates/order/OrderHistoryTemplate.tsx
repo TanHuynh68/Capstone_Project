@@ -56,87 +56,6 @@ export default function OrderHistoryTemplate({
       result = result.filter((order) => order.orderStatus === filters.status);
     }
 
-    // Date range filter for createdAt
-    if (filters.dateRange.from || filters.dateRange.to) {
-      result = result.filter((order) => {
-        const createdDate = new Date(order.createdAt);
-
-        if (filters.dateRange.from && filters.dateRange.to) {
-          return (
-            createdDate >= filters.dateRange.from &&
-            createdDate <= filters.dateRange.to
-          );
-        }
-
-        if (filters.dateRange.from) {
-          return createdDate >= filters.dateRange.from;
-        }
-
-        if (filters.dateRange.to) {
-          return createdDate <= filters.dateRange.to;
-        }
-
-        return true;
-      });
-    }
-
-    // Date range filter for deadline
-    if (filters.deadlineRange.from || filters.deadlineRange.to) {
-      result = result.filter((order) => {
-        const deadlineDate = new Date(order.deadlineAt);
-
-        if (filters.deadlineRange.from && filters.deadlineRange.to) {
-          return (
-            deadlineDate >= filters.deadlineRange.from &&
-            deadlineDate <= filters.deadlineRange.to
-          );
-        }
-
-        if (filters.deadlineRange.from) {
-          return deadlineDate >= filters.deadlineRange.from;
-        }
-
-        if (filters.deadlineRange.to) {
-          return deadlineDate <= filters.deadlineRange.to;
-        }
-
-        return true;
-      });
-    }
-
-    // Apply sorting
-    // if (sort.column) {
-    //   result.sort((a, b) => {
-    //     let aValue: any = a[sort.column as keyof Order];
-    //     let bValue: any = b[sort.column as keyof Order];
-
-    //     // Handle date sorting
-    //     if (
-    //       sort.column === "createdAt" ||
-    //       sort.column === "startDate" ||
-    //       sort.column === "deadlineAt" ||
-
-    //     ) {
-    //       aValue = new Date(aValue).getTime();
-    //       bValue = new Date(bValue).getTime();
-    //     }
-
-    //     // Handle numeric sorting
-    //     if (typeof aValue === "number" && typeof bValue === "number") {
-    //       return sort.direction === "asc" ? aValue - bValue : bValue - aValue;
-    //     }
-
-    //     // Handle string sorting
-    //     if (typeof aValue === "string" && typeof bValue === "string") {
-    //       return sort.direction === "asc"
-    //         ? aValue.localeCompare(bValue)
-    //         : bValue.localeCompare(aValue);
-    //     }
-
-    //     return 0;
-    //   });
-    // }
-
     setFilteredOrders(result);
   }, [orders, filters, sort]);
 
@@ -159,9 +78,11 @@ export default function OrderHistoryTemplate({
   const stats = {
     total: orders.length,
     completed: orders.filter((o) => o.orderStatus === "Completed").length,
-    inProgress: orders.filter((o) => o.orderStatus === "InProgress").length,
+    inProgress: orders.filter((o) => o.orderStatus != "Done" && o.orderStatus != "Rejected").length,
     pending: orders.filter((o) => o.orderStatus === "Pending").length,
     totalValue: orders.reduce((sum, o) => sum + o.totalPrice, 0),
+    rejected: orders.filter((o) => o.orderStatus === "Rejected").length,
+    done: orders.filter((o) => o.orderStatus === "Done").length,
   };
 
   return (
@@ -179,7 +100,7 @@ export default function OrderHistoryTemplate({
           </div>
           <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.completed}
+              {stats.done}
             </div>
             <div className="text-sm text-muted-foreground">Hoàn thành</div>
           </div>
@@ -191,20 +112,10 @@ export default function OrderHistoryTemplate({
           </div>
           <div className="bg-card p-4 rounded-lg border border-border">
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.pending}
+              {stats.rejected}
             </div>
-            <div className="text-sm text-muted-foreground">Đang chờ</div>
+            <div className="text-sm text-muted-foreground">Bị hủy</div>
           </div>
-          {/* <div className="bg-card p-4 rounded-lg border border-border">
-            <div className="text-lg font-bold text-foreground">
-              {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-                notation: "compact",
-              }).format(stats.totalValue)}
-            </div>
-            <div className="text-sm text-muted-foreground">Tổng giá trị</div>
-          </div> */}
         </div>
 
         {/* Filters */}
