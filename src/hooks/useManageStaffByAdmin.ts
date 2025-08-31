@@ -47,8 +47,6 @@ export function useStaffManagement() {
     size: 10,
   })
 
-  console.log("staffs: ", staffs)
-
   const fetchStaffs = useCallback(async () => {
     setLoading(true)
     try {
@@ -58,7 +56,6 @@ export function useStaffManagement() {
         setStaffs(newStaffs)
         setTotalPages(response?.responseRequestModel?.responseList?.totalPages)
         setTotalElements(response?.responseRequestModel?.responseList?.totalItems)
-        console.log("Fetched staffs:", newStaffs)
       }
     } catch (error) {
       toast.error("Không thể tải danh sách nhân viên")

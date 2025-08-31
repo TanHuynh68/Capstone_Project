@@ -90,6 +90,7 @@ export default function WalletPage() {
       setWalletInfo(response.responseRequestModel);
     }
   };
+  
   // Handle payment method selection and form submission
   const onSubmit = async (data: FormValues) => {
     if (!selectedPayment) {
@@ -253,6 +254,7 @@ export default function WalletPage() {
                               <FormLabel>Số tiền (VND)</FormLabel>
                               <FormControl>
                                 <Input
+                                  type="number"
                                   placeholder="Nhập số tiền"
                                   {...field}
                                   onChange={(e) => {
