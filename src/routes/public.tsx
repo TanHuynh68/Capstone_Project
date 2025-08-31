@@ -13,22 +13,23 @@ interface PublicRouteProps {
 const PublicRoute = ({ children }: PublicRouteProps) => {
   const user = useSelector((state: RootState) => state.user);
 
-  // Nếu đã đăng nhập → chuyển về home
   if (user && user.id) {
-    // toast.info('Bạn đã đăng nhập')
     switch (user.role) {
       case ROLE.CUSTOMER:
-        return <Navigate to={PATH.HOME} replace />;
+      case ROLE.DESIGNER:
+        // Cho phép render trang public (vd: HomePage)
+        return <>{children}</>;
+
       case ROLE.STAFF:
         return <Navigate to={PATH.STAFF_DASHBOARD_MANAGER_USERS} replace />;
-      case ROLE.DESIGNER:
-        return <Navigate to={PATH.HOME} replace />;
       case ROLE.ADMIN:
         return <Navigate to={PATH.ADMIN_DASHBOARD} replace />;
     }
   }
 
+  // chưa login thì vẫn render
   return children;
 };
+
 
 export default PublicRoute;
