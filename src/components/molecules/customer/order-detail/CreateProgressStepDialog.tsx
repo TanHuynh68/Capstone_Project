@@ -330,8 +330,8 @@ export default function CreateProgressStepDialog({
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="min-w-[1100px] overflow-y-auto">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+          <DialogHeader className="border-b border-border pb-4">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
               <ImageIcon className="h-5 w-5 text-blue-600" />
               Tạo tiến độ mới
             </DialogTitle>
@@ -339,10 +339,10 @@ export default function CreateProgressStepDialog({
 
           <div className="space-y-6  grid grid-cols-12 gap-2">
             {/* Step Details */}
-            <Card className="shadow-sm border-gray-200 col-span-5 h-full">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <Card className="shadow-sm border-border col-span-5 h-full">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/20 rounded-t-lg">
+                <CardTitle className="text-lg flex items-center gap-2 text-foreground">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Chi tiết bước thực hiện
                 </CardTitle>
               </CardHeader>
@@ -351,7 +351,7 @@ export default function CreateProgressStepDialog({
                   <div>
                     <Label
                       htmlFor="stepTitle"
-                      className="text-sm font-semibold text-gray-700"
+                      className="text-sm font-semibold text-foreground"
                     >
                       Tiêu đề bước <span className="text-red-500">*</span>
                     </Label>
@@ -362,11 +362,10 @@ export default function CreateProgressStepDialog({
                         handleInputChange("stepTitle", e.target.value)
                       }
                       placeholder="Nhập tiêu đề cho bước thực hiện"
-                      className={`mt-2 ${
-                        errors.stepTitle
+                      className={`mt-2 ${errors.stepTitle
                           ? "border-red-500 focus:border-red-500 bg-red-50"
                           : "focus:border-blue-500"
-                      }`}
+                        }`}
                     />
                     {errors.stepTitle && (
                       <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
@@ -378,7 +377,7 @@ export default function CreateProgressStepDialog({
                   <div>
                     <Label
                       htmlFor="description"
-                      className="text-sm font-semibold text-gray-700"
+                      className="text-sm font-semibold text-foreground"
                     >
                       Mô tả chi tiết <span className="text-red-500">*</span>
                     </Label>
@@ -390,11 +389,10 @@ export default function CreateProgressStepDialog({
                       }
                       placeholder="Mô tả chi tiết về bước thực hiện này..."
                       rows={3}
-                      className={`mt-2 resize-none ${
-                        errors.description
+                      className={`mt-2 resize-none ${errors.description
                           ? "border-red-500 focus:border-red-500 bg-red-50"
                           : "focus:border-blue-500"
-                      }`}
+                        }`}
                     />
                     {errors.description && (
                       <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
@@ -408,11 +406,11 @@ export default function CreateProgressStepDialog({
             </Card>
 
             {/* Images Upload */}
-            <Card className="shadow-sm border-gray-200 col-span-7">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-                <CardTitle className="text-lg flex items-center justify-between">
+            <Card className="shadow-sm border-border col-span-7">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/20 rounded-t-lg">
+                <CardTitle className="text-lg flex items-center justify-between text-foreground">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Hình ảnh tiến độ ({validImageCount}/6)
                   </div>
                   <Button
@@ -440,13 +438,12 @@ export default function CreateProgressStepDialog({
                     <div key={index} className="space-y-3">
                       <div className="relative group">
                         <div
-                          className={`border-2 border-dashed rounded-xl p-3 transition-all duration-200 ${
-                            imagePreviews[index]
+                          className={`border-2 border-dashed rounded-xl p-3 transition-all duration-200 ${imagePreviews[index]
                               ? "border-green-300 bg-green-50"
                               : index < 3
                               ? "border-red-300 bg-red-50"
                               : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-                          }`}
+                            }`}
                         >
                           {imagePreviews[index] ? (
                             <div className="relative">
@@ -485,8 +482,8 @@ export default function CreateProgressStepDialog({
                             </div>
                           ) : (
                             <div className="flex flex-col items-center justify-center h-24 text-center">
-                              <Upload className="h-6 w-6 text-gray-400 mb-1" />
-                              <p className="text-xs text-gray-500 font-medium">
+                                <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                                <p className="text-xs text-muted-foreground font-medium">
                                 Ảnh {index + 1}
                                 {index < 3 && (
                                   <span className="text-red-500"> *</span>
@@ -502,7 +499,7 @@ export default function CreateProgressStepDialog({
                         <div>
                           <Label
                             htmlFor={`description-${index}`}
-                            className="text-xs font-medium text-gray-600"
+                            className="text-xs font-medium text-muted-foreground"
                           >
                             Mô tả ảnh {index + 1}{" "}
                             <span className="text-red-500">*</span>
@@ -514,11 +511,10 @@ export default function CreateProgressStepDialog({
                               handleDescriptionChange(index, e.target.value)
                             }
                             placeholder={`Mô tả cho ảnh ${index + 1}...`}
-                            className={`mt-1 text-sm ${
-                              errors[`imageDescription${index}`]
+                            className={`mt-1 text-sm ${errors[`imageDescription${index}`]
                                 ? "border-red-500 focus:border-red-500 bg-red-50"
                                 : ""
-                            }`}
+                              }`}
                           />
                           {errors[`imageDescription${index}`] && (
                             <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
@@ -536,8 +532,8 @@ export default function CreateProgressStepDialog({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-4 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
-            <div className="text-sm text-gray-500">
+          <div className="flex justify-between items-center pt-4 border-t border-border bg-muted -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
+            <div className="text-sm text-muted-foreground">
               <span className="font-medium">Lưu ý:</span> 3 ảnh đầu và mô tả của
               chúng là bắt buộc
             </div>
@@ -573,9 +569,9 @@ export default function CreateProgressStepDialog({
       <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] p-0">
           <DialogHeader className="p-6 pb-0">
-            <DialogTitle className="flex items-center justify-between">
+            <DialogTitle className="flex items-center justify-between text-foreground">
               <span>Xem trước ảnh {currentPreviewIndex + 1}</span>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 {imagePreviews
                   .filter(Boolean)
                   .findIndex(
@@ -603,7 +599,7 @@ export default function CreateProgressStepDialog({
                     <Button
                       variant="outline"
                       size="icon"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
                       onClick={prevPreview}
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -611,7 +607,7 @@ export default function CreateProgressStepDialog({
                     <Button
                       variant="outline"
                       size="icon"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
                       onClick={nextPreview}
                     >
                       <ChevronRight className="h-4 w-4" />
@@ -622,9 +618,9 @@ export default function CreateProgressStepDialog({
             )}
 
             {formData.imagesDescriptions[currentPreviewIndex] && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">Mô tả ảnh:</h4>
-                <p className="text-gray-700">
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <h4 className="font-medium text-foreground mb-2">Mô tả ảnh:</h4>
+                <p className="text-muted-foreground">
                   {formData.imagesDescriptions[currentPreviewIndex]}
                 </p>
               </div>

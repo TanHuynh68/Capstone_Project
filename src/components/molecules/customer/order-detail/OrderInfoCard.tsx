@@ -27,11 +27,12 @@ import {
   ShoppingBag,
   Info,
 } from "lucide-react";
-import { formatCurrencyVND } from "@/utils";
+import { formatCurrencyVND, useCurrentUser } from "@/utils";
 import ReportDialog from "../../customer-and-designer/report/ReportDialog";
 import CustomerReportService from "@/services/CustomerReportService";
 import BenefitService from "@/services/BenefitService";
 import OrderStatusBadge from "@/components/atoms/customer/order/OrderStatusBadge";
+import { ROLE } from "@/constants";
 
 interface BenefitData {
   depositAmount: number;
@@ -71,7 +72,7 @@ export default function OrderInfoCard({
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDepositHistoryOpen, setIsDepositHistoryOpen] = useState(false);
   const [benefitData, setBenefitData] = useState<BenefitData | null>(null);
-
+  const currentUser = useCurrentUser();
   const { createReport } = CustomerReportService();
   const { getBenefitDoneOrder } = BenefitService();
 
@@ -119,7 +120,7 @@ export default function OrderInfoCard({
     <TooltipProvider>
       <Card>
         {/* Benefit Display Section */}
-        {benefitData && (
+        {(benefitData && currentUser.role === ROLE.DESIGNER) && (
           <div className="mx-6">
             <BenefitDisplay benefitData={benefitData} />
           </div>
@@ -160,110 +161,186 @@ export default function OrderInfoCard({
             <OrderStatusBadge status={order.orderStatus} />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Tên đơn hàng:</span>
-              <span className="text-sm font-medium">{order.note}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Khách hàng:</span>
-              <span className="text-sm font-medium">{order.customerName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Nhà thiết kế:</span>
-              <span className="text-sm font-medium">{order.designerName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Giá trị đơn hàng:</span>
-              {benefitData ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
-                        {formatCurrencyVND(order.totalPrice) +
-                          ` (${phase?.length || 0} giai đoạn)`}
-                      </span>
-                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
-                      Tổng giá trị đơn hàng bao gồm tất cả các giai đoạn thực
-                      hiện
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Basic Information */}
+            <div className="space-y-4">
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-1)' }}>
+                    <ShoppingBag className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Tên đơn hàng
                     </p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <span className="font-semibold text-gray-500">
-                  {formatCurrencyVND(order.totalPrice) +
-                    ` (${phase?.length || 0} giai đoạn)`}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Giá trị sản phẩm:</span>
-              {benefitData ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
-                        {formatCurrencyVND(offer.itemValue)}
-                      </span>
-                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
-                      Giá trị ước tính của sản phẩm sau khi hoàn thành
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--foreground)' }}>
+                      {order.note}
                     </p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <span className="font-semibold text-gray-500">
-                  {formatCurrencyVND(offer.itemValue)}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <LockKeyhole className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">NTK đã cọc:</span>
-              {benefitData ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <span className="font-semibold text-gray-500">
-                        {formatCurrencyVND(order.designerDepositAmount)}
-                      </span>
-                      <Info className="h-3 w-3 text-blue-500 opacity-70" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">
-                      {benefitData.depositAmountMessage}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-2)' }}>
+                    <User className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Khách hàng
                     </p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <span className="font-semibold text-gray-500">
-                  {formatCurrencyVND(order.designerDepositAmount)}
-                </span>
-              )}
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--foreground)' }}>
+                      {order.customerName}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-3)' }}>
+                    <User className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Nhà thiết kế
+                    </p>
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--foreground)' }}>
+                      {order.designerName}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-4)' }}>
+                    <Calendar className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Ngày bắt đầu
+                    </p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                      {formatDate(order.startDate)}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ngày bắt đầu:</span>
-              <span className="text-sm">{formatDate(order.startDate)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Ngày hết hạn:</span>
-              <span className="text-sm">{formatDate(order.deadlineAt)}</span>
+
+            {/* Right Column - Financial & Timeline */}
+            <div className="space-y-4">
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-5)' }}>
+                    <DollarSign className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Giá trị đơn hàng
+                    </p>
+                    {benefitData ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2 cursor-help">
+                            <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                              {formatCurrencyVND(order.totalPrice) +
+                                ` (${phase?.length || 0} giai đoạn)`}
+                            </p>
+                            <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            Tổng giá trị đơn hàng bao gồm tất cả các giai đoạn thực hiện
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                        <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                          {formatCurrencyVND(order.totalPrice) +
+                            ` (${phase?.length || 0} giai đoạn)`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-1)' }}>
+                    <DollarSign className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Giá trị sản phẩm
+                    </p>
+                    {benefitData ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2 cursor-help">
+                            <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                              {formatCurrencyVND(offer.itemValue)}
+                            </p>
+                            <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            Giá trị ước tính của sản phẩm sau khi hoàn thành
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                        <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                          {formatCurrencyVND(offer.itemValue)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-2)' }}>
+                    <LockKeyhole className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      NTK đã cọc
+                    </p>
+                    {benefitData ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2 cursor-help">
+                            <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                              {formatCurrencyVND(order.designerDepositAmount)}
+                            </p>
+                            <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            {benefitData.depositAmountMessage}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                        <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                          {formatCurrencyVND(order.designerDepositAmount)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--destructive)' }}>
+                    <Calendar className="h-4 w-4" style={{ color: 'white' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                      Ngày hết hạn
+                    </p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                      {formatDate(order.deadlineAt)}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

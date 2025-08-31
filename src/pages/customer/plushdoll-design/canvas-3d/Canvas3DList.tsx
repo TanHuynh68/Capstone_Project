@@ -130,8 +130,8 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
             return (
                 <div className="flex items-center justify-center p-8">
                     <div className="text-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-                        <p className="text-gray-600">Đang tải danh sách canvas 3D...</p>
+                        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                        <p className="text-muted-foreground">Đang tải danh sách canvas 3D...</p>
                     </div>
                 </div>
             );
@@ -151,9 +151,9 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
         if (canvas3DList.length === 0) {
             return (
                 <div className="text-center p-8">
-                    <FolderX className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có canvas 3D nào</h3>
-                    <p className="text-gray-600 mb-4">
+                    <FolderX className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">Chưa có canvas 3D nào</h3>
+                    <p className="text-muted-foreground mb-4">
                         Tạo thiết kế 3D đầu tiên để bắt đầu sử dụng
                     </p>
                     <Button onClick={refreshList} variant="outline" disabled={loading}>
@@ -187,10 +187,10 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <CardTitle className="text-lg flex items-center gap-2">
-                                            <FolderOpen className="h-4 w-4 text-blue-600" />
+                                            <FolderOpen className="h-4 w-4 text-primary" />
                                             {folder.folderName}
                                         </CardTitle>
-                                        <p className="text-sm text-gray-600 mt-1">
+                                        <p className="text-sm text-muted-foreground mt-1">
                                             {canvas.canvasTitle}
                                         </p>
                                     </div>
@@ -203,19 +203,19 @@ export default function Canvas3DList({ onSelect }: Canvas3DListProps) {
                             <CardContent className="pt-0">
                                 {canvas3DData && (
                                     <div className="space-y-3">
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Box className="h-4 w-4" />
                                             <span className="font-medium">Model:</span>
                                             <span>{canvas3DData.modelName}</span>
                                         </div>
 
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Calendar className="h-4 w-4" />
                                             <span className="font-medium">Lưu lúc:</span>
                                             <span>{formatDate(canvas3DData.savedAt)}</span>
                                         </div>
 
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Calendar className="h-4 w-4" />
                                             <span className="font-medium">Tạo lúc:</span>
                                             <span>{formatDate(canvas.createdAt || '')}</span>

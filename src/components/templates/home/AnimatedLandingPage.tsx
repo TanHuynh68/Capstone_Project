@@ -256,22 +256,38 @@ export default function AnimatedLandingPage() {
           >
             <h2 className="text-4xl font-bold mb-6">Sẵn sàng bắt đầu?</h2>
             <p className="text-xl mb-8 text-primary-foreground/90">
-              Tham gia cùng hàng nghìn nhà sáng tạo và bắt đầu xây dựng những
-              trải nghiệm tuyệt vời ngay hôm nay
+              Tham gia cùng chúng tôi và bắt đầu xây dựng những
+              trải nghiệm tuyệt vời
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 transform hover:scale-105 transition-all duration-300"
+                asChild
               >
-                Dùng thử miễn phí
+                <Link
+                  to={USER_ROUTES.CANVAS_PAGE}
+                  className="flex items-center gap-2"
+                >
+                  <Paintbrush2 className="h-5 w-5" />
+                  <span className="inline-block align-middle">
+                    Bắt đầu sáng tạo
+                  </span>
+                </Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+                asChild
               >
-                Tìm hiểu thêm
+                <Link
+                  to={USER_ROUTES.CONTACT_PAGE}
+                  className="flex items-center gap-2"
+                >
+                  <Mail className="h-5 w-5" />
+                  <span className="inline-block align-middle">Liên hệ</span>
+                </Link>
               </Button>
             </div>
           </div>

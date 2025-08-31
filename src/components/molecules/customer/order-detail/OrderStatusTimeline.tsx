@@ -348,7 +348,7 @@ export default function OrderStatusTimeline({
         </div>
       </div>
 
-      {currentStatus === "ShippingToDesigner" && handleNavigateToProfile && (
+      {(currentStatus === "ShippingToDesigner" || currentStatus === "ShippingToCustomer") && handleNavigateToProfile && (
         <div className="flex justify-center items-center">
           <div className="mt-4 text-center w-[200px]">
             <button

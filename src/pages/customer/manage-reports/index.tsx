@@ -36,8 +36,8 @@ const CustomerReportsPage = () => {
     <div className="px-4 space-y-4">
       <div className="flex items-center justify-center  mt-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quản lý tố cáo của tôi</h1>
-          <p className="text-gray-600">Xem và quản lý các tố cáo bạn đã tạo</p>
+          <h1 className="text-2xl font-bold text-foreground">Quản lý tố cáo của tôi</h1>
+          <p className="text-muted-foreground">Xem và quản lý các tố cáo bạn đã tạo</p>
         </div>
       </div>
 

@@ -212,7 +212,7 @@ export default function ProgressStepCard({
 
             {/* Dates - Compact layout for isTop */}
             <div
-              className={`grid grid-cols-1 gap-1 ${
+              className={`flex justify-center gap-4 ${
                 isTop ? "text-xs" : "text-sm"
               }`}
             >

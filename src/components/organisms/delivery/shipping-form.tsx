@@ -389,10 +389,10 @@ export function ShippingForm({
                 )}
               </button>
             </div>
-
+            <div className="text-center">Người gửi là người trả phí giao hàng</div>
             {/* Benefit Information Section */}
             {deliveryBenefit && deliveryBenefit.isActive && (
-              <div className="mt-4 p-4 bg-amber-300  border border-amber-200  rounded-lg">
+              <div className=" p-4 bg-amber-300  border border-amber-200  rounded-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
                     <AlertTriangle className="h-5 w-5 " />

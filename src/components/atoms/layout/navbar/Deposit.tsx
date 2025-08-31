@@ -63,13 +63,13 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[530px] p-0">
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 border-b ">
+        <div className="bg-gradient-to-r from-primary/20 to-primary/30 p-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-semibold text-lg text-gray-900">
+              <h4 className="font-semibold text-lg text-foreground">
                 Danh sách tiền cọc
               </h4>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Quản lý các khoản tiền tạm khóa
               </p>
             </div>
@@ -85,11 +85,11 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
           <div className="p-4">
             {deposits.length === 0 ? (
               <div className="text-center py-8">
-                <LockKeyhole className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">
+                <LockKeyhole className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground font-medium">
                   Không có khoản cọc nào
                 </p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Các khoản tiền cọc sẽ hiển thị tại đây
                 </p>
               </div>
@@ -104,7 +104,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                       }
                       key={deposit.orderDepositID}
                     >
-                      <div className="group relative bg-white border  border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200  hover:border-gray-300">
+                      <div className="group relative bg-card border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200 hover:border-border">
                         {/* Main content */}
                         <div className="">
                           <div className="flex items-start gap-3">
@@ -113,11 +113,11 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
                             </div>
 
                             <div className="">
-                              <div className="font-semibold text-gray-900 truncate">
+                              <div className="font-semibold text-foreground truncate">
                                 Đặt cọc {formatCurrencyVND(deposit.amount)} cho
                                 đơn hàng #{deposit.orderID.slice(0, 8)}
                               </div>
-                              <p className="text-sm text-gray-600 mt-1 line-clamp-3">
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
                                 {deposit.orderTitle}
                               </p>
                             </div>
@@ -125,7 +125,7 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
 
                           {/* Amount */}
                           <div className="mt-3 mb-3">
-                            <span className="text-xl font-bold text-gray-900">
+                            <span className="text-xl font-bold text-foreground">
                               {formatCurrencyVND(deposit.amount)}
                             </span>
                           </div>
@@ -134,18 +134,18 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
 
                           {/* Details */}
                           <div className="flex justify-between gap-3 text-xs">
-                            <div className="flex items-center gap-2 text-gray-600">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               <Hash className="w-3 h-3" />
                               <span className="truncate">
                                 ID: {deposit.orderID.slice(0, 8)}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-600">
+                            <div className="flex items-center gap-2 text-muted-foreground">
                               {/* <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
                               {deposit.type === 'Deposit' ? 'Tiền cọc' : deposit.type}
                             </span> */}
                             </div>
-                            <div className="flex items-center gap-2 text-gray-600 ">
+                            <div className="flex items-center gap-2 text-muted-foreground ">
                               <Calendar className="w-3 h-3" />
                               <span>
                                 Tạo: {formatDate(deposit.depositAt + "")}
@@ -164,8 +164,8 @@ const Deposit = ({ amount, deposits }: DepositProps) => {
 
         {/* Footer */}
         {deposits.length > 0 && (
-          <div className="border-t bg-gray-50 p-3">
-            <div className="flex items-center justify-between text-xs text-gray-600">
+          <div className="border-t border-border bg-muted p-3">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Tổng cộng: {totalDeposits} khoản cọc</span>
               <span>
                 Cập nhật lần cuối: {new Date().toLocaleTimeString("vi-VN")}

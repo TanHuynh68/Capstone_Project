@@ -26,6 +26,7 @@ import {
     Pause,
     Check,
     Package,
+    Save,
 } from "lucide-react"
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -263,15 +264,16 @@ function AccessoryModel({ modelPath, position, scale, rotation }: {
 }) {
     const { scene } = useGLTF(modelPath)
 
-    // Xử lý scale để tránh lật ngược khi scale âm
+    // Xử lý scale để thu nhỏ khi âm, phóng to khi dương
     let finalScale: [number, number, number]
 
     if (scale === 0) {
         // Scale 0 = ẩn hoàn toàn
         finalScale = [0.001, 0.001, 0.001] // Gần như ẩn
     } else if (scale < 0) {
-        // Scale âm = thu nhỏ (không lật ngược)
-        finalScale = [Math.abs(scale), Math.abs(scale), Math.abs(scale)]
+        // Scale âm = thu nhỏ (chuyển thành giá trị dương nhỏ)
+        const positiveScale = Math.abs(scale)
+        finalScale = [1 / positiveScale, 1 / positiveScale, 1 / positiveScale]
     } else {
         // Scale dương = phóng to bình thường
         finalScale = [scale, scale, scale]
@@ -1597,7 +1599,20 @@ export default function PlushDollDesign3D({
                     })
                     const accessoryModel = gltf.scene.clone()
                     accessoryModel.position.set(accessory.position.x, accessory.position.y, accessory.position.z)
-                    accessoryModel.scale.set(accessory.scale, accessory.scale, accessory.scale)
+
+                    // Xử lý scale tương tự như trong AccessoryModel
+                    let finalScale: number
+                    if (accessory.scale === 0) {
+                        finalScale = 0.001 // Gần như ẩn
+                    } else if (accessory.scale < 0) {
+                        // Scale âm = thu nhỏ (chuyển thành giá trị dương nhỏ)
+                        const positiveScale = Math.abs(accessory.scale)
+                        finalScale = 1 / positiveScale
+                    } else {
+                        // Scale dương = phóng to bình thường
+                        finalScale = accessory.scale
+                    }
+                    accessoryModel.scale.set(finalScale, finalScale, finalScale)
                     // Áp dụng xoay người dùng và quy đổi sang viewport
                     accessoryModel.rotation.set(
                         accessory.rotation.x + (-Math.PI / 2 + Math.PI),
@@ -1892,7 +1907,7 @@ export default function PlushDollDesign3D({
     }, [location.state, canvas3DData])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-foreground">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 text-foreground">
 
             {/* <Navbar /> */}
             <div className="container mx-auto p-4">
@@ -1976,7 +1991,7 @@ export default function PlushDollDesign3D({
                                 </>
                             ) : (
                                 <>
-                                    <Download className="w-4 h-4 mr-2" />
+                                        <Save className="w-4 h-4 mr-2" />
                                     Lưu 3D
                                 </>
                             )}
@@ -2005,7 +2020,7 @@ export default function PlushDollDesign3D({
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
-                        <Card className="h-[70vh] p-0">
+                        <Card className="h-[70vh] p-0 bg-card dark:bg-card">
                             <CardContent className="h-full p-0">
                                 <div className="relative bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden h-full">
                                     <div className="absolute top-2 left-2 z-10 space-y-2">
@@ -2100,9 +2115,9 @@ export default function PlushDollDesign3D({
                     </div>
 
                     <div className="space-y-4">
-                        <Card>
+                        <Card className="bg-card dark:bg-card">
                             <CardHeader>
-                                <CardTitle>Công cụ chỉnh sửa</CardTitle>
+                                <CardTitle className="text-foreground">Công cụ chỉnh sửa</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="models" className="w-full">
@@ -2145,18 +2160,18 @@ export default function PlushDollDesign3D({
                                                     className="cursor-pointer"
                                                 />
                                             </div>
-                                            <p className="text-xs text-muted-foreground mt-1">
+                                            <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
                                                 Chỉ hỗ trợ file .glb.
                                             </p>
                                         </div>
 
                                         <div>
-                                            <Label>Model hiện tại</Label>
+                                            <Label className="text-foreground">Model hiện tại</Label>
                                             <div className="mt-2 space-y-2">
                                                 {glbModels.map((model) => (
                                                     <div
                                                         key={model.id}
-                                                        className={`flex items-center justify-between p-3 rounded-lg border ${currentModelId === model.id ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
+                                                        className={`flex items-center justify-between p-3 rounded-lg border ${currentModelId === model.id ? "bg-card border border-border" : "bg-gray-50 dark:bg-muted border-gray-200 dark:border-border"
                                                             }`}
                                                     >
                                                         <div className="flex items-center gap-2">
@@ -2169,7 +2184,7 @@ export default function PlushDollDesign3D({
                                                                 {currentModelId === model.id ? <Check className="w-4 h-4" /> : <Package className="w-4 h-4" />}
                                                             </Button>
                                                             <div>
-                                                                <div className="font-medium text-sm flex items-center gap-2">
+                                                                <div className="font-medium text-sm flex items-center gap-2 text-foreground">
                                                                     {model.name}
                                                                 </div>
                                                                 {/* {model.isDefault && <div className="text-xs text-gray-500">Model mặc định</div>}
@@ -2194,12 +2209,12 @@ export default function PlushDollDesign3D({
                                     </TabsContent>
 
                                     <TabsContent value="position" className="space-y-4">
-                                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                        <div className="p-3 bg-card border border-border rounded-lg">
                                             <div className="flex items-start gap-2">
-                                                <Target className="w-4 h-4 text-blue-600 mt-0.5" />
+                                                <Target className="w-4 h-4 text-primary mt-0.5" />
                                                 <div className="text-sm">
-                                                    <div className="font-medium text-blue-800">Điều chỉnh vị trí model chính:</div>
-                                                    <ul className="text-blue-700 text-xs mt-1 space-y-1">
+                                                    <div className="font-medium text-foreground">Điều chỉnh vị trí model chính:</div>
+                                                    <ul className="text-muted-foreground text-xs mt-1 space-y-1">
                                                         <li>• <strong>X (đỏ):</strong> Trục ngang - trái (-) / phải (+)</li>
                                                         <li>• <strong>Y (xanh lá):</strong>Trục sâu - gần (-) / xa (+)</li>
                                                         <li>• <strong>Z (xanh dương):</strong>Trục dọc - xuống (-) / lên (+)</li>
@@ -2209,7 +2224,7 @@ export default function PlushDollDesign3D({
                                         </div>
 
                                         <div className="space-y-3">
-                                            <Label>Vị trí model (X, Y, Z)</Label>
+                                            <Label className="text-foreground">Vị trí model (X, Y, Z)</Label>
                                             <div className="grid grid-cols-3 gap-2">
                                                 <div>
                                                     <Label htmlFor="model-x" className="text-xs text-red-600 font-medium">
@@ -2252,7 +2267,7 @@ export default function PlushDollDesign3D({
                                                                 setModelPositionInput((prev) => ({ ...prev, x: "0.00" }))
                                                             }
                                                         }}
-                                                        className="mt-1 h-8 text-xs border-red-200 focus:border-red-500"
+                                                        className="mt-1 h-8 text-xs border-red-200 focus:border-red-500 dark:bg-background dark:text-foreground dark:border-border"
                                                     />
                                                 </div>
                                                 <div>
@@ -2296,7 +2311,7 @@ export default function PlushDollDesign3D({
                                                                 setModelPositionInput((prev) => ({ ...prev, y: "0.00" }))
                                                             }
                                                         }}
-                                                        className="mt-1 h-8 text-xs border-green-200 focus:border-green-500"
+                                                        className="mt-1 h-8 text-xs border-green-200 focus:border-green-500 dark:bg-background dark:text-foreground dark:border-border"
                                                     />
                                                 </div>
                                                 <div>
@@ -2340,7 +2355,7 @@ export default function PlushDollDesign3D({
                                                                 setModelPositionInput((prev) => ({ ...prev, z: "0.00" }))
                                                             }
                                                         }}
-                                                        className="mt-1 h-8 text-xs border-blue-200 focus:border-blue-500"
+                                                        className="mt-1 h-8 text-xs border-blue-200 focus:border-blue-500 dark:bg-background dark:text-foreground dark:border-border"
                                                     />
                                                 </div>
                                             </div>
@@ -2374,7 +2389,7 @@ export default function PlushDollDesign3D({
 
                                     <TabsContent value="texture" className="space-y-4">
                                         <div>
-                                            <Label htmlFor="image-upload">Upload ảnh texture</Label>
+                                            <Label htmlFor="image-upload" className="text-foreground">Upload ảnh texture</Label>
                                             <div className="mt-2">
                                                 <Input
                                                     id="image-upload"
@@ -2389,7 +2404,7 @@ export default function PlushDollDesign3D({
                                                     <img
                                                         src={uploadedImage || "/placeholder.svg"}
                                                         alt="Uploaded texture"
-                                                        className="w-full h-32 object-cover rounded-md border"
+                                                        className="w-full h-32 object-cover rounded-md border dark:border-border"
                                                     />
                                                 </div>
                                             )}
@@ -2397,13 +2412,13 @@ export default function PlushDollDesign3D({
 
 
                                         <div>
-                                            <Label className="flex items-center gap-2">
+                                            <Label className="flex items-center gap-2 text-foreground">
                                                 <Target className="w-4 h-4" />
                                                 Điểm neo texture
                                             </Label>
 
                                             {selectedTextureAnchor && (
-                                                <div className="flex items-center gap-2 mt-2 p-2 bg-blue-50 rounded">
+                                                <div className="flex items-center gap-2 mt-2 p-2 bg-blue-50 dark:bg-blue-950/50 rounded">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -2412,7 +2427,7 @@ export default function PlushDollDesign3D({
                                                     >
                                                         ←
                                                     </Button>
-                                                    <div className="flex-1 text-center text-sm font-medium text-blue-700">
+                                                    <div className="flex-1 text-center text-sm font-medium text-blue-700 dark:text-blue-200">
                                                         {anchorPoints[selectedTextureAnchor as keyof typeof anchorPoints].label}
                                                     </div>
                                                     <Button
@@ -2452,10 +2467,10 @@ export default function PlushDollDesign3D({
                                         </div>
 
                                         <div className="space-y-3">
-                                            <Label>Tinh chỉnh vị trí (X, Y, Z)</Label>
+                                            <Label className="text-foreground">Tinh chỉnh vị trí (X, Y, Z)</Label>
                                             <div className="grid grid-cols-3 gap-2">
                                                 <div>
-                                                    <Label htmlFor="texture-x" className="text-xs">
+                                                    <Label htmlFor="texture-x" className="text-xs text-foreground">
                                                         X
                                                     </Label>
                                                     <SliderPrimitive.Root
@@ -2497,11 +2512,11 @@ export default function PlushDollDesign3D({
                                                                 setTexturePositionInput((prev) => ({ ...prev, x: "0.00" }))
                                                             }
                                                         }}
-                                                        className="mt-1 h-8 text-xs"
+                                                        className="mt-1 h-8 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label htmlFor="texture-y" className="text-xs">
+                                                    <Label htmlFor="texture-y" className="text-xs text-foreground">
                                                         Y
                                                     </Label>
                                                     <SliderPrimitive.Root
@@ -2547,7 +2562,7 @@ export default function PlushDollDesign3D({
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label htmlFor="texture-z" className="text-xs">
+                                                    <Label htmlFor="texture-z" className="text-xs text-foreground">
                                                         Z
                                                     </Label>
                                                     <SliderPrimitive.Root
@@ -2589,14 +2604,14 @@ export default function PlushDollDesign3D({
                                                                 setTexturePositionInput((prev) => ({ ...prev, z: "0.00" }))
                                                             }
                                                         }}
-                                                        className="mt-1 h-8 text-xs"
+                                                        className="mt-1 h-8 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="texture-scale">Kích thước texture</Label>
+                                            <Label htmlFor="texture-scale" className="text-foreground">Kích thước texture</Label>
                                             <SliderPrimitive.Root
                                                 id="texture-scale"
                                                 min={0.1}
@@ -2617,7 +2632,7 @@ export default function PlushDollDesign3D({
                                         {selectedTextureAnchor === "chest_belly" && (
                                             <div className="space-y-3">
                                                 <div>
-                                                    <Label htmlFor="chest-belly-decal-scale" className="flex items-center gap-2">
+                                                    <Label htmlFor="chest-belly-decal-scale" className="flex items-center gap-2 text-foreground">
                                                         <Target className="w-4 h-4" />
                                                         Kích thước decal ngực + bụng
                                                     </Label>
@@ -2648,7 +2663,7 @@ export default function PlushDollDesign3D({
                                                         onChange={(e) => setShowTextureOnBack(e.target.checked)}
                                                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                                                     />
-                                                    <Label htmlFor="show-texture-back" className="text-sm">
+                                                    <Label htmlFor="show-texture-back" className="text-sm text-foreground">
                                                         Hiển thị texture ở phía sau lưng
                                                     </Label>
                                                 </div>
@@ -2666,17 +2681,17 @@ export default function PlushDollDesign3D({
 
                                         {appliedTextures.length > 0 && (
                                             <div className="mt-4">
-                                                <Label className="text-sm font-medium">Texture đã áp dụng ({appliedTextures.length})</Label>
+                                                <Label className="text-sm font-medium text-foreground">Texture đã áp dụng ({appliedTextures.length})</Label>
                                                 <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                                                     {appliedTextures.map((texture) => (
-                                                        <div key={texture.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-xs">
+                                                        <div key={texture.id} className="flex items-center gap-2 p-2 bg-card border border-border rounded text-xs">
                                                             <img
                                                                 src={texture.texture || "/placeholder.svg"}
                                                                 alt="Applied texture"
                                                                 className="w-8 h-8 object-cover rounded"
                                                             />
                                                             <div className="flex-1">
-                                                                <div className="font-medium">Texture #{texture.id.slice(-4)}</div>
+                                                                <div className="font-medium text-foreground">Texture #{texture.id.slice(-4)}</div>
                                                                 <div className="text-muted-foreground">
                                                                     Pos: ({texture.position.x.toFixed(1)}, {texture.position.y.toFixed(1)},{" "}
                                                                     {texture.position.z.toFixed(1)})
@@ -2699,7 +2714,7 @@ export default function PlushDollDesign3D({
 
                                     <TabsContent value="accessories" className="space-y-4">
                                         <div>
-                                            <Label htmlFor="accessory-upload">Upload file GLB phụ kiện</Label>
+                                            <Label htmlFor="accessory-upload" className="text-foreground">Upload file GLB phụ kiện</Label>
                                             <div className="mt-2">
                                                 <Input
                                                     id="accessory-upload"
@@ -2716,12 +2731,12 @@ export default function PlushDollDesign3D({
 
                                         {accessories.length > 0 && (
                                             <div>
-                                                <Label className="text-sm font-medium">Phụ kiện đã thêm ({accessories.length})</Label>
+                                                <Label className="text-sm font-medium text-foreground">Phụ kiện đã thêm ({accessories.length})</Label>
                                                 <div className="mt-2 space-y-3 max-h-64 overflow-y-auto">
                                                     {accessories.map((accessory) => (
-                                                        <div key={accessory.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                        <div key={accessory.id} className="p-3 bg-card rounded-lg border border-border">
                                                             <div className="flex items-center justify-between mb-2">
-                                                                <div className="font-medium text-sm text-blue-800">
+                                                                <div className="font-medium text-sm text-foreground">
                                                                     {accessory.name}
                                                                 </div>
                                                                 <div className="flex gap-1">
@@ -2748,7 +2763,7 @@ export default function PlushDollDesign3D({
                                                                 <div className="space-y-3">
                                                                     {/* Anchor Point Selection */}
                                                                     <div>
-                                                                        <Label className="text-xs font-medium">Điểm neo:</Label>
+                                                                        <Label className="text-xs font-medium text-foreground">Điểm neo:</Label>
                                                                         <div className="grid grid-cols-2 gap-1 mt-1">
                                                                             {Object.entries(anchorPoints).map(([key, anchor]) => (
                                                                                 <Button
@@ -2766,10 +2781,10 @@ export default function PlushDollDesign3D({
 
                                                                     {/* Position Controls */}
                                                                     <div>
-                                                                        <Label className="text-xs font-medium">Vị trí (X, Y, Z):</Label>
+                                                                        <Label className="text-xs font-medium text-foreground">Vị trí (X, Y, Z):</Label>
                                                                         <div className="grid grid-cols-3 gap-2 mt-1">
                                                                             <div>
-                                                                                <Label htmlFor={`acc-${accessory.id}-x`} className="text-xs">X</Label>
+                                                                                <Label htmlFor={`acc-${accessory.id}-x`} className="text-xs text-foreground">X</Label>
                                                                                 <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-x`}
                                                                                     min={-3}
@@ -2797,11 +2812,11 @@ export default function PlushDollDesign3D({
                                                                                         const val = Number.parseFloat(e.target.value)
                                                                                         handleAccessoryPositionChange(accessory.id, "x", Number.isNaN(val) ? accessory.position.x : val)
                                                                                     }}
-                                                                                    className="mt-1 h-7 text-xs"
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs">Y</Label>
+                                                                                <Label htmlFor={`acc-${accessory.id}-y`} className="text-xs text-foreground">Y</Label>
                                                                                 <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-y`}
                                                                                     min={-3}
@@ -2829,11 +2844,11 @@ export default function PlushDollDesign3D({
                                                                                         const val = Number.parseFloat(e.target.value)
                                                                                         handleAccessoryPositionChange(accessory.id, "y", Number.isNaN(val) ? accessory.position.y : val)
                                                                                     }}
-                                                                                    className="mt-1 h-7 text-xs"
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs">Z</Label>
+                                                                                <Label htmlFor={`acc-${accessory.id}-z`} className="text-xs text-foreground">Z</Label>
                                                                                 <SliderPrimitive.Root
                                                                                     id={`acc-${accessory.id}-z`}
                                                                                     min={-3}
@@ -2861,7 +2876,7 @@ export default function PlushDollDesign3D({
                                                                                         const val = Number.parseFloat(e.target.value)
                                                                                         handleAccessoryPositionChange(accessory.id, "z", Number.isNaN(val) ? accessory.position.z : val)
                                                                                     }}
-                                                                                    className="mt-1 h-7 text-xs"
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                                                 />
                                                                             </div>
                                                                         </div>
@@ -2869,12 +2884,12 @@ export default function PlushDollDesign3D({
 
                                                                     {/* Scale Control */}
                                                                     <div>
-                                                                        <Label htmlFor={`acc-${accessory.id}-scale`} className="text-xs font-medium">Kích thước:</Label>
+                                                                        <Label htmlFor={`acc-${accessory.id}-scale`} className="text-xs font-medium text-foreground">Kích thước:</Label>
                                                                         <SliderPrimitive.Root
                                                                             id={`acc-${accessory.id}-scale`}
                                                                             min={-5}
                                                                             max={5}
-                                                                            step={0.1}
+                                                                            step={0.01}
                                                                             value={[accessory.scale]}
                                                                             onValueChange={(v) => handleAccessoryScaleChange(accessory.id, v[0])}
                                                                             className="relative flex w-full touch-none select-none items-center mt-1"
@@ -2884,7 +2899,18 @@ export default function PlushDollDesign3D({
                                                                             </SliderPrimitive.Track>
                                                                             <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                                                         </SliderPrimitive.Root>
-                                                                        <div className="text-xs text-center">{accessory.scale.toFixed(1)}x</div>
+                                                                        <Input
+                                                                            type="number"
+                                                                            step="0.01"
+                                                                            min="-5"
+                                                                            max="5"
+                                                                            value={accessory.scale.toFixed(2)}
+                                                                            onChange={(e) => {
+                                                                                const val = Number.parseFloat(e.target.value)
+                                                                                handleAccessoryScaleChange(accessory.id, Number.isNaN(val) ? 1 : val)
+                                                                            }}
+                                                                            className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
+                                                                        />
                                                                     </div>
 
                                                                     {/* Rotation Controls */}
@@ -2906,7 +2932,18 @@ export default function PlushDollDesign3D({
                                                                                     </SliderPrimitive.Track>
                                                                                     <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                                                                 </SliderPrimitive.Root>
-                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.x).toFixed(0)}°</div>
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="1"
+                                                                                    min="0"
+                                                                                    max="360"
+                                                                                    value={radiansToDegreesRounded(accessory.rotation.x).toFixed(0)}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryRotationChange(accessory.id, "x", degreesToRadiansSnap(Number.isNaN(val) ? 0 : val))
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
+                                                                                />
                                                                             </div>
                                                                             <div>
                                                                                 <Label htmlFor={`acc-${accessory.id}-rot-y`} className="text-xs">Y</Label>
@@ -2923,7 +2960,18 @@ export default function PlushDollDesign3D({
                                                                                     </SliderPrimitive.Track>
                                                                                     <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                                                                 </SliderPrimitive.Root>
-                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.y).toFixed(0)}°</div>
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="1"
+                                                                                    min="0"
+                                                                                    max="360"
+                                                                                    value={radiansToDegreesRounded(accessory.rotation.y).toFixed(0)}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryRotationChange(accessory.id, "y", degreesToRadiansSnap(Number.isNaN(val) ? 0 : val))
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
+                                                                                />
                                                                             </div>
                                                                             <div>
                                                                                 <Label htmlFor={`acc-${accessory.id}-rot-z`} className="text-xs">Z</Label>
@@ -2940,7 +2988,18 @@ export default function PlushDollDesign3D({
                                                                                     </SliderPrimitive.Track>
                                                                                     <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                                                                 </SliderPrimitive.Root>
-                                                                                <div className="text-xs text-center">{radiansToDegreesRounded(accessory.rotation.z).toFixed(0)}°</div>
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    step="1"
+                                                                                    min="0"
+                                                                                    max="360"
+                                                                                    value={radiansToDegreesRounded(accessory.rotation.z).toFixed(0)}
+                                                                                    onChange={(e) => {
+                                                                                        const val = Number.parseFloat(e.target.value)
+                                                                                        handleAccessoryRotationChange(accessory.id, "z", degreesToRadiansSnap(Number.isNaN(val) ? 0 : val))
+                                                                                    }}
+                                                                                    className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
+                                                                                />
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -3018,7 +3077,7 @@ export default function PlushDollDesign3D({
                                                 id="text-size"
                                                 min={0.5}
                                                 max={2}
-                                                step={0.1}
+                                                step={0.01}
                                                 value={[textSize]}
                                                 onValueChange={(v) => setTextSize(v[0])}
                                                 className="relative flex w-full touch-none select-none items-center mt-2"
@@ -3028,7 +3087,19 @@ export default function PlushDollDesign3D({
                                                 </SliderPrimitive.Track>
                                                 <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-blue-600 bg-white shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                                             </SliderPrimitive.Root>
-                                            <div className="text-sm text-muted-foreground mt-1">Kích thước: {textSize}x</div>
+                                            <Input
+                                                type="number"
+                                                step="0.01"
+                                                min="0.1"
+                                                max="5"
+                                                value={textSize.toFixed(2)}
+                                                onChange={(e) => {
+                                                    const val = Number.parseFloat(e.target.value)
+                                                    setTextSize(Number.isNaN(val) ? 1 : val)
+                                                }}
+                                                className="mt-1 h-7 text-xs dark:bg-background dark:text-foreground dark:border-border"
+                                            />
+                                            <div className="text-sm text-muted-foreground mt-1">Kích thước: {textSize.toFixed(2)}x</div>
                                         </div>
 
                                         <div>
@@ -3295,7 +3366,7 @@ export default function PlushDollDesign3D({
 
                                     <TabsContent value="anchors" className="space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <Label className="text-base font-semibold">⚙️ Quản lý điểm neo</Label>
+                                            <Label className="text-base font-semibold text-foreground">⚙️ Quản lý điểm neo</Label>
                                             <div className="flex gap-2">
                                                 <Button variant="outline" size="sm" onClick={handleResetAnchorPoints}>
                                                     <RotateCcw className="w-4 h-4 mr-1" />
@@ -3308,7 +3379,7 @@ export default function PlushDollDesign3D({
                                         </div>
 
                                         <div className="space-y-3">
-                                            <Label>Chọn điểm neo để chỉnh sửa:</Label>
+                                            <Label className="text-foreground">Chọn điểm neo để chỉnh sửa:</Label>
                                             <div className="grid grid-cols-2 gap-2">
                                                 {Object.entries(anchorPoints).map(([key, anchor]) => (
                                                     <Button
@@ -3325,19 +3396,19 @@ export default function PlushDollDesign3D({
                                         </div>
 
                                         {editingAnchor && (
-                                            <div className="space-y-4 p-4 bg-blue-50 rounded-lg border">
+                                            <div className="space-y-4 p-4 bg-card border border-border rounded-lg">
                                                 <div className="flex items-center gap-2">
-                                                    <Target className="w-4 h-4" />
-                                                    <Label className="font-semibold">
+                                                    <Target className="w-4 h-4 text-primary" />
+                                                    <Label className="font-semibold text-foreground">
                                                         Chỉnh sửa: {anchorPoints[editingAnchor as keyof typeof anchorPoints].label}
                                                     </Label>
                                                 </div>
 
                                                 <div className="space-y-3">
-                                                    <Label>Tọa độ (X, Y, Z)</Label>
+                                                    <Label className="text-foreground">Tọa độ (X, Y, Z)</Label>
                                                     <div className="grid grid-cols-3 gap-2">
                                                         <div>
-                                                            <Label htmlFor={`anchor-${editingAnchor}-x`} className="text-xs">
+                                                            <Label htmlFor={`anchor-${editingAnchor}-x`} className="text-xs text-foreground">
                                                                 X
                                                             </Label>
                                                             <SliderPrimitive.Root
@@ -3366,11 +3437,11 @@ export default function PlushDollDesign3D({
                                                                     const val = Number.parseFloat(e.target.value)
                                                                     handleAnchorPositionChange(editingAnchor, "x", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].x : val)
                                                                 }}
-                                                                className="mt-1 h-8 text-xs"
+                                                                className="mt-1 h-8 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor={`anchor-${editingAnchor}-y`} className="text-xs">
+                                                            <Label htmlFor={`anchor-${editingAnchor}-y`} className="text-xs text-foreground">
                                                                 Y
                                                             </Label>
                                                             <SliderPrimitive.Root
@@ -3399,11 +3470,11 @@ export default function PlushDollDesign3D({
                                                                     const val = Number.parseFloat(e.target.value)
                                                                     handleAnchorPositionChange(editingAnchor, "y", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].y : val)
                                                                 }}
-                                                                className="mt-1 h-8 text-xs"
+                                                                className="mt-1 h-8 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor={`anchor-${editingAnchor}-z`} className="text-xs">
+                                                            <Label htmlFor={`anchor-${editingAnchor}-z`} className="text-xs text-foreground">
                                                                 Z
                                                             </Label>
                                                             <SliderPrimitive.Root
@@ -3432,17 +3503,17 @@ export default function PlushDollDesign3D({
                                                                     const val = Number.parseFloat(e.target.value)
                                                                     handleAnchorPositionChange(editingAnchor, "z", Number.isNaN(val) ? anchorPoints[editingAnchor as keyof typeof anchorPoints].z : val)
                                                                 }}
-                                                                className="mt-1 h-8 text-xs"
+                                                                className="mt-1 h-8 text-xs dark:bg-background dark:text-foreground dark:border-border"
                                                             />
-                                                            <div className="text-xs text-center">
+                                                            {/* <div className="text-xs text-center">
                                                                 {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(1)}
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="text-xs text-gray-600 bg-white p-2 rounded">
-                                                    <strong>Vị trí hiện tại:</strong> (
+                                                <div className="text-xs text-muted-foreground bg-card border border-border p-2 rounded">
+                                                    <strong className="text-foreground">Vị trí hiện tại:</strong> (
                                                     {anchorPoints[editingAnchor as keyof typeof anchorPoints].x.toFixed(2)},
                                                     {anchorPoints[editingAnchor as keyof typeof anchorPoints].y.toFixed(2)},
                                                     {anchorPoints[editingAnchor as keyof typeof anchorPoints].z.toFixed(2)})
@@ -3489,13 +3560,13 @@ export default function PlushDollDesign3D({
 
             {/* Canvas 3D List Sidebar */}
             <div
-                className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-transform duration-300 ease-in-out z-50 ${showCanvas3DList ? "translate-x-0" : "translate-x-full"
+                className={`fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-transform duration-300 ease-in-out z-50 ${showCanvas3DList ? "translate-x-0" : "translate-x-full"
                     }`}
                 style={{ width: "350px" }}
             >
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-4 border-b border-border">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Danh sách Canvas 3D</h2>
+                        <h2 className="text-lg font-semibold text-foreground">Danh sách Canvas 3D</h2>
                         <Button
                             variant="ghost"
                             size="sm"

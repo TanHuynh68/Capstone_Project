@@ -255,9 +255,7 @@ export default function CreateUpdatePostDialog({
         // Create mode
         response = await createPost(data);
         if (response?.statusCode === 200) {
-          toast.success("✅ Tạo bài đăng thành công!", {
-            description: "Bài đăng mới đã được tạo và sẵn sàng để designer xem",
-          });
+          toast.success("✅ Tạo bài đăng thành công!");
         }
       }
 

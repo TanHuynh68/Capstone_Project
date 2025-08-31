@@ -84,7 +84,7 @@ export default function EvaluationDetailDialog({
           {/* Overall Score */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2 justify-center">
+              <CardTitle className="text-lg flex items-center gap-2 justify-center text-foreground">
                 <Star className="h-5 w-5 text-yellow-500" />
                 Tổng quan đánh giá
               </CardTitle>
@@ -105,7 +105,7 @@ export default function EvaluationDetailDialog({
                       {evaluation.totalScore}
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600 mt-2">Tổng điểm</div>
+                  <div className="text-sm text-muted-foreground mt-2">Tổng điểm</div>
                 </div>
               </div>
             </CardContent>
@@ -114,10 +114,10 @@ export default function EvaluationDetailDialog({
           {/* Evaluation Criteria with Quality Score */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
+              <CardTitle className="text-lg text-foreground">
                 <div className="flex justify-between gap-2">
                   <div>Tiêu chí đánh giá</div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>{formatDate(evaluation.createdAt)}</span>
                   </div>
@@ -129,9 +129,9 @@ export default function EvaluationDetailDialog({
                 {criteriaItems.map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
                   >
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium text-foreground">{item.label}</span>
                     {item.isScore ? (
                       <Badge
                         className={`${getScoreColor(item.score)} bg-opacity-20`}
@@ -169,13 +169,13 @@ export default function EvaluationDetailDialog({
           {evaluation.customerComment && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">
+                <CardTitle className="text-lg text-foreground">
                   Nhận xét của khách hàng
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800 leading-relaxed">
+                <div className="bg-card border border-border rounded-lg p-4">
+                  <p className="text-foreground leading-relaxed">
                     {evaluation.customerComment}
                   </p>
                 </div>

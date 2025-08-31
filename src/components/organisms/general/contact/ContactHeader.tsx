@@ -8,9 +8,8 @@ export default function ContactHeader() {
           Liên hệ
         </h1>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Bạn có thắc mắc về búp bê tùy chỉnh của chúng tôi hoặc cần hỗ trợ với
-          đơn hàng của mình không? Chúng tôi ở đây để giúp bạn! Hãy liên hệ với
-          đội ngũ thân thiện của chúng tôi bằng thông tin liên hệ bên dưới.
+          Bạn có thắc mắc về búp bê tùy chỉnh hoặc cần hỗ trợ?<br />
+          Chúng tôi ở đây để giúp bạn! Hãy liên hệ với đội ngũ thân thiện của chúng tôi.
         </p>
         <Separator className="mt-8 max-w-md mx-auto" />
       </div>

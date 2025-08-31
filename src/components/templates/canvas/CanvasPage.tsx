@@ -571,7 +571,7 @@ export default function CanvasPage() {
             </div>
 
             {/* Upload Area */}
-            <Card>
+            <Card className="bg-white">
               <CardContent className="p-2">
                 <div
                   className={`border-2 border-dashed rounded-lg p-3 text-center transition-all duration-300 cursor-pointer ${

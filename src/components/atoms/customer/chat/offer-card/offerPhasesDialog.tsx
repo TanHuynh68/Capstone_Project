@@ -24,7 +24,7 @@ const OfferPhasesDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose} >
       <DialogContent className="min-w-[500px]  overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Giai đoạn dự án</DialogTitle>
+          <DialogTitle className="text-foreground">Giai đoạn dự án</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 mt-4 w-full">
@@ -36,7 +36,7 @@ const OfferPhasesDialog = ({
               />
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
               Không có giai đoạn nào được tìm thấy
             </div>
           )}

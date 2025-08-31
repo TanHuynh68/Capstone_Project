@@ -155,7 +155,7 @@ export default function DepositHistoryDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-w-[900px] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-between text-foreground">
             <span>Lịch sử cọc</span>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="w-4 h-4" />
@@ -166,15 +166,15 @@ export default function DepositHistoryDialog({
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Đang tải lịch sử cọc...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-sm text-muted-foreground">Đang tải lịch sử cọc...</p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-4 flex-1 min-h-0">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="bg-card border border-border rounded-lg p-3">
                 <div className="text-sm text-green-600 font-medium">
                   Tổng đặt cọc của nhà thiết kế
                 </div>
@@ -182,7 +182,7 @@ export default function DepositHistoryDialog({
                   {formatCurrencyVND(totalDeposits)}
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-card border border-border rounded-lg p-3">
                 <div className="text-sm text-blue-600 font-medium">
                   Tổng tiền cọc của khách hàng
                 </div>
@@ -199,10 +199,10 @@ export default function DepositHistoryDialog({
             </div>
 
             {/* Filters and Controls */}
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">
                   Lọc theo loại:
                 </span>
                 <Select
@@ -221,7 +221,7 @@ export default function DepositHistoryDialog({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                   Hiển thị {filteredAndSortedDeposits.length} /{" "}
                   {deposits.length} giao dịch
                 </span>
@@ -279,7 +279,7 @@ export default function DepositHistoryDialog({
                     <TableRow>
                       <TableCell
                         colSpan={6}
-                        className="text-center py-8 text-gray-500"
+                          className="text-center py-8 text-muted-foreground"
                       >
                         {filterType === "all"
                           ? "Chưa có giao dịch nào"
@@ -292,7 +292,7 @@ export default function DepositHistoryDialog({
                     filteredAndSortedDeposits.map((deposit, index) => (
                       <TableRow
                         key={deposit.orderDepositID}
-                        className="hover:bg-gray-50"
+                        className="hover:bg-muted"
                       >
                         <TableCell className="font-medium">
                           {index + 1}
@@ -319,7 +319,7 @@ export default function DepositHistoryDialog({
                             {formatCurrencyVND(deposit.amount)}
                           </span>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="text-sm text-muted-foreground">
                           {formatDate(deposit.depositAt)}
                         </TableCell>
                       </TableRow>
