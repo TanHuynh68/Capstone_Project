@@ -94,6 +94,7 @@ export default function WithdrawMoney() {
                     <FormLabel>Số tiền (VND)</FormLabel>
                     <FormControl>
                       <Input
+                        type="number"
                         placeholder="Nhập số tiền"
                         {...field}
                         onChange={(e) => {

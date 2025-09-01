@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Offer } from "@/types/orderManagement";
 import { formatCurrencyVND } from "@/utils";
-import { DollarSign, Calendar, Image } from "lucide-react";
+import { DollarSign, Calendar } from "lucide-react";
 import SingleImageGallery from "@/components/atoms/custom/image/SingleImageGallery";
 
 interface OfferInfoCardProps {
@@ -84,9 +84,6 @@ export default function OfferInfoCard({ offer }: OfferInfoCardProps) {
 
           {offer.sampleImage && (
             <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--chart-3)' }}>
-                <Image className="h-4 w-4" style={{ color: 'white' }} />
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
                   Hình ảnh mẫu

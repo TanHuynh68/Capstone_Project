@@ -235,11 +235,8 @@ export function ChartAreaInteractive() {
     setLoading(true);
     try {
       const dateRange = getDateRange();
-      console.log("Fetching data for date range:", dateRange);
-
       // Generate time series data from API
       const timeSeriesData = await generateTimeSeriesFromAPI(dateRange);
-      console.log("Time series data:", timeSeriesData);
       setChartData(timeSeriesData);
 
       // Also fetch current stats for summary (latest period)

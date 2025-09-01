@@ -9,13 +9,21 @@ import {
   PolicyPage,
 } from "../pages";
 import { PortfolioDesignForAll } from "@/pages/general/portfolio-design-for-all/portfolio-design-for-all";
-//
+import PublicRoute from "./public";
+
 export const guestRoutes = [
   {
     path: USER_ROUTES.HOME,
     element: <CustomerLayout />,
     children: [
-      { index: true, element: <HomePage /> },
+      {
+        index: true,
+        element: (
+          <PublicRoute>
+            <HomePage />
+          </PublicRoute>
+        ),
+      },
       {
         path: USER_ROUTES.ABOUT_PAGE,
         element: <AboutPage />,

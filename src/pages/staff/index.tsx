@@ -5,7 +5,9 @@ import { SectionCards } from "@/components/layouts/admin-layout/section-cards";
 const StaffDashboard = () => {
   return (
     <div>
-      <SectionCards />
+      <div className="p-4">
+        <SectionCards />
+      </div>
       <div className="px-4 lg:px-6">
         <ChartAreaInteractive />
       </div>
