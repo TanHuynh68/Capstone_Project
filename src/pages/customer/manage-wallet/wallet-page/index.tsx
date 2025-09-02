@@ -90,7 +90,7 @@ export default function WalletPage() {
       setWalletInfo(response.responseRequestModel);
     }
   };
-  
+
   // Handle payment method selection and form submission
   const onSubmit = async (data: FormValues) => {
     if (!selectedPayment) {
@@ -111,19 +111,19 @@ export default function WalletPage() {
         console.log(response);
         if (response) {
           window.location.href = response?.responseRequestModel?.vnPayUrl;
+          // Reset form and selection after successful submission
+          form.reset();
+          setSelectedPayment(null);
         }
-        // Reset form and selection after successful submission
-        form.reset();
-        setSelectedPayment(null);
       } else if (selectedPayment === "payos") {
         const response = await createPayosLink(data.amount);
         console.log(response);
         if (response) {
           window.location.href = response?.responseRequestModel?.payOSUrl;
+          // Reset form and selection after successful submission
+          form.reset();
+          setSelectedPayment(null);
         }
-        // Reset form and selection after successful submission
-        form.reset();
-        setSelectedPayment(null);
       }
     } catch (error) {
       toast({

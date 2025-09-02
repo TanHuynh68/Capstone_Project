@@ -68,6 +68,17 @@ interface Benefit {
   createdAt: string;
 }
 
+// enum ReportTypeEnum {
+//   GeneralReport = "GeneralReport",
+//   AccountReport = "AccountReport",
+//   PostReport = "PostReport",
+//   OrderReport = "OrderReport",
+//   ShippingReport = "ShippingReport",
+//   OrderWalletReport = "OrderWalletReport",
+//   PaymentReport = "PaymentReport",
+//   CommunityFeedback = "CommunityFeedback",
+// }
+
 const mapReportType = (type: string) => {
   switch (type) {
     case "ShippingReport":
@@ -97,6 +108,25 @@ const mapBenefitType = (type: string) => {
       return "Đơn hàng và Tiến độ";
     default:
       return type;
+  }
+};
+
+const getValidBenefitTypesForReport = (reportType: string): string[] => {
+  switch (reportType) {
+    case "GeneralReport":
+    case "AccountReport":
+    case "OrderWalletReport":
+    case "PaymentReport":
+    case "CommunityFeedback":
+      return ["General"];
+    case "PostReport":
+      return ["General", "PostAndOffer"];
+    case "OrderReport":
+      return ["OrderAndProgress"];
+    case "ShippingReport":
+      return ["Delivery"];
+    default:
+      return ["General"]; // Default fallback
   }
 };
 
@@ -135,8 +165,10 @@ export default function ReportDetailPage() {
   }, [reportId]);
 
   useEffect(() => {
-    fetchBenefits("", formData.accept);
-  }, [formData.accept]);
+    if (reportDetail) {
+      fetchBenefits("", formData.accept);
+    }
+  }, [formData.accept, reportDetail]); // Updated to use reportDetail directly
 
   const fetchReportDetail = async (id: string) => {
     setLoading(true);
@@ -172,6 +204,15 @@ export default function ReportDetailPage() {
         filteredBenefits = filteredBenefits.filter(
           (benefit: any) => benefit.benefitType === "General"
         );
+      } else {
+        if (reportDetail?.reportType) {
+          const validBenefitTypes = getValidBenefitTypesForReport(
+            reportDetail.reportType
+          );
+          filteredBenefits = filteredBenefits.filter((benefit: any) =>
+            validBenefitTypes.includes(benefit.benefitType)
+          );
+        }
       }
       setBenefits(filteredBenefits);
     } catch (error) {
@@ -537,12 +578,32 @@ export default function ReportDetailPage() {
                         </Label>
 
                         {/* Info message for reject state */}
-                        {!formData.accept && (
+                        {!formData.accept ? (
                           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                             <p className="text-sm text-amber-700 flex items-center gap-2">
                               <Award className="h-4 w-4" />
                               Khi từ chối tố cáo, chỉ có thể áp dụng quyền lợi
                               loại "Chung"
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-sm text-blue-700 flex items-center gap-2">
+                              <Award className="h-4 w-4" />
+                              Quyền lợi được lọc theo loại báo cáo:{" "}
+                              {mapReportType(reportDetail?.reportType || "")}
+                              {reportDetail?.reportType && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs ml-2"
+                                >
+                                  {getValidBenefitTypesForReport(
+                                    reportDetail.reportType
+                                  )
+                                    .map((type) => mapBenefitType(type))
+                                    .join(", ")}
+                                </Badge>
+                              )}
                             </p>
                           </div>
                         )}

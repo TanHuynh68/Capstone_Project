@@ -218,17 +218,8 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                               className="text-primary hover:underline font-medium"
                               target="_blank"
                             >
-                              Điều khoản và Điều kiện
-                            </Link>{" "}
-                            và{" "}
-                            <Link
-                              to={PATH.PRIVACY_POLICY}
-                              className="text-primary hover:underline font-medium"
-                              target="_blank"
-                            >
-                              Chính sách bảo mật
-                            </Link>{" "}
-                            của PlushDollCustom
+                              Điều khoản của PlushDollCustom
+                            </Link>
                           </p>
                           <FormMessageAlias />
                         </div>
