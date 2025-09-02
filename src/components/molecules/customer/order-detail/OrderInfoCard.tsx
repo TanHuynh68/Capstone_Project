@@ -248,7 +248,7 @@ export default function OrderInfoCard({
                             <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
+                        <TooltipContent className="max-w-xl">
                           <p className="text-sm">
                             Tổng giá trị đơn hàng bao gồm tất cả các giai đoạn thực hiện
                           </p>
@@ -281,7 +281,7 @@ export default function OrderInfoCard({
                             <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
+                        <TooltipContent className="max-w-xl">
                           <p className="text-sm">
                             Giá trị ước tính của sản phẩm sau khi hoàn thành
                           </p>
@@ -313,7 +313,7 @@ export default function OrderInfoCard({
                             <Info className="h-3 w-3" style={{ color: 'var(--primary)' }} />
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
+                        <TooltipContent className="max-w-xl">
                           <p className="text-sm">
                             {benefitData.depositAmountMessage}
                           </p>
