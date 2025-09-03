@@ -23,8 +23,8 @@ const formSchema = z.object({
     .refine((val) => Number(val) >= 200000, {
       message: "Số tiền tối thiểu 200,000",
     })
-    .refine((val) => Number(val) <= 100000000, {
-      message: "Số tiền tối đa 100,000,000",
+    .refine((val) => Number(val) <= 10000000, {
+      message: "Số tiền rút tối đa 10,000,000",
     })
     .refine((val) => Number(val) % 1000 === 0, {
       message: "Số tiền phải chia hết cho 1,000",
