@@ -69,6 +69,7 @@ export enum STAFF_ROUTES {
   STAFF_MANAGER_WALLET_TRANSACTION = "manager-wallet-transaction",
   STAFF_MANAGE_POSTS = "manager-posts",
   STAFF_REPORT_DETAIL = "report-detail/:id",
+  STAFF_GET_ORDERS_USER = ":accountID/orders",
 }
 
 export enum PATH {

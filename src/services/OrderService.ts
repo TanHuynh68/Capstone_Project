@@ -147,6 +147,17 @@ const OrderService = () => {
     [callApi]
   );
 
+  const staffGetOrdersUser = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_ORDERS}?page=1&size=100&accountID=${values.accountID}`);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
   return {
     getOrders,
     getOrderDeposited,
@@ -157,7 +168,8 @@ const OrderService = () => {
     createDepositListPhase,
     createWithdrawPhase,
     getOrderDeliveryValue,
-    orderRefundPhase
+    orderRefundPhase,
+    staffGetOrdersUser
   };
 };
 

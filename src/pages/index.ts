@@ -34,3 +34,4 @@ export { default as StaffReportDetailPage } from "./staff/report-detail";
 export { default as PrivacyPolicyPage } from "./auth/privacy-policy";
 export { default as TermPage } from "./auth/term";
 export { default as AdminSettingSystemPage } from "./admin/setting-system";
+export { default as StaffManageOrdersUser } from "./staff/manage-users/manage-orders";
