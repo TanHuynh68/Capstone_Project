@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-import { toast } from "sonner";
 import OrderService from "@/services/OrderService";
 import { OrderDetail } from "@/types/orderManagement";
 import { formatCurrencyVND } from "@/utils";
@@ -40,11 +39,10 @@ export default function StaffOrderDetailPage() {
       if (response?.isSuccess && response.responseRequestModel) {
         setOrderDetail(response.responseRequestModel);
       } else {
-        toast.error("Không thể tải thông tin đơn hàng");
+        console.log("Không thể tải thông tin đơn hàng");
       }
     } catch (error) {
       console.error("Error fetching order detail:", error);
-      toast.error("Có lỗi xảy ra khi tải đơn hàng");
     } finally {
       setIsLoading(false);
     }
@@ -152,10 +150,6 @@ export default function StaffOrderDetailPage() {
     <div className="container mx-auto px-4 py-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={handleBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Quay lại
-        </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Chi tiết đơn hàng

@@ -5,8 +5,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-import { toast } from "sonner";
 import StaffOrderGrid from "@/components/organisms/staff/manage-users/manage-orders/StaffOrderGrid";
 import OrderService from "@/services/OrderService";
 
@@ -42,11 +40,10 @@ export default function StaffOrdersPage() {
           );
         }
       } else {
-        toast.error("Không thể tải danh sách đơn hàng");
+        console.log("Không thể tải danh sách đơn hàng");
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
-      toast.error("Có lỗi xảy ra khi tải đơn hàng");
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +92,6 @@ export default function StaffOrdersPage() {
     <div className="container mx-auto px-4 py-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-
         <Card className="flex-1">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
