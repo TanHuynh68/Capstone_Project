@@ -35,7 +35,7 @@ export default function ContactContent() {
               Vị trí của chúng tôi
             </h2>
             <p className="text-muted-foreground mb-6">
-              Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM
+              Địa chỉ: 77 Trần Quốc Thảo, Phường Võ Thị Sáu, Quận 3, Hồ Chí Minh
             </p>
             <MapSection />
           </div>
