@@ -123,7 +123,7 @@ export default function PostCard({
 
             {/* Right Column - Post Title */}
             <div className="flex items-center">
-              <h3 className="text-sm font-semibold text-foreground truncate leading-tight text-right max-w-[200px]">
+              <h3 className="text-sm font-semibold text-foreground truncate leading-tight text-right max-w-[70px]">
                 {post.title}
               </h3>
             </div>
