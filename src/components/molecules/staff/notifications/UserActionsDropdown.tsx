@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Bell, Trophy, ShoppingBag } from "lucide-react";
+import { MoreHorizontal, Bell, Trophy, ShoppingBag, Eye } from "lucide-react";
 import CreateNotificationDialog from "../notifications/CreateNotificationDialog";
 import ViewReputationDialog from "../reputation/ViewReputationDialog";
 import ChangeActiveUserButton from "@/pages/staff/manage-users/change-active-user";
@@ -25,7 +25,7 @@ interface User {
 interface UserActionsDropdownProps {
   user: User;
   onSuccess: () => void;
-  onCreateNotification: (data: any) => Promise<boolean>;
+  onCreateNotification: (data: { accountID: string; tille: string; message: string; redirectLink?: string }) => Promise<boolean>;
 }
 
 export default function UserActionsDropdown({
@@ -50,6 +50,13 @@ export default function UserActionsDropdown({
       `/staff/${user.accountID}/deliveries`
     );
   };
+
+  const handleViewUserDetails = () => {
+    // Navigate to user details page
+    navigate(
+      `/staff/${user.accountID}/details`
+    );
+  };
   return (
     <>
       <DropdownMenu>
@@ -59,6 +66,14 @@ export default function UserActionsDropdown({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onClick={handleViewUserDetails}
+            className="cursor-pointer"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Xem chi tiết
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleViewDeliveries}
             className="cursor-pointer"
@@ -79,7 +94,7 @@ export default function UserActionsDropdown({
             className="cursor-pointer"
           >
             <Trophy className="h-4 w-4 mr-2" />
-            Xem reputation
+            Xem quyền lợi
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

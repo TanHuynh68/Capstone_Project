@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { MESSAGE } from "@/constants/message";
 import StaffService from "@/services/StaffService";
 import { Search } from "lucide-react";
-import { formatFullDateWithDistance2 } from "@/utils/date";
+import { formatVietnamDateHours } from "@/utils/date";
 import {
   DataTable,
   type Column,
@@ -178,7 +178,7 @@ const ManagerUsersByStaff: React.FC = () => {
       accessorKey: "createdAt",
       sortable: true,
       className: "text-center",
-      cell: (row) => formatFullDateWithDistance2(row.createdAt),
+      cell: (row) => formatVietnamDateHours(row.createdAt),
     },
     {
       header: "Xác minh email",

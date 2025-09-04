@@ -13,6 +13,7 @@ import {
   StaffMangeUserDeliveriesPage,
   StaffOrderDetailPage,
   StaffReportDetailPage,
+  UserDetailsPage,
 } from "@/pages";
 
 export const staffRoutes = [
@@ -69,6 +70,10 @@ export const staffRoutes = [
       {
         path: STAFF_ROUTES.STAFF_GET_DELIVERY_DETAIL,
         element: <StaffDeliveryDetail />,
+      },
+      {
+        path: STAFF_ROUTES.STAFF_GET_USER_DETAILS,
+        element: <UserDetailsPage />,
       },
     ],
   },
