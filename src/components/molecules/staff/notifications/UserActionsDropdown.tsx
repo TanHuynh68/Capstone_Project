@@ -44,6 +44,12 @@ export default function UserActionsDropdown({
     );
   };
 
+  const handleViewDeliveries = () => {
+    // Navigate to staff orders page with user's accountID as query parameter
+    navigate(
+      `/staff/${user.accountID}/deliveries`
+    );
+  };
   return (
     <>
       <DropdownMenu>
@@ -53,6 +59,13 @@ export default function UserActionsDropdown({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onClick={handleViewDeliveries}
+            className="cursor-pointer"
+          >
+            <ShoppingBag className="h-4 w-4 mr-2" />
+            Xem giao hàng
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleViewOrders}
             className="cursor-pointer"

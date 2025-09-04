@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import useApiService from "../hooks/useApi";
 import { toast } from "sonner";
 import { API_ROUTES, HTTP_METHOD } from "@/constants";
+import { GetDeliveriesParams } from "@/types/delivery";
 
 const DeliveryService = () => {
     const { callApi } = useApiService();
@@ -83,8 +84,28 @@ const DeliveryService = () => {
         [callApi]
     );
 
+    const staffGetUserDelivery = useCallback(
+        async ( params: GetDeliveriesParams,) => {
+            try {
+                const queryParams = new URLSearchParams()
 
-    return { getDeliveryByToken, getDeliveryByOrderID, createDelivery, getDeliveryDetail, uploadDeliveryImage, postNotifyMissing };
+                if (params.page !== undefined) queryParams.append("page", params.page.toString())
+                if (params.size !== undefined) queryParams.append("size", params.size.toString())
+                if (params.accountID) queryParams.append("accountID", params.accountID)
+                if (params.orderID) queryParams.append("orderID", params.orderID)
+                if (params.deliveryStatus !== undefined) queryParams.append("deliveryStatus", params.deliveryStatus.toString())
+                const url = `${API_ROUTES.STAFF_GET_USER_DELIVERIES}?${queryParams.toString()}`;
+                const res = await callApi(HTTP_METHOD.GET, url);
+                return res
+            } catch (error) {
+                console.error("Error fetching staff deliveries:", error)
+                return null
+            }
+        },
+        [callApi]
+    );
+
+    return { staffGetUserDelivery, getDeliveryByToken, getDeliveryByOrderID, createDelivery, getDeliveryDetail, uploadDeliveryImage, postNotifyMissing };
 };
 
 
