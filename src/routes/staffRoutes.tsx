@@ -7,6 +7,7 @@ import { ROLE } from "@/constants";
 import GetWalletTransaction from "@/pages/staff/manager-wallet-order/get-wallet-transaction/get-wallet-transaction";
 import {
   StaffDeliveryDetail,
+  StaffManageOrders,
   StaffManageOrdersUser,
   StaffManagePostsPage,
   StaffManageReportsPage,
@@ -74,6 +75,10 @@ export const staffRoutes = [
       {
         path: STAFF_ROUTES.STAFF_GET_USER_DETAILS,
         element: <StaffUserDetailsPage />,
+      },
+      {
+        path: STAFF_ROUTES.STAFF_GET_ORDERS,
+        element: <StaffManageOrders />,
       },
     ],
   },

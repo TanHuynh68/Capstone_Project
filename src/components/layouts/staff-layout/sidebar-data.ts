@@ -16,11 +16,6 @@ import { PATH } from "@/routes/path";
 
 export const staffSidebarData = {
     navMain: [
-        // {
-        //     title: "Dashboard",
-        //     url: `${PATH.STAFF_DASHBOARD}`,
-        //     icon: LayoutDashboardIcon,
-        // },
         {
             title: "Quản lý người dùng",
             url: `${PATH.STAFF_DASHBOARD_MANAGER_USERS}`,
@@ -45,6 +40,11 @@ export const staffSidebarData = {
             title: "Đơn giao dịch",
             url: `${PATH.STAFF_MANAGER_WITHDRAWAL}`,
             icon: ClipboardListIcon,
+        },
+         {
+            title: "Quản lý đơn hàng",
+            url: `${PATH.STAFF_GET_ORDERS}`,
+            icon: UsersIcon,
         },
 
     ],
