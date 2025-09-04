@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -145,16 +145,16 @@ export default function StaffDeliveriesPage() {
   // Calculate statistics
   const stats = {
     total: totalDeliveries,
-    delivered: deliveries.filter((d) => d.deliveryStatus === 9).length,
-    delivering: deliveries.filter((d) => [7, 8].includes(d.deliveryStatus))
+    delivered: deliveries.filter((d) => d.deliveryStatus === 'Delivered').length,
+    delivering: deliveries.filter((d) => ['Delivering', 'MoneyCollectDelivering'].includes(d.deliveryStatus))
       .length,
-    pending: deliveries.filter((d) => [0, 1, 2, 3].includes(d.deliveryStatus))
+    pending: deliveries.filter((d) => ['ReadyToPick', 'Picking', 'MoneyCollectPicking', 'Picked'].includes(d.deliveryStatus))
       .length,
-    failed: deliveries.filter((d) => [10, 22].includes(d.deliveryStatus))
+    failed: deliveries.filter((d) => ['DeliveryFail', 'OutForDeliveryFail'].includes(d.deliveryStatus))
       .length,
-    returned: deliveries.filter((d) => [11, 12, 13].includes(d.deliveryStatus))
+    returned: deliveries.filter((d) => ['WaitingToReturn', 'Returning', 'Returned'].includes(d.deliveryStatus))
       .length,
-    totalFee: deliveries.reduce((sum, d) => sum + (d.deliveryFee || 0), 0),
+
   };
 
   return (
@@ -162,20 +162,17 @@ export default function StaffDeliveriesPage() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Card className="flex-1">
-          <CardHeader className="pb-3">
+          <CardHeader className="">
             <CardTitle className="text-lg flex items-center gap-2">
               <Package className="h-5 w-5 text-blue-600" />
               Giao hàng của {userName || "người dùng"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-sm text-gray-600">Account ID: {accountID}</p>
-          </CardContent>
         </Card>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
           <div className="text-sm text-gray-500">Tổng giao hàng</div>
@@ -202,7 +199,7 @@ export default function StaffDeliveriesPage() {
           <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
           <div className="text-sm text-gray-500">Thất bại</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border">
+        {/* <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-purple-600">
             {new Intl.NumberFormat("vi-VN", {
               notation: "compact",
@@ -210,7 +207,7 @@ export default function StaffDeliveriesPage() {
             }).format(stats.totalFee)}
           </div>
           <div className="text-sm text-gray-500">Tổng phí</div>
-        </div>
+        </div> */}
       </div>
 
       {/* Filters */}

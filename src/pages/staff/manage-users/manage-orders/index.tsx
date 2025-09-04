@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import StaffOrderGrid from "@/components/organisms/staff/manage-users/manage-orders/StaffOrderGrid";
@@ -93,15 +93,12 @@ export default function StaffOrdersPage() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Card className="flex-1">
-          <CardHeader className="pb-3">
+          <CardHeader className="">
             <CardTitle className="text-lg flex items-center gap-2">
               <User className="h-5 w-5 text-blue-600" />
               Đơn hàng của {userName || "người dùng"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-sm text-gray-600">Account ID: {accountID}</p>
-          </CardContent>
         </Card>
       </div>
 

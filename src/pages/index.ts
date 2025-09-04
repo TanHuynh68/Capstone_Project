@@ -37,3 +37,4 @@ export { default as AdminSettingSystemPage } from "./admin/setting-system";
 export { default as StaffManageOrdersUser } from "./staff/manage-users/manage-orders";
 export { default as StaffOrderDetailPage } from "./staff/manage-users/order-detail";
 export { default as StaffMangeUserDeliveriesPage } from "./staff/manage-users/manage-deliveries";
+export { default as StaffDeliveryDetail } from "./staff/manage-users/delivery-detail";

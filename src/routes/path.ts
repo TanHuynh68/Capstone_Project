@@ -72,6 +72,7 @@ export enum STAFF_ROUTES {
   STAFF_GET_ORDERS_USER = ":accountID/orders",
   STAFF_GET_ORDER_DETAIL = "order-detail/:orderID",
   STAFF_GET_DELIVERIES = ":accountID/deliveries",
+  STAFF_GET_DELIVERY_DETAIL = "delivery-detail/:deliveryID",
 }
 
 export enum PATH {
