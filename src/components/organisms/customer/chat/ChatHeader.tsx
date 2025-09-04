@@ -8,14 +8,14 @@ import { ROLE } from "@/constants";
 
 interface ChatHeaderProps {
   user?: UserChat[];
-  setIsOpen: any;
+  setIsOpen: () => void;
 }
 
 export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
   const navigate = useNavigate();
+  const userMain = useCurrentUser();
   if (!user) return null;
   console.log("user: ", user);
-  const userMain = useCurrentUser();
 
   const handleNavigateToPortfolio = (id: string) => {
     if (id) {
@@ -28,17 +28,19 @@ export default function ChatHeader({ user, setIsOpen }: ChatHeaderProps) {
       <div className="flex items-center justify-between border-b border-gray-200 p-2 ">
         <div
           className="cursor-pointer"
-          onClick={() =>
-            handleNavigateToPortfolio(
-              user[0].account1.role === ROLE.DESIGNER &&
-                user[0].account1.accountID != userMain.id
-                ? user[0].account1.accountID
-                : user[0].account2.role === ROLE.DESIGNER &&
-                  user[0].account1.accountID != userMain.id
-                ? user[0].account2.accountID
-                : ""
-            )
-          }
+          onClick={() => {
+            if (userMain.role !== ROLE.CUSTOMER) {
+              navigate(PATH.PORTFOLIO);
+              return;
+            }
+            const otherParticipant =
+              user[0].account1.accountID !== userMain.id
+                ? user[0].account1
+                : user[0].account2;
+            const designerId =
+              otherParticipant.role === ROLE.DESIGNER ? otherParticipant.accountID : "";
+            handleNavigateToPortfolio(designerId);
+          }}
         >
           <UserHeader
             name={

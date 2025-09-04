@@ -170,7 +170,7 @@ const PutWalletWithdraw: React.FC<Props> = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b pb-2">
         <h2 className="text-lg font-semibold text-gray-800">
-          Xác nhận hoàn tiền
+          Xác nhận rút tiền
         </h2>
         <span className="text-sm text-gray-500">Mã đơn: {walletOrderID}</span>
       </div>

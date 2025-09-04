@@ -239,7 +239,7 @@ export const DeliveryCard: React.FC<DeliveryCardProps> = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {delivery.isConfirm === false ? (
+              {delivery.isConfirm === false && delivery.receiverName === user.name ? (
                 <button
                   className="w-full p-2.5 cursor-pointer rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm transition-all duration-300 hover:from-red-600 hover:to-red-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 border border-red-500/20 shadow-md"
                   onClick={handleReportClick}
