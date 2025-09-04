@@ -182,7 +182,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
               size="sm"
               onClick={() => handleShowWithdraw(row.walletOrderID)}
             >
-              Hoàn tiền
+              Rút tiền
             </Button>
           );
         }
@@ -353,7 +353,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
                 <div className="w-full max-w-xs">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Mã QR hoàn tiền
+                      Mã QR rút tiền
                     </h3>
                     {qrImage && (
                       <span
@@ -449,7 +449,7 @@ const ManagerWalletOrderByStaff: React.FC<Props> = ({ walletID }) => {
                       <li>Quét mã QR bằng ứng dụng ngân hàng</li>
                       <li>Xác nhận thông tin giao dịch</li>
                       <li>Hoàn tất giao dịch</li>
-                      <li>Xác nhận hoàn tiền ở mục bên phải</li>
+                      <li>Xác nhận rút tiền ở mục bên phải</li>
                     </ol>
                   </div>
                 </div>
