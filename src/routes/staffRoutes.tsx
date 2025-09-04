@@ -5,7 +5,7 @@ import ManagerWalletOrderByStaff from "@/pages/staff/manager-wallet-order/get-wa
 import { ProtectedRouteByRole } from "./protect";
 import { ROLE } from "@/constants";
 import GetWalletTransaction from "@/pages/staff/manager-wallet-order/get-wallet-transaction/get-wallet-transaction";
-import { StaffManageOrdersUser, StaffManagePostsPage, StaffManageReportsPage, StaffReportDetailPage } from "@/pages";
+import { StaffManageOrdersUser, StaffManagePostsPage, StaffManageReportsPage, StaffOrderDetailPage, StaffReportDetailPage } from "@/pages";
 
 export const staffRoutes = [
   {
@@ -49,6 +49,10 @@ export const staffRoutes = [
       {
         path: STAFF_ROUTES.STAFF_GET_ORDERS_USER,
         element: <StaffManageOrdersUser />,
+      },
+      {
+        path: STAFF_ROUTES.STAFF_GET_ORDER_DETAIL,
+        element: <StaffOrderDetailPage />,
       },
     ],
   },

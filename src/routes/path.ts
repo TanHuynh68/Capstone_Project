@@ -70,6 +70,7 @@ export enum STAFF_ROUTES {
   STAFF_MANAGE_POSTS = "manager-posts",
   STAFF_REPORT_DETAIL = "report-detail/:id",
   STAFF_GET_ORDERS_USER = ":accountID/orders",
+  STAFF_GET_ORDER_DETAIL = "order-detail/:orderID",
 }
 
 export enum PATH {

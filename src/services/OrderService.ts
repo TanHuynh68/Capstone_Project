@@ -138,7 +138,7 @@ const OrderService = () => {
   const orderRefundPhase = useCallback(
     async (values: any) => {
       try {
-        const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.ORDER_REFUND_PHASE}`,values);
+        const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.ORDER_REFUND_PHASE}`, values);
         return res;
       } catch (err: any) {
         console.error(err?.response?.data);
@@ -158,6 +158,19 @@ const OrderService = () => {
     },
     [callApi]
   );
+
+  const staffGetOrderDetail = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_ORDER_DETAIL}?orderID=${values}`);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
   return {
     getOrders,
     getOrderDeposited,
@@ -169,7 +182,8 @@ const OrderService = () => {
     createWithdrawPhase,
     getOrderDeliveryValue,
     orderRefundPhase,
-    staffGetOrdersUser
+    staffGetOrdersUser,
+    staffGetOrderDetail
   };
 };
 
