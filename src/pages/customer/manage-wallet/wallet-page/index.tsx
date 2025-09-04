@@ -37,8 +37,8 @@ const formSchema = z.object({
     .refine((val) => Number(val) >= 10000, {
       message: "Số tiền phải lớn hơn hoặc bằng 10,000",
     })
-    .refine((val) => Number(val) <= 100000000, {
-      message: "Số tiền không được vượt quá 100,000,000",
+    .refine((val) => Number(val) <= 10000000, {
+      message: "Số tiền không được vượt quá 10,000,000",
     }),
 });
 
