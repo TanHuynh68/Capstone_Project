@@ -138,7 +138,31 @@ const OrderService = () => {
   const orderRefundPhase = useCallback(
     async (values: any) => {
       try {
-        const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.ORDER_REFUND_PHASE}`,values);
+        const res = await callApi(HTTP_METHOD.POST, `${API_ROUTES.ORDER_REFUND_PHASE}`, values);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const staffGetOrdersUser = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_ORDERS}?page=1&size=100&accountID=${values.accountID}`);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data);
+      }
+    },
+    [callApi]
+  );
+
+  const staffGetOrderDetail = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, `${API_ROUTES.STAFF_GET_ORDER_DETAIL}?orderID=${values}`);
         return res;
       } catch (err: any) {
         console.error(err?.response?.data);
@@ -157,7 +181,9 @@ const OrderService = () => {
     createDepositListPhase,
     createWithdrawPhase,
     getOrderDeliveryValue,
-    orderRefundPhase
+    orderRefundPhase,
+    staffGetOrdersUser,
+    staffGetOrderDetail
   };
 };
 

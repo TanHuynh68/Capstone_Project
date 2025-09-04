@@ -19,7 +19,6 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
       case ROLE.DESIGNER:
         // Cho phép render trang public (vd: HomePage)
         return <>{children}</>;
-
       case ROLE.STAFF:
         return <Navigate to={PATH.STAFF_DASHBOARD_MANAGER_USERS} replace />;
       case ROLE.ADMIN:

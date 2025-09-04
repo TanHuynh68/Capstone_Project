@@ -9,10 +9,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Bell, Trophy } from "lucide-react";
+import { MoreHorizontal, Bell, Trophy, ShoppingBag } from "lucide-react";
 import CreateNotificationDialog from "../notifications/CreateNotificationDialog";
 import ViewReputationDialog from "../reputation/ViewReputationDialog";
 import ChangeActiveUserButton from "@/pages/staff/manage-users/change-active-user";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   accountID: string;
@@ -34,7 +35,21 @@ export default function UserActionsDropdown({
 }: UserActionsDropdownProps) {
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
   const [reputationDialogOpen, setReputationDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  console.log('user: ', user)
+  const handleViewOrders = () => {
+    // Navigate to staff orders page with user's accountID as query parameter
+    navigate(
+      `/staff/${user.accountID}/orders`
+    );
+  };
 
+  const handleViewDeliveries = () => {
+    // Navigate to staff orders page with user's accountID as query parameter
+    navigate(
+      `/staff/${user.accountID}/deliveries`
+    );
+  };
   return (
     <>
       <DropdownMenu>
@@ -45,13 +60,20 @@ export default function UserActionsDropdown({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem
-            onClick={() => setNotificationDialogOpen(true)}
+            onClick={handleViewDeliveries}
             className="cursor-pointer"
           >
-            <Bell className="h-4 w-4 mr-2" />
-            Tạo thông báo
+            <ShoppingBag className="h-4 w-4 mr-2" />
+            Xem giao hàng
           </DropdownMenuItem>
-
+          <DropdownMenuItem
+            onClick={handleViewOrders}
+            className="cursor-pointer"
+          >
+            <ShoppingBag className="h-4 w-4 mr-2" />
+            Xem đơn hàng
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => setReputationDialogOpen(true)}
             className="cursor-pointer"
@@ -59,9 +81,15 @@ export default function UserActionsDropdown({
             <Trophy className="h-4 w-4 mr-2" />
             Xem reputation
           </DropdownMenuItem>
-
           <DropdownMenuSeparator />
-
+          <DropdownMenuItem
+            onClick={() => setNotificationDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <Bell className="h-4 w-4 mr-2" />
+            Tạo thông báo
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <div className="">
             {/* Change active account */}
             <ChangeActiveUserButton

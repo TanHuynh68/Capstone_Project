@@ -39,7 +39,7 @@ export interface Offer {
   offerStatus: string
   createdAt: string
   deadlineEndAt: string
-
+  itemValue?: number
   // Navigation properties
   projectPost?: ProjectPost
   designer?: Account
@@ -56,6 +56,7 @@ export interface OfferPhase {
   startDate: string
   endDate: string
   modifyDate: string
+  progressCount?: number;
 
   // Navigation properties
   progressSteps?: ProgressStep[]
