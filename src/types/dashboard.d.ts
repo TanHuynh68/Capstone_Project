@@ -53,22 +53,37 @@ interface ChartDataPoint {
 
 // Growth rate
 interface GrowthRates {
-  oldUser: number
-  newUser: number
-  userGrowthRate: number
+  // User
+  oldUser: number;
+  newUser: number;
+  numberOfNewUsers: number;
+  userGrowthRate: number;
 
-  oldOrder: number
-  newOrder: number
-  orderGrowthRate: number
+  // Order
+  oldOrder: number;
+  newOrder: number;
+  numberOfNewOrders: number;
+  orderGrowthRate: number;
 
-  oldReport: number
-  newReport: number
+  // Report
+  oldReport: number;
+  newReport: number;
+  numberOfNewReports: number;
   reportGrowthRate: number;
 
+  // Post
+  oldPost: number;
+  newPost: number;
+  numberOfNewPosts: number;
+  postGrowthRate: number;
+
+  // Revenue
   oldRevenue: number;
   newRevenue: number;
-  revenueGrowthRate: number
+  numberOfNewRevenue: number;
+  revenueGrowthRate: number;
 }
+
 
 interface DateRange {
   startDate: string
