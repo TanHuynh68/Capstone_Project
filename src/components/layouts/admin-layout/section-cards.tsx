@@ -151,41 +151,61 @@ export function SectionCards({ dateRange }: SectionCardsProps) {
   // Card data configuration
   const cardData = [
     {
-      title: "Doanh thu",
-      description: "Danh thu",
-      value: growthRates?.newRevenue || 0,
-      type: "currency" as const,
-      icon: <DollarSign className="size-4" />,
-      growthRate: growthRates?.revenueGrowthRate || 0, // Revenue doesn't have growth rate in the API
-      color: "text-green-600",
-    },
-    {
-      title: "Khách hàng mới",
-      description: "Khách hàng mới",
-      value: growthRates?.newUser || 0,
-      type: "number" as const,
-      icon: <Users className="size-4" />,
-      growthRate: growthRates?.userGrowthRate || 0,
-      color: "text-blue-600",
-    },
-    {
-      title: "Đơn hàng hoạt động",
-      description: "Đơn hàng hoạt động",
-      value: growthRates?.newOrder || 0,
-      type: "number" as const,
-      icon: <ShoppingCart className="size-4" />,
-      growthRate: growthRates?.orderGrowthRate || 0,
-      color: "text-orange-600",
-    },
-    {
-      title: "Tỷ lệ báo cáo",
-      description: "Tỷ lệ báo cáo",
-      value: growthRates?.newReport || 0,
-      type: "number" as const,
-      icon: <Flag className="size-4" />,
-      growthRate: growthRates?.reportGrowthRate || 0,
-      color: "text-purple-600",
-    },
+  title: "Doanh thu",
+  description: "Danh thu",
+  value: growthRates?.numberOfNewRevenue ?? 0,
+  type: "currency" as const,
+  icon: <DollarSign className="size-4" />,
+  growthRate: growthRates?.revenueGrowthRate ?? 0,
+  color: "text-green-600",
+  reason:
+    growthRates?.newRevenue !== undefined &&
+    growthRates?.oldRevenue !== undefined
+      ? `Ngày kết thúc: ${growthRates.newRevenue} - Ngày bắt đầu: ${growthRates.oldRevenue}`
+      : "",
+},
+{
+  title: "Khách hàng mới",
+  description: "Khách hàng mới",
+  value: growthRates?.numberOfNewUsers || 0,
+  type: "number" as const,
+  icon: <Users className="size-4" />,
+  growthRate: growthRates?.userGrowthRate || 0,
+  color: "text-blue-600",
+  reason:
+    growthRates?.newUser !== undefined && growthRates?.oldUser !== undefined
+      ? `Ngày kết thúc: ${growthRates.newUser} - Ngày bắt đầu: ${growthRates.oldUser}`
+      : "",
+},
+{
+  title: "Đơn hàng hoạt động",
+  description: "Đơn hàng hoạt động",
+  value: growthRates?.numberOfNewOrders || 0,
+  type: "number" as const,
+  icon: <ShoppingCart className="size-4" />,
+  growthRate: growthRates?.orderGrowthRate || 0,
+  color: "text-orange-600",
+  reason:
+    growthRates?.newOrder !== undefined &&
+    growthRates?.oldOrder !== undefined
+      ? `Ngày kết thúc: ${growthRates.newOrder} - Ngày bắt đầu: ${growthRates.oldOrder}`
+      : "",
+},
+{
+  title: "Tỷ lệ báo cáo",
+  description: "Tỷ lệ báo cáo",
+  value: growthRates?.numberOfNewReports || 0,
+  type: "number" as const,
+  icon: <Flag className="size-4" />,
+  growthRate: growthRates?.reportGrowthRate || 0,
+  color: "text-purple-600",
+  reason:
+    growthRates?.newReport !== undefined &&
+    growthRates?.oldReport !== undefined
+      ? `Ngày kết thúc: ${growthRates.newReport} - Ngày bắt đầu: ${growthRates.oldReport}`
+      : "",
+},
+
   ];
 
   return (
@@ -303,7 +323,7 @@ export function SectionCards({ dateRange }: SectionCardsProps) {
                         <ChartNoAxesCombined className="size-4" />
                       </div>
                       <div className="text-muted-foreground">
-                        So với khoảng thời gian trước
+                        {card?.reason}
                       </div>
                     </>
                   ) : (

@@ -263,7 +263,7 @@ export default function OrderStatusTimeline({
       return baseStatuses[5].label; // "Đã hủy"
     }
     if (currentStatus === "RequestShipToCus") {
-      return "Yêu cầu giao hàng đến KH";
+      return "Yêu cầu giao lại hàng đến KH";
     }
     const currentStep = baseStatuses.find((s) => s.key === currentStatus);
     return currentStep?.label || currentStatus;
