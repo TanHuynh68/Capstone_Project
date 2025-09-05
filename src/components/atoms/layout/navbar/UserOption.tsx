@@ -12,6 +12,7 @@ import {
   Truck,
   Flag,
   Calendar,
+  Brush,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -51,7 +52,11 @@ const UserOption = () => {
           <Avatar className="h-10 w-10 cursor-pointer">
             <AvatarImage src={avatar} alt="User" />
             <AvatarFallback>
-              <User className="h-4 w-4" />
+              {user.role === ROLE.DESIGNER ? (
+                <Brush className="h-4 w-4" />
+              ) : (
+                  <User className="h-4 w-4" />
+              )}
             </AvatarFallback>
           </Avatar>
         </Button>

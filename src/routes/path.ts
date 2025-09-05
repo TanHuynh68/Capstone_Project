@@ -73,6 +73,8 @@ export enum STAFF_ROUTES {
   STAFF_GET_ORDER_DETAIL = "order-detail/:orderID",
   STAFF_GET_DELIVERIES = ":accountID/deliveries",
   STAFF_GET_DELIVERY_DETAIL = "delivery-detail/:deliveryID",
+  STAFF_GET_USER_DETAILS = ":accountID/details",
+  STAFF_GET_ORDERS = "orders",
 }
 
 export enum PATH {
@@ -109,6 +111,7 @@ export enum PATH {
   STAFF_ROUTES.STAFF_MANAGER_USERS,
 
   STAFF_DASHBOARD = STAFF_ROUTES.STAFF + "/" + STAFF_ROUTES.STAFF_DASHBOARD,
+  STAFF_GET_ORDERS = STAFF_ROUTES.STAFF + "/" + 'orders',
   STAFF_DASHBOARD_MANAGER_USERS = STAFF_ROUTES.STAFF +
   "/" +
   STAFF_ROUTES.STAFF_DASHBOARD +

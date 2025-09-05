@@ -147,6 +147,18 @@ const StaffService = () => {
     [callApi]
   );
 
+  const getInfoUserByStaff = useCallback(
+    async (values: any) => {
+      try {
+        const res = await callApi(HTTP_METHOD.GET, API_ROUTES.GET_INFO_USER_BY_STAFF, values);
+        return res;
+      } catch (err: any) {
+        toast.error(err?.response?.data || "Lấy thông tin người dùng thất bại.");
+      }
+    },
+    [callApi]
+  );
+
   return {
     getUserByStaff,
     changeActiveUserByStaff,
@@ -155,6 +167,7 @@ const StaffService = () => {
     getWalletOrderByStaff,
     putWalletWithdrawByStaff,
     getQRWithdrawByStaff,
+    getInfoUserByStaff,
     loading,
     setIsLoading,
   };

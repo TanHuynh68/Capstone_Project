@@ -78,6 +78,54 @@ const TexturePlane = forwardRef<THREE.Mesh, {
 
 TexturePlane.displayName = 'TexturePlane';
 
+// Network helpers: timeout + retry wrapper for fetch and GLB loading
+async function fetchWithTimeoutAndRetry(
+    input: RequestInfo | URL,
+    init?: (RequestInit & { timeoutMs?: number; retries?: number; backoffMs?: number })
+): Promise<Response> {
+    const timeoutMs = init?.timeoutMs ?? 120000; // 120s default
+    const retries = init?.retries ?? 2;
+    const backoffMs = init?.backoffMs ?? 1000;
+
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const response = await fetch(input, { ...init, signal: controller.signal });
+            clearTimeout(id);
+            return response;
+        } catch (err) {
+            clearTimeout(id);
+            lastError = err;
+            if (attempt < retries) {
+                await new Promise((r) => setTimeout(r, backoffMs * Math.pow(2, attempt)));
+                continue;
+            }
+            throw lastError;
+        }
+    }
+    // Should never reach here due to throw inside loop, but keep TS happy
+    throw new Error('fetchWithTimeoutAndRetry exhausted without returning');
+}
+
+async function loadGLBFromUrlWithTimeout(
+    url: string,
+    options?: { timeoutMs?: number; retries?: number; backoffMs?: number }
+): Promise<{ scene: THREE.Group }> {
+    const response = await fetchWithTimeoutAndRetry(url, {
+        timeoutMs: options?.timeoutMs ?? 120000,
+        retries: options?.retries ?? 2,
+        backoffMs: options?.backoffMs ?? 1000,
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const arrayBuffer = await response.arrayBuffer();
+    const loader = new GLTFLoader();
+    return await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
+        loader.parse(arrayBuffer, '', resolve, reject);
+    });
+}
+
 const DEFAULT_ANCHOR_POINTS = {
     head: { x: 0, y: -0.025, z: 0.275, label: "Đầu" },
     chest_belly: { x: 0, y: -0.195, z: -0.465, label: "Ngực + Bụng" },
@@ -808,8 +856,12 @@ export default function PlushDollDesign3D({
                                 setIsLoadingScene(true);
 
                                 try {
-                                    // 1. Fetch JSON data từ Cloudinary
-                                    const response = await fetch(canvas3DData.jsonUrl);
+                                    // 1. Fetch JSON data từ Cloudinary (with timeout + retry)
+                                    const response = await fetchWithTimeoutAndRetry(canvas3DData.jsonUrl, {
+                                        timeoutMs: 120000,
+                                        retries: 2,
+                                        backoffMs: 1000,
+                                    });
                                     if (!response.ok) {
                                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                                     }
@@ -978,9 +1030,12 @@ export default function PlushDollDesign3D({
             const uploadUrl = CLOUDINARY_CONFIG.getUploadUrl('raw');
             console.log("🌐 Upload URL:", uploadUrl);
 
-            const response = await fetch(uploadUrl, {
+            const response = await fetchWithTimeoutAndRetry(uploadUrl, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                timeoutMs: 180000,
+                retries: 2,
+                backoffMs: 1500,
             });
 
             const result = await response.json();
@@ -1203,11 +1258,8 @@ export default function PlushDollDesign3D({
         try {
             console.log("🔄 Đang load scene GLB từ:", sceneUrl);
 
-            // Load GLB file từ Cloudinary
-            const loader = new GLTFLoader();
-            const gltf = await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-                loader.load(sceneUrl, resolve, undefined, reject);
-            });
+            // Load GLB file từ Cloudinary (with timeout + retry)
+            const gltf = await loadGLBFromUrlWithTimeout(sceneUrl, { timeoutMs: 120000, retries: 2 });
 
             console.log("✅ GLB scene đã load thành công");
 
@@ -3594,8 +3646,12 @@ export default function PlushDollDesign3D({
                                     setIsLoadingScene(true);
 
                                     try {
-                                        // 1. Fetch JSON data từ Cloudinary
-                                        const response = await fetch(canvas3DData.jsonUrl);
+                                        // 1. Fetch JSON data từ Cloudinary (with timeout + retry)
+                                        const response = await fetchWithTimeoutAndRetry(canvas3DData.jsonUrl, {
+                                            timeoutMs: 120000,
+                                            retries: 2,
+                                            backoffMs: 1000,
+                                        });
                                         if (!response.ok) {
                                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                                         }
@@ -3627,11 +3683,8 @@ export default function PlushDollDesign3D({
                                     setIsLoadingScene(true);
 
                                     try {
-                                        // Load scene GLB từ Cloudinary
-                                        const loader = new GLTFLoader();
-                                        await new Promise<{ scene: THREE.Group }>((resolve, reject) => {
-                                            loader.load(targetUrl, resolve, undefined, reject);
-                                        });
+                                        // Load scene GLB từ Cloudinary (with timeout + retry)
+                                        await loadGLBFromUrlWithTimeout(targetUrl, { timeoutMs: 120000, retries: 2 });
 
                                         console.log("✅ Scene GLB đã tải thành công từ Cloudinary");
 

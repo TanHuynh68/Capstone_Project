@@ -7,12 +7,14 @@ import { ROLE } from "@/constants";
 import GetWalletTransaction from "@/pages/staff/manager-wallet-order/get-wallet-transaction/get-wallet-transaction";
 import {
   StaffDeliveryDetail,
+  StaffManageOrders,
   StaffManageOrdersUser,
   StaffManagePostsPage,
   StaffManageReportsPage,
   StaffMangeUserDeliveriesPage,
   StaffOrderDetailPage,
   StaffReportDetailPage,
+  StaffUserDetailsPage,
 } from "@/pages";
 
 export const staffRoutes = [
@@ -69,6 +71,14 @@ export const staffRoutes = [
       {
         path: STAFF_ROUTES.STAFF_GET_DELIVERY_DETAIL,
         element: <StaffDeliveryDetail />,
+      },
+      {
+        path: STAFF_ROUTES.STAFF_GET_USER_DETAILS,
+        element: <StaffUserDetailsPage />,
+      },
+      {
+        path: STAFF_ROUTES.STAFF_GET_ORDERS,
+        element: <StaffManageOrders />,
       },
     ],
   },

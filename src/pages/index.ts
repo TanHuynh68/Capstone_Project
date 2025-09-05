@@ -38,3 +38,5 @@ export { default as StaffManageOrdersUser } from "./staff/manage-users/manage-or
 export { default as StaffOrderDetailPage } from "./staff/manage-users/order-detail";
 export { default as StaffMangeUserDeliveriesPage } from "./staff/manage-users/manage-deliveries";
 export { default as StaffDeliveryDetail } from "./staff/manage-users/delivery-detail";
+export { default as StaffUserDetailsPage } from "./staff/manage-users/user-details";
+export { default as StaffManageOrders } from "./staff/manage-orders";

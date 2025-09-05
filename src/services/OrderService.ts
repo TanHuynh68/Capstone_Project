@@ -159,6 +159,33 @@ const OrderService = () => {
     [callApi]
   );
 
+  const staffGetOrdersUserSidebar = useCallback(
+    async ({
+      pageIndex = 1,
+      pageSize = 10,
+      status,
+    }: {
+      pageIndex?: number;
+      pageSize?: number;
+      status?: string | null;
+    }) => {
+      try {
+        let url = `${API_ROUTES.STAFF_GET_ORDERS}?page=${pageIndex}&size=${pageSize}`;
+
+        if (status && status !== "all") {
+          url += `&orderStatus=${status}`;
+        }
+
+        const res = await callApi(HTTP_METHOD.GET, url);
+        return res;
+      } catch (err: any) {
+        console.error(err?.response?.data || err);
+        throw err;
+      }
+    },
+    []
+  );
+
   const staffGetOrderDetail = useCallback(
     async (values: any) => {
       try {
@@ -183,7 +210,8 @@ const OrderService = () => {
     getOrderDeliveryValue,
     orderRefundPhase,
     staffGetOrdersUser,
-    staffGetOrderDetail
+    staffGetOrderDetail,
+    staffGetOrdersUserSidebar
   };
 };
 
